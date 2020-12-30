@@ -4,20 +4,20 @@ import { Query } from './query';
 import { PrimaryIndex, Table } from './table'
 import { TableRecord } from './table-record';
 import { getQueryFootprint, QueryEngine, QueryExecutor } from './quey-engine';
-import { Unsubcribe } from './table-watcher';
+import { Unsubcribe } from './table-record-change-emitter';
+import { OnQueryChange } from './query-change-emitter';
+import { isThrowStatement } from 'typescript';
 
 export class Database {
-    private _tables = new Map<string, Table>();
-    private _queries = new Map<string, QueryExecutor>();
-    private _queryEngine = new QueryEngine((tableName) => {
-        const table = this._tables.get(tableName);
+    private readonly _tables = new Map<string, Table>();
+    private readonly _queries = new Map<string, QueryExecutor>();
+    private readonly _queryEngine: QueryEngine;
 
-        if(table === undefined) {
-            throw new Error(`No such table ${tableName}`);
-        }
+    public constructor() {
+        this.getInternalTable = this.getInternalTable.bind(this);
+        this._queryEngine = new QueryEngine(this.getInternalTable);
+    }
 
-        return table;
-    })
 
     public query<T extends TableRecord>(query: Query): T[] {
         const queryFootprint = getQueryFootprint(query)
@@ -27,10 +27,10 @@ export class Database {
             return queryExecutor.execute() as T[];
         }
 
-        throw new Error('Direct execution not implemented')
+        return new QueryExecutor(query, this.getInternalTable).execute() as T[]
     }
 
-    public watchQuery(query: Query): Unsubcribe {
+    public watchQuery(query: Query, onChange: OnQueryChange): Unsubcribe {
         const queryFootprint = getQueryFootprint(query)
         let queryExecutor = this._queries.get(queryFootprint)
 
@@ -39,7 +39,12 @@ export class Database {
             this._queries.set(queryFootprint, queryExecutor)
         }
 
-        return queryExecutor.unsubscribe
+        const unsubscribe = queryExecutor.queryChangeEmitter.addQueryWatcher(onChange)
+        const records = queryExecutor.execute();
+
+        onChange(records)
+      
+        return unsubscribe
     }
 
     public addTable(tableName: string, primaryIndex?: PrimaryIndex): void {
@@ -57,5 +62,15 @@ export class Database {
         }
 
         return new DatabaseTable(table)
+    }
+
+    private getInternalTable(tableName: string) {
+        const table = this._tables.get(tableName);
+
+        if(table === undefined) {
+            throw new Error(`No such table ${tableName}`);
+        }
+
+        return table;
     }
 }

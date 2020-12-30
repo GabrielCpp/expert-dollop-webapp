@@ -21,7 +21,7 @@ describe('Table test', () => {
         ]
 
         table = new Table(initialData)
-        eventAccumulator = new TableTransaction();
+        eventAccumulator = new TableTransaction(table.tableEventEmitter);
     })
 
     test('Given table should primary keys be the id', () => {

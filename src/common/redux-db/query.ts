@@ -15,9 +15,25 @@ export interface QuerySort {
 
 export interface Query {
     fromTable: string;
-    where: FilterNode | [];
     joins: QueyrJoin[]
+    where: FilterNode | [];
     sort: QuerySort[]
+    projections: [string, string][]
     parameters: QueryParameter
 }
 
+export function ops(name: string, ...args: FilterNode[]): FilterNode {
+    return [name, args]
+}
+
+export function queryParam(name: string): FilterNode {
+    return [`:${name}`, []]
+}
+
+export function joinParam(name: string): FilterNode {
+    return [`.${name}`, []]
+}
+
+export function recordParam(name: string): FilterNode {
+    return [name, []]
+}

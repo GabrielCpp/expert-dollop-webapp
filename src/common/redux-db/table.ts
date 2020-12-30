@@ -1,8 +1,9 @@
-import { TableRecord, UniqueIndexKeyBuilder, PrimaryKey, getPk } from './table-record'
+import { TableRecord, UniqueIndexKeyBuilder, PrimaryKey, getPk, TableWatcher } from './table-record'
 import { TableTransaction } from './table-transaction';
-import { TableWatcher, Unsubcribe, WatchEvent } from './table-watcher';
+import { RecordChangeEmitter, Unsubcribe, WatchEvent } from './table-record-change-emitter';
+import { TableChangeEmitter } from './table-change-emitter';
 
-export class TableRecordDetails extends TableWatcher {
+export class TableRecordDetails extends RecordChangeEmitter {
     public value: TableRecord;
 
     public constructor(value: TableRecord) {
@@ -23,7 +24,7 @@ export class PrimaryIndex {
 }
 
 export class Table {
-    private tableWatcher = new TableWatcher();
+    private tableChangeEmitter = new TableChangeEmitter();
     private primaryIndex: PrimaryIndex;
 
     public constructor(
@@ -31,7 +32,11 @@ export class Table {
         primaryIndex: PrimaryIndex = new PrimaryIndex(getPk, 'id'),
     ) {
         this.primaryIndex = primaryIndex;
-        this.upsertMany(new TableTransaction(), records)
+        this.upsertMany(new TableTransaction(this.tableChangeEmitter), records)
+    }
+
+    public get tableEventEmitter(): TableChangeEmitter {
+        return this.tableChangeEmitter;
     }
 
     public get buildPk(): UniqueIndexKeyBuilder {
@@ -78,40 +83,38 @@ export class Table {
             if(recordDetails === undefined) {                
                 recordDetails = new TableRecordDetails(record);
                 this.primaryIndex.records.set(primaryKey, recordDetails);
-                eventCumulator.addTableAddEvent(this.tableWatcher, record)
+                eventCumulator.addRecordInsertEvent(recordDetails, record)
             }
             else {
                 const before = recordDetails.value;
                 recordDetails.value = record;
-                eventCumulator.addTableUpdateEvent(this.tableWatcher, before, record)
                 eventCumulator.addRecordUpdateEvent(recordDetails, before, record)
             }
         }
     }
 
-    public removeMany(eventCumulator: TableTransaction, records: TableRecord[]) {
-        this.removeManyByKey(eventCumulator, records.map(record => this.primaryIndex.buildKey(record)));
-    }
-
-    public removeManyByKey(eventCumulator: TableTransaction, primaryKeys: PrimaryKey[]) {
+    public removeMany(eventCumulator: TableTransaction, primaryKeys: PrimaryKey[]) {
         for(const primaryKey of primaryKeys) {
             let recordDetails = this.primaryIndex.records.get(primaryKey)
 
             if(recordDetails !== undefined) {       
                 this.primaryIndex.records.delete(primaryKey);
-                eventCumulator.addTableRemoveEvent(this.tableWatcher, recordDetails.value)
                 eventCumulator.addRecordRemoveEvent(recordDetails, recordDetails.value)         
             }
         }
     }
 
+    public truncate(eventCumulator: TableTransaction) {
+        for(const recordDetails of this.primaryIndex.records.values()) {
+            eventCumulator.addRecordRemoveEvent(recordDetails, recordDetails.value)   
+        }
+
+        this.primaryIndex.records.clear()
+    }
+
     public watchRecord(primaryKey: string, events: WatchEvent): Unsubcribe {
         const recordDetails = this.getRecord(primaryKey);
         return recordDetails.watchEvents(events);
-    }
-
-    public watchTable(events: WatchEvent): Unsubcribe {
-        return this.tableWatcher.watchEvents(events);
     }
 
     public getRecord(primaryKey: PrimaryKey): TableRecordDetails {
