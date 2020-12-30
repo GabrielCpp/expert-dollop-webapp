@@ -3,10 +3,9 @@ import { DatabaseTable } from './database-table';
 import { Query } from './query';
 import { PrimaryIndex, Table } from './table'
 import { TableRecord } from './table-record';
-import { getQueryFootprint, QueryEngine, QueryExecutor } from './quey-engine';
+import { getQueryFootprint, QueryEngine, QueryExecutor } from './query-engine';
 import { Unsubcribe } from './table-record-change-emitter';
 import { OnQueryChange } from './query-change-emitter';
-import { isThrowStatement } from 'typescript';
 
 export class Database {
     private readonly _tables = new Map<string, Table>();

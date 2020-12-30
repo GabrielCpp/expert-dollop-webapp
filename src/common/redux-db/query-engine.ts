@@ -29,7 +29,7 @@ function _or(...values: boolean[]): boolean {
     return values.reduce((previousValue: boolean, currentValue: boolean) => previousValue || currentValue, false)
 }
 
-const operators: Record<string, Operator> = {
+export const operators: Record<string, Operator> = {
     "eq": eq,
     "lt": lt,
     "lte": lte,
