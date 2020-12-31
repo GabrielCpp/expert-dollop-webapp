@@ -1,18 +1,27 @@
-import React, { useMemo } from 'react'
-import { useTableItemProvider } from '../redux-db'
-import { useInject } from '../container-context'
+import React, { useRef, useState } from 'react'
+import { useContainer, useInject } from '../common/container-context'
 import { useTranslation } from "react-i18next";
-import { ExpandMore as ExpandMoreIcon} from '@material-ui/icons';
+import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import { AccordionDetails, FormControlLabel, Checkbox, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core';
 import { Accordion, AccordionSummary, Typography, TextField } from '@material-ui/core';
 import { ErrorObject, JSONSchemaType } from 'ajv'
-import { AJV_CUSTOM_ERROR, AjvFactory } from '../services'
+import { AJV_CUSTOM_ERROR, AjvFactory, ProjectContainerDefinitionService } from '../services'
 import { MouseOverPopover, MouseOverPopoverProps } from './mouse-over-popover'
+import { useTableQuery, useTableRecord } from '../common/query-hook';
+import { v4 as uuidv4 } from 'uuid';
+import { interfaces } from 'inversify';
+import { ProjectDefinitionService } from '../services/api/project-definition-service';
+import { TableRecord } from '../common/redux-db/table-record';
+import { Database } from '../common/redux-db/database';
+import { noop } from 'lodash';
+import { ProjectDefinition } from '../models';
+import { ProjectContainerDefinition } from '../models/project-container.definition';
+import { concatAll } from '../common/async-cursor';
+import { QueryBuilder } from '../common/redux-db/query-builder';
 
 export interface FormFieldProps {
     name: string;
     fieldTableName: string;
-    errorTableName: string;
     label: string;
     popover: Omit<MouseOverPopoverProps, 'children' | 'name'>;
     defaultValue: string;
@@ -20,33 +29,59 @@ export interface FormFieldProps {
     cast: (p: string) => unknown;
 }
 
-interface ErrorTable {
-    name: string;
+interface FormField {
+    id: string;
+    value: unknown;
     errors: ErrorObject<string, Record<string, any>, unknown>[]
 }
 
-export function FormField({ name, fieldTableName, errorTableName, defaultValue, jsonSchemaValidator, label, popover, cast }: FormFieldProps) {
+function createEmptyFormField(defaultValue: string) {
+    return {
+        id: uuidv4(),
+        value: defaultValue,
+        errors: []
+    };
+}
+
+function useRefResult<T>(fn: (...p: any[]) => T, ...p: unknown[]): T {
+    const value = useRef<T | undefined>(undefined);
+
+    if(value.current === undefined) {
+        value.current = fn(...p);
+    }
+
+    return value.current
+}
+
+export function TextBox({ name, fieldTableName, defaultValue, jsonSchemaValidator, label, popover, cast }: FormFieldProps) {
     const { t } = useTranslation();
-    const [item, updateItem, updateLocalItem] = useTableItemProvider<Record<string, unknown>>(fieldTableName, name)
-    const [fieldError, setErrors] = useTableItemProvider<ErrorTable>(errorTableName, name)
+    const defaultInstance = useRefResult(createEmptyFormField, defaultValue)
+    const [item, updateItem, updateLocalItem] = useTableRecord<FormField>(fieldTableName, name, defaultInstance)
     const validate = useInject<AjvFactory>(AJV_CUSTOM_ERROR).forSchema(jsonSchemaValidator)
 
     function onValueChange(e: any) {
         validate(e.target.value)
-        setErrors({...fieldError, errors: validate.errors || []})
     
         if(validate.errors) {            
             updateLocalItem({
+                ...defaultInstance,
                 ...item,
-                value: e.target.value
+                value: e.target.value,
+                errors: validate.errors
             })
         }
         else {
             updateItem({
+                ...defaultInstance,
                 ...item,
-                value: cast(e.target.value)
+                value: cast(e.target.value),
+                errors: []
             })   
         }
+    }
+
+    if(item === undefined) {
+        return null;
     }
 
     return (
@@ -63,8 +98,8 @@ export function FormField({ name, fieldTableName, errorTableName, defaultValue, 
             }
             id={name} value={item.value === undefined  ? defaultValue : item.value} 
             onChange={onValueChange} 
-            helperText={fieldError?.errors?.map(e => e.message)}
-            error={fieldError?.errors?.length > 0}
+            helperText={item?.errors?.map(e => e.message)}
+            error={item?.errors?.length > 0}
         />
     )
 }
@@ -78,7 +113,7 @@ export interface FormFieldCheckboxProps {
 
 export function FormFieldCheckbox({ fieldTableName, name, label, popover }: FormFieldCheckboxProps) {
     const { t } = useTranslation();
-    const [state, setState] = useTableItemProvider<Record<string, unknown>>(fieldTableName, name)
+    const [state, setState] = useTableRecord<Record<string, unknown>>(fieldTableName, name)
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setState({ ...state, id: name, value: Boolean(event.target.checked) });
@@ -120,7 +155,7 @@ export interface FormFieldRadioProps {
 
 export function FormFieldRadio({ fieldTableName, legend, name, options }: FormFieldRadioProps ) {
     const { t } = useTranslation();
-    const [value, setValue] = useTableItemProvider<Record<string, unknown>>(fieldTableName, name)
+    const [value, setValue] = useTableRecord<Record<string, unknown>>(fieldTableName, name)
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setValue({ id: name, value: (event.target as HTMLInputElement).value });
@@ -191,3 +226,89 @@ export function FieldGroupForm({ groups }: FieldGroupFormProps) {
     )
 }
 
+interface TableProvider {
+    service: interfaces.ServiceIdentifier<unknown>;
+    fetch(p: any): Promise<TableRecord[]>
+
+}
+
+function useTableProvider(tableProviders: Record<string, TableProvider>, onSuccess: () => void=noop) {
+    const container = useContainer();
+    const [isLoading, setIsLoading] = useState(true);
+    const [errors, setErrors] = useState<Error[]>([]);
+    const isInitialized = useRef(false);
+
+    if(isInitialized.current === false) {
+        isInitialized.current = true;
+
+        const tableNames: string[] = []
+        const promises: Promise<TableRecord[]>[] = []
+
+        for(const [ tableName, provider ] of Object.entries(tableProviders)) {
+            const service = container.get(provider.service)
+
+            tableNames.push(tableName)
+            promises.push(provider.fetch(service))            
+        }
+
+        const database = container.get(Database);
+        Promise.all(promises).then(results => results.forEach(((resultset, index) => {
+            const tableName = tableNames[index];
+            database.getTable(tableName).upsertMany(resultset)
+        }))).then(_ => {
+            setIsLoading(false)
+            onSuccess()
+        }).catch(reason => {
+            setErrors([reason as Error])
+        })
+    }
+
+    return { isLoading, errors }
+}
+
+interface ProjectDefinitionEditorProps {
+    projectDefinitionId: string
+}
+
+
+const query = QueryBuilder
+    .fromTable("project-container-definition-table")
+    .binding;
+
+
+
+// GET /api/project_definition/<projectDefinitionId>
+// GET /api/project_definition_container/<projectDefinitionId>
+export function ProjectDefinitionEditor({ projectDefinitionId }: ProjectDefinitionEditorProps) {
+    const { isLoading, errors } = useTableProvider({
+        "project-definition-table": {
+            service: ProjectDefinitionService,
+            async fetch(x: ProjectDefinitionService): Promise<ProjectDefinition[]> {
+                return [await x.getProjectDefinition(projectDefinitionId)]
+            }
+        },
+        "project-container-definition-table": {
+            service: ProjectDefinitionService,
+            async fetch(x: ProjectContainerDefinitionService): Promise<ProjectContainerDefinition[]> {
+                return await concatAll(x.getProjectContainerDefinitions(projectDefinitionId))
+            }
+        }
+    })
+
+    const results = useTableQuery<ProjectContainerDefinition>(query({
+        projectDefinitionId
+    }))
+
+    if(isLoading) return (<span>{'Loading..'}</span>)
+    if(errors.length > 0) return (<span>{errors}</span>)
+
+    return (
+        <ul>
+            {results.map(r => (
+                <li>
+                    {r.id}
+                </li>
+            ))}
+        </ul>
+    )
+} 

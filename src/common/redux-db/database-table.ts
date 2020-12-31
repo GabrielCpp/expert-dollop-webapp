@@ -1,5 +1,5 @@
 import { PrimaryKey, TableRecord } from './table-record';
-import { Unsubcribe, WatchEvent } from './table-record-change-emitter';
+import { Unsubscribe, WatchEvent } from './table-record-change-emitter';
 import { TableTransaction } from './table-transaction';
 import { Table } from './table';
 import { OnTableChange } from './table-change-emitter';
@@ -49,11 +49,11 @@ export class DatabaseTable {
         return this._table.getRecord(primaryKey).value as T;
     }
 
-    public watchRecord(primaryKey: string, events: WatchEvent): Unsubcribe {
+    public watchRecord(primaryKey: string, events: WatchEvent): Unsubscribe {
         return this._table.watchRecord(primaryKey, events)
     }
 
-    public watchTable(onTableChange: OnTableChange): Unsubcribe {
+    public watchTable(onTableChange: OnTableChange): Unsubscribe {
         return this._table.tableEventEmitter.addOnCommitSubscriber(onTableChange)
     }
 }

@@ -4,7 +4,7 @@ import { Query } from './query';
 import { PrimaryIndex, Table } from './table'
 import { TableRecord } from './table-record';
 import { getQueryFootprint, QueryEngine, QueryExecutor } from './query-engine';
-import { Unsubcribe } from './table-record-change-emitter';
+import { Unsubscribe } from './table-record-change-emitter';
 import { OnQueryChange } from './query-change-emitter';
 
 export class Database {
@@ -29,7 +29,7 @@ export class Database {
         return new QueryExecutor(query, this.getInternalTable).execute() as T[]
     }
 
-    public watchQuery(query: Query, onChange: OnQueryChange): Unsubcribe {
+    public watchQuery<T>(query: Query, onChange: OnQueryChange<T>): [T[], Unsubscribe] {
         const queryFootprint = getQueryFootprint(query)
         let queryExecutor = this._queries.get(queryFootprint)
 
@@ -39,11 +39,9 @@ export class Database {
         }
 
         const unsubscribe = queryExecutor.queryChangeEmitter.addQueryWatcher(onChange)
-        const records = queryExecutor.execute();
-
-        onChange(records)
+        const records = queryExecutor.execute() as T[];
       
-        return unsubscribe
+        return [records, unsubscribe]
     }
 
     public addTable(tableName: string, primaryIndex?: PrimaryIndex): void {

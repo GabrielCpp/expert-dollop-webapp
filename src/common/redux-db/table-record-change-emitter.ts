@@ -4,7 +4,7 @@ import {
     TableRecord, UPDATE_EVENT, RecordWatcher
 } from "./table-record";
 
-export type Unsubcribe = () => void;
+export type Unsubscribe = () => void;
 
 export interface WatchEvent {
     onUpdate?: OnRecordUpdate;
@@ -45,7 +45,7 @@ export class RecordChangeEmitter implements RecordWatcher {
         return this.eventEmitter.addListener(INSERT_EVENT, callback)
     }
 
-    public watchEvents({onUpdate, onInsert, onRemove}: WatchEvent): Unsubcribe {
+    public watchEvents({onUpdate, onInsert, onRemove}: WatchEvent): Unsubscribe {
         const subcriptions: EventSubscription[] = []
 
         if(onUpdate !== undefined) {

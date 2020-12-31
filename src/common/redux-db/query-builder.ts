@@ -8,7 +8,7 @@ export class QueryBuilder {
         const query: Query= {
             fromTable: tableName,
             joins: [],
-            parameters: new Map<string, unknown>(),
+            parameters: {},
             projections: [],
             sort: [],
             where: []
@@ -21,11 +21,18 @@ export class QueryBuilder {
         this.query = query;
     }
 
-    public bindParameters(parameters: Record<string, unknown>) {
-        for(const [key, value] of Object.entries(parameters)) {
-            this.query.parameters.set(key, value)
-        } 
+    public get binding() {
+        return (parameters: Record<string, unknown>): Query => ({
+            ...this.query,
+            parameters: {
+                ...this.query.parameters,
+                ...parameters
+            }
+        });
+    }
 
+    public bindParameters(parameters: Record<string, unknown>) {
+        this.query.parameters = parameters;
         return this;
     }
 

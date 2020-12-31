@@ -1,3 +1,4 @@
+import { noop } from 'lodash';
 import { Database } from './database'
 import { ops, queryParam, recordParam } from './query';
 import { QueryBuilder } from './query-builder';
@@ -23,24 +24,15 @@ describe('Database', () => {
         database.getTable('todo').upsertMany(initialTodos as TableRecord[])
     })
 
-    test('given todos should query everything', (done) => {
-        function onChange(records: TableRecord[]) {
-            expect(records).toEqual(initialTodos);
-            done();
-        }
+    test('given todos should query everything', () => {
+        const [records] = database.watchQuery(QueryBuilder.fromTable('todo').query, noop)
 
-        database.watchQuery(QueryBuilder.fromTable('todo').query, onChange)
+        expect(records).toEqual(initialTodos);
     })
 
-    test('given todos query with predicate should filter results', (done) => {
+    test('given todos query with predicate should filter results', () => {
         const expectedResult = { id: "2", description: "I must do B" };
-
-        function onChange(records: TableRecord[]) {
-            expect(records).toEqual([expectedResult]);
-            done();
-        }
-
-        database.watchQuery(
+        const [records] = database.watchQuery(
             QueryBuilder.fromTable('todo')
             .where(ops("$eq", 
                 ops("$number", recordParam("id")),
@@ -50,7 +42,9 @@ describe('Database', () => {
                 "id": 2
             })
             .query, 
-            onChange
+            noop
         )
+
+        expect(records).toEqual([expectedResult]);
     })
 })

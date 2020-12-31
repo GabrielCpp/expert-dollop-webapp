@@ -1,6 +1,6 @@
 import { TableRecord, UniqueIndexKeyBuilder, PrimaryKey, getPk, TableWatcher } from './table-record'
 import { TableTransaction } from './table-transaction';
-import { RecordChangeEmitter, Unsubcribe, WatchEvent } from './table-record-change-emitter';
+import { RecordChangeEmitter, Unsubscribe, WatchEvent } from './table-record-change-emitter';
 import { TableChangeEmitter } from './table-change-emitter';
 
 export class TableRecordDetails extends RecordChangeEmitter {
@@ -112,7 +112,7 @@ export class Table {
         this.primaryIndex.records.clear()
     }
 
-    public watchRecord(primaryKey: string, events: WatchEvent): Unsubcribe {
+    public watchRecord(primaryKey: string, events: WatchEvent): Unsubscribe {
         const recordDetails = this.getRecord(primaryKey);
         return recordDetails.watchEvents(events);
     }

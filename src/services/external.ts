@@ -1,0 +1,1 @@
+export const AXIOS_SERVICE = Symbol.for('axios');

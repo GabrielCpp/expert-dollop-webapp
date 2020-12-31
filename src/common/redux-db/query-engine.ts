@@ -1,9 +1,9 @@
-import { eq, lt, lte, gt, gte, startsWith, stubTrue, noop, update, head, get, isNumber, isString, isBoolean, isDate, set } from 'lodash'
-import { Query, FilterNode, QueryParameter, QuerySort } from './query';
+import { eq, lt, lte, gt, gte, startsWith, stubTrue, noop, head, get, isNumber, isString, isBoolean, isDate, set } from 'lodash'
+import { Query, FilterNode, QuerySort } from './query';
 import { Table } from './table';
 import { PrimaryKey, TableRecord } from './table-record';
 import CryptoJS, { SHA256 } from 'crypto-js';
-import { Unsubcribe } from './table-record-change-emitter';
+import { Unsubscribe } from './table-record-change-emitter';
 import { QueryChangeEmitter } from './query-change-emitter';
 
 export type Operator = (...p: unknown[]) => unknown;
@@ -46,7 +46,7 @@ export const operators: Record<string, Operator> = {
     "head": head as Operator,
 };
 
-function buildPredicate(parameters: QueryParameter, filter: FilterNode | []): RecordPredicate {
+function buildPredicate(parameters: Record<string, unknown>, filter: FilterNode | []): RecordPredicate {
     function evalTree(record: TableRecord, otherRecord: TableRecord , filter: FilterNode): unknown {
         const [ name, children] = filter
         const prefix = head(name);
@@ -63,11 +63,11 @@ function buildPredicate(parameters: QueryParameter, filter: FilterNode | []): Re
             return operator(...args)
         }
         else if(prefix === ':') {
-              if(!parameters.has(identifier)) {
+              if(!parameters.hasOwnProperty(identifier)) {
                 throw new Error(`No parameter named`)
             }
             
-            return parameters.get(identifier)
+            return parameters[identifier]
         }
         else if(prefix === '.') {
             return  get(otherRecord, identifier);
@@ -119,7 +119,7 @@ export class QueryExecutor {
     private query: Query;
     private getTable: GetTable;
     private layers: Layer[] = [];
-    public unsubscribe: Unsubcribe = noop;
+    public unsubscribe: Unsubscribe = noop;
     public queryChangeEmitter = new QueryChangeEmitter();
     public isLessThanFn = (a: unknown, b: unknown) => {
         if(isNumber(a) && isNumber(b)) {

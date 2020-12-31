@@ -1,36 +1,11 @@
 import React from 'react';
-import { DatabaseContext, createDb } from './redux-db'
-import { ContainerContext, container } from './container-context'
-import { FormField, FormFieldProps, FieldGroupForm, FieldGroupFormProps, FormFieldCheckbox, FormFieldCheckboxProps } from './components'
+import { ContainerContext, container } from './common/container-context'
+import { ProjectDefinitionEditor } from './components'
 
-
-
-const db = createDb({
-    'todo': {
-        getPkKey: e => e.id,
-        views: {},
-        defaultData: [
-            { id: 'dkpms', description: 'Test'}
-        ],
-    },
-    'form-field': {
-        getPkKey: e => e.name,
-        views: {},
-        defaultData: [
-            { name: 'dkpms', description: 'Test'}
-        ],
-    },
-    'form-field-error': {
-        getPkKey: e => e.name,
-        views: {},
-        defaultData: [],
-    }
-})
-
+/*
 const formDesign: FormFieldProps = {
     name: 'dkpms',
     fieldTableName: 'form-field',
-    errorTableName: 'form-field-error',
     label: "Length of the Triangle",
     popover: {
         text: "An very very very very very long \nhelpful text",
@@ -67,17 +42,13 @@ const formGroups: FieldGroupFormProps = {
     ]
 }
 
-
+*/
 function App() {
   return (
       <ContainerContext.Provider value={container}>
-        <DatabaseContext.Provider value = {db}>
-            <div className="App">
-                <FieldGroupForm {...formGroups}></FieldGroupForm>
-                <FormField {...formDesign}></FormField>
-                <FormFieldCheckbox {...checkboxProps}></FormFieldCheckbox>
-            </div>
-        </DatabaseContext.Provider>
+        <div className="App">
+            <ProjectDefinitionEditor projectDefinitionId="68fa00aa-e552-4e97-9748-686003cf6172"/>
+        </div>
       </ContainerContext.Provider>
   );
 }

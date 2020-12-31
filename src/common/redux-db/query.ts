@@ -1,5 +1,4 @@
 
-export type QueryParameter = Map<string, unknown>
 export type FilterNode = [string, FilterNode[]]
 
 export interface QueyrJoin {
@@ -19,7 +18,7 @@ export interface Query {
     where: FilterNode | [];
     sort: QuerySort[]
     projections: [string, string][]
-    parameters: QueryParameter
+    parameters: Record<string, unknown>
 }
 
 export function ops(name: string, ...args: FilterNode[]): FilterNode {
