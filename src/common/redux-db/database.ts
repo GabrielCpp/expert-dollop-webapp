@@ -7,7 +7,7 @@ import { getQueryFootprint, QueryEngine, QueryExecutor } from './query-engine';
 import { Unsubscribe } from './table-record-change-emitter';
 import { OnQueryChange } from './query-change-emitter';
 
-export class Database {
+export class ReduxDatabase {
     private readonly _tables = new Map<string, Table>();
     private readonly _queries = new Map<string, QueryExecutor>();
     private readonly _queryEngine: QueryEngine;

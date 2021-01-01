@@ -14,13 +14,8 @@ export function useInject<T>(id: interfaces.ServiceIdentifier<T> ) {
     return createObj();
 }
 
-export function injection(x: any, ...p: any[]): any {
-    const result = injectable()(x)
-
-    for(const index in p) {
-        const target = p[index]
-        inject(target)(x.constructor, undefined as any, 0)
-    }   
-
-    return result;
+export function injectClass(Class: any, ...parameters: any[]): any {
+    const x = injectable()(Class)
+    parameters.forEach((p, i) => inject(p)(Class, undefined as any, i))
+    return x
 }

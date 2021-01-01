@@ -1,9 +1,9 @@
-import { PrimaryKey, TableRecord } from "../redux-db/table-record";
-import { Query } from '../redux-db/query';
 import { useEffect, useRef, useState } from "react";
-import { useInject } from "../container-context";
-import { Database, Unsubscribe } from '../redux-db';
 import { noop } from "lodash";
+import { interfaces } from 'inversify'
+import { PrimaryKey, TableRecord, Query, Database, Unsubscribe  } from "../redux-db";
+import { useInject, useContainer } from "../container-context";
+import { ReduxDatabase } from "../redux-db/database";
 
 export type UpdateTableRecord<T> = (tableRecord: T) => void;
 
@@ -60,3 +60,42 @@ export function useTableQuery<T>(query: Query): T[] {
     return results
 }
 
+export interface TableProvider {
+    service: interfaces.ServiceIdentifier<unknown>;
+    fetch(p: any): Promise<TableRecord[]>
+}
+
+export function useTableProvider(tableProviders: Record<string, TableProvider>, onSuccess: () => void=noop) {
+    const container = useContainer();
+    const [isLoading, setIsLoading] = useState(true);
+    const [errors, setErrors] = useState<Error[]>([]);
+    const isInitialized = useRef(false);
+
+    if(isInitialized.current === false) {
+        isInitialized.current = true;
+
+        const tableNames: string[] = []
+        const promises: Promise<TableRecord[]>[] = []
+
+        for(const [ tableName, provider ] of Object.entries(tableProviders)) {
+            const service = container.get(provider.service)
+
+            tableNames.push(tableName)
+            promises.push(provider.fetch(service))            
+        }
+
+        const database = container.get(ReduxDatabase);
+        Promise.all(promises).then(results => results.forEach(((resultset, index) => {
+            const tableName = tableNames[index];
+            database.getTable(tableName).upsertMany(resultset)
+        }))).then(_ => {
+            setIsLoading(false)
+            onSuccess()
+        }).catch(reason => {
+            setIsLoading(false)
+            setErrors([reason as Error])
+        })
+    }
+
+    return { isLoading, errors }
+}

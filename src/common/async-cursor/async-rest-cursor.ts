@@ -26,11 +26,11 @@ export  class AsyncRestCursor<T> implements AsyncCursor<T[]> {
         }
 
         const result = await this.axios.get(this.buildUrl(this.nextPageToken, this.limit))
-        const newData = JSON.parse(result.data) as T[]
+        const newData = result.data
         const lastHasNext = this.hasNext;
         this.nextPageToken = result.headers[this.nextPageTokenHeader];
 
-        this.hasNext = this.nextPageToken === undefined || newData.length < this._data.length;
+        this.hasNext = this.nextPageToken === undefined || newData.length < this._data.length ? false : true;
         this._data = newData
 
         return lastHasNext;

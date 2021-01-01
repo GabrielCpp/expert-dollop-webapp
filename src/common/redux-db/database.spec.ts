@@ -1,5 +1,5 @@
 import { noop } from 'lodash';
-import { Database } from './database'
+import { ReduxDatabase } from './database'
 import { ops, queryParam, recordParam } from './query';
 import { QueryBuilder } from './query-builder';
 import { TableRecord } from './table-record';
@@ -10,7 +10,7 @@ interface Todo extends TableRecord {
 }
 
 describe('Database', () => {
-    let database: Database;
+    let database: ReduxDatabase;
     let initialTodos: Todo[]
 
     beforeEach(() => {
@@ -20,7 +20,7 @@ describe('Database', () => {
             { id: "3", description: "I must do C" }
         ]
 
-        database = new Database();
+        database = new ReduxDatabase();
         database.getTable('todo').upsertMany(initialTodos as TableRecord[])
     })
 
