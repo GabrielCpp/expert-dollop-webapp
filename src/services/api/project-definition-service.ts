@@ -1,13 +1,10 @@
 import { AxiosInstance } from 'axios';
-import { inject, injectable } from 'inversify';
 import { ProjectDefinition } from '../../models';
-import { AXIOS_SERVICE } from '../external';
 
-@injectable()
 export class ProjectDefinitionService {
     private axios: AxiosInstance;
 
-    public constructor(@inject(AXIOS_SERVICE) axios: AxiosInstance) {
+    public constructor(axios: AxiosInstance) {
         this.axios = axios;
     }
 

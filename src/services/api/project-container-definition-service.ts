@@ -1,14 +1,11 @@
 import { AxiosInstance } from 'axios';
-import { inject, injectable } from 'inversify';
 import { AsyncCursor, AsyncRestCursor, buildRelativeUrl } from '../../common/async-cursor';
 import { ProjectContainerDefinition } from '../../models';
-import { AXIOS_SERVICE } from '../external';
 
-@injectable()
 export class ProjectContainerDefinitionService {
     private axios: AxiosInstance;
 
-    public constructor(@inject(AXIOS_SERVICE) axios: AxiosInstance) {
+    public constructor(axios: AxiosInstance) {
         this.axios = axios;
     }
 
