@@ -1,23 +1,37 @@
-import React from 'react'
-import { Button, ListItemText, List, ListItem, Grid } from '@material-ui/core';
-import { ProjectContainerDefinition } from '../../models/project-container.definition';
+import React, { useEffect } from 'react'
+import { Button, Grid } from '@material-ui/core';
+import { Link, useParams } from 'react-router-dom'
+import { ProjectContainerDefinition, ProjectContainerDefinitionRoot, ProjectContainerDefinitionTree } from '../../models';
 import { QueryBuilder } from '../../common/redux-db/query-builder';
-import { Link, RouteComponentProps } from '@reach/router'
 import { useTableQuery } from '../../common/query-hook';
+import { ops, recordParam, queryParam } from '../../common/redux-db';
+import { SidePanel } from './side-panel'
+import { head, noop } from 'lodash';
+import { FormDefinitionEditor } from './form-definition-editor';
 
 
 const query = QueryBuilder
     .fromTable("project_container_definition")
+    .where(ops("eq", recordParam("projectDefId"), queryParam("projectDefinitionId")))
     .binding;
 
-export interface EditorLayoutProps extends RouteComponentProps {
+interface EditorUrlParams {
     projectDefinitionId: string
+    selectedPath: string;
 }
 
-export function EditorLayout({ projectDefinitionId }: EditorLayoutProps) {
-    const containers = useTableQuery<ProjectContainerDefinition>(query({
+export function EditorLayout() {
+    const { projectDefinitionId, selectedPath }= useParams<EditorUrlParams>();
+    const projectContainerDefinitionRoot = useTableQuery<ProjectContainerDefinition, ProjectContainerDefinitionRoot>(query({
         projectDefinitionId
-    }))
+    }), buildDisplayTree)
+
+    const currentTreePath = (selectedPath || '').trim().split('~').filter(x => x !== '')
+    const [ firstNode, secondNode, thirdNode ] = pickPath(projectContainerDefinitionRoot, currentTreePath, 3);
+    const buildLink = buildLinkFor(projectDefinitionId);
+
+
+    useEffect(noop);
 
     return (
         <Grid
@@ -25,21 +39,124 @@ export function EditorLayout({ projectDefinitionId }: EditorLayoutProps) {
             direction="row"
             justify="flex-start"
             alignItems="flex-start"
+            spacing={4}
         >
-            <Grid container item xs={12} spacing={2} justify="flex-start" alignItems="flex-start">
-                {containers.filter(c => c.path.length === 0).map(c => (
-                    <Button component={Link} to="/custom" color="primary">
-                        {c.name}
-                    </Button>
-                ))}
-            </Grid>
-            <Grid container item xs={4}  justify="flex-start" alignItems="flex-start">
-                <List>
-                    <ListItem button>
-                        <ListItemText primary="Trash"  />
-                    </ListItem>
-                </List>
+            {firstNode && <SidePanel 
+                buildLink={buildLink} 
+                topLayerNode={firstNode} 
+                selectedNodeFirstLayer={secondNode.id} 
+                selectedNodeSecondLayer={thirdNode.id}/> 
+            }   
+            <Grid item xs={9}>
+                <Grid item xs={12}>
+                    {projectContainerDefinitionRoot.children.map(c => (
+                        <Button key={c.name} component={Link} to={buildLink(c.id)} color="primary">
+                            {c.name}
+                        </Button>
+                    ))}
+                </Grid>
+                <Grid item xs={12}>
+                    <FormDefinitionEditor formNode={thirdNode}></FormDefinitionEditor>
+                </Grid>
             </Grid>
         </Grid>
     )
+}
+
+function buildLinkFor(projectDefinitionId: string) {
+    return (...path: string[]) => {
+        const selectedPath = encodeURI(`~${path.join('~')}`);
+        return `/project_definition_editor/${projectDefinitionId}/${selectedPath}`
+    }
+}
+
+function pickPath(projectContainerDefinitionRoot: ProjectContainerDefinitionRoot, selectedPath: string[], depth: number): ProjectContainerDefinitionTree[] {
+    const nodes: ProjectContainerDefinitionTree[] = [];
+    let childrenIndex: Map<string, ProjectContainerDefinitionTree> = projectContainerDefinitionRoot.childrenIndex;
+    let children: ProjectContainerDefinitionTree[] = projectContainerDefinitionRoot.children
+
+    for(let index = 0; index < depth; index++) {
+        const node = childrenIndex.get(selectedPath[index]) || head(children)
+
+        if(node === undefined) {
+            break;
+        }
+
+        nodes.push(node);
+        childrenIndex = node.childrenIndex;
+        children = node.children;
+    }
+
+    return nodes;
+}
+
+
+interface DisplayTree {
+    node?: ProjectContainerDefinition
+    children: Map<string, DisplayTree>
+}
+
+function createDisplayTree(node?: ProjectContainerDefinition): DisplayTree{
+    return {
+        node,
+        children: new Map<string, DisplayTree>()
+    }
+}
+
+function projectTree(root: DisplayTree): ProjectContainerDefinitionRoot {
+    function projectSubTree(node: DisplayTree): ProjectContainerDefinitionTree {
+        const children: ProjectContainerDefinitionTree[] = []
+
+        for(const child of node.children.values()) {
+            children.push(projectSubTree(child));
+        }
+
+        if(node.node === undefined) {
+            throw new Error(`Empty Node`)
+        }
+
+        return {
+            ...node.node,
+            children,
+            childrenIndex: new Map<string, ProjectContainerDefinitionTree>(children.map(c => [c.id, c]))
+        }
+    }
+
+    const roots: ProjectContainerDefinitionTree[] = []
+
+    for(const node of root.children.values()) {
+        roots.push(projectSubTree(node));
+    }
+
+    return {
+        children: roots,
+        childrenIndex: new Map<string, ProjectContainerDefinitionTree>(roots.map(c => [c.id, c]))
+    };
+}
+
+function buildDisplayTree(containers: ProjectContainerDefinition[]): ProjectContainerDefinitionRoot {
+    const projectRoot: DisplayTree = createDisplayTree()
+
+    for(const container of containers) {
+        let containerRoot = projectRoot;
+
+        for(const nodeId of container.path) {
+            let subContainer = containerRoot.children.get(nodeId);
+
+            if(subContainer === undefined) {
+                subContainer = {
+                    children: new Map<string, DisplayTree>()
+                }
+
+                containerRoot.children.set(nodeId, subContainer);
+            }
+
+            containerRoot = subContainer;
+        }
+
+        containerRoot.children.set(container.id, createDisplayTree(container))
+
+    }
+
+    return projectTree(projectRoot);
 }

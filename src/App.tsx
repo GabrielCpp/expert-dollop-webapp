@@ -43,22 +43,27 @@ const formGroups: FieldGroupFormProps = {
 }
 
 */
-import { Link, Router, RouteComponentProps} from '@reach/router';
+import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { Dashboard } from './components/dashboard';
-const Home = (_: RouteComponentProps) => <Link to="/project_definition_editor/a3b082e5-6253-4c2d-8daf-3eba1fa05416">{'Go to editor'}</Link>
+const Home = () => <Link to="/project_definition_editor/f97cfe6e-b97d-4b98-80c6-a214851f285c/~">{'Go to editor'}</Link>
 
 function App() {
   return (
       <ContainerContext.Provider value={container}>
-        <div className="App">
-        <Dashboard>
-            <Router>
-                <Home path="/" />
-                <ProjectDefinitionEditor path="/project_definition_editor/:projectDefinitionId" />
-            </Router>
-        </Dashboard>
-
-        </div>
+          <Router>
+            <div className="App">
+                <Dashboard>
+                    <Switch>
+                        <Route exact path="/">
+                            <Home  />
+                        </Route>
+                        <Route path="/project_definition_editor/:projectDefinitionId">                    
+                            <ProjectDefinitionEditor />
+                        </Route>
+                    </Switch>
+                </Dashboard>
+            </div>
+          </Router>
       </ContainerContext.Provider>
   );
 }

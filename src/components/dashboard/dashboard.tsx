@@ -18,6 +18,7 @@ import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
+import { Link as RouterLink } from 'react-router-dom'
 
 function Copyright() {
   return (
@@ -99,8 +100,9 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
   },
   container: {
-    paddingTop: theme.spacing(4),
+    paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(4),
+    marginLeft: theme.spacing(1),
   },
   paper: {
     padding: theme.spacing(2),
@@ -114,12 +116,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export interface DashboardProps {
-    children: React.ReactChild
+    children: React.ReactChild | React.ReactChildren
 }
 
 export function Dashboard({ children }: DashboardProps) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -143,7 +145,9 @@ export function Dashboard({ children }: DashboardProps) {
             <MenuIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Dashboard
+            <RouterLink to="/">
+                Dashboard
+            </RouterLink>
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">

@@ -82,9 +82,7 @@ export function TextBox({ name, fieldTableName, defaultValue, jsonSchemaValidato
             type="number"  
             label={
             <MouseOverPopover {...popover} name={`${name}-popover`}>
-                {props => (
-                    <Typography {...props}>{t(label)}</Typography>                    
-                )}  
+                <Typography>{t(label)}</Typography>   
             </MouseOverPopover>
             }
             id={name} value={item.value === undefined  ? defaultValue : item.value} 
@@ -122,9 +120,7 @@ export function FormFieldCheckbox({ fieldTableName, name, label, popover }: Form
         }
         label={
             <MouseOverPopover {...popover} name={`${name}-popover`}>
-                {props => (
-                    <Typography {...props}>{t(label)}</Typography>                    
-                )}  
+                <Typography>{t(label)}</Typography>  
             </MouseOverPopover>
         }
       />
@@ -159,9 +155,7 @@ export function FormFieldRadio({ fieldTableName, legend, name, options }: FormFi
                 {options.map(option => (
                     <FormControlLabel value={option.id} control={<Radio />}         label={
                         <MouseOverPopover {...option.popover} name={`${name}-popover`}>
-                            {props => (
-                                <Typography {...props}>{t(option.label)}</Typography>                    
-                            )}  
+                            <Typography>{t(option.label)}</Typography>    
                         </MouseOverPopover>
                     } />
                 ))}                

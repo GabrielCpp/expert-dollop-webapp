@@ -1,5 +1,6 @@
 
-export { ReduxDatabase as Database } from './database'
+export { PrimaryIndex } from './table'
+export { ReduxDatabase } from './database'
 export { DatabaseTable } from './database-table'
 export { ops, queryParam, recordParam, joinParam } from './query'
 export { QueryBuilder } from './query-builder'

@@ -22,7 +22,7 @@ export interface Query {
 }
 
 export function ops(name: string, ...args: FilterNode[]): FilterNode {
-    return [name, args]
+    return [`$${name}`, args]
 }
 
 export function queryParam(name: string): FilterNode {

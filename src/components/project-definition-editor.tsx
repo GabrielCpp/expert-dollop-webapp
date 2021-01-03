@@ -1,21 +1,20 @@
 
 import { ProjectDefinitionService } from '../services/api/project-definition-service';
-import { ProjectDefinition } from '../models';
+import { ProjectDefinition, Translation } from '../models';
 import { ProjectContainerDefinition } from '../models/project-container.definition';
 import { concatAll } from '../common/async-cursor';
-import { RouteComponentProps, useParams } from '@reach/router'
+import { useParams, Route } from 'react-router-dom'
 import { useTableProvider } from '../common/query-hook';
-import { ProjectContainerDefinitionService } from '../services';
+import { ProjectContainerDefinitionService, TranslationService } from '../services';
 import { EditorLayout } from './predykt-project-definition-editor';
 
-interface ProjectDefinitionEditorProps {
+export interface ProjectDefinitionEditorParams {
     projectDefinitionId: string
 }
 
 
-export function ProjectDefinitionEditor(_: RouteComponentProps) {
-    const { projectDefinitionId } = useParams() as ProjectDefinitionEditorProps
-
+export function ProjectDefinitionEditor() {
+    const { projectDefinitionId } = useParams() as ProjectDefinitionEditorParams
     const { isLoading, errors } = useTableProvider({
         "project_definition": {
             service: ProjectDefinitionService,
@@ -28,6 +27,12 @@ export function ProjectDefinitionEditor(_: RouteComponentProps) {
             async fetch(x: ProjectContainerDefinitionService): Promise<ProjectContainerDefinition[]> {
                 return await concatAll(x.getProjectContainerDefinitions(projectDefinitionId))
             }
+        },
+        "translation": {
+            service: TranslationService,
+            async fetch(x: TranslationService): Promise<Translation[]> {
+                return await concatAll(x.getRessourceTranslation(projectDefinitionId))
+            }
         }
     })
 
@@ -38,7 +43,9 @@ export function ProjectDefinitionEditor(_: RouteComponentProps) {
     }
 
     return (
-        <EditorLayout projectDefinitionId={projectDefinitionId}></EditorLayout>
+        <Route path="/project_definition_editor/:projectDefinitionId/:selectedPath">   
+            <EditorLayout></EditorLayout>
+        </Route>
     );
 } 
 

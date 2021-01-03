@@ -12,7 +12,7 @@ export  class AsyncRestCursor<T> implements AsyncCursor<T[]> {
     private nextPageToken: string | undefined = undefined;
     private hasNext: boolean = true
 
-    public nextPageTokenHeader = "X-Next-page-token"
+    public nextPageTokenHeader = "X-Next-Page-Token"
 
     public constructor(axios: AxiosInstance, limit: number, buildUrl: BuildUrlFn) {
         this.axios = axios;

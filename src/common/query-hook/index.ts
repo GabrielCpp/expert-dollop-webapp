@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { noop } from "lodash";
+import { identity, noop } from "lodash";
 import { interfaces } from 'inversify'
-import { PrimaryKey, TableRecord, Query, Database, Unsubscribe  } from "../redux-db";
+import { PrimaryKey, TableRecord, Query, ReduxDatabase, Unsubscribe  } from "../redux-db";
 import { useInject, useContainer } from "../container-context";
-import { ReduxDatabase } from "../redux-db/database";
 
 export type UpdateTableRecord<T> = (tableRecord: T) => void;
 
 export function useTableRecord<T>(tableName: string, primaryKey: PrimaryKey, defaultValue?: T): [T | undefined, UpdateTableRecord<T>, UpdateTableRecord<T>] {
-    const database = useInject(Database)
+    const database = useInject(ReduxDatabase)
     const record = database.getTable(tableName).findRecord(primaryKey)
     const [state, setLocalState ] = useState<T | undefined>(record === undefined ? defaultValue : record as T);
     const unsubscribe = useRef<Unsubscribe>(noop)
@@ -34,21 +33,21 @@ export function useTableRecord<T>(tableName: string, primaryKey: PrimaryKey, def
     return [state, publishState, setLocalState]
 }
 
-export function useTableQuery<T>(query: Query): T[] {
-    const database = useInject(Database)
+export function useTableQuery<T,U=T[]>(query: Query, denormalize: (results: T[]) => U=identity): U {
+    const database = useInject(ReduxDatabase)
     const unsubscribe = useRef<Unsubscribe>(noop)
-    let tmpResults: T[] | undefined = undefined;
+    let tmpResults: U | undefined = undefined;
 
     if(unsubscribe.current === noop) {
         const [results, unsubscriber] = database.watchQuery<T>(query, onChange);
-        tmpResults = results;
+        tmpResults = denormalize(results);
         unsubscribe.current = unsubscriber;
     }
 
-    const [results, setResults ] = useState<T[]>(tmpResults || []);
+    const [results, setResults ] = useState<U>(tmpResults as U);
     
     function onChange(records: T[]) {
-        setResults(records);
+        setResults(denormalize(records));
     }
 
     useEffect(() => {
@@ -92,8 +91,8 @@ export function useTableProvider(tableProviders: Record<string, TableProvider>, 
             setIsLoading(false)
             onSuccess()
         }).catch(reason => {
-            setIsLoading(false)
             setErrors([reason as Error])
+            setIsLoading(false)
         })
     }
 
