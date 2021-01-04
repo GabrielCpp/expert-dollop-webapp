@@ -49,6 +49,19 @@ export class DatabaseTable {
         return this._table.getRecord(primaryKey).value as T;
     }
 
+    public findRecordSafe<T extends TableRecord>(primaryKey: PrimaryKey): T | undefined {
+        try {
+            return this._table.getRecord(primaryKey).value as T;
+        }
+        catch(e) {
+            if(e.name !== 'primary_key_missing') {
+                throw e;
+            }
+        }
+
+        return undefined;
+    }
+
     public watchRecord(primaryKey: string, events: WatchEvent): Unsubscribe {
         return this._table.watchRecord(primaryKey, events)
     }

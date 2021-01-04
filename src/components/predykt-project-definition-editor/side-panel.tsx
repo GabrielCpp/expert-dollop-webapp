@@ -1,10 +1,18 @@
 import React, { useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
-import { ListItemText, List, ListItem, Accordion, AccordionSummary, Typography, AccordionDetails, makeStyles, createStyles, Theme, Grid } from '@material-ui/core';
+import { ExpandMore as ExpandMoreIcon, Add as AddIcon, DeleteForever as DeleteForeverIcon } from '@material-ui/icons';
+import { 
+    ListItemText, List, ListItem, Accordion, AccordionSummary, 
+    Typography, AccordionDetails, makeStyles, createStyles, Theme, 
+    Grid, Button, Tooltip, IconButton
+} from '@material-ui/core';
 import { ProjectContainerDefinitionTree } from '../../models';
 import { MouseOverPopover } from '../mouse-over-popover';
-
+import { useTranslation } from 'react-i18next';
+import { DisplayOnMouseOver } from '../display-on-mouseover'
+import { useContainerDispatch } from '../../common/container-context/index';
+import { setView } from '../page-stack';
+import { ADD_CONTAINER_VIEW } from './add-container-view';
 export interface SidePanelProps {
     topLayerNode: ProjectContainerDefinitionTree;
     selectedNodeFirstLayer: string;
@@ -28,7 +36,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSecondLayer, buildLink }: SidePanelProps) {
+    const { t } = useTranslation()
     const classes = useStyles();
+    const dispatch = useContainerDispatch()
     const [expanded, setExpanded] = React.useState<string | false>(selectedNodeFirstLayer);
     const lastSelectedNodeFirstLayer = useRef(selectedNodeFirstLayer);
 
@@ -46,17 +56,47 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
         {topLayerNode.children.map(firstLayerNode => (
             <Grid item key={firstLayerNode.name} className={classes.grid}>
                 <Accordion expanded={expanded === firstLayerNode.id} onChange={handleChange(firstLayerNode.id)}>
-                    <AccordionSummary
-                        className={classes.heading}
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls={`${firstLayerNode.name}-content`}
-                        id={`${firstLayerNode.name}-header`}
-                    >
-                        <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={firstLayerNode.name}>
-                            <Typography>{firstLayerNode.name}</Typography> 
-                        </MouseOverPopover>
-                        
-                    </AccordionSummary>
+                    <DisplayOnMouseOver>
+                        {(isDisplayed, props) =>(                     
+                            <AccordionSummary
+                                className={classes.heading}
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls={`${firstLayerNode.name}-content`}
+                                id={`${firstLayerNode.name}-header`}
+                                {...props}
+                            >
+                                <Grid
+                                    container
+                                    direction="row"
+                                    justify="flex-start"
+                                    alignItems="flex-start"
+                                >
+                                    <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={firstLayerNode.name}>
+                                        <Typography>{firstLayerNode.name}</Typography> 
+                                    </MouseOverPopover>
+                                </Grid>
+                                <Grid
+                                    container
+                                    direction="row"
+                                    justify="flex-end"
+                                    alignItems="center"
+                                    style={{ display: isDisplayed ? undefined : "none"  }}
+                                >
+                                    <Tooltip title="Delete" aria-label="delete">
+                                        <IconButton color="default" aria-label="remove">
+                                            <DeleteForeverIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Add" aria-label="delete">
+                                        <IconButton color="primary" aria-label="add">
+                                            <AddIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
+                            </AccordionSummary>
+                        )}
+                    </DisplayOnMouseOver>
+
                     <AccordionDetails>
                         <List>
                             {firstLayerNode.children.map(secondLayerNode => (
@@ -72,6 +112,11 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
                 </Accordion>
             </Grid>
         ))}
+        <Grid item className={classes.grid}>
+            <Button variant="contained" color="primary" onClick={dispatch(setView(ADD_CONTAINER_VIEW))}>
+                {t('add')}
+            </Button>
+        </Grid>
         </Grid>
     )
 }

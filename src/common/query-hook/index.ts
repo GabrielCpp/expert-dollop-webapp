@@ -6,9 +6,38 @@ import { useInject, useContainer } from "../container-context";
 
 export type UpdateTableRecord<T> = (tableRecord: T) => void;
 
-export function useTableRecord<T>(tableName: string, primaryKey: PrimaryKey, defaultValue?: T): [T | undefined, UpdateTableRecord<T>, UpdateTableRecord<T>] {
+export function useTableExistingRecord<T>(tableName: string, primaryKey: PrimaryKey): [T | undefined, UpdateTableRecord<T>, UpdateTableRecord<T>] {
     const database = useInject(ReduxDatabase)
     const record = database.getTable(tableName).findRecord(primaryKey)
+    const [state, setLocalState ] = useState<T | undefined>(record as T);
+    const unsubscribe = useRef<Unsubscribe>(noop)
+
+    function publishState(value: T) {
+        database.getTable(tableName).upsertMany([value as TableRecord])
+        setLocalState(value)
+    }
+
+    useEffect(() => {
+        return () => {
+            unsubscribe.current();
+        }
+    }, []);
+
+    if(unsubscribe.current === noop) { 
+        const table = database.getTable(tableName);
+
+        unsubscribe.current = table.watchRecord(primaryKey, {
+            onUpdate: (_, after) => setLocalState(after as T),
+            onRemove: _ => setLocalState(undefined),
+        })
+    }
+
+    return [state, publishState, setLocalState]
+}
+
+export function useTableRecord<T>(tableName: string, primaryKey: PrimaryKey, defaultValue?: T): [T | undefined, UpdateTableRecord<T>, UpdateTableRecord<T>] {
+    const database = useInject(ReduxDatabase)
+    const record = database.getTable(tableName).findRecordSafe(primaryKey)
     const [state, setLocalState ] = useState<T | undefined>(record === undefined ? defaultValue : record as T);
     const unsubscribe = useRef<Unsubscribe>(noop)
 
@@ -21,10 +50,16 @@ export function useTableRecord<T>(tableName: string, primaryKey: PrimaryKey, def
         return () => {
             unsubscribe.current();
         }
-    });
+    }, []);
 
     if(unsubscribe.current === noop) { 
-        unsubscribe.current = database.getTable(tableName).watchRecord(primaryKey, {
+        const table = database.getTable(tableName);
+
+        if(defaultValue !== undefined && record === undefined ) {
+            table.upsertMany([defaultValue as Record<string, unknown>])
+        }
+
+        unsubscribe.current = table.watchRecord(primaryKey, {
             onUpdate: (_, after) => setLocalState(after as T),
             onRemove: _ => setLocalState(undefined),
         })
@@ -54,7 +89,7 @@ export function useTableQuery<T,U=T[]>(query: Query, denormalize: (results: T[])
         return () => {
             unsubscribe.current();
         }
-    });
+    }, []);
 
     return results
 }
@@ -97,4 +132,14 @@ export function useTableProvider(tableProviders: Record<string, TableProvider>, 
     }
 
     return { isLoading, errors }
+}
+
+export function useRefResult<T>(fn: (...p: any[]) => T, ...p: unknown[]): T {
+    const value = useRef<T | undefined>(undefined);
+
+    if(value.current === undefined) {
+        value.current = fn(...p);
+    }
+
+    return value.current
 }

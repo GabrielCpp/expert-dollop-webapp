@@ -77,7 +77,7 @@ export class TableTransaction {
 
     public addRecordUpdateEvent(recordDetails: RecordWatcher, before: Record<string, unknown>, after: Record<string, unknown>) {
         const previousEvent = this.recordEvents.get(recordDetails);
-
+        
         if(previousEvent !== undefined && previousEvent.discriminator === 'update') {
             const lastUpdate = previousEvent as UpdateHandler
             this.recordEvents.set(recordDetails, createUpdateHandler(

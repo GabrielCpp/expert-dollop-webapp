@@ -121,7 +121,9 @@ export class Table {
         const recordDetails = this.primaryIndex.records.get(primaryKey) 
 
         if(recordDetails === undefined) {
-            throw new Error(`No such key ${primaryKey}`)
+            const error = new Error(`No such key ${primaryKey}`)
+            error.name = 'primary_key_missing'
+            throw error
         }
 
         return recordDetails;

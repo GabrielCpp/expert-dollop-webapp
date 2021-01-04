@@ -45,14 +45,16 @@ const formGroups: FieldGroupFormProps = {
 */
 import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { Dashboard } from './components/dashboard';
+import { PageStack } from './components/page-stack';
+
 const Home = () => <Link to="/project_definition_editor/f97cfe6e-b97d-4b98-80c6-a214851f285c/~">{'Go to editor'}</Link>
 
 function App() {
   return (
-      <ContainerContext.Provider value={container}>
-          <Router>
-            <div className="App">
-                <Dashboard>
+    <ContainerContext.Provider value={container}>   
+        <Router>
+            <Dashboard>
+                <PageStack>
                     <Switch>
                         <Route exact path="/">
                             <Home  />
@@ -61,10 +63,10 @@ function App() {
                             <ProjectDefinitionEditor />
                         </Route>
                     </Switch>
-                </Dashboard>
-            </div>
-          </Router>
-      </ContainerContext.Provider>
+                </PageStack>
+            </Dashboard>
+        </Router>
+    </ContainerContext.Provider>
   );
 }
 
