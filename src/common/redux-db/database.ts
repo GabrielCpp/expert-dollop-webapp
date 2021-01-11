@@ -6,17 +6,31 @@ import { TableRecord } from './table-record';
 import { getQueryFootprint, QueryEngine, QueryExecutor } from './query-engine';
 import { Unsubscribe } from './table-record-change-emitter';
 import { OnQueryChange } from './query-change-emitter';
+import { Transaction } from './transaction';
+
 
 export class ReduxDatabase {
     private readonly _tables = new Map<string, Table>();
     private readonly _queries = new Map<string, QueryExecutor>();
     private readonly _queryEngine: QueryEngine;
+    private _transaction = new Transaction();
 
     public constructor() {
         this.getInternalTable = this.getInternalTable.bind(this);
         this._queryEngine = new QueryEngine(this.getInternalTable);
     }
 
+    public transaction(action: (t: ReduxDatabase) => void) {
+        this._transaction.openTransaction();
+
+        try {
+            action(this);
+        }
+        finally {
+            this._transaction.closeTransaction();
+            this._transaction.commit()
+        }
+    }
 
     public query<T extends TableRecord>(query: Query): T[] {
         const queryFootprint = getQueryFootprint(query)
@@ -58,7 +72,7 @@ export class ReduxDatabase {
             this._tables.set(tableName, table);
         }
 
-        return new DatabaseTable(table)
+        return new DatabaseTable(table, this._transaction.openTableTransaction(table))
     }
 
     private getInternalTable(tableName: string) {

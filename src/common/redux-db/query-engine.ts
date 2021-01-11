@@ -1,4 +1,4 @@
-import { eq, lt, lte, gt, gte, startsWith, stubTrue, noop, head, get, isNumber, isString, isBoolean, isDate, set } from 'lodash'
+import { eq, lt, lte, gt, gte, startsWith, stubTrue, noop, head, get, isNumber, isString, isBoolean, isDate, set, isEqual } from 'lodash'
 import { Query, FilterNode, QuerySort } from './query';
 import { Table } from './table';
 import { PrimaryKey, TableRecord } from './table-record';
@@ -29,6 +29,20 @@ function _or(...values: boolean[]): boolean {
     return values.reduce((previousValue: boolean, currentValue: boolean) => previousValue || currentValue, false)
 }
 
+function arrayStartWith(target: unknown[], needle: unknown[]): boolean {
+    if(target.length < needle.length) {
+        return false
+    }
+
+    for(const index in needle) {
+        if(target[index] !== needle[index]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export const operators: Record<string, Operator> = {
     "eq": eq,
     "lt": lt,
@@ -44,6 +58,8 @@ export const operators: Record<string, Operator> = {
     "boolean": (...p: unknown[]) => Boolean(head(p)),
     "string": (...p: unknown[]) => String(head(p)),
     "head": head as Operator,
+    "isEqual": isEqual,
+    "arrayStartWith": arrayStartWith as Operator
 };
 
 function buildPredicate(parameters: Record<string, unknown>, filter: FilterNode | []): RecordPredicate {

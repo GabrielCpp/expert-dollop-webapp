@@ -11,4 +11,8 @@ export class ProjectDefinitionService {
     public getProjectDefinition(projectDefinitionId: string): Promise<ProjectDefinition> {
         return this.axios.get(`/api/project_definition/${projectDefinitionId}`)
     }
+
+    public addProjectDefinition(projectDefinition: ProjectDefinition): Promise<ProjectDefinition> {
+        return this.axios.post(`/api/project_definition`, projectDefinition)
+    }
 }

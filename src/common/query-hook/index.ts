@@ -143,3 +143,18 @@ export function useRefResult<T>(fn: (...p: any[]) => T, ...p: unknown[]): T {
 
     return value.current
 }
+
+export function useRefMappedValue<Seed, Value, Result>(elements: [Seed, (p: Value) => Result][], builder: (s: Seed) => Value): [Seed, Result][] {
+    const value = useRef<[Seed, Result][] | undefined>(undefined);
+
+    if(value.current === undefined) {
+        value.current = elements.map(([seed, factory]) => [seed, factory(builder(seed))]);
+    }
+
+    return value.current
+}
+
+export function useDatabase() {
+    const database = useInject(ReduxDatabase);
+    return database;
+}

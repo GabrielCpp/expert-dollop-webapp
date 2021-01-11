@@ -19,4 +19,8 @@ export class ProjectContainerDefinitionService {
             })
         );
     }
+
+    public addProjectContainerDefinitions(projectDefinitionId: string, projectContainerDefinition: ProjectContainerDefinition[]): Promise<ProjectContainerDefinition[]> {
+        return this.axios.post(`/api/${projectDefinitionId}/project_container_definitions`, projectContainerDefinition)
+    }
 }

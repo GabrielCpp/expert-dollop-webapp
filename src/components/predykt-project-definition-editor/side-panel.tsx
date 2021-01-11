@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { ExpandMore as ExpandMoreIcon, Add as AddIcon, DeleteForever as DeleteForeverIcon } from '@material-ui/icons';
 import { 
     ListItemText, List, ListItem, Accordion, AccordionSummary, 
@@ -10,9 +10,9 @@ import { ProjectContainerDefinitionTree } from '../../models';
 import { MouseOverPopover } from '../mouse-over-popover';
 import { useTranslation } from 'react-i18next';
 import { DisplayOnMouseOver } from '../display-on-mouseover'
-import { useContainerDispatch } from '../../common/container-context/index';
-import { setView } from '../page-stack';
-import { ADD_CONTAINER_VIEW } from './add-container-view';
+import { ADD_PROJECT_SECTION_ROUTE_NAME } from './routes';
+import { useNavigate } from '../../common/named-routes';
+
 export interface SidePanelProps {
     topLayerNode: ProjectContainerDefinitionTree;
     selectedNodeFirstLayer: string;
@@ -37,8 +37,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSecondLayer, buildLink }: SidePanelProps) {
     const { t } = useTranslation()
+    const { navigate } = useNavigate();
+    const params = useParams()
     const classes = useStyles();
-    const dispatch = useContainerDispatch()
     const [expanded, setExpanded] = React.useState<string | false>(selectedNodeFirstLayer);
     const lastSelectedNodeFirstLayer = useRef(selectedNodeFirstLayer);
 
@@ -113,7 +114,7 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
             </Grid>
         ))}
         <Grid item className={classes.grid}>
-            <Button variant="contained" color="primary" onClick={dispatch(setView(ADD_CONTAINER_VIEW))}>
+            <Button variant="contained" color="primary" onClick={() => navigate(ADD_PROJECT_SECTION_ROUTE_NAME, params)}>
                 {t('add')}
             </Button>
         </Grid>

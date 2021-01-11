@@ -2,6 +2,7 @@ import { TableRecord, UniqueIndexKeyBuilder, PrimaryKey, getPk, TableWatcher } f
 import { TableTransaction } from './table-transaction';
 import { RecordChangeEmitter, Unsubscribe, WatchEvent } from './table-record-change-emitter';
 import { TableChangeEmitter } from './table-change-emitter';
+import { Transaction } from './transaction';
 
 export class TableRecordDetails extends RecordChangeEmitter {
     public value: TableRecord;
@@ -32,7 +33,7 @@ export class Table {
         primaryIndex: PrimaryIndex = new PrimaryIndex(getPk, 'id'),
     ) {
         this.primaryIndex = primaryIndex;
-        this.upsertMany(new TableTransaction(this.tableChangeEmitter), records)
+        this.upsertMany(new TableTransaction(new Transaction(), this.tableChangeEmitter), records)
     }
 
     public get tableEventEmitter(): TableChangeEmitter {

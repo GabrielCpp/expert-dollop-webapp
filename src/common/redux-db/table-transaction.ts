@@ -1,4 +1,5 @@
 import { OnRecordInsert, OnRecordRemove, OnRecordUpdate, RecordWatcher, TableRecord, TableWatcher } from "./table-record";
+import { Transaction } from "./transaction";
 
 interface RecordChange {
     discriminator: 'update' | 'remove' | 'insert'
@@ -59,48 +60,41 @@ function createInsertHandler(
 }
 
 export class TableTransaction {
-    private tableWatcher: TableWatcher;
-    private recordEvents = new Map<RecordWatcher, RecordChange>()
-    private isTransaction = false;
+    private _recordEvents = new Map<RecordWatcher, RecordChange>()
+    private _transaction: Transaction
+    private _tableWatcher: TableWatcher;
 
-    public constructor(tableWatcher: TableWatcher) {
-        this.tableWatcher = tableWatcher;
-    }
-
-    public openTransaction() {
-        this.isTransaction = true;
-    }
-
-    public closeTransaction() {
-        this.isTransaction = false;
+    public constructor(transaction: Transaction, tableWatcher: TableWatcher) {
+        this._transaction = transaction;
+        this._tableWatcher = tableWatcher;
     }
 
     public addRecordUpdateEvent(recordDetails: RecordWatcher, before: Record<string, unknown>, after: Record<string, unknown>) {
-        const previousEvent = this.recordEvents.get(recordDetails);
+        const previousEvent = this._recordEvents.get(recordDetails);
         
         if(previousEvent !== undefined && previousEvent.discriminator === 'update') {
             const lastUpdate = previousEvent as UpdateHandler
-            this.recordEvents.set(recordDetails, createUpdateHandler(
+            this._recordEvents.set(recordDetails, createUpdateHandler(
                 recordDetails.triggerUpdate, lastUpdate.before, after,
             ))
         }
         else {
-            this.recordEvents.set(recordDetails, createUpdateHandler(
+            this._recordEvents.set(recordDetails, createUpdateHandler(
                 recordDetails.triggerUpdate, before, after,
             ))
         }       
     }
 
     public addRecordRemoveEvent(recordDetails: RecordWatcher, record: Record<string, unknown>) {
-        this.recordEvents.set(recordDetails, createRemoveHandler(recordDetails.triggerRemoveEvent, record))
+        this._recordEvents.set(recordDetails, createRemoveHandler(recordDetails.triggerRemoveEvent, record))
     }
 
     public addRecordInsertEvent(recordDetails: RecordWatcher, record: Record<string, unknown>) {
-        this.recordEvents.set(recordDetails, createInsertHandler(recordDetails.triggerInsertEvent, record))
+        this._recordEvents.set(recordDetails, createInsertHandler(recordDetails.triggerInsertEvent, record))
     }
 
-    public commit() {
-        if(this.isTransaction) {
+    public flush() {
+        if(this._transaction.haveOpenTransaction) {
             return;
         }
 
@@ -108,7 +102,7 @@ export class TableTransaction {
         const insertions: TableRecord[] = []
         const deletions: TableRecord[] = []
 
-        for(const event of this.recordEvents.values()) {
+        for(const event of this._recordEvents.values()) {
             if(event.discriminator === 'update') {
                 const updateEvent = event as UpdateHandler;
                 updateEvent.handler(updateEvent.before, updateEvent.after)
@@ -126,7 +120,7 @@ export class TableTransaction {
             }
         }
         
-        this.tableWatcher.triggerOnCommit(insertions, deletions, updates);
-        this.recordEvents.clear() 
+        this._tableWatcher.triggerOnCommit(insertions, deletions, updates);
+        this._recordEvents.clear() 
     }
 }

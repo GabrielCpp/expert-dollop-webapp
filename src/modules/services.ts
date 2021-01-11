@@ -4,7 +4,7 @@ import { AXIOS_SERVICE, ProjectContainerDefinitionService, ProjectDefinitionServ
 
 
 export const servicesModule = new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind) => {
-    bind(ProjectContainerDefinitionService).to(injectClass(ProjectContainerDefinitionService, AXIOS_SERVICE))
-    bind(ProjectDefinitionService).to(injectClass(ProjectDefinitionService, AXIOS_SERVICE))
-    bind(TranslationService).to(injectClass(TranslationService, AXIOS_SERVICE))
+    bind(ProjectContainerDefinitionService).to(injectClass(ProjectContainerDefinitionService, [AXIOS_SERVICE]))
+    bind(ProjectDefinitionService).to(injectClass(ProjectDefinitionService, [AXIOS_SERVICE]))
+    bind(TranslationService).to(injectClass(TranslationService, [AXIOS_SERVICE]))
 });

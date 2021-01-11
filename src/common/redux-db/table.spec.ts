@@ -54,7 +54,7 @@ describe('Table test', () => {
 
         table.watchRecord("2", { onUpdate });
         table.upsertMany(eventAccumulator, [ newRecord ])
-        eventAccumulator.commit();
+        eventAccumulator.flush();
     })
 
     test('Given table watched record should be batch notification up to latest', (done) => {
@@ -70,6 +70,6 @@ describe('Table test', () => {
 
         table.watchRecord("2", { onUpdate });
         table.upsertMany(eventAccumulator, [ firstChange, expectedRecord ])
-        eventAccumulator.commit();
+        eventAccumulator.flush();
     })
 })

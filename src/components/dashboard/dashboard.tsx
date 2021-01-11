@@ -116,7 +116,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export interface DashboardProps {
-    children: React.ReactChild | React.ReactChildren
+    children: React.ReactNode
 }
 
 export function Dashboard({ children }: DashboardProps) {

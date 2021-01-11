@@ -19,4 +19,7 @@ export class TranslationService {
             })
         );
     }
+    public addTranslations(translations: Translation[]): Promise<Translation[]> {
+        return this.axios.post(`/api/translations`, translations);
+    }
 }
