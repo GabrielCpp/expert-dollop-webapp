@@ -25,8 +25,7 @@ export const addContainerDefinitionProvider = (
     const results = database.query<FormFieldRecord>(queryChildrenOf([formId]))    
     const form = hydrateForm<AddContainerViewModel>(results);
 
-    const containers = await projectContainerDefinitionService.addProjectContainerDefinitions(
-        projectDefinitionId, [
+    const containers = await projectContainerDefinitionService.addProjectContainerDefinitions([
         createProjectContainerDefinition(
             formId,
             projectDefinitionId,
@@ -36,6 +35,7 @@ export const addContainerDefinitionProvider = (
             {},
             form.instanciateByDefault.value,
             form.isCollection.value,
+            form.orderIndex.value,
             {}
         )
     ]);
@@ -46,7 +46,7 @@ export const addContainerDefinitionProvider = (
         createTranslation(projectDefinitionId, 'en', `${form.name.value}_label`, form.en.label.value),
         createTranslation(projectDefinitionId, 'en', `${form.name.value}_help_text`, form.en.label.value),
     ])
-
+    console.log(containers)
     database.transaction((db) => {
         upsertContainerDefinitions(db)(containers)
         upsertTranslations(db)(translations)

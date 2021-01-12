@@ -1,15 +1,16 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { Button, Grid, Tabs, Tab } from "@material-ui/core"
 import { useParams } from "react-router-dom";
 import { useNavigate } from "../../common/named-routes";
 import { TableCheckboxField, TableTextField, queryDirectChildrenOf, buildFieldByNameMap } from "../table-fields";
-import { useDatabase, useTableQuery } from "../../common/query-hook";
+import { buildActionFlow, createAbortFlowError, useDatabase, useTableQuery, _throw } from "../../common/query-hook";
 import { useTranslation } from 'react-i18next';
-import { getField, HydratedFormNode } from '../table-fields/form-field-record';
 import { head } from "lodash";
 import { v4 as uuidv4 } from 'uuid';
-import { createFormFieldRecord, BOOLEAN_VALIDATOR, STRING_VALIDATOR, upsertFormFieldRecord, queryChildrenOf, FormFieldRecord } from "../table-fields";
+import { createFormFieldRecord, BOOLEAN_VALIDATOR, STRING_VALIDATOR, upsertFormFieldRecord, getField, HydratedFormNode, INT_VALIDATOR, validateForm, FormFieldRecord } from "../table-fields";
 import { ReduxDatabase } from "../../common/redux-db";
+import { splitPath } from "./helpers";
+import { useContainer, getDispatcher } from "../../common/container-context";
 
 
 export interface FieldTranslationProps {
@@ -87,6 +88,7 @@ export function AddContainerForm({ returnViewHandler, path, onSubmit }: AddConta
                 <TableTextField fieldDetails={getField(fieldMap, 'name')} label="name"></TableTextField>
                 <TableCheckboxField fieldDetails={getField(fieldMap,'isCollection')} label="is_collection" ></TableCheckboxField>
                 <TableCheckboxField fieldDetails={getField(fieldMap, 'instanciateByDefault')} label="instanciate_by_default" ></TableCheckboxField>
+                <TableCheckboxField fieldDetails={getField(fieldMap, 'orderIndex')} label="order_index" ></TableCheckboxField>
                 <FixedTabDisplay path={path} getField={(name) => getField(fieldMap, name)} defaultSelectedField={'fr'}>
                     {() => [
                         { name: 'fr', label: 'french', component: (path, key) => <FieldTranslation key={key} path={path} /> },
@@ -111,16 +113,28 @@ export function AddContainerForm({ returnViewHandler, path, onSubmit }: AddConta
 
 export interface AddContainerViewProps {
     returnRouteName: string;
-    onSubmit: (formId: string) => void;
+    onSubmit: (projectDefinitionId: string, path: string[], formId: string) => void;
+}
+
+interface RouteParams extends Record<string, string> {
+    projectDefinitionId: string;
+    selectedPath: string;
 }
 
 export function AddContainerView({ returnRouteName, onSubmit }: AddContainerViewProps) {
-    const params = useParams();
+    const params = useParams<RouteParams>();
     const database = useDatabase()
+    const container = useContainer()
     const [path] = useState(createAddContainerForm(database));
     const { navigate } = useNavigate();
+    const returnViewHandler = useMemo(() => () => navigate(returnRouteName, params), [navigate, returnRouteName, params])
+    const submitHandler = useMemo(() => buildActionFlow([
+        () => getDispatcher(container, validateForm)(path) || _throw(createAbortFlowError()),
+        () => onSubmit(params.projectDefinitionId, splitPath(params.selectedPath), head(path) as string),
+        returnViewHandler
+    ]), [returnViewHandler, container, path, onSubmit, params.projectDefinitionId, params.selectedPath])
     
-    return <AddContainerForm path={path} onSubmit={() => onSubmit(head(path) as string)} returnViewHandler={() => navigate(returnRouteName, params)} />
+    return <AddContainerForm path={path} onSubmit={submitHandler} returnViewHandler={returnViewHandler} />
 }
 
 export interface ContainerTranslationViewModel extends HydratedFormNode<null> {
@@ -132,6 +146,7 @@ export interface AddContainerViewModel {
     name: HydratedFormNode<string>;
     isCollection: HydratedFormNode<boolean>
     instanciateByDefault: HydratedFormNode<boolean>
+    orderIndex: HydratedFormNode<number>;
     fr: ContainerTranslationViewModel;
     en: ContainerTranslationViewModel;
 }
@@ -152,6 +167,7 @@ export const createAddContainerForm = (database: ReduxDatabase) => (): string[] 
         createFormFieldRecord(NAME_VALIDATOR, [formId], 'name', ''),
         createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'isCollection', false),
         createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'instanciateByDefault', true),
+        createFormFieldRecord(INT_VALIDATOR, [formId], 'orderIndex', 0),
         createFormFieldRecord(true, [formId], 'fr', null, frTabId),
         createFormFieldRecord(true, [formId], 'en', null, enTabId),
         createFormFieldRecord(STRING_VALIDATOR, [formId, frTabId], 'label', ''),

@@ -2,12 +2,10 @@ import React from 'react'
 import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import { Accordion, AccordionSummary, Typography, AccordionDetails } from '@material-ui/core';
 import { ProjectContainerDefinitionTree } from '../../models';
-import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover';
-import { JSONSchemaType } from 'ajv';
-
+import { MouseOverPopover } from '../mouse-over-popover';
 
 export interface FieldGroupFormProps {
-    formNode: ProjectContainerDefinitionTree
+    formNode: ProjectContainerDefinitionTree | undefined;
 }
 
 export function FormDefinitionEditor({ formNode }: FieldGroupFormProps) {
@@ -58,12 +56,12 @@ export function FormDefinitionEditor({ formNode }: FieldGroupFormProps) {
 
     return (
         <>
-        <MouseOverPopover name={formNode.name} text={formNode.name}>
+        {formNode && <MouseOverPopover name={formNode.name} text={formNode.name}>
             <Typography>
                 {formNode.name}
             </Typography>
-        </MouseOverPopover>
-        {formNode.children.map(node => Boolean(node.customAttributes["is_collapsible"]) ? renderAccordion(node) : renderSection(node))}
+        </MouseOverPopover>}
+        {formNode && formNode.children.map(node => Boolean(node.customAttributes["is_collapsible"]) ? renderAccordion(node) : renderSection(node))}
         </>
     )
 }

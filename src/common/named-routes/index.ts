@@ -88,7 +88,7 @@ export class NamedRoutes {
     }
 }
 
-export function useNavigate(): { navigate: (routeName: string,  params?: Record<string, unknown>) => void } {
+export function useNavigate(): { navigate: (routeName: string,  params?: Record<string, string>) => void } {
     const history = useHistory();
     const namedRoute = useInject(NamedRoutes)
 

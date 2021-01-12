@@ -80,7 +80,7 @@ export function TableTextField({
             }
             id={fieldDetails.fieldName} value={item.value === undefined  ? fieldDetails.value : item.value} 
             onChange={onValueChange} 
-            helperText={item?.errors?.filter(e => e.message !== undefined).map((e, index) => (<div key={index}>{t(e.message as string)}</div>))}
+            helperText={item?.errors?.filter(e => e.message !== undefined).map((e, index) => (<span key={index}>{t(e.message as string)}<br/></span>))}
             error={item?.errors?.length > 0}
             InputProps={{
                 endAdornment: endAdornmentLabel && <InputAdornment position="end">{t(endAdornmentLabel)}</InputAdornment>

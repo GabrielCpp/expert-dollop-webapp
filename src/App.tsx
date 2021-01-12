@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContainerContext, container, useInject } from './common/container-context'
+import { ContainerContext, container, getDispatcher } from './common/container-context'
 import { ProjectDefinitionEditor } from './components'
 
 /*
@@ -50,7 +50,7 @@ import { CONTAINER_VIEW_ROUTE_NAME } from './components/predykt-project-definiti
 
 
 function App() {
-  const addContainerDefinition = container.get<(formId: string) => void>(addContainerDefinitionProvider)
+  const addContainerDefinition = getDispatcher(container, addContainerDefinitionProvider)
 
   return (
     <ContainerContext.Provider value={container}>   

@@ -8,6 +8,7 @@ import { ops, recordParam, queryParam } from '../../common/redux-db';
 import { SidePanel } from './side-panel'
 import { head, noop } from 'lodash';
 import { FormDefinitionEditor } from './form-definition-editor';
+import { splitPath } from './helpers';
 
 
 const query = QueryBuilder
@@ -26,7 +27,7 @@ export function EditorLayout() {
         projectDefinitionId
     }), buildDisplayTree)
 
-    const currentTreePath = (selectedPath || '').trim().split('~').filter(x => x !== '')
+    const currentTreePath = splitPath(selectedPath)
     const [ firstNode, secondNode, thirdNode ] = pickPath(projectContainerDefinitionRoot, currentTreePath, 3);
     const buildLink = buildLinkFor(projectDefinitionId);
 
@@ -44,8 +45,8 @@ export function EditorLayout() {
             {firstNode && <SidePanel 
                 buildLink={buildLink} 
                 topLayerNode={firstNode} 
-                selectedNodeFirstLayer={secondNode.id} 
-                selectedNodeSecondLayer={thirdNode.id}/> 
+                selectedNodeFirstLayer={secondNode} 
+                selectedNodeSecondLayer={thirdNode}/> 
             }   
             <Grid item xs={9}>
                 <Grid item xs={12}>

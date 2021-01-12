@@ -15,8 +15,8 @@ import { useNavigate } from '../../common/named-routes';
 
 export interface SidePanelProps {
     topLayerNode: ProjectContainerDefinitionTree;
-    selectedNodeFirstLayer: string;
-    selectedNodeSecondLayer: string;
+    selectedNodeFirstLayer: ProjectContainerDefinitionTree | undefined;
+    selectedNodeSecondLayer: ProjectContainerDefinitionTree | undefined;
     buildLink: (...path: string[]) => string;
 }
 
@@ -40,16 +40,16 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
     const { navigate } = useNavigate();
     const params = useParams()
     const classes = useStyles();
-    const [expanded, setExpanded] = React.useState<string | false>(selectedNodeFirstLayer);
-    const lastSelectedNodeFirstLayer = useRef(selectedNodeFirstLayer);
+    const [expanded, setExpanded] = React.useState<string | undefined>(selectedNodeFirstLayer?.id);
+    const lastSelectedNodeFirstLayer = useRef(selectedNodeFirstLayer?.id);
 
     const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
-        setExpanded(isExpanded ? panel : false);
+        setExpanded(isExpanded ? panel : undefined);
     };
 
-    if(lastSelectedNodeFirstLayer.current !== selectedNodeFirstLayer) {
-        lastSelectedNodeFirstLayer.current = selectedNodeFirstLayer;
-        setExpanded(selectedNodeFirstLayer)
+    if(lastSelectedNodeFirstLayer.current !== selectedNodeFirstLayer?.id) {
+        lastSelectedNodeFirstLayer.current = selectedNodeFirstLayer?.id;
+        setExpanded(selectedNodeFirstLayer?.id)
     }
 
     return (
@@ -103,8 +103,8 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
                             {firstLayerNode.children.map(secondLayerNode => (
                                 <ListItem button key={secondLayerNode.name} component={Link} to={buildLink(topLayerNode.id, firstLayerNode.id, secondLayerNode.id)}>
                                     <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={firstLayerNode.name}>
-                                        {secondLayerNode.id === selectedNodeSecondLayer && <ListItemText primaryTypographyProps={{ className: classes.selectedListItem }} primary={secondLayerNode.name}  />}
-                                        {secondLayerNode.id !== selectedNodeSecondLayer && <ListItemText primary={secondLayerNode.name}  />}
+                                        {secondLayerNode.id === selectedNodeSecondLayer?.id && <ListItemText primaryTypographyProps={{ className: classes.selectedListItem }} primary={secondLayerNode.name}  />}
+                                        {secondLayerNode.id !== selectedNodeSecondLayer?.id && <ListItemText primary={secondLayerNode.name}  />}
                                     </MouseOverPopover>
                                 </ListItem>
                             ))}

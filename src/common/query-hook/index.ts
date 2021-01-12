@@ -158,3 +158,28 @@ export function useDatabase() {
     const database = useInject(ReduxDatabase);
     return database;
 }
+
+export function _throw(error: Error) {
+    throw error;
+}
+
+export function createAbortFlowError(): Error {
+    const error = new Error('Abort action flow');
+    error.name = 'abort_action_flow';
+    return error;
+}
+
+export function buildActionFlow(actions: Array<() => void>, onError: (e: Error) => void=e => console.error(e)) {
+    return async () => {
+        try {
+            for(const action of actions) {
+                await action();
+            }
+        }
+        catch(e) {
+            if(e.name !== 'abort_action_flow') {
+                onError(e)
+            }           
+        }
+    }
+}

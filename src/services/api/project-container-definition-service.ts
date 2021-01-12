@@ -20,7 +20,7 @@ export class ProjectContainerDefinitionService {
         );
     }
 
-    public addProjectContainerDefinitions(projectDefinitionId: string, projectContainerDefinition: ProjectContainerDefinition[]): Promise<ProjectContainerDefinition[]> {
-        return this.axios.post(`/api/${projectDefinitionId}/project_container_definitions`, projectContainerDefinition)
+    public addProjectContainerDefinitions(projectContainerDefinition: ProjectContainerDefinition[]): Promise<ProjectContainerDefinition[]> {
+        return this.axios.post(`/api/project_container_definitions`, projectContainerDefinition).then(request => request.data)
     }
 }

@@ -23,6 +23,19 @@ export function useInject<T>(id: interfaces.ServiceIdentifier<T> ) {
     return createObj();
 }
 
+
+export function getDispatcher<T>(container: Container, id: (...p: any[]) => T): T {
+    return container.get<T>(id);
+}
+
+export function useContainerDispatch(): <T>(id: (...p: any[]) => T) => T {
+    const container = useContainer();
+    return <T>(id: (...p: any[]) => T): T => {
+        return container.get<T>(id);
+    }
+}
+
+
 export function injectClass(Class: any, parameters: interfaces.ServiceIdentifier<any>[]=[]): any {
     const x = injectable()(Class)
     parameters.forEach((p, i) => inject(p)(Class, undefined as any, i))

@@ -10,6 +10,7 @@ export interface ProjectContainerDefinition extends TableRecord {
     path: string[]
     projectDefId: string;
     value_type: string;
+    orderIndex: number;
 }
 
 export function createProjectContainerDefinition(
@@ -21,6 +22,7 @@ export function createProjectContainerDefinition(
     defaultValue: Record<string, unknown>,
     instanciateByDefault: boolean,
     isCollection: boolean,
+    orderIndex: number,
     customAttributes: Record<string, unknown>,
 ): ProjectContainerDefinition {
     return {
@@ -29,6 +31,7 @@ export function createProjectContainerDefinition(
         id,
         instanciateByDefault,
         isCollection,
+        orderIndex,
         name,
         path,
         projectDefId,

@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { ErrorObject, JSONSchemaType, Schema } from 'ajv'
 import { ops, PrimaryIndex, PrimaryKey, Query, QueryBuilder, queryParam, recordParam, TableRecord } from "../../common/redux-db";
 import { ReduxDatabase } from '../../common/redux-db/database';
+import { AjvFactory } from '../../services';
+import { isEqual } from 'lodash';
 
 export const FormFieldTableName = 'form-field'
 export type FormFieldError = ErrorObject<string, Record<string, any>, unknown>
@@ -69,6 +71,8 @@ export function upsertFormFieldRecord(database: ReduxDatabase, records: FormFiel
 
 export const STRING_VALIDATOR = { "type": "string" }
 export const BOOLEAN_VALIDATOR = { "type": "boolean" }
+export const INT_VALIDATOR = { "type": "integer" }
+
 
 export function buildFormFieldRecordPk(record: FormFieldRecord): PrimaryKey {
     return `${record.fieldPath.join('.')}.${record.fieldName}.${record.fieldId}`
@@ -116,7 +120,7 @@ export function hydrateForm<T>(records: FormFieldRecord[]): T {
             const name = fieldId2Name.get(pathItem)
 
             if(name === undefined) {
-                throw new Error(`No name ${name} in tree`);
+                continue
             }
 
             if(!currentObject.hasOwnProperty(name)) {
@@ -141,4 +145,32 @@ export function hydrateForm<T>(records: FormFieldRecord[]): T {
     }
 
     return root as T
+}
+
+export const validateForm = (database: ReduxDatabase, ajvFactory: AjvFactory) => (rootPath: string[]): boolean => {
+    const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath))  
+    const recordToUpdates: FormFieldRecord[] = []
+    let isValidForm = true;
+
+    for(const record of records) {
+        const validator = ajvFactory.forSchema(record.jsonSchemaValidator);
+        validator(record.value)
+
+        const errors = validator.errors || []
+
+        if(errors.length > 0) {
+            isValidForm = false;
+        }
+
+        if(!isEqual(record.errors, errors)) {
+            recordToUpdates.push({
+                ...record,
+                errors
+            })
+        }
+    }
+
+    upsertFormFieldRecord(database, recordToUpdates)
+
+    return isValidForm;
 }
