@@ -77,7 +77,7 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
                                     container
                                     direction="row"
                                     justify="flex-start"
-                                    alignItems="flex-start"
+                                    alignItems="center"
                                 >
                                     <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={firstLayerNode.name}>
                                         <Typography>{firstLayerNode.name}</Typography> 
@@ -88,7 +88,7 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
                                     direction="row"
                                     justify="flex-end"
                                     alignItems="center"
-                                    style={{ display: isDisplayed ? undefined : "none"  }}
+                                    style={{ visibility: isDisplayed ? 'visible' : 'hidden'}}
                                 >
                                     <Tooltip title="Delete" aria-label="delete">
                                         <IconButton color="default" aria-label="remove">
