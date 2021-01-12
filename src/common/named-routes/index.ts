@@ -1,5 +1,6 @@
 import { uniq } from "lodash";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
+import { buildRelativeUrl } from "../async-cursor";
 import { useInject } from "../container-context";
 
 export interface NamedRoute {
@@ -61,14 +62,14 @@ export class NamedRoutes {
         return route.path;
     }
 
-    public render(name: string, params: Record<string, unknown>={}): string {
+    public render(name: string, params: Record<string, string>={}, queries: Record<string, string | number>={}): string {
         let url = this.getUrl(name);
 
         for(const [key, value] of Object.entries(params)) {
             url = url.replace(`:${key}`, String(value));
         }
 
-        return url;
+        return buildRelativeUrl(url, queries);
     }
 
     public get routes() : NamedRoute[] {
@@ -88,16 +89,27 @@ export class NamedRoutes {
     }
 }
 
-export function useNavigate(): { navigate: (routeName: string,  params?: Record<string, string>) => void } {
+export function useNavigate(): { navigate: (routeName: string,  params?: Record<string, string>, queries?: Record<string, string>) => void } {
     const history = useHistory();
     const namedRoute = useInject(NamedRoutes)
 
-    function navigate(routeName: string,  params: Record<string, unknown>={}) {
-        const path = namedRoute.render(routeName, params);
+    function navigate(routeName: string,  params: Record<string, string>={}, queries: Record<string, string>={}) {
+        const path = namedRoute.render(routeName, params, queries);
         history.push(path);        
     }
     
     return {
         navigate
     }
+}
+
+export function useQuery<T extends Record<string, string>>(): T {
+    const location = useLocation();
+    const result: Record<string, string> = {}
+
+    for(const [key, value] of new URLSearchParams(location.search).entries()) {
+        result[key] = value;
+    } 
+
+    return result as T;
 }

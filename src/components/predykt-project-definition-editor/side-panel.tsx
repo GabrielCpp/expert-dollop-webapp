@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { DisplayOnMouseOver } from '../display-on-mouseover'
 import { ADD_PROJECT_SECTION_ROUTE_NAME } from './routes';
 import { useNavigate } from '../../common/named-routes';
+import { buildPath } from './helpers';
 
 export interface SidePanelProps {
     topLayerNode: ProjectContainerDefinitionTree;
@@ -46,6 +47,12 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
     const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
         setExpanded(isExpanded ? panel : undefined);
     };
+
+    const addContainer = () => {
+        navigate(ADD_PROJECT_SECTION_ROUTE_NAME, params, { 
+            path: buildPath([topLayerNode.id])
+        })
+    }
 
     if(lastSelectedNodeFirstLayer.current !== selectedNodeFirstLayer?.id) {
         lastSelectedNodeFirstLayer.current = selectedNodeFirstLayer?.id;
@@ -114,7 +121,7 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
             </Grid>
         ))}
         <Grid item className={classes.grid}>
-            <Button variant="contained" color="primary" onClick={() => navigate(ADD_PROJECT_SECTION_ROUTE_NAME, params)}>
+            <Button variant="contained" color="primary" onClick={addContainer}>
                 {t('add')}
             </Button>
         </Grid>

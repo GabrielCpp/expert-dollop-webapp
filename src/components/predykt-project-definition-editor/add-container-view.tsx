@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react"
 import { Button, Grid, Tabs, Tab } from "@material-ui/core"
 import { useParams } from "react-router-dom";
-import { useNavigate } from "../../common/named-routes";
+import { useNavigate, useQuery } from "../../common/named-routes";
 import { TableCheckboxField, TableTextField, queryDirectChildrenOf, buildFieldByNameMap } from "../table-fields";
 import { buildActionFlow, createAbortFlowError, useDatabase, useTableQuery, _throw } from "../../common/query-hook";
 import { useTranslation } from 'react-i18next';
@@ -123,6 +123,7 @@ interface RouteParams extends Record<string, string> {
 
 export function AddContainerView({ returnRouteName, onSubmit }: AddContainerViewProps) {
     const params = useParams<RouteParams>();
+    const queries = useQuery()
     const database = useDatabase()
     const container = useContainer()
     const [path] = useState(createAddContainerForm(database));
@@ -130,9 +131,9 @@ export function AddContainerView({ returnRouteName, onSubmit }: AddContainerView
     const returnViewHandler = useMemo(() => () => navigate(returnRouteName, params), [navigate, returnRouteName, params])
     const submitHandler = useMemo(() => buildActionFlow([
         () => getDispatcher(container, validateForm)(path) || _throw(createAbortFlowError()),
-        () => onSubmit(params.projectDefinitionId, splitPath(params.selectedPath), head(path) as string),
+        () => onSubmit(params.projectDefinitionId, splitPath(queries.path), head(path) as string),
         returnViewHandler
-    ]), [returnViewHandler, container, path, onSubmit, params.projectDefinitionId, params.selectedPath])
+    ]), [returnViewHandler, container, path, onSubmit, params.projectDefinitionId, queries.path])
     
     return <AddContainerForm path={path} onSubmit={submitHandler} returnViewHandler={returnViewHandler} />
 }
