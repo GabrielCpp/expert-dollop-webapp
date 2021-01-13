@@ -39,6 +39,7 @@ export function ProjectDefinitionEditor({ children }: { children: React.ReactNod
 
     if(isLoading) return (<span>{'Loading..'}</span>)
     if(errors.length > 0) {
+        console.error(errors)
         return (<span>{'Error!'}</span>)
     }
 

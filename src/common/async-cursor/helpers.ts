@@ -27,7 +27,7 @@ export async function concatAll<T>(cursor: AsyncCursor<T[]>): Promise<T[]> {
     let results: T[] = []
 
     while(await cursor.next()) {
-        results = [...results, ...cursor.data]
+        results = [...results, ...cursor.data()]
     }
 
     return results;

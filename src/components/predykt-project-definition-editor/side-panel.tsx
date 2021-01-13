@@ -8,11 +8,12 @@ import {
 } from '@material-ui/core';
 import { ProjectContainerDefinitionTree } from '../../models';
 import { MouseOverPopover } from '../mouse-over-popover';
-import { useTranslation } from 'react-i18next';
 import { DisplayOnMouseOver } from '../display-on-mouseover'
 import { ADD_PROJECT_SECTION_ROUTE_NAME } from './routes';
 import { useNavigate } from '../../common/named-routes';
 import { buildPath } from './helpers';
+import { getI18nHelpTextKey, getI18nLabelKey, useDbTranslation } from '../../reducers';
+
 
 export interface SidePanelProps {
     topLayerNode: ProjectContainerDefinitionTree;
@@ -36,8 +37,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
+
 export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSecondLayer, buildLink }: SidePanelProps) {
-    const { t } = useTranslation()
+    const { t, dbTrans } = useDbTranslation(topLayerNode.projectDefId)
     const { navigate } = useNavigate();
     const params = useParams()
     const classes = useStyles();
@@ -79,8 +81,8 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
                                     justify="flex-start"
                                     alignItems="center"
                                 >
-                                    <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={firstLayerNode.name}>
-                                        <Typography>{firstLayerNode.name}</Typography> 
+                                    <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={dbTrans(getI18nHelpTextKey(firstLayerNode.name))}>
+                                        <Typography>{dbTrans(getI18nLabelKey(firstLayerNode.name))}</Typography> 
                                     </MouseOverPopover>
                                 </Grid>
                                 <Grid
@@ -109,9 +111,9 @@ export function SidePanel({ topLayerNode, selectedNodeFirstLayer, selectedNodeSe
                         <List>
                             {firstLayerNode.children.map(secondLayerNode => (
                                 <ListItem button key={secondLayerNode.name} component={Link} to={buildLink(topLayerNode.id, firstLayerNode.id, secondLayerNode.id)}>
-                                    <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={firstLayerNode.name}>
-                                        {secondLayerNode.id === selectedNodeSecondLayer?.id && <ListItemText primaryTypographyProps={{ className: classes.selectedListItem }} primary={secondLayerNode.name}  />}
-                                        {secondLayerNode.id !== selectedNodeSecondLayer?.id && <ListItemText primary={secondLayerNode.name}  />}
+                                    <MouseOverPopover name={`${firstLayerNode.name}-popover`} text={dbTrans(getI18nHelpTextKey(secondLayerNode.name))}>
+                                        {secondLayerNode.id === selectedNodeSecondLayer?.id && <ListItemText primaryTypographyProps={{ className: classes.selectedListItem }} primary={dbTrans(getI18nLabelKey(secondLayerNode.name))}  />}
+                                        {secondLayerNode.id !== selectedNodeSecondLayer?.id && <ListItemText primary={dbTrans(getI18nLabelKey(secondLayerNode.name))}  />}
                                     </MouseOverPopover>
                                 </ListItem>
                             ))}

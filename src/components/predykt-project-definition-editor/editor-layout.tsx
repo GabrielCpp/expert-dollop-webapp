@@ -9,6 +9,7 @@ import { SidePanel } from './side-panel'
 import { head, noop } from 'lodash';
 import { FormDefinitionEditor } from './form-definition-editor';
 import { splitPath } from './helpers';
+import { getI18nLabelKey, useDbTranslation } from '../../reducers';
 
 
 const query = QueryBuilder
@@ -23,6 +24,7 @@ interface EditorUrlParams {
 
 export function EditorLayout() {
     const { projectDefinitionId, selectedPath }= useParams<EditorUrlParams>();
+    const { dbTrans } = useDbTranslation(projectDefinitionId)
     const projectContainerDefinitionRoot = useTableQuery<ProjectContainerDefinition, ProjectContainerDefinitionRoot>(query({
         projectDefinitionId
     }), buildDisplayTree)
@@ -52,7 +54,7 @@ export function EditorLayout() {
                 <Grid item xs={12}>
                     {projectContainerDefinitionRoot.children.map(c => (
                         <Button key={c.name} component={Link} to={buildLink(c.id)} color="primary">
-                            {c.name}
+                            {dbTrans(getI18nLabelKey(c.name))}
                         </Button>
                     ))}
                 </Grid>

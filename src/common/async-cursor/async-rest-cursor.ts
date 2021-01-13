@@ -3,16 +3,20 @@ import { AsyncCursor } from "./cursor";
 
 export type BuildUrlFn = (nextPageToken: string | undefined, limit: number) => string;
 
+interface PaginatedResult<T> {
+    limit: number;
+    nextPageToken: string;
+    results: T[]
+}
+
 export  class AsyncRestCursor<T> implements AsyncCursor<T[]> {
     private readonly axios: AxiosInstance;
     private limit: number;
     private buildUrl: BuildUrlFn;
 
-    private _data: T[] = []
+    private _data: T[] = [];
     private nextPageToken: string | undefined = undefined;
     private hasNext: boolean = true
-
-    public nextPageTokenHeader = "X-Next-Page-Token"
 
     public constructor(axios: AxiosInstance, limit: number, buildUrl: BuildUrlFn) {
         this.axios = axios;
@@ -22,21 +26,22 @@ export  class AsyncRestCursor<T> implements AsyncCursor<T[]> {
 
     public async next(): Promise<boolean> {
         if(this.hasNext === false) {
+            this._data = []
             return false;
         }
-
+        
         const result = await this.axios.get(this.buildUrl(this.nextPageToken, this.limit))
-        const newData = result.data
+        const newData = result.data as PaginatedResult<T>
         const lastHasNext = this.hasNext;
-        this.nextPageToken = result.headers[this.nextPageTokenHeader];
 
-        this.hasNext = this.nextPageToken === undefined || newData.length < this._data.length ? false : true;
-        this._data = newData
+        this.hasNext = newData.nextPageToken === undefined || newData.results.length < newData.limit ? false : true;
+        this.nextPageToken = newData.nextPageToken;
+        this._data = newData.results;
 
         return lastHasNext;
     }
 
-    public get data(): T[] {
-        return this._data;
+    public data(): T[] {
+        return this._data || [];
     }
 }
