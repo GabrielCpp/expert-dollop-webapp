@@ -58,9 +58,7 @@ export function EditorLayout() {
                         </Button>
                     ))}
                 </Grid>
-                <Grid item xs={12}>
-                    <FormDefinitionEditor formNode={thirdNode}></FormDefinitionEditor>
-                </Grid>
+                <FormDefinitionEditor projectDefinitionId={projectDefinitionId} formNode={thirdNode}></FormDefinitionEditor>
             </Grid>
         </Grid>
     )

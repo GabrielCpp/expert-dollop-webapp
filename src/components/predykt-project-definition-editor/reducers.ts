@@ -46,7 +46,7 @@ export const addContainerDefinitionProvider = (
         createTranslation(projectDefinitionId, 'en', `${form.name.value}_label`, form.en.label.value),
         createTranslation(projectDefinitionId, 'en', `${form.name.value}_help_text`, form.en.label.value),
     ])
-    console.log(containers)
+
     database.transaction((db) => {
         upsertContainerDefinitions(db)(containers)
         upsertTranslations(db)(translations)
