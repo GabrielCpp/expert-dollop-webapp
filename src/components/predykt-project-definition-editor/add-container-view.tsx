@@ -88,7 +88,7 @@ export function AddContainerForm({ returnViewHandler, path, onSubmit }: AddConta
                 <TableTextField fieldDetails={getField(fieldMap, 'name')} label="name"></TableTextField>
                 <TableCheckboxField fieldDetails={getField(fieldMap,'isCollection')} label="is_collection" ></TableCheckboxField>
                 <TableCheckboxField fieldDetails={getField(fieldMap, 'instanciateByDefault')} label="instanciate_by_default" ></TableCheckboxField>
-                <TableCheckboxField fieldDetails={getField(fieldMap, 'orderIndex')} label="order_index" ></TableCheckboxField>
+                <TableTextField fieldDetails={getField(fieldMap, 'orderIndex')} label="order_index" ></TableTextField>
                 <FixedTabDisplay path={path} getField={(name) => getField(fieldMap, name)} defaultSelectedField={'fr'}>
                     {() => [
                         { name: 'fr', label: 'french', component: (path, key) => <FieldTranslation key={key} path={path} /> },

@@ -58,7 +58,7 @@ function App() {
             <Dashboard>
                 <Switch>
                     <Route exact path="/">
-                        <Link to="/project_definition_editor/f97cfe6e-b97d-4b98-80c6-a214851f285c/~">{'Go to editor'}</Link>
+                        <Link to="/project_definition_editor/4b7b8488-6dbf-4ea2-8928-7567f6459028/~">{'Go to editor'}</Link>
                     </Route>
                     <Route path="/project_definition_editor/:projectDefinitionId">
                         <ProjectDefinitionEditor>

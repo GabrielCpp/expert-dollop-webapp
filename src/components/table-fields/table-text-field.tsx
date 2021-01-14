@@ -45,13 +45,14 @@ export function TableTextField({
     }
 
     function onValueChange(e: any) {
-        validate(e.target.value)
+        const value = cast(e.target.value);
+        validate(value)
     
         if(validate.errors) {            
             updateLocalItem({
                 ...fieldDetails,
                 ...item,
-                value: e.target.value,
+                value,
                 errors: validate.errors
             })
         }
@@ -59,9 +60,9 @@ export function TableTextField({
             updateItem({
                 ...fieldDetails,
                 ...item,
-                value: cast(e.target.value),
+                value,
                 errors: []
-            })   
+            })
         }
     }
 
