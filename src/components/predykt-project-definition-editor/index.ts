@@ -1,5 +1,3 @@
 
-export { EditorLayout } from './editor-layout'
-export { AddContainerView } from './add-container-view'
+export { EditorLayout } from './views/editor-layout'
 export { routes } from './routes'
-export { addContainerDefinitionProvider } from './reducers'

@@ -2,8 +2,9 @@
     "name": "t2-webapp",
     "version": "0.1.0",
     "private": true,
-    "proxy": "http://localhost:4000",
+    "proxy": "http://localhost:8000",
     "dependencies": {
+        "@apollo/client": "^3.3.12",
         "@material-ui/core": "^4.11.2",
         "@material-ui/icons": "^4.11.2",
         "ajv": "^7.0.2",
@@ -12,23 +13,45 @@
         "build-url": "^6.0.1",
         "crypto-js": "^4.0.0",
         "fbemitter": "^2.1.1",
+        "graphql": "^15.5.0",
         "i18next": "^19.8.4",
-        "inversify": "^5.0.5",
         "lodash": "^4.17.20",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-i18next": "^11.8.4",
         "react-markdown": "^5.0.3",
         "react-router-dom": "^5.2.0",
-        "reflect-metadata": "^0.1.13",
         "uuid": "^8.3.2",
         "web-vitals": "^0.2.4"
+    },
+    "devDependencies": {
+        "@graphql-codegen/cli": "^1.21.3",
+        "@graphql-codegen/fragment-matcher": "^2.0.1",
+        "@graphql-codegen/introspection": "^1.18.1",
+        "@graphql-codegen/typescript": "^1.21.1",
+        "@graphql-codegen/typescript-operations": "^1.17.15",
+        "@graphql-codegen/typescript-react-apollo": "^2.2.3",
+        "@testing-library/jest-dom": "^5.11.4",
+        "@testing-library/react": "^11.1.0",
+        "@testing-library/user-event": "^12.1.10",
+        "@types/crypto-js": "^4.0.1",
+        "@types/fbemitter": "^2.0.32",
+        "@types/jest": "^26.0.15",
+        "@types/lodash": "^4.14.165",
+        "@types/node": "^12.0.0",
+        "@types/react": "^16.9.53",
+        "@types/react-dom": "^16.9.8",
+        "@types/react-router-dom": "^5.1.7",
+        "@types/uuid": "^8.3.0",
+        "react-scripts": "4.0.1",
+        "typescript": "^4.1.2"
     },
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "g:s": "graphql-codegen --config codegen.yml"
     },
     "eslintConfig": {
         "extends": [
@@ -47,21 +70,5 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
-    },
-    "devDependencies": {
-        "@testing-library/jest-dom": "^5.11.4",
-        "@testing-library/react": "^11.1.0",
-        "@testing-library/user-event": "^12.1.10",
-        "@types/crypto-js": "^4.0.1",
-        "@types/fbemitter": "^2.0.32",
-        "@types/jest": "^26.0.15",
-        "@types/lodash": "^4.14.165",
-        "@types/node": "^12.0.0",
-        "@types/react": "^16.9.53",
-        "@types/react-dom": "^16.9.8",
-        "@types/react-router-dom": "^5.1.7",
-        "@types/uuid": "^8.3.0",
-        "react-scripts": "4.0.1",
-        "typescript": "^4.1.2"
     }
 }

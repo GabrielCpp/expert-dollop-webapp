@@ -1,11 +1,7 @@
-import Ajv, { JSONSchemaType, Schema, ValidateFunction } from 'ajv'
+import Ajv, { JSONSchemaType, Schema } from 'ajv'
 import AjvErrors from 'ajv-errors'
+import { AjvFactory } from '../hooks';
 
-export const AJV_CUSTOM_ERROR = Symbol.for('ajv-with-errors');
-
-export interface AjvFactory {
-    forSchema<T>(schema: Schema | JSONSchemaType<T>): ValidateFunction<T>
-}
 
 export class AjvWithError implements AjvFactory {
     public forSchema<T>(schema: Schema | JSONSchemaType<T>) {

@@ -1,10 +1,9 @@
 import React from 'react'
 import { Namespace, TFunction, useTranslation } from "react-i18next";
 import { Typography, TextField, InputAdornment } from '@material-ui/core';
-import { useInject } from '../../common/container-context'
-import { AJV_CUSTOM_ERROR, AjvFactory } from '../../services'
+import { useServices } from '../../shared/service-context'
 import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover'
-import { useTableRecord } from '../../common/query-hook';
+import { useTableRecord } from '../../shared/redux-db';
 import { buildFormFieldRecordPk, FormFieldRecord, FormFieldTableName } from './form-field-record';
 import { isBoolean } from 'lodash';
 
@@ -24,9 +23,9 @@ export function TableTextField({
     translationProvider,
 }: TableTextFieldProps) {
     const { t } = useTranslation();
+    const { ajv } = useServices();
     const primaryKey = buildFormFieldRecordPk(fieldDetails)
     const [item, updateItem, updateLocalItem] = useTableRecord<FormFieldRecord>(FormFieldTableName, primaryKey, fieldDetails)
-    const validate = useInject<AjvFactory>(AJV_CUSTOM_ERROR).forSchema(fieldDetails.jsonSchemaValidator)
     const trans = translationProvider || t
 
     function getType(): 'number' | 'integer' | 'string' {
@@ -49,6 +48,7 @@ export function TableTextField({
 
     function onValueChange(e: any) {
         const value = cast(e.target.value);
+        const validate = ajv.forSchema(fieldDetails.jsonSchemaValidator);
         validate(value)
     
         if(validate.errors) {            

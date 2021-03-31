@@ -1,0 +1,18 @@
+{
+  "possibleTypes": {
+    "NodeConfigValueType": [
+      "IntFieldConfig",
+      "DecimalFieldConfig",
+      "StringFieldConfig",
+      "BoolFieldConfig",
+      "StaticChoiceFieldConfig",
+      "CollapsibleContainerFieldConfig"
+    ],
+    "FieldValue": [
+      "IntFieldValue",
+      "DecimalFieldValue",
+      "StringFieldValue",
+      "BoolFieldValue"
+    ]
+  }
+}

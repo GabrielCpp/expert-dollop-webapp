@@ -3,11 +3,10 @@ import { Namespace, TFunction, useTranslation } from "react-i18next";
 import { FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core';
 import { Typography } from '@material-ui/core';
 import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover'
-import { useTableRecord } from '../../common/query-hook';
+import { useTableRecord } from '../../shared/redux-db';
 import { FormFieldRecord } from '.';
 import { buildFormFieldRecordPk, FormFieldTableName } from './form-field-record';
-import { useInject } from '../../common/container-context';
-import { AjvFactory, AJV_CUSTOM_ERROR } from '../../services';
+import { useServices } from '../../shared/service-context'
 
 export interface TableRadioFieldOption {
     id: string;
@@ -33,11 +32,12 @@ export function TableRadioField({
     const { t } = useTranslation();
     const primaryKey = buildFormFieldRecordPk(fieldDetails)
     const [selectedItem, updateSelectedItem, updateLocalSelectedItem] = useTableRecord<Record<string, unknown>>(FormFieldTableName, primaryKey, fieldDetails)
-    const validate = useInject<AjvFactory>(AJV_CUSTOM_ERROR).forSchema(fieldDetails.jsonSchemaValidator)
+    const { ajv } = useServices();
     const trans = translationProvider || t;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
+        const validate = ajv.forSchema(fieldDetails.jsonSchemaValidator)
         validate(value)
     
         if(validate.errors) {            

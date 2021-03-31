@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { ErrorObject, JSONSchemaType, Schema } from 'ajv'
-import { ops, PrimaryIndex, PrimaryKey, Query, QueryBuilder, queryParam, recordParam, TableRecord } from "../../common/redux-db";
-import { ReduxDatabase } from '../../common/redux-db/database';
-import { AjvFactory } from '../../services';
+import { ops, PrimaryIndex, PrimaryKey, Query, QueryBuilder, queryParam, recordParam, TableRecord } from "../../shared/redux-db";
+import { ReduxDatabase } from '../../shared/redux-db/database';
+import { AjvFactory } from '../../hooks';
 import { isEqual } from 'lodash';
 
 export const FormFieldTableName = 'form-field'

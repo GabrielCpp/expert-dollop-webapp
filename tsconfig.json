@@ -21,9 +21,6 @@
         "jsx": "react-jsx",
         "downlevelIteration": true,
         "experimentalDecorators": true,
-        "types": [
-            "reflect-metadata"
-        ],
     },
     "include": [
         "src"

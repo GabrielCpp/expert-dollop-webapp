@@ -1,1 +1,0 @@
-export { useDbTranslation, getI18nLabelKey, getI18nHelpTextKey } from './translation'

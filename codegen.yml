@@ -1,0 +1,21 @@
+overwrite: true
+schema: "http://127.0.0.1:8000/graphql"
+documents: "src/**/(mutations|queries|fragments).ts"
+generates:
+  src/generated/graphql.tsx:
+    plugins:
+    - "typescript"
+    - "typescript-operations"
+    - "typescript-react-apollo"
+    config:
+      withHooks: true
+      withMutation: true
+      wrapFieldDefinitions: true
+      namingConvention:
+        enumValues: keep
+  src/generated/graphql.schema.json:
+    plugins:
+    - "introspection"
+  src/generated/fragmentTypes.json:
+    plugins:
+    - "fragment-matcher"

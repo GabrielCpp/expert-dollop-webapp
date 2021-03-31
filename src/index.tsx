@@ -1,5 +1,4 @@
 
-import 'reflect-metadata'
 import './index.css';
 import './i18n'
 
@@ -7,10 +6,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { container } from './common/container-context'
-import * as modules from './modules'
 
-container.load(...Object.values(modules))
 
 ReactDOM.render(
   <App />,

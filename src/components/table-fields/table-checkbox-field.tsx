@@ -3,7 +3,7 @@ import { Namespace, TFunction, useTranslation } from "react-i18next";
 import { FormControlLabel, Checkbox } from '@material-ui/core';
 import { Typography } from '@material-ui/core';
 import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover'
-import { useTableRecord } from '../../common/query-hook';
+import { useTableRecord } from '../../shared/redux-db';
 import { buildFormFieldRecordPk, FormFieldRecord, FormFieldTableName } from './form-field-record';
 
 export interface TableCheckboxFieldProps {
