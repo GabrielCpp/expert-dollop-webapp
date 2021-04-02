@@ -12,8 +12,11 @@ export {
     queryChildrenOf,
     hydrateForm,
     validateForm,
+    deleteFormFieldRecords
 } from './form-field-record'
 export { TableTextField } from './table-text-field'
 export { TableCheckboxField } from './table-checkbox-field'
 export { TableRadioField } from './table-radio-field'
 export type { TableRadioFieldOption }  from './table-radio-field'
+export type { TabCollectionItem, TabTableCollectionProps } from './fixed-table-display'
+export { FixedTabDisplay } from './fixed-table-display'

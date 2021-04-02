@@ -26,7 +26,7 @@ query findProjectDefinitionRootSections($id: ID!) {
               transforms
             }
             ... on BoolFieldConfig {
-              validator
+              isCheckbox
             }
             ... on StaticChoiceFieldConfig {
               validator
@@ -90,7 +90,7 @@ query findProjectDefinitionRootSectionContainers($id: ID!, $rootSectionId: ID!) 
               transforms
             }
             ... on BoolFieldConfig {
-              validator
+              isCheckbox
             }
             ... on StaticChoiceFieldConfig {
               validator
@@ -146,7 +146,7 @@ query findProjectDefinitionRootSectionContainers($id: ID!, $rootSectionId: ID!) 
                 transforms
               }
               ... on BoolFieldConfig {
-                validator
+                isCheckbox
               }
               ... on StaticChoiceFieldConfig {
                 validator
@@ -202,7 +202,7 @@ query findProjectDefinitionRootSectionContainers($id: ID!, $rootSectionId: ID!) 
                   transforms
                 }
                 ... on BoolFieldConfig {
-                  validator
+                  isCheckbox
                 }
                 ... on StaticChoiceFieldConfig {
                   validator
@@ -244,6 +244,44 @@ query findProjectDefinitionRootSectionContainers($id: ID!, $rootSectionId: ID!) 
 
 export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
 query findProjectDefinitionFormContent($id: ID!, $formId: ID!) {
+  findProjectDefinitionNode(projectDefId: $id, id: $formId) {
+    id,
+    projectDefId,
+    name,
+    isCollection,
+    instanciateByDefault,
+    orderIndex,
+    config { 
+      valueType {
+        __typename
+        ... on IntFieldConfig {
+          validator
+        }
+        ... on DecimalFieldConfig {
+          validator
+          precision
+        }
+        ... on StringFieldConfig {
+          validator
+          transforms
+        }
+        ... on BoolFieldConfig {
+          isCheckbox
+        }
+        ... on StaticChoiceFieldConfig {
+          validator
+          options {
+            id
+            label
+            help_text
+          }
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
+        }
+      }    
+    }
+  }
   findProjectDefinitionFormContent(projectDefId: $id, formId: $formId) {
     roots {
       definition {
@@ -268,7 +306,7 @@ query findProjectDefinitionFormContent($id: ID!, $formId: ID!) {
               transforms
             }
             ... on BoolFieldConfig {
-              validator
+              isCheckbox
             }
             ... on StaticChoiceFieldConfig {
               validator
@@ -324,7 +362,7 @@ query findProjectDefinitionFormContent($id: ID!, $formId: ID!) {
                 transforms
               }
               ... on BoolFieldConfig {
-                validator
+                isCheckbox
               }
               ... on StaticChoiceFieldConfig {
                 validator
@@ -380,7 +418,7 @@ query findProjectDefinitionFormContent($id: ID!, $formId: ID!) {
                   transforms
                 }
                 ... on BoolFieldConfig {
-                  validator
+                  isCheckbox
                 }
                 ... on StaticChoiceFieldConfig {
                   validator

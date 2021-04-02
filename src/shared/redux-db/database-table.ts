@@ -13,6 +13,10 @@ export class DatabaseTable {
         this._tableTransaction = tableTransaction;
     }
 
+    public where<T extends Record<string, unknown>>(predicate: (record: T) => boolean): T[] {
+         return this._table.where(predicate)
+    }
+
     public upsertMany(records: TableRecord[]) {
         this._table.upsertMany(this._tableTransaction, records)
         this._tableTransaction.flush()

@@ -1,134 +1,185 @@
-import React from 'react'
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Typography } from '@material-ui/core';
 import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
-import { Accordion, AccordionSummary, Typography, AccordionDetails, Grid } from '@material-ui/core';
-import { ProjectDefinitionNode } from '../../../generated';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+
+import {
+    CollapsibleContainerFieldConfig,
+    DecimalFieldConfig,
+    IntFieldConfig,
+    ProjectDefinitionNode,
+    ProjectDefinitionTreeNode,
+    StaticChoiceFieldConfig,
+    StringFieldConfig,
+    useFindProjectDefinitionFormContentQuery,
+} from '../../../generated';
 import { MouseOverPopover } from '../../mouse-over-popover';
-import { createFormFieldRecord, TableCheckboxField, TableRadioField, TableTextField, TableRadioFieldOption } from '../../table-fields';
-import { JSONSchemaType } from 'ajv';
+import {
+    createFormFieldRecord,
+    TableCheckboxField,
+    TableRadioField,
+    TableTextField,
+} from '../../table-fields';
 import { useDbTranslation } from '../../translation';
+import { splitPath } from '../helpers';
+import { JSONSchemaType } from 'ajv';
 
-interface StaticChoiceOption {
-    id: string;
-    label: string;
-    helpText: string;
+interface FormProps {
+    node: ProjectDefinitionTreeNode;
 }
 
-interface FieldValueConfig {
-    validator: JSONSchemaType<any>
-    options?: StaticChoiceOption[]
-}
-interface ContainerValueType {
-    isCollapsible: boolean
-}
-
-export interface FieldGroupFormProps {
-    projectDefinitionId: string;
-    formNode: ProjectDefinitionNode | undefined;
-}
-
-export function FormDefinitionEditor({ formNode, projectDefinitionId }: FieldGroupFormProps) {
-    const { labelTrans, helpTextTrans } = useDbTranslation(projectDefinitionId)
-
-    function renderFormSection(container: ProjectDefinitionNode) {
-        const valueType = container.config?.valueType
-        const valueTypeConfig = valueType as ContainerValueType | undefined
-
-        if(valueTypeConfig !== undefined && valueTypeConfig.isCollapsible) {
-            return renderAccordion(container)
-        }
-
-        return renderSection(container)
+function getJsonSchema(node: ProjectDefinitionNode): JSONSchemaType<any> {
+    if(node.valueType === "STRING" || node.valueType === "INT" || node.valueType === "DECIMAL" || node.valueType === "STATIC_CHOICE") {
+        const valueType = node.config?.valueType as IntFieldConfig | DecimalFieldConfig | StringFieldConfig | StaticChoiceFieldConfig
+        return JSON.parse(valueType.validator) as JSONSchemaType<any>
     }
 
-    function renderAccordion(container: ProjectDefinitionNode) {
-        return (
-            <Accordion key={container.name}>
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                >
-                    <MouseOverPopover name={container.name} text={helpTextTrans(container.name)}>
-                        <Typography>
-                            {labelTrans(container.name)}
-                        </Typography>
-                    </MouseOverPopover>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container direction="column">
-                    {container.children.map(field => (
-                        <Grid item key={field.name}>
-                        {renderField(field)}
-                        </Grid>
-                    ))}
-                    </Grid>
-                </AccordionDetails>
-            </Accordion>
-        )
+    if(node.valueType === "BOOLEAN") {
+        return { type: "boolean" }
     }
 
-    function renderSection(container: ProjectDefinitionNode) {
-        return (
-            <fieldset key={container.name}>
-                <legend>
-                    <MouseOverPopover name={container.name} text={helpTextTrans(container.name)}>
-                        <Typography>
-                            {labelTrans(container.name)}
-                        </Typography>
-                    </MouseOverPopover>
-                </legend>
+    throw new Error("Bad config")
+}
+
+function getFieldValue(node: ProjectDefinitionNode): string | number | boolean {
+    const { text, numeric, enabled, integer } = {
+        text: null,
+        numeric: null, 
+        enabled: null,
+        integer: null,
+        ...node.defaultValue
+    }
+
+    const value = [text, numeric, enabled, integer].find(x => x != null)
+
+    if(value === null || value === undefined) {
+        throw new Error("Bad value")
+    }
+
+    return value
+}
+
+function FormField({ node }: FormProps): JSX.Element {
+    const { labelTrans } = useDbTranslation(node.definition.projectDefId)
+
+    if(node.definition.config === null ||  node.definition.config === undefined) {
+        throw new Error("Bad config")
+    }
+
+    const { valueType } = node.definition.config;
+    const value = getFieldValue(node.definition)
+    const fieldDetails = createFormFieldRecord(
+        getJsonSchema(node.definition),
+        node.definition.path,
+        node.definition.name,
+        value as string | number | boolean,
+        node.definition.id
+    )
+
+    if(node.definition.valueType === "STRING" || node.definition.valueType === "INT" || node.definition.valueType === "DECIMAL") {
+        return <TableTextField fieldDetails={fieldDetails} label={(node.definition.name)} translationProvider={labelTrans} />
+    }
+
+    if(node.definition.valueType === "BOOLEAN") {
+        return <TableCheckboxField fieldDetails={fieldDetails} label={(node.definition.name)} translationProvider={labelTrans}  />
+    }
+
+    if(node.definition.valueType === "STATIC_CHOICE") {
+        const choices = valueType as StaticChoiceFieldConfig
+        return <TableRadioField options={choices.options} fieldDetails={fieldDetails} label={(node.definition.name)} translationProvider={labelTrans}></TableRadioField>
+    }
+
+    return (
+        <div key={node.definition.name}>
+            {node.definition.name}
+        </div>
+    )
+}
+
+
+function FormAccordionSection({ node }: FormProps): JSX.Element {
+    const { labelTrans, helpTextTrans } = useDbTranslation(node.definition.projectDefId)
+
+    return (
+        <Accordion key={node.definition.name}>
+            <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+            >
+                <MouseOverPopover name={node.definition.name} text={helpTextTrans(node.definition.name)}>
+                    <Typography>
+                        {labelTrans(node.definition.name)}
+                    </Typography>
+                </MouseOverPopover>
+            </AccordionSummary>
+            <AccordionDetails>
                 <Grid container direction="column">
-                {container.children.map(field => (
-                    <Grid item key={field.name}>
-                    {renderField(field)}
+                {node.children.map(child => (
+                    <Grid item key={child.definition.name}>
+                        <FormField node={child} />
                     </Grid>
                 ))}
                 </Grid>
-            </fieldset>
-        )
+            </AccordionDetails>
+        </Accordion>
+    )
+}
+
+function FornInlineSection({ node }: FormProps): JSX.Element {
+    const { labelTrans, helpTextTrans } = useDbTranslation(node.definition.projectDefId)
+
+    return (
+        <fieldset key={node.definition.name}>
+            <legend>
+                <MouseOverPopover name={node.definition.name} text={helpTextTrans(node.definition.name)}>
+                    <Typography>
+                        {labelTrans(node.definition.name)}
+                    </Typography>
+                </MouseOverPopover>
+            </legend>
+            <Grid container direction="column">
+            {node.children.map(child => (
+                <Grid item key={child.definition.name}>
+                    <FormField node={child} />
+                </Grid>
+            ))}
+            </Grid>
+        </fieldset>
+    )
+}
+
+function FormSection({ node }: FormProps): JSX.Element {
+    const valueType = node.definition.config?.valueType as CollapsibleContainerFieldConfig;
+
+    if(valueType !== null && valueType !== undefined && valueType.isCollapsible) {
+        return <FormAccordionSection node={node} />
     }
 
-    function renderField(field: ProjectDefinitionNode) {
-        const valueType = field.config?.valueType
-        const { text, numeric, enabled, integer } = {
-            text: null,
-            numeric: null, 
-            enabled: null,
-            integer: null,
-            ...field.defaultValue
-        }
-        const value = [text, numeric, enabled, integer].find(x => x != null)
-        const valueTypeConfig = valueType as FieldValueConfig;
-        const fieldDetails = createFormFieldRecord(
-            valueTypeConfig.validator,
-            field.path,
-            field.name,
-            value as string | number | boolean,
-            field.id
-        )
+    return <FornInlineSection node={node} />
+}
 
-        if(field.valueType === "STRING" || field.valueType === "INT" || field.valueType === "DECIMAL") {
-            return <TableTextField fieldDetails={fieldDetails} label={(field.name)} translationProvider={labelTrans} />
-        }
+interface FormDefinitionEditorParams extends Record<string, string> {
+    projectDefinitionId: string
+    selectedPath: string;
+}
 
-        if(field.valueType === "BOOL") {
-            return <TableCheckboxField fieldDetails={fieldDetails} label={(field.name)} translationProvider={labelTrans}  />
+export function FormDefinitionEditor() {
+    const { projectDefinitionId, selectedPath } = useParams<FormDefinitionEditorParams>()
+    const { labelTrans, helpTextTrans } = useDbTranslation(projectDefinitionId)
+    const [ , , formId ] = splitPath(selectedPath);
+    const { loading, data } = useFindProjectDefinitionFormContentQuery({
+        variables: {
+            id: projectDefinitionId,
+            formId
         }
+    })
 
-        if(field.valueType === "STATIC_CHOICE" && valueTypeConfig.options) {
-            const options: TableRadioFieldOption[] = valueTypeConfig.options.map(options => ({
-                id: options.id,
-                label: options.label
-            }));
-            return <TableRadioField options={options} fieldDetails={fieldDetails} label={(field.name)} translationProvider={labelTrans}></TableRadioField>
-        }
-
-        return (
-            <div key={field.name}>
-                {field.name}
-            </div>
-        )
+    if(loading) {
+        return <span>Loading...</span>
     }
+    const formNode = data?.findProjectDefinitionNode
+    const formContent = data?.findProjectDefinitionFormContent.roots
 
     return (
         <Grid item xs={12}>
@@ -139,9 +190,9 @@ export function FormDefinitionEditor({ formNode, projectDefinitionId }: FieldGro
         </MouseOverPopover>}
         <form>
             <Grid container direction="column">
-                {formNode && formNode.children.map(node => (
-                    <Grid item key={node.name} xs={6}>
-                    {renderFormSection(node)}
+                {formContent && formContent.map(node => (
+                    <Grid item key={node.definition.name} xs={6}>
+                        <FormSection node={node as ProjectDefinitionTreeNode} />
                     </Grid> 
                 ))}
             </Grid>        

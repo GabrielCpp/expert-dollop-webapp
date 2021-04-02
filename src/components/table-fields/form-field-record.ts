@@ -3,7 +3,7 @@ import { ErrorObject, JSONSchemaType, Schema } from 'ajv'
 import { ops, PrimaryIndex, PrimaryKey, Query, QueryBuilder, queryParam, recordParam, TableRecord } from "../../shared/redux-db";
 import { ReduxDatabase } from '../../shared/redux-db/database';
 import { AjvFactory } from '../../hooks';
-import { isEqual } from 'lodash';
+import { head, isEqual } from 'lodash';
 
 export const FormFieldTableName = 'form-field'
 export type FormFieldError = ErrorObject<string, Record<string, any>, unknown>
@@ -68,6 +68,13 @@ export function queryChildrenOf(path: string[]): Query {
 export function upsertFormFieldRecord(database: ReduxDatabase, records: FormFieldRecord[]): void {
     database.getTable(FormFieldTableName).upsertMany(records)
 }
+
+export function deleteFormFieldRecords(database: ReduxDatabase, id: string): void {
+    const table = database.getTable(FormFieldTableName);
+    const records = table.where<FormFieldRecord>(record => head(record.fieldPath) === id);
+    table.removeMany(records);
+}
+
 
 export const STRING_VALIDATOR = { "type": "string" }
 export const BOOLEAN_VALIDATOR = { "type": "boolean" }

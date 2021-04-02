@@ -23,6 +23,7 @@ export type Query = {
   findProjectDefinitionRootSections: FieldWrapper<ProjectDefinitionNodeTree>;
   findProjectDefinitionRootSectionContainers: FieldWrapper<ProjectDefinitionNodeTree>;
   findProjectDefinitionFormContent: FieldWrapper<ProjectDefinitionNodeTree>;
+  findProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   findRessourceTranslation: FieldWrapper<TranslationConnection>;
 };
 
@@ -51,6 +52,12 @@ export type QueryFindProjectDefinitionRootSectionContainersArgs = {
 export type QueryFindProjectDefinitionFormContentArgs = {
   projectDefId: Scalars['ID'];
   formId: Scalars['ID'];
+};
+
+
+export type QueryFindProjectDefinitionNodeArgs = {
+  projectDefId: Scalars['ID'];
+  id: Scalars['ID'];
 };
 
 
@@ -240,7 +247,7 @@ export type StringFieldConfig = {
 
 export type BoolFieldConfig = {
   __typename?: 'BoolFieldConfig';
-  validator: FieldWrapper<Scalars['JsonSchema']>;
+  isCheckbox: FieldWrapper<Scalars['Boolean']>;
 };
 
 export type StaticChoiceFieldConfig = {
@@ -465,7 +472,7 @@ export type FindProjectDefinitionRootSectionsQuery = (
             & Pick<StringFieldConfig, 'validator' | 'transforms'>
           ) | (
             { __typename: 'BoolFieldConfig' }
-            & Pick<BoolFieldConfig, 'validator'>
+            & Pick<BoolFieldConfig, 'isCheckbox'>
           ) | (
             { __typename: 'StaticChoiceFieldConfig' }
             & Pick<StaticChoiceFieldConfig, 'validator'>
@@ -523,7 +530,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
             & Pick<StringFieldConfig, 'validator' | 'transforms'>
           ) | (
             { __typename: 'BoolFieldConfig' }
-            & Pick<BoolFieldConfig, 'validator'>
+            & Pick<BoolFieldConfig, 'isCheckbox'>
           ) | (
             { __typename: 'StaticChoiceFieldConfig' }
             & Pick<StaticChoiceFieldConfig, 'validator'>
@@ -566,7 +573,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
               & Pick<StringFieldConfig, 'validator' | 'transforms'>
             ) | (
               { __typename: 'BoolFieldConfig' }
-              & Pick<BoolFieldConfig, 'validator'>
+              & Pick<BoolFieldConfig, 'isCheckbox'>
             ) | (
               { __typename: 'StaticChoiceFieldConfig' }
               & Pick<StaticChoiceFieldConfig, 'validator'>
@@ -609,7 +616,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
                 & Pick<StringFieldConfig, 'validator' | 'transforms'>
               ) | (
                 { __typename: 'BoolFieldConfig' }
-                & Pick<BoolFieldConfig, 'validator'>
+                & Pick<BoolFieldConfig, 'isCheckbox'>
               ) | (
                 { __typename: 'StaticChoiceFieldConfig' }
                 & Pick<StaticChoiceFieldConfig, 'validator'>
@@ -649,7 +656,36 @@ export type FindProjectDefinitionFormContentQueryVariables = Exact<{
 
 export type FindProjectDefinitionFormContentQuery = (
   { __typename?: 'Query' }
-  & { findProjectDefinitionFormContent: (
+  & { findProjectDefinitionNode: (
+    { __typename?: 'ProjectDefinitionNode' }
+    & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+    & { config?: Maybe<(
+      { __typename?: 'NodeConfig' }
+      & { valueType?: Maybe<(
+        { __typename: 'IntFieldConfig' }
+        & Pick<IntFieldConfig, 'validator'>
+      ) | (
+        { __typename: 'DecimalFieldConfig' }
+        & Pick<DecimalFieldConfig, 'validator' | 'precision'>
+      ) | (
+        { __typename: 'StringFieldConfig' }
+        & Pick<StringFieldConfig, 'validator' | 'transforms'>
+      ) | (
+        { __typename: 'BoolFieldConfig' }
+        & Pick<BoolFieldConfig, 'isCheckbox'>
+      ) | (
+        { __typename: 'StaticChoiceFieldConfig' }
+        & Pick<StaticChoiceFieldConfig, 'validator'>
+        & { options: Array<(
+          { __typename?: 'StaticChoiceOption' }
+          & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
+        )> }
+      ) | (
+        { __typename: 'CollapsibleContainerFieldConfig' }
+        & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+      )> }
+    )> }
+  ), findProjectDefinitionFormContent: (
     { __typename?: 'ProjectDefinitionNodeTree' }
     & { roots: Array<(
       { __typename?: 'ProjectDefinitionTreeNode' }
@@ -669,7 +705,7 @@ export type FindProjectDefinitionFormContentQuery = (
             & Pick<StringFieldConfig, 'validator' | 'transforms'>
           ) | (
             { __typename: 'BoolFieldConfig' }
-            & Pick<BoolFieldConfig, 'validator'>
+            & Pick<BoolFieldConfig, 'isCheckbox'>
           ) | (
             { __typename: 'StaticChoiceFieldConfig' }
             & Pick<StaticChoiceFieldConfig, 'validator'>
@@ -712,7 +748,7 @@ export type FindProjectDefinitionFormContentQuery = (
               & Pick<StringFieldConfig, 'validator' | 'transforms'>
             ) | (
               { __typename: 'BoolFieldConfig' }
-              & Pick<BoolFieldConfig, 'validator'>
+              & Pick<BoolFieldConfig, 'isCheckbox'>
             ) | (
               { __typename: 'StaticChoiceFieldConfig' }
               & Pick<StaticChoiceFieldConfig, 'validator'>
@@ -755,7 +791,7 @@ export type FindProjectDefinitionFormContentQuery = (
                 & Pick<StringFieldConfig, 'validator' | 'transforms'>
               ) | (
                 { __typename: 'BoolFieldConfig' }
-                & Pick<BoolFieldConfig, 'validator'>
+                & Pick<BoolFieldConfig, 'isCheckbox'>
               ) | (
                 { __typename: 'StaticChoiceFieldConfig' }
                 & Pick<StaticChoiceFieldConfig, 'validator'>
@@ -814,7 +850,7 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
               transforms
             }
             ... on BoolFieldConfig {
-              validator
+              isCheckbox
             }
             ... on StaticChoiceFieldConfig {
               validator
@@ -908,7 +944,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
               transforms
             }
             ... on BoolFieldConfig {
-              validator
+              isCheckbox
             }
             ... on StaticChoiceFieldConfig {
               validator
@@ -964,7 +1000,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
                 transforms
               }
               ... on BoolFieldConfig {
-                validator
+                isCheckbox
               }
               ... on StaticChoiceFieldConfig {
                 validator
@@ -1020,7 +1056,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
                   transforms
                 }
                 ... on BoolFieldConfig {
-                  validator
+                  isCheckbox
                 }
                 ... on StaticChoiceFieldConfig {
                   validator
@@ -1090,6 +1126,44 @@ export type FindProjectDefinitionRootSectionContainersLazyQueryHookResult = Retu
 export type FindProjectDefinitionRootSectionContainersQueryResult = Apollo.QueryResult<FindProjectDefinitionRootSectionContainersQuery, FindProjectDefinitionRootSectionContainersQueryVariables>;
 export const FindProjectDefinitionFormContentDocument = gql`
     query findProjectDefinitionFormContent($id: ID!, $formId: ID!) {
+  findProjectDefinitionNode(projectDefId: $id, id: $formId) {
+    id
+    projectDefId
+    name
+    isCollection
+    instanciateByDefault
+    orderIndex
+    config {
+      valueType {
+        __typename
+        ... on IntFieldConfig {
+          validator
+        }
+        ... on DecimalFieldConfig {
+          validator
+          precision
+        }
+        ... on StringFieldConfig {
+          validator
+          transforms
+        }
+        ... on BoolFieldConfig {
+          isCheckbox
+        }
+        ... on StaticChoiceFieldConfig {
+          validator
+          options {
+            id
+            label
+            help_text
+          }
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
+        }
+      }
+    }
+  }
   findProjectDefinitionFormContent(projectDefId: $id, formId: $formId) {
     roots {
       definition {
@@ -1114,7 +1188,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
               transforms
             }
             ... on BoolFieldConfig {
-              validator
+              isCheckbox
             }
             ... on StaticChoiceFieldConfig {
               validator
@@ -1170,7 +1244,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
                 transforms
               }
               ... on BoolFieldConfig {
-                validator
+                isCheckbox
               }
               ... on StaticChoiceFieldConfig {
                 validator
@@ -1226,7 +1300,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
                   transforms
                 }
                 ... on BoolFieldConfig {
-                  validator
+                  isCheckbox
                 }
                 ... on StaticChoiceFieldConfig {
                   validator

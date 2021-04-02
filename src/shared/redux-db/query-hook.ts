@@ -132,27 +132,14 @@ export function useRefMappedValue<Seed, Value, Result>(elements: [Seed, (p: Valu
     return value.current
 }
 
-export function _throw(error: Error) {
-    throw error;
-}
+export function useTableLifetime<T>(setup: () => T, cleanup: (state: T) => void) {
+    const [state] = useState(setup)
 
-export function createAbortFlowError(): Error {
-    const error = new Error('Abort action flow');
-    error.name = 'abort_action_flow';
-    return error;
-}
+    useEffect(() => {
+        return () => {
+            cleanup(state);
+        }
+    }, [state, cleanup]);
 
-export function buildActionFlow(actions: Array<() => void>, onError: (e: Error) => void=e => console.error(e)) {
-    return async () => {
-        try {
-            for(const action of actions) {
-                await action();
-            }
-        }
-        catch(e) {
-            if(e.name !== 'abort_action_flow') {
-                onError(e)
-            }           
-        }
-    }
+    return [state]
 }

@@ -1,17 +1,17 @@
-import { Button, Grid, Tab, Tabs } from '@material-ui/core';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Button, Grid } from '@material-ui/core';
+import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Services } from '../../../hooks';
 import { RouteViewCompoenentProps } from '../../../shared/named-routes';
-import { createAbortFlowError, ReduxDatabase, useTableQuery } from '../../../shared/redux-db';
+import { useTableLifetime, useTableQuery } from '../../../shared/redux-db';
 import { useServices } from '../../../shared/service-context';
 import {
     BOOLEAN_VALIDATOR,
     buildFieldByNameMap,
     createFormFieldRecord,
-    FormFieldRecord,
+    deleteFormFieldRecords,
+    FixedTabDisplay,
     getField,
     HydratedFormNode,
     INT_VALIDATOR,
@@ -45,47 +45,49 @@ export function FieldTranslation({ path }: FieldTranslationProps) {
     );
 }
 
-export interface TabCollectionItem {
-    label: string;
-    name: string;
-    component: (path: string[], key: string) => React.ReactNode
-}
 
-export interface TabTableCollectionProps {
-    path: string[];
-    getField: (name: string) => FormFieldRecord;
-    defaultSelectedField: string;
-    children: () => TabCollectionItem[]
-}
-
-export function FixedTabDisplay({ path, getField, defaultSelectedField, children }: TabTableCollectionProps) {
-    const { t } = useTranslation()
-    const [selectedTab, setSelectedTab] = React.useState(defaultSelectedField);
-    const [avaiablesComponents] = useState(children)
-
-    const handleChange = (_: React.ChangeEvent<{}>, newValue: string) => {
-        setSelectedTab(newValue);
-    };
-
-    return (
-        <>
-            <Tabs value={selectedTab} onChange={handleChange} aria-label="simple tabs example">
-                {avaiablesComponents.map(({ name, label }) => (
-                    <Tab key={name} label={t(label)} value={name} />
-                ))}
-            </Tabs>
-            {avaiablesComponents.filter(({ name }) => name === selectedTab).map(({ component, name }) => component([ ...path, getField(name).fieldId], name))}
-        </>
-    )
-}
 
 export interface AddContainerFormProps extends RouteViewCompoenentProps {
-    path: string[];
-    onSubmit: () => void
+    empty?: string
 }
 
-export function AddContainerForm({ navigateBack, path, onSubmit }: AddContainerFormProps) {
+export function AddContainerForm({ navigateBack }: RouteViewCompoenentProps) {
+    const { reduxDb, ajv } = useServices<Services>();
+    const [path] = useTableLifetime(createAddContainerForm, ([ id ]: string[]) => {
+            deleteFormFieldRecords(reduxDb, id)
+    });
+
     const fieldMap = useTableQuery(queryDirectChildrenOf(path), buildFieldByNameMap)
+
+    function createAddContainerForm(): string[]  {
+        const formId = uuidv4();
+        const frTabId = uuidv4();
+        const enTabId = uuidv4();
+
+        upsertFormFieldRecord(reduxDb, [
+            createFormFieldRecord(NAME_VALIDATOR, [formId], 'name', ''),
+            createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'isCollection', false),
+            createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'instanciateByDefault', true),
+            createFormFieldRecord(INT_VALIDATOR, [formId], 'orderIndex', 0),
+            createFormFieldRecord(true, [formId], 'fr', null, frTabId),
+            createFormFieldRecord(true, [formId], 'en', null, enTabId),
+            createFormFieldRecord(STRING_VALIDATOR, [formId, frTabId], 'label', ''),
+            createFormFieldRecord(STRING_VALIDATOR, [formId, frTabId], 'helpText', ''),
+            createFormFieldRecord(STRING_VALIDATOR, [formId, enTabId], 'label', ''),
+            createFormFieldRecord(STRING_VALIDATOR, [formId, enTabId], 'helpText', ''),
+        ]);
+
+        return [formId]
+    }
+
+    function onSubmit() {
+        if(validateForm(reduxDb, ajv)(path) === false) {
+            return;
+        }
+
+        navigateBack()
+    }
+    
 
     return (
         <form>
@@ -123,18 +125,9 @@ export function AddContainerForm({ navigateBack, path, onSubmit }: AddContainerF
 
 
 export function AddContainerView({ navigateBack }: RouteViewCompoenentProps) {
-    const { reduxDb, ajv } = useServices<Services>();
-    const [path] = useState(createAddContainerForm(reduxDb));
 
-    function onSubmit() {
-        if(validateForm(reduxDb, ajv)(path) === false) {
-            throw createAbortFlowError();
-        }
 
-        navigateBack()
-    }
-
-    return <AddContainerForm navigateBack={navigateBack} path={path} onSubmit={onSubmit}/>
+    return <AddContainerForm navigateBack={navigateBack}/>
 }
 
 export interface ContainerTranslationViewModel extends HydratedFormNode<null> {
@@ -158,23 +151,3 @@ const NAME_VALIDATOR = {
     "pattern": "^[a-z_][a-z0-9_]*$"
 }
 
-export const createAddContainerForm = (database: ReduxDatabase) => (): string[] => {
-    const formId = uuidv4();
-    const frTabId = uuidv4();
-    const enTabId = uuidv4();
-
-    upsertFormFieldRecord(database, [
-        createFormFieldRecord(NAME_VALIDATOR, [formId], 'name', ''),
-        createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'isCollection', false),
-        createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'instanciateByDefault', true),
-        createFormFieldRecord(INT_VALIDATOR, [formId], 'orderIndex', 0),
-        createFormFieldRecord(true, [formId], 'fr', null, frTabId),
-        createFormFieldRecord(true, [formId], 'en', null, enTabId),
-        createFormFieldRecord(STRING_VALIDATOR, [formId, frTabId], 'label', ''),
-        createFormFieldRecord(STRING_VALIDATOR, [formId, frTabId], 'helpText', ''),
-        createFormFieldRecord(STRING_VALIDATOR, [formId, enTabId], 'label', ''),
-        createFormFieldRecord(STRING_VALIDATOR, [formId, enTabId], 'helpText', ''),
-    ]);
-
-    return [formId]
-}
