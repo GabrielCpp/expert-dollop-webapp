@@ -99,7 +99,7 @@ export function deleteChildFormFieldRecords(database: ReduxDatabase, path: strin
 }
 
 
-export const STRING_VALIDATOR = { "type": "string" }
+export const STRING_VALIDATOR = { "type": "string", "minLength": 1, "pattern": "[^\\s]+"}
 export const BOOLEAN_VALIDATOR = { "type": "boolean" }
 export const INT_VALIDATOR = { "type": "integer" }
 

@@ -23,14 +23,12 @@ export function useForm(name?: string, parentPath: string[]=[]) {
         const path = formPath.current as string[]
 
         if(name !== undefined) {
-            console.log("New record", path)
             upsertFormFieldRecord(reduxDb, [
                 createFormFieldRecord(true, path.slice(0, path.length - 1), name, null, last(path)),
             ]);
         }
 
         return () => {
-            console.log("Cleanup")
             deleteFormFieldRecords(reduxDb, path)
         }
     }, [reduxDb, formPath, name])
