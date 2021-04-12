@@ -54,12 +54,12 @@ function FormField({ node }: FormProps): JSX.Element {
     }
 
     if(fieldType=== "BoolFieldConfig") {
-        return <Field validator={validator} path={node.definition.path} name={node.definition.name} defaultValue={value} id={node.definition.id} label={(node.definition.name)} translationProvider={labelTrans}   component={checkboxField} />
+        return <Field validator={validator} path={node.definition.path} name={node.definition.name} defaultValue={value} id={node.definition.id} label={(node.definition.name)} t={labelTrans}   component={checkboxField} />
     }
 
     if(fieldType === "StaticChoiceFieldConfig") {
         const choices = node.definition.config.fieldDetails as StaticChoiceFieldConfig
-        return <Field options={choices.options} validator={validator} path={node.definition.path} name={node.definition.name} defaultValue={value} id={node.definition.id} label={(node.definition.name)} translationProvider={labelTrans} component={radioField} />
+        return <Field options={choices.options} validator={validator} path={node.definition.path} name={node.definition.name} defaultValue={value} id={node.definition.id} label={(node.definition.name)} t={labelTrans} component={radioField} />
     }
 
     return (

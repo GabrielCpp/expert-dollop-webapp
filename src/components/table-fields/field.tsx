@@ -31,7 +31,7 @@ export function Field({ validator, path, name, defaultValue, id, children, compo
     const primaryKey = buildFormFieldRecordPk(fieldDetails)
     const [item, updateItem, updateLocalItem] = useTableRecord<FormFieldRecord>(FormFieldTableName, primaryKey, fieldDetails)
 
-    function getType(): 'number' | 'integer' | 'string' {
+    function getType(): 'number' | 'integer' | 'string' | 'boolean' {
         if(isBoolean(fieldDetails.jsonSchemaValidator)) {
             return "string"
         }
@@ -39,18 +39,21 @@ export function Field({ validator, path, name, defaultValue, id, children, compo
         return fieldDetails.jsonSchemaValidator.type;
     }
 
-    function cast(value: string): string | number {
+    function cast(e: any): string | number | boolean {
         const type = getType();
 
         if(type === 'number' || type === 'integer') {
-            return Number(value);
+            return Number(e.target.value);
+        }
+        else if(type === 'boolean') {
+            return Boolean(e.target.checked)
         }
 
-        return String(value);
+        return String(e.target.value);
     }
 
     function onChange(e: any) {
-        const value = cast(e.target.value);
+        const value = cast(e);
         const validate = ajv.forSchema(fieldDetails.jsonSchemaValidator);
         validate(value)
     
