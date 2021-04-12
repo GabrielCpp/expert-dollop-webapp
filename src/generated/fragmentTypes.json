@@ -1,6 +1,6 @@
 {
   "possibleTypes": {
-    "NodeConfigValueType": [
+    "FieldDetailsUnion": [
       "IntFieldConfig",
       "DecimalFieldConfig",
       "StringFieldConfig",

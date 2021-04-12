@@ -1,13 +1,24 @@
+import { ErrorObject, JSONSchemaType, Schema } from 'ajv';
+import { head, isEqual, reverse, sortBy, startsWith } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { ErrorObject, JSONSchemaType, Schema } from 'ajv'
-import { ops, PrimaryIndex, PrimaryKey, Query, QueryBuilder, queryParam, recordParam, TableRecord } from "../../shared/redux-db";
-import { ReduxDatabase } from '../../shared/redux-db/database';
+
 import { AjvFactory } from '../../hooks';
-import { head, isEqual } from 'lodash';
+import {
+    ops,
+    PrimaryIndex,
+    PrimaryKey,
+    Query,
+    QueryBuilder,
+    queryParam,
+    recordParam,
+    TableRecord,
+} from '../../shared/redux-db';
+import { ReduxDatabase } from '../../shared/redux-db/database';
+
 
 export const FormFieldTableName = 'form-field'
 export type FormFieldError = ErrorObject<string, Record<string, any>, unknown>
-export type FormFieldRecordValue = string | number | boolean | Record<string, unknown> | null
+export type FormFieldRecordValue = unknown
 
 export interface FormFieldRecord extends TableRecord {
     fieldPath: string[];
@@ -69,9 +80,21 @@ export function upsertFormFieldRecord(database: ReduxDatabase, records: FormFiel
     database.getTable(FormFieldTableName).upsertMany(records)
 }
 
-export function deleteFormFieldRecords(database: ReduxDatabase, id: string): void {
+export function deleteFormFieldRecords(database: ReduxDatabase, path: string[]): void {
     const table = database.getTable(FormFieldTableName);
-    const records = table.where<FormFieldRecord>(record => head(record.fieldPath) === id);
+    const records = table.where<FormFieldRecord>(record => startsWith(record.fieldPath.join('.'), path.join('.')));
+    table.removeMany(records);
+}
+
+export function deleteChildFormFieldRecords(database: ReduxDatabase, path: string[]): void {
+    const table = database.getTable(FormFieldTableName);
+    const records = table.where<FormFieldRecord>(record => {
+        const lhs =  record.fieldPath.join('.');
+        const rhs = path.join('.');
+
+        return lhs !== rhs && startsWith(lhs, rhs);        
+    });
+
     table.removeMany(records);
 }
 
@@ -100,58 +123,44 @@ export function buildFieldByNameMap(records: FormFieldRecord[]): Map<string, For
     return fieldMap
 }
 
-export function getField(fieldMap: Map<string, FormFieldRecord>, name: string) {
-    const field = fieldMap.get(name);
-
-    if(field === undefined) {
-        throw new Error(`Field ${name} does not exists in map.`)
-    }
-
-    return field;
-}
-
 export interface HydratedFormNode<T extends FormFieldRecordValue> {
     id: string;
     name: string;
     value: T;
 }
 
-export function hydrateForm<T>(records: FormFieldRecord[]): T {
-    const root: TableRecord = {}
-    const fieldId2Name = new Map<string, string>(records.map(record => [record.fieldId, record.fieldName]))
+export const hydrateForm = <T>(database: ReduxDatabase) => (rootPath: string[]): T => {
+    const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath))  
+    const sortedRecords = reverse(sortBy(records, [ o => o.fieldPath.length, o => o.fieldPath.join('.') ]))
+    const treeOfChildren = new Map<string, Record<string, unknown>>()
 
-    for(const record of records) {
-        let currentObject = root;
+    for(const record of sortedRecords) {
+        const myPath = [...record.fieldPath, record.fieldId].join('.')
+        const children = treeOfChildren.get(myPath)
 
-        for(const pathItem of record.fieldPath) {
-            const name = fieldId2Name.get(pathItem)
-
-            if(name === undefined) {
-                continue
-            }
-
-            if(!currentObject.hasOwnProperty(name)) {
-                currentObject[name] = {}
-            }
-
-            currentObject = currentObject[name] as TableRecord;
+        const parentPath = record.fieldPath.join('.')
+        let parentRecord = treeOfChildren.get(parentPath)
+        
+        if(parentRecord === undefined) {
+            parentRecord = {}
+            treeOfChildren.set(parentPath, parentRecord)
         }
 
-        if(!currentObject.hasOwnProperty(record.fieldName)) {
-            currentObject[record.fieldName] = {}
+        if(children === undefined) {
+            parentRecord[record.fieldName] = record.value
+        }
+        else {
+            parentRecord[record.fieldName] = children
         }
 
-        const target = currentObject[record.fieldName] as TableRecord;
-
-        currentObject[record.fieldName] = {
-            ...target,
-            id: record.fieldId,
-            value: record.value,
-            name: record.fieldName
-        }
+        treeOfChildren.delete(myPath)
     }
 
-    return root as T
+    if(treeOfChildren.size !== 1) {
+        throw new Error("Comething went wrong when building form tree")
+    }
+
+    return head(Array.from(treeOfChildren.values())) as T
 }
 
 export const validateForm = (database: ReduxDatabase, ajvFactory: AjvFactory) => (rootPath: string[]): boolean => {

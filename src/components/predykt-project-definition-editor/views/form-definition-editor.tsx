@@ -5,40 +5,19 @@ import { useParams } from 'react-router-dom';
 
 import {
     CollapsibleContainerFieldConfig,
-    DecimalFieldConfig,
-    IntFieldConfig,
     ProjectDefinitionNode,
     ProjectDefinitionTreeNode,
     StaticChoiceFieldConfig,
-    StringFieldConfig,
     useFindProjectDefinitionFormContentQuery,
 } from '../../../generated';
 import { MouseOverPopover } from '../../mouse-over-popover';
-import {
-    createFormFieldRecord,
-    TableCheckboxField,
-    TableRadioField,
-    TableTextField,
-} from '../../table-fields';
+import { Field, radioField, textField } from '../../table-fields';
+import { checkboxField } from '../../table-fields/table-checkbox-field';
 import { useDbTranslation } from '../../translation';
 import { splitPath } from '../helpers';
-import { JSONSchemaType } from 'ajv';
 
 interface FormProps {
     node: ProjectDefinitionTreeNode;
-}
-
-function getJsonSchema(node: ProjectDefinitionNode): JSONSchemaType<any> {
-    if(node.valueType === "STRING" || node.valueType === "INT" || node.valueType === "DECIMAL" || node.valueType === "STATIC_CHOICE") {
-        const valueType = node.config?.valueType as IntFieldConfig | DecimalFieldConfig | StringFieldConfig | StaticChoiceFieldConfig
-        return JSON.parse(valueType.validator) as JSONSchemaType<any>
-    }
-
-    if(node.valueType === "BOOLEAN") {
-        return { type: "boolean" }
-    }
-
-    throw new Error("Bad config")
 }
 
 function getFieldValue(node: ProjectDefinitionNode): string | number | boolean {
@@ -62,31 +41,25 @@ function getFieldValue(node: ProjectDefinitionNode): string | number | boolean {
 function FormField({ node }: FormProps): JSX.Element {
     const { labelTrans } = useDbTranslation(node.definition.projectDefId)
 
-    if(node.definition.config === null ||  node.definition.config === undefined) {
+    if(node.definition.config.fieldDetails === null ||  node.definition.config.fieldDetails === undefined) {
         throw new Error("Bad config")
     }
 
-    const { valueType } = node.definition.config;
+    const { __typename: fieldType } = node.definition.config.fieldDetails;
     const value = getFieldValue(node.definition)
-    const fieldDetails = createFormFieldRecord(
-        getJsonSchema(node.definition),
-        node.definition.path,
-        node.definition.name,
-        value as string | number | boolean,
-        node.definition.id
-    )
+    const validator = JSON.parse(node.definition.config.valueValidator)
 
-    if(node.definition.valueType === "STRING" || node.definition.valueType === "INT" || node.definition.valueType === "DECIMAL") {
-        return <TableTextField fieldDetails={fieldDetails} label={(node.definition.name)} translationProvider={labelTrans} />
+    if(fieldType === "StringFieldConfig" || fieldType === "IntFieldConfig" || fieldType === "DecimalFieldConfig") {
+        return <Field validator={validator} path={node.definition.path} name={node.definition.name} defaultValue={value} id={node.definition.id} label={(node.definition.name)} t={labelTrans} component={textField} />
     }
 
-    if(node.definition.valueType === "BOOLEAN") {
-        return <TableCheckboxField fieldDetails={fieldDetails} label={(node.definition.name)} translationProvider={labelTrans}  />
+    if(fieldType=== "BoolFieldConfig") {
+        return <Field validator={validator} path={node.definition.path} name={node.definition.name} defaultValue={value} id={node.definition.id} label={(node.definition.name)} translationProvider={labelTrans}   component={checkboxField} />
     }
 
-    if(node.definition.valueType === "STATIC_CHOICE") {
-        const choices = valueType as StaticChoiceFieldConfig
-        return <TableRadioField options={choices.options} fieldDetails={fieldDetails} label={(node.definition.name)} translationProvider={labelTrans}></TableRadioField>
+    if(fieldType === "StaticChoiceFieldConfig") {
+        const choices = node.definition.config.fieldDetails as StaticChoiceFieldConfig
+        return <Field options={choices.options} validator={validator} path={node.definition.path} name={node.definition.name} defaultValue={value} id={node.definition.id} label={(node.definition.name)} translationProvider={labelTrans} component={radioField} />
     }
 
     return (
@@ -150,7 +123,7 @@ function FornInlineSection({ node }: FormProps): JSX.Element {
 }
 
 function FormSection({ node }: FormProps): JSX.Element {
-    const valueType = node.definition.config?.valueType as CollapsibleContainerFieldConfig;
+    const valueType = node.definition.config.fieldDetails as CollapsibleContainerFieldConfig;
 
     if(valueType !== null && valueType !== undefined && valueType.isCollapsible) {
         return <FormAccordionSection node={node} />

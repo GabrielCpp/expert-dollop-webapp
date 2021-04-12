@@ -1,12 +1,9 @@
-import React from 'react'
-import { Namespace, TFunction, useTranslation } from "react-i18next";
-import { FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core';
-import { Typography } from '@material-ui/core';
-import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover'
-import { useTableRecord } from '../../shared/redux-db';
-import { FormFieldRecord } from '.';
-import { buildFormFieldRecordPk, FormFieldTableName } from './form-field-record';
-import { useServices } from '../../shared/service-context'
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import React from 'react';
+import { Namespace, TFunction } from 'react-i18next';
+
+import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover';
+import { FieldChildren } from './field';
 
 export interface TableRadioFieldOption {
     id: string;
@@ -14,54 +11,20 @@ export interface TableRadioFieldOption {
     popover?: MouseOverPopoverProps
 }
 
-export interface FormFieldRadioProps {
-    fieldDetails: FormFieldRecord;
+interface RadiodProps extends FieldChildren {
+    t: (key: string) => string;
     label: string;
+    options: TableRadioFieldOption[];
     popover?: Omit<MouseOverPopoverProps, 'children' | 'name'>;
     translationProvider?: TFunction<Namespace>;
-    options: TableRadioFieldOption[];
 }
 
-export function TableRadioField({ 
-    fieldDetails,
-    label,
-    popover,
-    translationProvider,
-    options 
-}: FormFieldRadioProps ) {
-    const { t } = useTranslation();
-    const primaryKey = buildFormFieldRecordPk(fieldDetails)
-    const [selectedItem, updateSelectedItem, updateLocalSelectedItem] = useTableRecord<Record<string, unknown>>(FormFieldTableName, primaryKey, fieldDetails)
-    const { ajv } = useServices();
-    const trans = translationProvider || t;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        const validate = ajv.forSchema(fieldDetails.jsonSchemaValidator)
-        validate(value)
-    
-        if(validate.errors) {            
-            updateLocalSelectedItem({
-                ...fieldDetails,
-                ...selectedItem,
-                value,
-                errors: validate.errors
-            })
-        }
-        else {
-            updateSelectedItem({
-                ...fieldDetails,
-                ...selectedItem,
-                value,
-                errors: []
-            })
-        }
-    };
-
+export function radioField({ id, value, name, label, errors, popover, getType, onChange, t, options }: RadiodProps) {
     return (
         <FormControl component="fieldset">
-            <FormLabel component="legend">{trans(label)}</FormLabel>
-            <RadioGroup name={fieldDetails.fieldName} value={selectedItem?.value} onChange={handleChange}>
+            <FormLabel component="legend">{t(label)}</FormLabel>
+            <RadioGroup name={name} value={value} onChange={onChange} id={id}>
                 {options.map(option => (
                     <FormControlLabel 
                         key={option.id}
@@ -70,7 +33,7 @@ export function TableRadioField({
                         label={
                             option.popover === undefined ? 
                                 <Typography>{t(option.label)}</Typography> : 
-                                <MouseOverPopover {...option.popover} name={`${fieldDetails.fieldName}-popover`}>
+                                <MouseOverPopover {...option.popover} name={`${name}-popover`}>
                                     <Typography>{t(option.label)}</Typography>    
                                 </MouseOverPopover>
                         }

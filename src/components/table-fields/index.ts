@@ -4,7 +4,6 @@ export {
     addFormFieldRecordTable, 
     queryDirectChildrenOf, 
     buildFieldByNameMap, 
-    getField, 
     upsertFormFieldRecord,
     BOOLEAN_VALIDATOR, 
     STRING_VALIDATOR,
@@ -12,11 +11,14 @@ export {
     queryChildrenOf,
     hydrateForm,
     validateForm,
-    deleteFormFieldRecords
+    deleteFormFieldRecords,
+    deleteChildFormFieldRecords,
 } from './form-field-record'
-export { TableTextField } from './table-text-field'
-export { TableCheckboxField } from './table-checkbox-field'
-export { TableRadioField } from './table-radio-field'
+export { textField } from './table-text-field'
+export { checkboxField } from './table-checkbox-field'
+export { radioField } from './table-radio-field'
 export type { TableRadioFieldOption }  from './table-radio-field'
-export type { TabCollectionItem, TabTableCollectionProps } from './fixed-table-display'
+export type { TabTableCollectionProps } from './fixed-table-display'
 export { FixedTabDisplay } from './fixed-table-display'
+export { Field } from './field'
+export { useForm, Form } from './form-hook'

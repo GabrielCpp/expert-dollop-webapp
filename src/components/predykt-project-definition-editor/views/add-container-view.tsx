@@ -1,36 +1,36 @@
 import { Button, Grid } from '@material-ui/core';
 import React from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useTranslation } from 'react-i18next';
 
+import { FieldDetailsType, ProjectDefinitionNodeInput } from '../../../generated';
 import { Services } from '../../../hooks';
 import { RouteViewCompoenentProps } from '../../../shared/named-routes';
-import { useTableLifetime, useTableQuery } from '../../../shared/redux-db';
 import { useServices } from '../../../shared/service-context';
 import {
     BOOLEAN_VALIDATOR,
-    buildFieldByNameMap,
-    createFormFieldRecord,
-    deleteFormFieldRecords,
+    checkboxField,
+    Field,
     FixedTabDisplay,
-    getField,
-    HydratedFormNode,
+    hydrateForm,
     INT_VALIDATOR,
-    queryDirectChildrenOf,
     STRING_VALIDATOR,
-    TableCheckboxField,
-    TableTextField,
-    upsertFormFieldRecord,
+    textField,
+    useForm,
     validateForm,
 } from '../../table-fields';
 
 
+
+
 export interface FieldTranslationProps {
     path: string[]
+    name: string
 }
 
 
-export function FieldTranslation({ path }: FieldTranslationProps) {
-    const fieldMap = useTableQuery(queryDirectChildrenOf(path), buildFieldByNameMap)
+export function FieldTranslation({ path, name }: FieldTranslationProps) {
+    const { t } = useTranslation()
+    const formPath = useForm(name, path)
 
     return (
         <Grid
@@ -39,55 +39,54 @@ export function FieldTranslation({ path }: FieldTranslationProps) {
             justify="flex-start"
             alignItems="flex-start"
         >
-            <TableTextField fieldDetails={getField(fieldMap,'label')} label="label"></TableTextField>
-            <TableTextField fieldDetails={getField(fieldMap,'helpText')} label="help_text"></TableTextField>
+            <Field validator={STRING_VALIDATOR} path={formPath} defaultValue={''} name="label" component={textField} label="label" t={t}/>
+            <Field validator={STRING_VALIDATOR} path={formPath} defaultValue={''} name="helpText" component={textField} label="help_text" t={t}/>
         </Grid>
     );
 }
 
+interface ConfigFormProps {
+    configType: FieldDetailsType
+    name: string
+    path: string[]
+}
+
+function ConfigForm({ name, path, configType }: ConfigFormProps) {
+    const { t } = useTranslation()
+    const formPath = useForm(name, path)
+
+    if(configType === FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG) {
+        return <Field validator={BOOLEAN_VALIDATOR} defaultValue={true} path={formPath} name="isCollapsible" component={checkboxField} label="is_collapsible" t={t}/>
+    }
+
+    return <span></span>
+}
 
 
 export interface AddContainerFormProps extends RouteViewCompoenentProps {
-    empty?: string
+    configType: FieldDetailsType
 }
 
-export function AddContainerForm({ navigateBack }: RouteViewCompoenentProps) {
+export function AddContainerForm({ navigateBack, configType }: AddContainerFormProps) {
     const { reduxDb, ajv } = useServices<Services>();
-    const [path] = useTableLifetime(createAddContainerForm, ([ id ]: string[]) => {
-            deleteFormFieldRecords(reduxDb, id)
-    });
+    const { t } = useTranslation()
+    const path = useForm()
 
-    const fieldMap = useTableQuery(queryDirectChildrenOf(path), buildFieldByNameMap)
-
-    function createAddContainerForm(): string[]  {
-        const formId = uuidv4();
-        const frTabId = uuidv4();
-        const enTabId = uuidv4();
-
-        upsertFormFieldRecord(reduxDb, [
-            createFormFieldRecord(NAME_VALIDATOR, [formId], 'name', ''),
-            createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'isCollection', false),
-            createFormFieldRecord(BOOLEAN_VALIDATOR, [formId], 'instanciateByDefault', true),
-            createFormFieldRecord(INT_VALIDATOR, [formId], 'orderIndex', 0),
-            createFormFieldRecord(true, [formId], 'fr', null, frTabId),
-            createFormFieldRecord(true, [formId], 'en', null, enTabId),
-            createFormFieldRecord(STRING_VALIDATOR, [formId, frTabId], 'label', ''),
-            createFormFieldRecord(STRING_VALIDATOR, [formId, frTabId], 'helpText', ''),
-            createFormFieldRecord(STRING_VALIDATOR, [formId, enTabId], 'label', ''),
-            createFormFieldRecord(STRING_VALIDATOR, [formId, enTabId], 'helpText', ''),
-        ]);
-
-        return [formId]
-    }
 
     function onSubmit() {
         if(validateForm(reduxDb, ajv)(path) === false) {
             return;
         }
 
+        const form = hydrateForm<ProjectDefinitionNodeInput>(reduxDb)(path)
+
+        console.log(form)
+
+        if (false) {
         navigateBack()
+
+        }
     }
-    
 
     return (
         <form>
@@ -97,17 +96,14 @@ export function AddContainerForm({ navigateBack }: RouteViewCompoenentProps) {
                 justify="flex-start"
                 alignItems="flex-start"
             >
-                <TableTextField fieldDetails={getField(fieldMap, 'name')} label="name"></TableTextField>
-                <TableCheckboxField fieldDetails={getField(fieldMap,'isCollection')} label="is_collection" ></TableCheckboxField>
-                <TableCheckboxField fieldDetails={getField(fieldMap, 'instanciateByDefault')} label="instanciate_by_default" ></TableCheckboxField>
-                <TableTextField fieldDetails={getField(fieldMap, 'orderIndex')} label="order_index" ></TableTextField>
-                <FixedTabDisplay path={path} getField={(name) => getField(fieldMap, name)} defaultSelectedField={'fr'}>
-                    {() => [
-                        { name: 'fr', label: 'french', component: (path, key) => <FieldTranslation key={key} path={path} /> },
-                        { name: 'en', label: 'english', component: (path, key) => <FieldTranslation key={key} path={path} /> }
-                    ]}
+                <Field validator={NAME_VALIDATOR} path={path} defaultValue={''} name="name" component={textField} label="name" t={t}/>
+                <Field validator={BOOLEAN_VALIDATOR} path={path} defaultValue={false} name="isCollection" component={checkboxField} label="is_collection" t={t}/>
+                <Field validator={BOOLEAN_VALIDATOR} path={path} defaultValue={true} name="instanciateByDefault" component={checkboxField} label="instanciate_by_default" t={t}/>
+                <Field validator={INT_VALIDATOR} path={path} defaultValue={0} name="orderIndex" component={textField} label="order_index" t={t}/>
+                <FixedTabDisplay path={path} defaultSelectedField={'fr'} tabs={[['fr', 'french'], ['en', 'english']]}>
+                    {FieldTranslation}
                 </FixedTabDisplay>
-
+                <ConfigForm path={path} name="config" configType={FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG} />                
                 <Grid
                     container
                     direction="row"
@@ -125,23 +121,7 @@ export function AddContainerForm({ navigateBack }: RouteViewCompoenentProps) {
 
 
 export function AddContainerView({ navigateBack }: RouteViewCompoenentProps) {
-
-
-    return <AddContainerForm navigateBack={navigateBack}/>
-}
-
-export interface ContainerTranslationViewModel extends HydratedFormNode<null> {
-    label: HydratedFormNode<string>;
-    helpText: HydratedFormNode<string>;
-}
-
-export interface AddContainerViewModel {
-    name: HydratedFormNode<string>;
-    isCollection: HydratedFormNode<boolean>
-    instanciateByDefault: HydratedFormNode<boolean>
-    orderIndex: HydratedFormNode<number>;
-    fr: ContainerTranslationViewModel;
-    en: ContainerTranslationViewModel;
+    return <AddContainerForm navigateBack={navigateBack} configType={FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG} />
 }
 
 const NAME_VALIDATOR = {

@@ -1,25 +1,35 @@
 import { Tab, Tabs } from '@material-ui/core';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FormFieldRecord } from './form-field-record';
-
-export interface TabCollectionItem {
-    label: string;
-    name: string;
-    component: (path: string[], key: string) => React.ReactNode
-}
+import { Form } from './form-hook';
 
 export interface TabTableCollectionProps {
     path: string[];
-    getField: (name: string) => FormFieldRecord;
+    tabs: [string, string][]
     defaultSelectedField: string;
-    children: () => TabCollectionItem[]
+    children: (props: { path: string[], name: string }) => JSX.Element
 }
 
-export function FixedTabDisplay({ path, getField, defaultSelectedField, children }: TabTableCollectionProps) {
+function TabPanel(props: any) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function FixedTabDisplay({ path, tabs, defaultSelectedField, children: Children }: TabTableCollectionProps) {
     const { t } = useTranslation()
     const [selectedTab, setSelectedTab] = React.useState(defaultSelectedField);
-    const [avaiablesComponents] = useState(children)
+    const [avaiablesComponents] = useState(tabs)
 
     const handleChange = (_: React.ChangeEvent<{}>, newValue: string) => {
         setSelectedTab(newValue);
@@ -28,11 +38,15 @@ export function FixedTabDisplay({ path, getField, defaultSelectedField, children
     return (
         <>
             <Tabs value={selectedTab} onChange={handleChange} aria-label="simple tabs example">
-                {avaiablesComponents.map(({ name, label }) => (
+                {avaiablesComponents.map(([name, label]) => (
                     <Tab key={name} label={t(label)} value={name} />
                 ))}
             </Tabs>
-            {avaiablesComponents.filter(({ name }) => name === selectedTab).map(({ component, name }) => component([ ...path, getField(name).fieldId], name))}
+            {avaiablesComponents.map(([name]) => (
+                <TabPanel key={name} value={name} index={selectedTab}>
+                    <Children path={path} name={name} />
+                </TabPanel>
+            ))}
         </>
     )
 }

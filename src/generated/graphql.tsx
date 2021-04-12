@@ -212,9 +212,7 @@ export type ProjectDefinitionNode = {
   isCollection: FieldWrapper<Scalars['Boolean']>;
   instanciateByDefault: FieldWrapper<Scalars['Boolean']>;
   orderIndex: FieldWrapper<Scalars['Int']>;
-  config?: Maybe<FieldWrapper<NodeConfig>>;
-  valueType: FieldWrapper<Scalars['String']>;
-  valueTypeDetails: FieldWrapper<ProjectDefinitionValueType>;
+  config: FieldWrapper<NodeConfig>;
   defaultValue?: Maybe<FieldWrapper<FieldValue>>;
   path: Array<FieldWrapper<Scalars['String']>>;
   children: Array<FieldWrapper<ProjectDefinitionNode>>;
@@ -222,26 +220,25 @@ export type ProjectDefinitionNode = {
 
 export type NodeConfig = {
   __typename?: 'NodeConfig';
-  valueType?: Maybe<FieldWrapper<NodeConfigValueType>>;
+  fieldDetails?: Maybe<FieldWrapper<FieldDetailsUnion>>;
+  valueValidator?: Maybe<FieldWrapper<Scalars['JsonSchema']>>;
 };
 
-export type NodeConfigValueType = IntFieldConfig | DecimalFieldConfig | StringFieldConfig | BoolFieldConfig | StaticChoiceFieldConfig | CollapsibleContainerFieldConfig;
+export type FieldDetailsUnion = IntFieldConfig | DecimalFieldConfig | StringFieldConfig | BoolFieldConfig | StaticChoiceFieldConfig | CollapsibleContainerFieldConfig;
 
 export type IntFieldConfig = {
   __typename?: 'IntFieldConfig';
-  validator: FieldWrapper<Scalars['JsonSchema']>;
+  unit: FieldWrapper<Scalars['String']>;
 };
-
 
 export type DecimalFieldConfig = {
   __typename?: 'DecimalFieldConfig';
-  validator: FieldWrapper<Scalars['JsonSchema']>;
+  unit: FieldWrapper<Scalars['String']>;
   precision: FieldWrapper<Scalars['Int']>;
 };
 
 export type StringFieldConfig = {
   __typename?: 'StringFieldConfig';
-  validator: FieldWrapper<Scalars['JsonSchema']>;
   transforms: Array<FieldWrapper<Scalars['String']>>;
 };
 
@@ -252,7 +249,6 @@ export type BoolFieldConfig = {
 
 export type StaticChoiceFieldConfig = {
   __typename?: 'StaticChoiceFieldConfig';
-  validator: FieldWrapper<Scalars['JsonSchema']>;
   options: Array<FieldWrapper<StaticChoiceOption>>;
 };
 
@@ -268,13 +264,6 @@ export type CollapsibleContainerFieldConfig = {
   isCollapsible: FieldWrapper<Scalars['Boolean']>;
 };
 
-export type ProjectDefinitionValueType = {
-  __typename?: 'ProjectDefinitionValueType';
-  id: FieldWrapper<Scalars['ID']>;
-  valueJsonSchema: FieldWrapper<Scalars['String']>;
-  attributesJsonSchema: FieldWrapper<Scalars['String']>;
-  displayName: FieldWrapper<Scalars['String']>;
-};
 
 export type FieldValue = IntFieldValue | DecimalFieldValue | StringFieldValue | BoolFieldValue;
 
@@ -351,18 +340,18 @@ export type ProjectDefinitionNodeInput = {
   isCollection: Scalars['Boolean'];
   instanciateByDefault: Scalars['Boolean'];
   orderIndex: Scalars['Int'];
-  config?: Maybe<NodeConfigInput>;
-  valueType: Scalars['String'];
+  config: NodeConfigInput;
   defaultValue?: Maybe<FieldValueInput>;
   path: Array<Scalars['String']>;
 };
 
 export type NodeConfigInput = {
-  valueType: NodeConfigValueTypeInput;
+  fieldDetails?: Maybe<FieldDetailsUnionInput>;
+  valueValidator?: Maybe<Scalars['JsonSchema']>;
 };
 
-export type NodeConfigValueTypeInput = {
-  kind: Scalars['String'];
+export type FieldDetailsUnionInput = {
+  kind: FieldDetailsType;
   int?: Maybe<IntFieldConfigInput>;
   decimal?: Maybe<DecimalFieldConfigInput>;
   string?: Maybe<StringFieldConfigInput>;
@@ -370,6 +359,15 @@ export type NodeConfigValueTypeInput = {
   staticChoice?: Maybe<StaticChoiceFieldConfigInput>;
   collapsibleContainer?: Maybe<CollapsibleContainerFieldConfigInput>;
 };
+
+export enum FieldDetailsType {
+  INT_FIELD_CONFIG = 'INT_FIELD_CONFIG',
+  DECIMAL_FIELD_CONFIG = 'DECIMAL_FIELD_CONFIG',
+  STRING_FIELD_CONFIG = 'STRING_FIELD_CONFIG',
+  BOOL_FIELD_CONFIG = 'BOOL_FIELD_CONFIG',
+  STATIC_CHOICE_FIELD_CONFIG = 'STATIC_CHOICE_FIELD_CONFIG',
+  COLLAPSIBLE_CONTAINER_FIELD_CONFIG = 'COLLAPSIBLE_CONTAINER_FIELD_CONFIG'
+}
 
 export type IntFieldConfigInput = {
   validator: Scalars['JsonSchema'];
@@ -458,24 +456,24 @@ export type FindProjectDefinitionRootSectionsQuery = (
       { __typename?: 'ProjectDefinitionTreeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'valueType' | 'path'>
-        & { config?: Maybe<(
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+        & { config: (
           { __typename?: 'NodeConfig' }
-          & { valueType?: Maybe<(
+          & Pick<NodeConfig, 'valueValidator'>
+          & { fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
-            & Pick<IntFieldConfig, 'validator'>
+            & Pick<IntFieldConfig, 'unit'>
           ) | (
             { __typename: 'DecimalFieldConfig' }
-            & Pick<DecimalFieldConfig, 'validator' | 'precision'>
+            & Pick<DecimalFieldConfig, 'unit' | 'precision'>
           ) | (
             { __typename: 'StringFieldConfig' }
-            & Pick<StringFieldConfig, 'validator' | 'transforms'>
+            & Pick<StringFieldConfig, 'transforms'>
           ) | (
             { __typename: 'BoolFieldConfig' }
             & Pick<BoolFieldConfig, 'isCheckbox'>
           ) | (
             { __typename: 'StaticChoiceFieldConfig' }
-            & Pick<StaticChoiceFieldConfig, 'validator'>
             & { options: Array<(
               { __typename?: 'StaticChoiceOption' }
               & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
@@ -484,7 +482,7 @@ export type FindProjectDefinitionRootSectionsQuery = (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
           )> }
-        )>, defaultValue?: Maybe<(
+        ), defaultValue?: Maybe<(
           { __typename: 'IntFieldValue' }
           & Pick<IntFieldValue, 'integer'>
         ) | (
@@ -516,24 +514,24 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
       { __typename?: 'ProjectDefinitionTreeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'valueType' | 'path'>
-        & { config?: Maybe<(
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+        & { config: (
           { __typename?: 'NodeConfig' }
-          & { valueType?: Maybe<(
+          & Pick<NodeConfig, 'valueValidator'>
+          & { fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
-            & Pick<IntFieldConfig, 'validator'>
+            & Pick<IntFieldConfig, 'unit'>
           ) | (
             { __typename: 'DecimalFieldConfig' }
-            & Pick<DecimalFieldConfig, 'validator' | 'precision'>
+            & Pick<DecimalFieldConfig, 'unit' | 'precision'>
           ) | (
             { __typename: 'StringFieldConfig' }
-            & Pick<StringFieldConfig, 'validator' | 'transforms'>
+            & Pick<StringFieldConfig, 'transforms'>
           ) | (
             { __typename: 'BoolFieldConfig' }
             & Pick<BoolFieldConfig, 'isCheckbox'>
           ) | (
             { __typename: 'StaticChoiceFieldConfig' }
-            & Pick<StaticChoiceFieldConfig, 'validator'>
             & { options: Array<(
               { __typename?: 'StaticChoiceOption' }
               & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
@@ -542,7 +540,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
           )> }
-        )>, defaultValue?: Maybe<(
+        ), defaultValue?: Maybe<(
           { __typename: 'IntFieldValue' }
           & Pick<IntFieldValue, 'integer'>
         ) | (
@@ -559,24 +557,24 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
         { __typename?: 'ProjectDefinitionTreeNode' }
         & { definition: (
           { __typename?: 'ProjectDefinitionNode' }
-          & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'valueType' | 'path'>
-          & { config?: Maybe<(
+          & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+          & { config: (
             { __typename?: 'NodeConfig' }
-            & { valueType?: Maybe<(
+            & Pick<NodeConfig, 'valueValidator'>
+            & { fieldDetails?: Maybe<(
               { __typename: 'IntFieldConfig' }
-              & Pick<IntFieldConfig, 'validator'>
+              & Pick<IntFieldConfig, 'unit'>
             ) | (
               { __typename: 'DecimalFieldConfig' }
-              & Pick<DecimalFieldConfig, 'validator' | 'precision'>
+              & Pick<DecimalFieldConfig, 'unit' | 'precision'>
             ) | (
               { __typename: 'StringFieldConfig' }
-              & Pick<StringFieldConfig, 'validator' | 'transforms'>
+              & Pick<StringFieldConfig, 'transforms'>
             ) | (
               { __typename: 'BoolFieldConfig' }
               & Pick<BoolFieldConfig, 'isCheckbox'>
             ) | (
               { __typename: 'StaticChoiceFieldConfig' }
-              & Pick<StaticChoiceFieldConfig, 'validator'>
               & { options: Array<(
                 { __typename?: 'StaticChoiceOption' }
                 & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
@@ -585,7 +583,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
               { __typename: 'CollapsibleContainerFieldConfig' }
               & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
             )> }
-          )>, defaultValue?: Maybe<(
+          ), defaultValue?: Maybe<(
             { __typename: 'IntFieldValue' }
             & Pick<IntFieldValue, 'integer'>
           ) | (
@@ -598,51 +596,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
             { __typename: 'BoolFieldValue' }
             & Pick<BoolFieldValue, 'enabled'>
           )> }
-        ), children: Array<(
-          { __typename?: 'ProjectDefinitionTreeNode' }
-          & { definition: (
-            { __typename?: 'ProjectDefinitionNode' }
-            & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'valueType' | 'path'>
-            & { config?: Maybe<(
-              { __typename?: 'NodeConfig' }
-              & { valueType?: Maybe<(
-                { __typename: 'IntFieldConfig' }
-                & Pick<IntFieldConfig, 'validator'>
-              ) | (
-                { __typename: 'DecimalFieldConfig' }
-                & Pick<DecimalFieldConfig, 'validator' | 'precision'>
-              ) | (
-                { __typename: 'StringFieldConfig' }
-                & Pick<StringFieldConfig, 'validator' | 'transforms'>
-              ) | (
-                { __typename: 'BoolFieldConfig' }
-                & Pick<BoolFieldConfig, 'isCheckbox'>
-              ) | (
-                { __typename: 'StaticChoiceFieldConfig' }
-                & Pick<StaticChoiceFieldConfig, 'validator'>
-                & { options: Array<(
-                  { __typename?: 'StaticChoiceOption' }
-                  & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
-                )> }
-              ) | (
-                { __typename: 'CollapsibleContainerFieldConfig' }
-                & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-              )> }
-            )>, defaultValue?: Maybe<(
-              { __typename: 'IntFieldValue' }
-              & Pick<IntFieldValue, 'integer'>
-            ) | (
-              { __typename: 'DecimalFieldValue' }
-              & Pick<DecimalFieldValue, 'numeric'>
-            ) | (
-              { __typename: 'StringFieldValue' }
-              & Pick<StringFieldValue, 'text'>
-            ) | (
-              { __typename: 'BoolFieldValue' }
-              & Pick<BoolFieldValue, 'enabled'>
-            )> }
-          ) }
-        )> }
+        ) }
       )> }
     )> }
   ) }
@@ -659,23 +613,23 @@ export type FindProjectDefinitionFormContentQuery = (
   & { findProjectDefinitionNode: (
     { __typename?: 'ProjectDefinitionNode' }
     & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
-    & { config?: Maybe<(
+    & { config: (
       { __typename?: 'NodeConfig' }
-      & { valueType?: Maybe<(
+      & Pick<NodeConfig, 'valueValidator'>
+      & { fieldDetails?: Maybe<(
         { __typename: 'IntFieldConfig' }
-        & Pick<IntFieldConfig, 'validator'>
+        & Pick<IntFieldConfig, 'unit'>
       ) | (
         { __typename: 'DecimalFieldConfig' }
-        & Pick<DecimalFieldConfig, 'validator' | 'precision'>
+        & Pick<DecimalFieldConfig, 'unit' | 'precision'>
       ) | (
         { __typename: 'StringFieldConfig' }
-        & Pick<StringFieldConfig, 'validator' | 'transforms'>
+        & Pick<StringFieldConfig, 'transforms'>
       ) | (
         { __typename: 'BoolFieldConfig' }
         & Pick<BoolFieldConfig, 'isCheckbox'>
       ) | (
         { __typename: 'StaticChoiceFieldConfig' }
-        & Pick<StaticChoiceFieldConfig, 'validator'>
         & { options: Array<(
           { __typename?: 'StaticChoiceOption' }
           & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
@@ -684,31 +638,31 @@ export type FindProjectDefinitionFormContentQuery = (
         { __typename: 'CollapsibleContainerFieldConfig' }
         & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
       )> }
-    )> }
+    ) }
   ), findProjectDefinitionFormContent: (
     { __typename?: 'ProjectDefinitionNodeTree' }
     & { roots: Array<(
       { __typename?: 'ProjectDefinitionTreeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'valueType' | 'path'>
-        & { config?: Maybe<(
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+        & { config: (
           { __typename?: 'NodeConfig' }
-          & { valueType?: Maybe<(
+          & Pick<NodeConfig, 'valueValidator'>
+          & { fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
-            & Pick<IntFieldConfig, 'validator'>
+            & Pick<IntFieldConfig, 'unit'>
           ) | (
             { __typename: 'DecimalFieldConfig' }
-            & Pick<DecimalFieldConfig, 'validator' | 'precision'>
+            & Pick<DecimalFieldConfig, 'unit' | 'precision'>
           ) | (
             { __typename: 'StringFieldConfig' }
-            & Pick<StringFieldConfig, 'validator' | 'transforms'>
+            & Pick<StringFieldConfig, 'transforms'>
           ) | (
             { __typename: 'BoolFieldConfig' }
             & Pick<BoolFieldConfig, 'isCheckbox'>
           ) | (
             { __typename: 'StaticChoiceFieldConfig' }
-            & Pick<StaticChoiceFieldConfig, 'validator'>
             & { options: Array<(
               { __typename?: 'StaticChoiceOption' }
               & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
@@ -717,7 +671,7 @@ export type FindProjectDefinitionFormContentQuery = (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
           )> }
-        )>, defaultValue?: Maybe<(
+        ), defaultValue?: Maybe<(
           { __typename: 'IntFieldValue' }
           & Pick<IntFieldValue, 'integer'>
         ) | (
@@ -734,24 +688,24 @@ export type FindProjectDefinitionFormContentQuery = (
         { __typename?: 'ProjectDefinitionTreeNode' }
         & { definition: (
           { __typename?: 'ProjectDefinitionNode' }
-          & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'valueType' | 'path'>
-          & { config?: Maybe<(
+          & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+          & { config: (
             { __typename?: 'NodeConfig' }
-            & { valueType?: Maybe<(
+            & Pick<NodeConfig, 'valueValidator'>
+            & { fieldDetails?: Maybe<(
               { __typename: 'IntFieldConfig' }
-              & Pick<IntFieldConfig, 'validator'>
+              & Pick<IntFieldConfig, 'unit'>
             ) | (
               { __typename: 'DecimalFieldConfig' }
-              & Pick<DecimalFieldConfig, 'validator' | 'precision'>
+              & Pick<DecimalFieldConfig, 'unit' | 'precision'>
             ) | (
               { __typename: 'StringFieldConfig' }
-              & Pick<StringFieldConfig, 'validator' | 'transforms'>
+              & Pick<StringFieldConfig, 'transforms'>
             ) | (
               { __typename: 'BoolFieldConfig' }
               & Pick<BoolFieldConfig, 'isCheckbox'>
             ) | (
               { __typename: 'StaticChoiceFieldConfig' }
-              & Pick<StaticChoiceFieldConfig, 'validator'>
               & { options: Array<(
                 { __typename?: 'StaticChoiceOption' }
                 & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
@@ -760,7 +714,7 @@ export type FindProjectDefinitionFormContentQuery = (
               { __typename: 'CollapsibleContainerFieldConfig' }
               & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
             )> }
-          )>, defaultValue?: Maybe<(
+          ), defaultValue?: Maybe<(
             { __typename: 'IntFieldValue' }
             & Pick<IntFieldValue, 'integer'>
           ) | (
@@ -773,51 +727,7 @@ export type FindProjectDefinitionFormContentQuery = (
             { __typename: 'BoolFieldValue' }
             & Pick<BoolFieldValue, 'enabled'>
           )> }
-        ), children: Array<(
-          { __typename?: 'ProjectDefinitionTreeNode' }
-          & { definition: (
-            { __typename?: 'ProjectDefinitionNode' }
-            & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'valueType' | 'path'>
-            & { config?: Maybe<(
-              { __typename?: 'NodeConfig' }
-              & { valueType?: Maybe<(
-                { __typename: 'IntFieldConfig' }
-                & Pick<IntFieldConfig, 'validator'>
-              ) | (
-                { __typename: 'DecimalFieldConfig' }
-                & Pick<DecimalFieldConfig, 'validator' | 'precision'>
-              ) | (
-                { __typename: 'StringFieldConfig' }
-                & Pick<StringFieldConfig, 'validator' | 'transforms'>
-              ) | (
-                { __typename: 'BoolFieldConfig' }
-                & Pick<BoolFieldConfig, 'isCheckbox'>
-              ) | (
-                { __typename: 'StaticChoiceFieldConfig' }
-                & Pick<StaticChoiceFieldConfig, 'validator'>
-                & { options: Array<(
-                  { __typename?: 'StaticChoiceOption' }
-                  & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
-                )> }
-              ) | (
-                { __typename: 'CollapsibleContainerFieldConfig' }
-                & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-              )> }
-            )>, defaultValue?: Maybe<(
-              { __typename: 'IntFieldValue' }
-              & Pick<IntFieldValue, 'integer'>
-            ) | (
-              { __typename: 'DecimalFieldValue' }
-              & Pick<DecimalFieldValue, 'numeric'>
-            ) | (
-              { __typename: 'StringFieldValue' }
-              & Pick<StringFieldValue, 'text'>
-            ) | (
-              { __typename: 'BoolFieldValue' }
-              & Pick<BoolFieldValue, 'enabled'>
-            )> }
-          ) }
-        )> }
+        ) }
       )> }
     )> }
   ) }
@@ -836,24 +746,23 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
         instanciateByDefault
         orderIndex
         config {
-          valueType {
+          valueValidator
+          fieldDetails {
             __typename
             ... on IntFieldConfig {
-              validator
+              unit
             }
             ... on DecimalFieldConfig {
-              validator
+              unit
               precision
             }
             ... on StringFieldConfig {
-              validator
               transforms
             }
             ... on BoolFieldConfig {
               isCheckbox
             }
             ... on StaticChoiceFieldConfig {
-              validator
               options {
                 id
                 label
@@ -865,7 +774,6 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
             }
           }
         }
-        valueType
         defaultValue {
           __typename
           ... on StringFieldValue {
@@ -930,24 +838,23 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
         instanciateByDefault
         orderIndex
         config {
-          valueType {
+          valueValidator
+          fieldDetails {
             __typename
             ... on IntFieldConfig {
-              validator
+              unit
             }
             ... on DecimalFieldConfig {
-              validator
+              unit
               precision
             }
             ... on StringFieldConfig {
-              validator
               transforms
             }
             ... on BoolFieldConfig {
               isCheckbox
             }
             ... on StaticChoiceFieldConfig {
-              validator
               options {
                 id
                 label
@@ -959,7 +866,6 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
             }
           }
         }
-        valueType
         defaultValue {
           __typename
           ... on StringFieldValue {
@@ -986,24 +892,23 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
           instanciateByDefault
           orderIndex
           config {
-            valueType {
+            valueValidator
+            fieldDetails {
               __typename
               ... on IntFieldConfig {
-                validator
+                unit
               }
               ... on DecimalFieldConfig {
-                validator
+                unit
                 precision
               }
               ... on StringFieldConfig {
-                validator
                 transforms
               }
               ... on BoolFieldConfig {
                 isCheckbox
               }
               ... on StaticChoiceFieldConfig {
-                validator
                 options {
                   id
                   label
@@ -1015,7 +920,6 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
               }
             }
           }
-          valueType
           defaultValue {
             __typename
             ... on StringFieldValue {
@@ -1032,63 +936,6 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
             }
           }
           path
-        }
-        children {
-          definition {
-            id
-            projectDefId
-            name
-            isCollection
-            instanciateByDefault
-            orderIndex
-            config {
-              valueType {
-                __typename
-                ... on IntFieldConfig {
-                  validator
-                }
-                ... on DecimalFieldConfig {
-                  validator
-                  precision
-                }
-                ... on StringFieldConfig {
-                  validator
-                  transforms
-                }
-                ... on BoolFieldConfig {
-                  isCheckbox
-                }
-                ... on StaticChoiceFieldConfig {
-                  validator
-                  options {
-                    id
-                    label
-                    help_text
-                  }
-                }
-                ... on CollapsibleContainerFieldConfig {
-                  isCollapsible
-                }
-              }
-            }
-            valueType
-            defaultValue {
-              __typename
-              ... on StringFieldValue {
-                text
-              }
-              ... on IntFieldValue {
-                integer
-              }
-              ... on DecimalFieldValue {
-                numeric
-              }
-              ... on BoolFieldValue {
-                enabled
-              }
-            }
-            path
-          }
         }
       }
     }
@@ -1134,24 +981,23 @@ export const FindProjectDefinitionFormContentDocument = gql`
     instanciateByDefault
     orderIndex
     config {
-      valueType {
+      valueValidator
+      fieldDetails {
         __typename
         ... on IntFieldConfig {
-          validator
+          unit
         }
         ... on DecimalFieldConfig {
-          validator
+          unit
           precision
         }
         ... on StringFieldConfig {
-          validator
           transforms
         }
         ... on BoolFieldConfig {
           isCheckbox
         }
         ... on StaticChoiceFieldConfig {
-          validator
           options {
             id
             label
@@ -1174,24 +1020,23 @@ export const FindProjectDefinitionFormContentDocument = gql`
         instanciateByDefault
         orderIndex
         config {
-          valueType {
+          valueValidator
+          fieldDetails {
             __typename
             ... on IntFieldConfig {
-              validator
+              unit
             }
             ... on DecimalFieldConfig {
-              validator
+              unit
               precision
             }
             ... on StringFieldConfig {
-              validator
               transforms
             }
             ... on BoolFieldConfig {
               isCheckbox
             }
             ... on StaticChoiceFieldConfig {
-              validator
               options {
                 id
                 label
@@ -1203,7 +1048,6 @@ export const FindProjectDefinitionFormContentDocument = gql`
             }
           }
         }
-        valueType
         defaultValue {
           __typename
           ... on StringFieldValue {
@@ -1230,24 +1074,23 @@ export const FindProjectDefinitionFormContentDocument = gql`
           instanciateByDefault
           orderIndex
           config {
-            valueType {
+            valueValidator
+            fieldDetails {
               __typename
               ... on IntFieldConfig {
-                validator
+                unit
               }
               ... on DecimalFieldConfig {
-                validator
+                unit
                 precision
               }
               ... on StringFieldConfig {
-                validator
                 transforms
               }
               ... on BoolFieldConfig {
                 isCheckbox
               }
               ... on StaticChoiceFieldConfig {
-                validator
                 options {
                   id
                   label
@@ -1259,7 +1102,6 @@ export const FindProjectDefinitionFormContentDocument = gql`
               }
             }
           }
-          valueType
           defaultValue {
             __typename
             ... on StringFieldValue {
@@ -1276,63 +1118,6 @@ export const FindProjectDefinitionFormContentDocument = gql`
             }
           }
           path
-        }
-        children {
-          definition {
-            id
-            projectDefId
-            name
-            isCollection
-            instanciateByDefault
-            orderIndex
-            config {
-              valueType {
-                __typename
-                ... on IntFieldConfig {
-                  validator
-                }
-                ... on DecimalFieldConfig {
-                  validator
-                  precision
-                }
-                ... on StringFieldConfig {
-                  validator
-                  transforms
-                }
-                ... on BoolFieldConfig {
-                  isCheckbox
-                }
-                ... on StaticChoiceFieldConfig {
-                  validator
-                  options {
-                    id
-                    label
-                    help_text
-                  }
-                }
-                ... on CollapsibleContainerFieldConfig {
-                  isCollapsible
-                }
-              }
-            }
-            valueType
-            defaultValue {
-              __typename
-              ... on StringFieldValue {
-                text
-              }
-              ... on IntFieldValue {
-                integer
-              }
-              ... on DecimalFieldValue {
-                numeric
-              }
-              ... on BoolFieldValue {
-                enabled
-              }
-            }
-            path
-          }
         }
       }
     }

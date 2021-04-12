@@ -1,91 +1,34 @@
-import React from 'react'
-import { Namespace, TFunction, useTranslation } from "react-i18next";
-import { Typography, TextField, InputAdornment } from '@material-ui/core';
-import { useServices } from '../../shared/service-context'
-import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover'
-import { useTableRecord } from '../../shared/redux-db';
-import { buildFormFieldRecordPk, FormFieldRecord, FormFieldTableName } from './form-field-record';
-import { isBoolean } from 'lodash';
+import { InputAdornment, TextField, Typography } from '@material-ui/core';
+import React from 'react';
+import { Namespace, TFunction } from 'react-i18next';
 
-export interface TableTextFieldProps {
-    fieldDetails: FormFieldRecord
+import { MouseOverPopover, MouseOverPopoverProps } from '../mouse-over-popover';
+import { FieldChildren } from './field';
+
+
+interface TextFieldProps extends FieldChildren {
+    t: (key: string) => string;
     label: string;
     endAdornmentLabel?: string;
     popover?: Omit<MouseOverPopoverProps, 'children' | 'name'>;
     translationProvider?: TFunction<Namespace>;
 }
 
-export function TableTextField({ 
-    fieldDetails,
-    label, 
-    popover, 
-    endAdornmentLabel,
-    translationProvider,
-}: TableTextFieldProps) {
-    const { t } = useTranslation();
-    const { ajv } = useServices();
-    const primaryKey = buildFormFieldRecordPk(fieldDetails)
-    const [item, updateItem, updateLocalItem] = useTableRecord<FormFieldRecord>(FormFieldTableName, primaryKey, fieldDetails)
-    const trans = translationProvider || t
-
-    function getType(): 'number' | 'integer' | 'string' {
-        if(isBoolean(fieldDetails.jsonSchemaValidator)) {
-            return "string"
-        }
-
-        return fieldDetails.jsonSchemaValidator.type;
-    }
-
-    function cast(value: string): string | number {
-        const type = getType();
-
-        if(type === 'number' || type === 'integer') {
-            return Number(value);
-        }
-
-        return String(value);
-    }
-
-    function onValueChange(e: any) {
-        const value = cast(e.target.value);
-        const validate = ajv.forSchema(fieldDetails.jsonSchemaValidator);
-        validate(value)
-    
-        if(validate.errors) {            
-            updateLocalItem({
-                ...fieldDetails,
-                ...item,
-                value,
-                errors: validate.errors
-            })
-        }
-        else {
-            updateItem({
-                ...fieldDetails,
-                ...item,
-                value,
-                errors: []
-            })
-        }
-    }
-
-    if(item === undefined) {
-        return null;
-    }
-
+export function textField({ id, value, name, label, errors, endAdornmentLabel, popover, getType, onChange, t }: TextFieldProps) {
     return (
         <TextField 
             InputLabelProps={{ style: { pointerEvents: "auto" }, shrink: true }}
             type={getType() === "string" ? "text" : "number"}  
             label={popover !== undefined ?
-            <MouseOverPopover {...popover} name={`${fieldDetails.fieldName}-popover`}>
-                <Typography>{trans(label)}</Typography>   
-            </MouseOverPopover> : trans(label)   
+            <MouseOverPopover {...popover} name={`${name}-popover`}>
+                <Typography>{t(label)}</Typography>   
+            </MouseOverPopover> : t(label)   
             }
-            id={fieldDetails.fieldName} value={item.value === undefined  ? fieldDetails.value : item.value} 
-            onChange={onValueChange} 
-            helperText={item?.errors?.filter(e => e.message !== undefined).map((e, index) => (<span key={index}>{t(e.message as string)}<br/></span>))}
-            error={item?.errors?.length > 0}
+            id={id} 
+            value={value} 
+            onChange={onChange} 
+            helperText={errors?.filter(e => e.message !== undefined).map((e, index) => (<span key={index}>{t(e.message as string)}<br/></span>))}
+            error={errors?.length > 0}
             InputProps={{
                 endAdornment: endAdornmentLabel && <InputAdornment position="end">{t(endAdornmentLabel)}</InputAdornment>
             }}
