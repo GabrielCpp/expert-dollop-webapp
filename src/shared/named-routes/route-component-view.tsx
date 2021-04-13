@@ -4,23 +4,27 @@ import { useServices } from "../service-context";
 import { useNavigate, RouteService } from "./named-route";
 
 interface RouteComponentViewProps {
-    routeName: string; 
-    backRouteName: string; 
-    params?: Record<string, string>
+  routeName: string;
+  backRouteName: string;
+  params?: Record<string, string>;
 }
 
-export function RouteComponentView({ routeName, backRouteName, params }: RouteComponentViewProps) {
-  const { routes } = useServices<RouteService>()
-  const { navigate } = useNavigate()
+export function RouteComponentView({
+  routeName,
+  backRouteName,
+  params,
+}: RouteComponentViewProps) {
+  const { routes } = useServices<RouteService>();
+  const { navigate } = useNavigate();
   const Component = routes.getRouteByName(routeName).component;
-  
+
   function navigateBack() {
-    navigate(backRouteName, params)
+    navigate(backRouteName, params);
   }
 
   return (
     <Route path={routes.getUrl(routeName)}>
       {Component && <Component navigateBack={navigateBack} />}
     </Route>
-  )
+  );
 }

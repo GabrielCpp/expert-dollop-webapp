@@ -7,14 +7,14 @@ i18n
     resources: {
       en: {
         translation: {
-          "textbox": "My textbox",
-          "checkbox": "My checkbox"
-        }
-      }
+          textbox: "My textbox",
+          checkbox: "My checkbox",
+        },
+      },
     },
     lng: "en",
     fallbackLng: "en",
     interpolation: {
-      escapeValue: false
-    }
+      escapeValue: false,
+    },
   });

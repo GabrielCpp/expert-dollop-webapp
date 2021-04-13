@@ -1,1 +1,1 @@
-export type { Services, AjvFactory } from './service-hook'
+export type { Services, AjvFactory } from "./service-hook";

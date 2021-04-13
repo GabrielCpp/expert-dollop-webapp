@@ -4,9 +4,9 @@ documents: "src/**/(mutations|queries|fragments).ts"
 generates:
   src/generated/graphql.tsx:
     plugins:
-    - "typescript"
-    - "typescript-operations"
-    - "typescript-react-apollo"
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
     config:
       withHooks: true
       withMutation: true
@@ -15,7 +15,7 @@ generates:
         enumValues: keep
   src/generated/graphql.schema.json:
     plugins:
-    - "introspection"
+      - "introspection"
   src/generated/fragmentTypes.json:
     plugins:
-    - "fragment-matcher"
+      - "fragment-matcher"

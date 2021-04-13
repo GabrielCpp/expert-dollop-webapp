@@ -1,25 +1,29 @@
 export type PrimaryKey = string;
-export type UniqueIndexKeyBuilder = (record: TableRecord) => PrimaryKey
-export type TableRecord = Record<string, unknown> 
+export type UniqueIndexKeyBuilder = (record: TableRecord) => PrimaryKey;
+export type TableRecord = Record<string, unknown>;
 
-export const UPDATE_EVENT = 'update';
-export const ADD_EVENT = 'add';
-export const REMOVE_EVENT = 'remove';
+export const UPDATE_EVENT = "update";
+export const ADD_EVENT = "add";
+export const REMOVE_EVENT = "remove";
 
 export type OnRecordUpdate = (before: TableRecord, after: TableRecord) => void;
-export type OnRecordInsert =  (record: TableRecord) => void;
-export type OnRecordRemove =  (record: TableRecord) => void;
+export type OnRecordInsert = (record: TableRecord) => void;
+export type OnRecordRemove = (record: TableRecord) => void;
 
 export interface RecordWatcher {
-    triggerRemoveEvent(record: TableRecord): void
-    triggerUpdate(before: TableRecord, after: TableRecord): void 
-    triggerInsertEvent(record: TableRecord): void
+  triggerRemoveEvent(record: TableRecord): void;
+  triggerUpdate(before: TableRecord, after: TableRecord): void;
+  triggerInsertEvent(record: TableRecord): void;
 }
 
 export interface TableWatcher {
-    triggerOnCommit(insertions: TableRecord[], deletions: TableRecord[], updates: [TableRecord, TableRecord][]): void
+  triggerOnCommit(
+    insertions: TableRecord[],
+    deletions: TableRecord[],
+    updates: [TableRecord, TableRecord][]
+  ): void;
 }
 
 export function getPk(record: TableRecord): PrimaryKey {
-    return record.id as string;
+  return record.id as string;
 }
