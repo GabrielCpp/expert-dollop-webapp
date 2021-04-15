@@ -7,7 +7,7 @@ interface TranslationHook {
   labelTrans: (key: string) => string;
   helpTextTrans: (key: string) => string;
   dbTrans: (key: string) => string;
-  t: TFunction<string>;
+  t: TFunction<"translation">;
 }
 
 export function useDbTranslation(ressourceId: string): TranslationHook {

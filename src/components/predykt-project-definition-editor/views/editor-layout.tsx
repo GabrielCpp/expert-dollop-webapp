@@ -1,10 +1,11 @@
-import { Grid } from "@material-ui/core";
+import { CircularProgress, Grid } from "@material-ui/core";
 import React from "react";
 import { Route, useParams } from "react-router-dom";
 
 import { Services } from "../../../hooks";
 import { RouteComponentView } from "../../../shared/named-routes";
 import { useServices } from "../../../shared/service-context";
+import { LoadingFrame } from "../../loading-frame";
 import { TranslationScope } from "../../translation";
 import {
   ADD_PROJECT_SECTION_ROUTE_NAME,
@@ -29,25 +30,29 @@ export function EditorLayout() {
       name={PROJECT_DEFINITION_TRANSLATION}
       ressourceId={params.projectDefinitionId}
     >
-      <Grid
-        container
-        direction="row"
-        justify="flex-start"
-        alignItems="flex-start"
-      >
-        <RouteComponentView
-          routeName={ADD_PROJECT_SECTION_ROUTE_NAME}
-          backRouteName={CONTAINER_VIEW_ROUTE_NAME}
-          params={params}
-        />
-        <Route path={routes.getUrl(CONTAINER_VIEW_ROUTE_NAME)} exact={true}>
-          <RootSectionBar />
-          <SidePanel />
-          <Grid item xs={9}>
-            <FormDefinitionEditor />
+      <LoadingFrame loaderComponent={<CircularProgress />}>
+        {(getLoader) => (
+          <Grid
+            container
+            direction="row"
+            justify="flex-start"
+            alignItems="flex-start"
+          >
+            <RouteComponentView
+              routeName={ADD_PROJECT_SECTION_ROUTE_NAME}
+              backRouteName={CONTAINER_VIEW_ROUTE_NAME}
+              params={params}
+            />
+            <Route path={routes.getUrl(CONTAINER_VIEW_ROUTE_NAME)} exact={true}>
+              <RootSectionBar onLoading={getLoader("RootSectionBar")} />
+              <SidePanel onLoading={getLoader("SidePanel")} />
+              <Grid item xs={9}>
+                <FormDefinitionEditor />
+              </Grid>
+            </Route>
           </Grid>
-        </Route>
-      </Grid>
+        )}
+      </LoadingFrame>
     </TranslationScope>
   );
 }

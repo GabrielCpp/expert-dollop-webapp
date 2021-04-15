@@ -381,3 +381,22 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
     }
   }
 `;
+
+export const FIND_PROJECT_DEFINTIONS = gql`
+  query findProjectDefintions($query: String!, $first: Int!, $after: String) {
+    findProjectDefintions(queryFilter: $query, first: $first, after: $after) {
+      edges {
+        node {
+          id
+          name
+          defaultDatasheetId
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;

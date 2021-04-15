@@ -20,7 +20,7 @@ import {
   ExpandMore as ExpandMoreIcon,
 } from "@material-ui/icons";
 import React, { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 
 import { useFindProjectDefinitionRootSectionContainersQuery } from "../../../generated/graphql";
 import { useNavigate } from "../../../shared/named-routes";
@@ -52,11 +52,16 @@ interface SidePanelParams extends Record<string, string> {
   selectedPath: string;
 }
 
-export function SidePanel() {
+interface SidePanelProps {
+  onLoading: (isLoading: boolean, error?: Error) => void;
+}
+
+export function SidePanel({ onLoading }: SidePanelProps) {
+  const history = useHistory();
   const { navigate } = useNavigate();
   const params = useParams<SidePanelParams>();
   const { projectDefinitionId, selectedPath } = params;
-  let [rootSectionId, subSectionId, formId] = splitPath(selectedPath);
+  const [rootSectionId, subSectionId, formId] = splitPath(selectedPath);
   const buildLink = buildLinkFor(projectDefinitionId);
   const { t, labelTrans, helpTextTrans } = useDbTranslation(
     projectDefinitionId
@@ -78,12 +83,36 @@ export function SidePanel() {
   });
 
   useEffect(() => {
-    const subSections = data?.findProjectDefinitionRootSectionContainers.roots;
-
-    if (subSections !== undefined && subSections.length > 0) {
-      setExpanded(subSections[0].definition.id);
+    if (subSectionId !== undefined) {
+      setExpanded(subSectionId);
     }
-  }, [data, subSectionId, rootSectionId]);
+  }, [subSectionId]);
+
+  useEffect(() => {
+    if (data !== undefined && loading === false) {
+      const subSections =
+        data?.findProjectDefinitionRootSectionContainers.roots;
+
+      if (
+        subSections !== undefined &&
+        subSectionId === undefined &&
+        subSections.length > 0
+      ) {
+        const newSubSectionId = subSections[0].definition.id;
+
+        if (formId === undefined && subSections[0].children.length > 0) {
+          const newFormId = subSections[0].children[0].definition.id;
+          history.push(buildLink(rootSectionId, newSubSectionId, newFormId));
+        } else {
+          history.push(buildLink(rootSectionId, newSubSectionId));
+        }
+      }
+    }
+  }, [buildLink, data, loading, history, rootSectionId, subSectionId, formId]);
+
+  useEffect(() => {
+    onLoading(loading, error);
+  }, [error, loading, onLoading]);
 
   const handleChange = (panel: string) => (
     event: React.ChangeEvent<{}>,
@@ -98,27 +127,7 @@ export function SidePanel() {
     });
   };
 
-  if (loading) {
-    return <span>Loading..</span>;
-  }
-
-  if (error) {
-    console.error(error);
-  }
-
   const subSections = data?.findProjectDefinitionRootSectionContainers.roots;
-
-  if (
-    subSections !== undefined &&
-    subSectionId === undefined &&
-    subSections.length > 0
-  ) {
-    subSectionId = subSections[0].definition.id;
-
-    if (formId === undefined && subSections[0].children.length > 0) {
-      formId = subSections[0].children[0].definition.id;
-    }
-  }
 
   return (
     <Grid

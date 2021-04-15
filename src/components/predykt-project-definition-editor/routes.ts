@@ -1,14 +1,24 @@
 import { NamedRoute } from "../../shared/named-routes";
 import { AddContainerView } from "./views/add-node-view";
+import { EditorLayout } from "./views/editor-layout";
+import { ProjectDefinitionHome } from "./views/home";
 
+export const PROJECT_DEFINITION_EDITOR_HOME = "project_definition_editor_home";
 export const ADD_PROJECT_SECTION_ROUTE_NAME = "add_project_section";
 export const CONTAINER_VIEW_ROUTE_NAME = "container_view";
 export const PROJECT_DEFINITION_TRANSLATION = "project_defintion_translation";
 
 export const routes: NamedRoute[] = [
   {
+    name: PROJECT_DEFINITION_EDITOR_HOME,
+    path: "/project_definition_editor",
+    component: ProjectDefinitionHome,
+    tags: ["main-content"],
+  },
+  {
     name: CONTAINER_VIEW_ROUTE_NAME,
     path: "/project_definition_editor/:projectDefinitionId/:selectedPath",
+    component: EditorLayout,
     tags: ["main-content"],
   },
   {
@@ -21,7 +31,7 @@ export const routes: NamedRoute[] = [
   {
     name: PROJECT_DEFINITION_TRANSLATION,
     path: "/api/translation/:ressourceId/:locale",
-    tags: [],
+    tags: ["api"],
   },
 ];
 

@@ -1,6 +1,6 @@
 import { Button, Grid } from "@material-ui/core";
-import React from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useParams, useHistory } from "react-router-dom";
 
 import { useFindProjectDefinitionRootSectionsQuery } from "../../../generated/graphql";
 import { useDbTranslation } from "../../translation";
@@ -12,8 +12,13 @@ interface RootSectionParams {
   selectedPath: string;
 }
 
-export function RootSectionBar() {
+interface RootSectionBarProps {
+  onLoading: (isLoading: boolean, error?: Error) => void;
+}
+
+export function RootSectionBar({ onLoading }: RootSectionBarProps) {
   const { projectDefinitionId, selectedPath } = useParams<RootSectionParams>();
+  const history = useHistory();
   const { labelTrans } = useDbTranslation(projectDefinitionId);
   const buildLink = buildLinkFor(projectDefinitionId);
   const [rootSectionId] = splitPath(selectedPath);
@@ -23,32 +28,38 @@ export function RootSectionBar() {
     },
   });
 
-  if (error) {
-    console.error(error);
-  }
+  useEffect(() => {
+    if (
+      rootSectionId === undefined &&
+      data !== undefined &&
+      loading === false &&
+      data.findProjectDefinitionRootSections.roots.length > 0
+    ) {
+      history.push(
+        buildLink(data.findProjectDefinitionRootSections.roots[0].definition.id)
+      );
+    }
+  }, [buildLink, data, loading, history, rootSectionId]);
 
-  if (loading) {
-    return <span>Loading...</span>;
-  }
+  useEffect(() => {
+    onLoading(loading, error);
+  }, [error, loading, onLoading]);
 
-  if (data === undefined) {
-    return null;
-  }
-
-  const roots = data.findProjectDefinitionRootSections.roots;
+  const roots = data?.findProjectDefinitionRootSections.roots;
 
   return (
     <Grid item xs={12}>
-      {roots.map((c) => (
-        <Button
-          key={c.definition.name}
-          component={Link}
-          to={buildLink(c.definition.id)}
-          color="primary"
-        >
-          {labelTrans(c.definition.name)}
-        </Button>
-      ))}
+      {roots &&
+        roots.map((c) => (
+          <Button
+            key={c.definition.name}
+            component={Link}
+            to={buildLink(c.definition.id)}
+            color="primary"
+          >
+            {labelTrans(c.definition.name)}
+          </Button>
+        ))}
     </Grid>
   );
 }
