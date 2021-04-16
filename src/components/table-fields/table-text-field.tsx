@@ -27,6 +27,7 @@ export function textField({
 }: TextFieldProps) {
   return (
     <TextField
+      style={{ width: "100%" }}
       InputLabelProps={{ style: { pointerEvents: "auto" }, shrink: true }}
       type={getType() === "string" ? "text" : "number"}
       label={

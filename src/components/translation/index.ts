@@ -1,3 +1,3 @@
 export { useDbTranslation } from "./hooks";
 export { setupTables } from "./tables";
-export { TranslationScope } from "./translation-scope";
+export { useTranlationScope } from "./use-translation-scope";

@@ -18,7 +18,8 @@ import {
 } from "../../../generated";
 import { noop } from "lodash";
 import { Link } from "react-router-dom";
-import { CONTAINER_VIEW_ROUTE_NAME } from "../routes";
+import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
+import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 
 const useStyles = makeStyles({
   table: {
@@ -115,12 +116,10 @@ export function SearchGrid({ types, headers, fetch }: SearchGridProps) {
   );
 }
 
-interface ProjectDefinitionHomeProps {
-  navigateBack: () => void;
-}
+interface ProjectDefinitionHomeProps extends RouteViewCompoenentProps {}
 
 export function ProjectDefinitionHome({
-  navigateBack,
+  returnUrl,
 }: ProjectDefinitionHomeProps) {
   const { apollo, routes } = useServices<Services>();
   const types = useRef<[string, string][]>([
@@ -150,7 +149,7 @@ export function ProjectDefinitionHome({
           properties: { name: item.node.name },
           nextPageToken: item.cursor,
           type: "project-definition",
-          uri: routes.render(CONTAINER_VIEW_ROUTE_NAME, {
+          uri: routes.render(PROJECT_DEFINITION_EDITOR_MAIN, {
             projectDefinitionId: item.node.id,
             selectedPath: "~",
           }),

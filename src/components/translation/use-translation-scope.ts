@@ -3,48 +3,41 @@ import { useServices } from "../../shared/service-context";
 import { AsyncRestCursor } from "../../shared/async-cursor";
 import { Translation } from "../../generated";
 import { addTranslations } from "./tables";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useRef, useState } from "react";
 
-interface TranslationScopeProps {
-  name: string;
-  ressourceId: string;
-  children: JSX.Element;
-}
-
-export function TranslationScope({
-  name,
-  ressourceId,
-  children,
-}: TranslationScopeProps) {
+export function useTranlationScope(
+  routeName: string,
+  ressourceId: string
+): boolean {
   const { reduxDb, axios, routes } = useServices<Services>();
   const { i18n } = useTranslation();
-  const [cursor, setCursor] = useState<
-    AsyncRestCursor<Translation> | undefined
-  >(
-    new AsyncRestCursor<Translation>(
+  const isLoaded = useRef(false);
+  const [isLoading, setLoading] = useState(true);
+
+  async function fetch(): Promise<void> {
+    const cursor = new AsyncRestCursor<Translation>(
       axios,
       500,
       (nextPageToken: string | undefined, limit: number) =>
         routes.render(
-          name,
+          routeName,
           { ressourceId, locale: i18n.language },
           { ...(nextPageToken && { nextPageToken }), limit }
         )
-    )
-  );
+    );
 
-  async function pullData(cursor: AsyncRestCursor<Translation>): Promise<void> {
     while (await cursor.next()) {
       addTranslations(reduxDb, cursor.data());
     }
+
+    setLoading(false);
   }
 
-  if (cursor === undefined) {
-    return children;
+  if (isLoaded.current === false) {
+    isLoaded.current = true;
+    fetch();
   }
 
-  pullData(cursor).then(() => setCursor(undefined));
-
-  return <></>;
+  return isLoading;
 }

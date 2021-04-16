@@ -3,5 +3,5 @@ export type {
   NamedRouteRecord,
   RouteViewCompoenentProps,
 } from "./named-route";
-export { NamedRoutes, useNavigate, useUrlQueryParams } from "./named-route";
-export { RouteComponentView } from "./route-component-view";
+export { NamedRoutes, useUrlQueryParams } from "./named-route";
+export { renderNamedRoute } from "./route-component-view";

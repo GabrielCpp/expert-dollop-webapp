@@ -1,20 +1,20 @@
 import { uniq } from "lodash";
-import { useHistory, useLocation } from "react-router-dom";
-import { Services } from "../../hooks";
+import { useLocation } from "react-router-dom";
+
 import { buildRelativeUrl } from "../async-cursor";
-import { useServices } from "../service-context";
 
 export interface RouteService {
   routes: NamedRoutes;
 }
 
 export interface RouteViewCompoenentProps {
-  navigateBack: () => void;
+  returnUrl: string;
 }
 
 export interface NamedRoute {
   name: string;
   path: string;
+  exact?: boolean;
   component?: (props: RouteViewCompoenentProps) => JSX.Element;
   tags: string[];
 }
@@ -109,30 +109,6 @@ export class NamedRoutes {
   public remove(name: string) {
     this._routes.delete(name);
   }
-}
-
-export function useNavigate(): {
-  navigate: (
-    routeName: string,
-    params?: Record<string, string>,
-    queries?: Record<string, string>
-  ) => void;
-} {
-  const history = useHistory();
-  const { routes } = useServices<Services>();
-
-  function navigate(
-    routeName: string,
-    params: Record<string, string> = {},
-    queries: Record<string, string> = {}
-  ) {
-    const path = routes.render(routeName, params, queries);
-    history.push(path);
-  }
-
-  return {
-    navigate,
-  };
 }
 
 export function useUrlQueryParams<T extends Record<string, string>>(): T {

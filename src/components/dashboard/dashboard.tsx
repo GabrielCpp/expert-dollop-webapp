@@ -24,7 +24,6 @@ import { Link as RouterLink, Route, Switch } from "react-router-dom";
 
 import { Services } from "../../hooks";
 import { useServices } from "../../shared/service-context";
-import { useNavigate } from "../../shared/named-routes";
 
 function Copyright() {
   return (
@@ -104,7 +103,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function Dashboard() {
-  const { navigate } = useNavigate();
   const { routes } = useServices<Services>();
   const classes = useStyles();
   const theme = useTheme();
@@ -117,10 +115,6 @@ export function Dashboard() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
-  function navigateBack() {
-    navigate("/");
-  }
 
   return (
     <div className={classes.root}>
@@ -208,8 +202,8 @@ export function Dashboard() {
             }
 
             return (
-              <Route key={route.name} path={route.path} exact={true}>
-                <Component navigateBack={navigateBack} />
+              <Route key={route.name} path={route.path} exact={route.exact}>
+                <Component returnUrl={"/"} />
               </Route>
             );
           })}

@@ -3,7 +3,6 @@ import {
   UniqueIndexKeyBuilder,
   PrimaryKey,
   getPk,
-  TableWatcher,
 } from "./table-record";
 import { TableTransaction } from "./table-transaction";
 import {

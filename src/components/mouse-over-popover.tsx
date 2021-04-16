@@ -79,7 +79,7 @@ export function MouseOverPopover({
   }
 
   return (
-    <div>
+    <>
       {children}
       <Popover
         id={name}
@@ -102,6 +102,6 @@ export function MouseOverPopover({
       >
         <Typography>{t(text)}</Typography>
       </Popover>
-    </div>
+    </>
   );
 }

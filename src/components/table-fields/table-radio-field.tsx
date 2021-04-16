@@ -1,5 +1,4 @@
 import {
-  FormControl,
   FormControlLabel,
   FormLabel,
   Radio,
@@ -39,8 +38,10 @@ export function radioField({
   options,
 }: RadiodProps) {
   return (
-    <FormControl component="fieldset">
-      <FormLabel component="legend">{t(label)}</FormLabel>
+    <fieldset>
+      <legend>
+        <FormLabel>{t(label)}</FormLabel>
+      </legend>
       <RadioGroup name={name} value={value} onChange={onChange} id={id}>
         {options.map((option) => (
           <FormControlLabel
@@ -59,6 +60,6 @@ export function radioField({
           />
         ))}
       </RadioGroup>
-    </FormControl>
+    </fieldset>
   );
 }

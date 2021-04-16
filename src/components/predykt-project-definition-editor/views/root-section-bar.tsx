@@ -1,4 +1,4 @@
-import { Button, Grid } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 
@@ -20,7 +20,6 @@ export function RootSectionBar({ onLoading }: RootSectionBarProps) {
   const { projectDefinitionId, selectedPath } = useParams<RootSectionParams>();
   const history = useHistory();
   const { labelTrans } = useDbTranslation(projectDefinitionId);
-  const buildLink = buildLinkFor(projectDefinitionId);
   const [rootSectionId] = splitPath(selectedPath);
   const { loading, data, error } = useFindProjectDefinitionRootSectionsQuery({
     variables: {
@@ -36,10 +35,13 @@ export function RootSectionBar({ onLoading }: RootSectionBarProps) {
       data.findProjectDefinitionRootSections.roots.length > 0
     ) {
       history.push(
-        buildLink(data.findProjectDefinitionRootSections.roots[0].definition.id)
+        buildLinkFor(
+          projectDefinitionId,
+          data.findProjectDefinitionRootSections.roots[0].definition.id
+        )
       );
     }
-  }, [buildLink, data, loading, history, rootSectionId]);
+  }, [data, loading, history, rootSectionId, projectDefinitionId]);
 
   useEffect(() => {
     onLoading(loading, error);
@@ -48,18 +50,18 @@ export function RootSectionBar({ onLoading }: RootSectionBarProps) {
   const roots = data?.findProjectDefinitionRootSections.roots;
 
   return (
-    <Grid item xs={12}>
+    <>
       {roots &&
         roots.map((c) => (
           <Button
             key={c.definition.name}
             component={Link}
-            to={buildLink(c.definition.id)}
+            to={buildLinkFor(projectDefinitionId, c.definition.id)}
             color="primary"
           >
             {labelTrans(c.definition.name)}
           </Button>
         ))}
-    </Grid>
+    </>
   );
 }

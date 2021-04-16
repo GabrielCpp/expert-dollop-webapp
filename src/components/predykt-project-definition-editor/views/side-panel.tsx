@@ -1,42 +1,47 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Button,
+  Collapse,
   createStyles,
-  Grid,
   IconButton,
   List,
   ListItem,
   ListItemText,
+  ListSubheader,
   makeStyles,
   Theme,
   Tooltip,
-  Typography,
+  Link,
 } from "@material-ui/core";
-import {
-  Add as AddIcon,
-  DeleteForever as DeleteForeverIcon,
-  ExpandMore as ExpandMoreIcon,
-} from "@material-ui/icons";
-import React, { useEffect } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
+import React, { Fragment, useEffect } from "react";
+import { Link as RouterLink, useHistory, useParams } from "react-router-dom";
 
-import { useFindProjectDefinitionRootSectionContainersQuery } from "../../../generated/graphql";
-import { useNavigate } from "../../../shared/named-routes";
-import { DisplayOnMouseOver } from "../../display-on-mouseover";
+import {
+  FindProjectDefinitionRootSectionContainersQuery,
+  useFindProjectDefinitionRootSectionContainersQuery,
+} from "../../../generated/graphql";
 import { MouseOverPopover } from "../../mouse-over-popover";
 import { useDbTranslation } from "../../translation";
-import { splitPath } from "../routes";
-import { ADD_PROJECT_SECTION_ROUTE_NAME, buildLinkFor } from "../routes";
+import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+import EditIcon from "@material-ui/icons/Edit";
+import {
+  ADD_PROJECT_SECTION_ROUTE_NAME,
+  buildLinkFor,
+  splitPath,
+} from "../routes";
+import { useServices } from "../../../shared/service-context";
+import { Services } from "../../../hooks";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    heading: {
-      fontSize: theme.typography.pxToRem(15),
-      flexBasis: "33.33%",
-      flexShrink: 0,
+    root: {
       width: "100%",
+      backgroundColor: theme.palette.background.paper,
+    },
+    nested: {
+      paddingLeft: theme.spacing(4),
     },
     selectedListItem: {
       fontWeight: "bold",
@@ -58,11 +63,10 @@ interface SidePanelProps {
 
 export function SidePanel({ onLoading }: SidePanelProps) {
   const history = useHistory();
-  const { navigate } = useNavigate();
+  const { routes } = useServices<Services>();
   const params = useParams<SidePanelParams>();
   const { projectDefinitionId, selectedPath } = params;
   const [rootSectionId, subSectionId, formId] = splitPath(selectedPath);
-  const buildLink = buildLinkFor(projectDefinitionId);
   const { t, labelTrans, helpTextTrans } = useDbTranslation(
     projectDefinitionId
   );
@@ -102,154 +106,187 @@ export function SidePanel({ onLoading }: SidePanelProps) {
 
         if (formId === undefined && subSections[0].children.length > 0) {
           const newFormId = subSections[0].children[0].definition.id;
-          history.push(buildLink(rootSectionId, newSubSectionId, newFormId));
+          history.push(
+            buildLinkFor(
+              projectDefinitionId,
+              rootSectionId,
+              newSubSectionId,
+              newFormId
+            )
+          );
         } else {
-          history.push(buildLink(rootSectionId, newSubSectionId));
+          history.push(
+            buildLinkFor(projectDefinitionId, rootSectionId, newSubSectionId)
+          );
         }
       }
     }
-  }, [buildLink, data, loading, history, rootSectionId, subSectionId, formId]);
+  }, [
+    data,
+    loading,
+    history,
+    rootSectionId,
+    subSectionId,
+    formId,
+    projectDefinitionId,
+  ]);
 
   useEffect(() => {
     onLoading(loading, error);
   }, [error, loading, onLoading]);
 
-  const handleChange = (panel: string) => (
-    event: React.ChangeEvent<{}>,
-    isExpanded: boolean
-  ) => {
-    setExpanded(isExpanded ? panel : undefined);
-  };
-
-  const addContainer = () => {
-    navigate(ADD_PROJECT_SECTION_ROUTE_NAME, params, {
-      parentNodeId: rootSectionId,
-    });
+  const handleChange = (id: string) => () => {
+    setExpanded(expanded === id ? undefined : id);
   };
 
   const subSections = data?.findProjectDefinitionRootSectionContainers.roots;
 
   return (
-    <Grid
-      container
-      item
-      xs={3}
-      spacing={1}
-      direction="column"
-      justify="flex-start"
-      alignItems="flex-start"
-    >
-      {subSections &&
-        subSections.map((firstLayerNode) => (
-          <Grid
-            item
-            key={firstLayerNode.definition.name}
-            className={classes.grid}
-          >
-            <Accordion
-              expanded={
-                expanded === firstLayerNode.definition.id ||
-                (expanded === undefined && expanded === subSectionId)
-              }
-              onChange={handleChange(firstLayerNode.definition.id)}
-            >
-              <DisplayOnMouseOver>
-                {(isDisplayed, props) => (
-                  <AccordionSummary
-                    className={classes.heading}
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls={`${firstLayerNode.definition.name}-content`}
-                    id={`${firstLayerNode.definition.name}-header`}
-                    {...props}
-                  >
-                    <Grid
-                      container
-                      item
-                      xs={12}
-                      direction="row"
-                      justify="flex-start"
-                      alignItems="center"
-                    >
-                      <Grid item>
-                        <MouseOverPopover
-                          name={`${firstLayerNode.definition.name}-popover`}
-                          text={helpTextTrans(firstLayerNode.definition.name)}
-                        >
-                          <Typography>
-                            {labelTrans(firstLayerNode.definition.name)}
-                          </Typography>
-                        </MouseOverPopover>
-                      </Grid>
+    <>
+      {subSections && (
+        <List
+          component="nav"
+          aria-labelledby="nested-list-subheader"
+          subheader={
+            <ListSubheader component="div" id="nested-list-subheader">
+              Nested List Items
+            </ListSubheader>
+          }
+          className={classes.root}
+        >
+          {subSections.map((firstLayerNode) => (
+            <Fragment key={firstLayerNode.definition.name}>
+              <ListItem button>
+                <MouseOverPopover
+                  name={`${firstLayerNode.definition.name}-popover`}
+                  text={helpTextTrans(firstLayerNode.definition.name)}
+                >
+                  <ListItemText
+                    primary={labelTrans(firstLayerNode.definition.name)}
+                  />
+                </MouseOverPopover>
 
-                      <Grid
-                        item
-                        style={{
-                          visibility: isDisplayed ? "visible" : "hidden",
-                        }}
-                      >
-                        <Tooltip title="Delete" aria-label="delete">
-                          <IconButton color="default" aria-label="remove">
-                            <DeleteForeverIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Add" aria-label="delete">
-                          <IconButton color="primary" aria-label="add">
-                            <AddIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Grid>
-                    </Grid>
-                  </AccordionSummary>
+                <EditNodeButtons />
+
+                {expanded === firstLayerNode.definition.id ? (
+                  <ExpandLess
+                    onClick={handleChange(firstLayerNode.definition.id)}
+                  />
+                ) : (
+                  <ExpandMore
+                    onClick={handleChange(firstLayerNode.definition.id)}
+                  />
                 )}
-              </DisplayOnMouseOver>
+              </ListItem>
+              <Collapse
+                in={expanded === firstLayerNode.definition.id}
+                timeout="auto"
+                unmountOnExit
+              >
+                <InnerPanel
+                  projectDefinitionId={projectDefinitionId}
+                  rootSectionId={rootSectionId}
+                  formId={formId}
+                  firstLayerNode={firstLayerNode}
+                />
+              </Collapse>
+            </Fragment>
+          ))}
+        </List>
+      )}
+      <Button
+        variant="contained"
+        color="primary"
+        component={RouterLink}
+        to={routes.render(ADD_PROJECT_SECTION_ROUTE_NAME, params, {
+          parentNodeId: rootSectionId,
+        })}
+      >
+        {t("add")}
+      </Button>
+    </>
+  );
+}
 
-              <AccordionDetails>
-                <List>
-                  {firstLayerNode.children.map((secondLayerNode) => (
-                    <ListItem
-                      button
-                      key={secondLayerNode.definition.name}
-                      component={Link}
-                      to={buildLink(
+interface InnerPanelProps {
+  projectDefinitionId: string;
+  rootSectionId: string;
+  formId: string;
+  firstLayerNode: FindProjectDefinitionRootSectionContainersQuery["findProjectDefinitionRootSectionContainers"]["roots"][number];
+}
+
+function InnerPanel({
+  projectDefinitionId,
+  rootSectionId,
+  formId,
+  firstLayerNode,
+}: InnerPanelProps) {
+  const classes = useStyles();
+  const { labelTrans, helpTextTrans } = useDbTranslation(projectDefinitionId);
+
+  return (
+    <List component="div" disablePadding>
+      {firstLayerNode.children.map((secondLayerNode) => (
+        <Fragment key={secondLayerNode.definition.name}>
+          <ListItem button className={classes.nested}>
+            <MouseOverPopover
+              name={`${firstLayerNode.definition.name}-popover`}
+              text={helpTextTrans(secondLayerNode.definition.name)}
+            >
+              {secondLayerNode.definition.id === formId && (
+                <ListItemText
+                  primaryTypographyProps={{
+                    className: classes.selectedListItem,
+                  }}
+                  primary={labelTrans(secondLayerNode.definition.name)}
+                />
+              )}
+              {secondLayerNode.definition.id !== formId && (
+                <ListItemText
+                  primary={
+                    <Link
+                      component={RouterLink}
+                      to={buildLinkFor(
+                        projectDefinitionId,
                         rootSectionId as string,
                         firstLayerNode.definition.id,
                         secondLayerNode.definition.id
                       )}
                     >
-                      <MouseOverPopover
-                        name={`${firstLayerNode.definition.name}-popover`}
-                        text={helpTextTrans(secondLayerNode.definition.name)}
-                      >
-                        {secondLayerNode.definition.id === formId && (
-                          <ListItemText
-                            primaryTypographyProps={{
-                              className: classes.selectedListItem,
-                            }}
-                            primary={labelTrans(
-                              secondLayerNode.definition.name
-                            )}
-                          />
-                        )}
-                        {secondLayerNode.definition.id !== formId && (
-                          <ListItemText
-                            primary={labelTrans(
-                              secondLayerNode.definition.name
-                            )}
-                          />
-                        )}
-                      </MouseOverPopover>
-                    </ListItem>
-                  ))}
-                </List>
-              </AccordionDetails>
-            </Accordion>
-          </Grid>
-        ))}
-      <Grid item className={classes.grid}>
-        <Button variant="contained" color="primary" onClick={addContainer}>
-          {t("add")}
-        </Button>
-      </Grid>
-    </Grid>
+                      {labelTrans(secondLayerNode.definition.name)}
+                    </Link>
+                  }
+                />
+              )}
+            </MouseOverPopover>
+            <EditNodeButtons />
+          </ListItem>
+        </Fragment>
+      ))}
+    </List>
+  );
+}
+
+function EditNodeButtons() {
+  return (
+    <>
+      <Tooltip title="Move up" aria-label="Move up">
+        <IconButton aria-label="Move up" size="small">
+          <ArrowUpwardIcon fontSize="inherit" />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Move down" aria-label="Move down">
+        <IconButton aria-label="Move down" size="small">
+          <ArrowDownwardIcon fontSize="inherit" />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Edit" aria-label="Edit">
+        <IconButton aria-label="edit" size="small">
+          <EditIcon fontSize="inherit" />
+        </IconButton>
+      </Tooltip>
+    </>
   );
 }

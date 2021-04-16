@@ -1,15 +1,15 @@
 import { CircularProgress, Grid } from "@material-ui/core";
 import React from "react";
-import { Route, useParams } from "react-router-dom";
+import { Route, useParams, Switch } from "react-router-dom";
 
 import { Services } from "../../../hooks";
-import { RouteComponentView } from "../../../shared/named-routes";
+import { renderNamedRoute } from "../../../shared/named-routes";
 import { useServices } from "../../../shared/service-context";
 import { LoadingFrame } from "../../loading-frame";
-import { TranslationScope } from "../../translation";
+import { useTranlationScope } from "../../translation";
 import {
   ADD_PROJECT_SECTION_ROUTE_NAME,
-  CONTAINER_VIEW_ROUTE_NAME,
+  PROJECT_DEFINITION_EDITOR_MAIN,
   PROJECT_DEFINITION_TRANSLATION,
 } from "../routes";
 import { FormDefinitionEditor } from "./form-definition-editor";
@@ -24,35 +24,42 @@ interface EditorLayoutParams extends Record<string, string> {
 export function EditorLayout() {
   const params = useParams<EditorLayoutParams>();
   const { routes } = useServices<Services>();
+  const isLoading = useTranlationScope(
+    PROJECT_DEFINITION_TRANSLATION,
+    params.projectDefinitionId
+  );
+
+  if (isLoading) {
+    return <CircularProgress />;
+  }
 
   return (
-    <TranslationScope
-      name={PROJECT_DEFINITION_TRANSLATION}
-      ressourceId={params.projectDefinitionId}
-    >
-      <LoadingFrame loaderComponent={<CircularProgress />}>
-        {(getLoader) => (
-          <Grid
-            container
-            direction="row"
-            justify="flex-start"
-            alignItems="flex-start"
-          >
-            <RouteComponentView
-              routeName={ADD_PROJECT_SECTION_ROUTE_NAME}
-              backRouteName={CONTAINER_VIEW_ROUTE_NAME}
-              params={params}
-            />
-            <Route path={routes.getUrl(CONTAINER_VIEW_ROUTE_NAME)} exact={true}>
-              <RootSectionBar onLoading={getLoader("RootSectionBar")} />
-              <SidePanel onLoading={getLoader("SidePanel")} />
-              <Grid item xs={9}>
-                <FormDefinitionEditor />
+    <Switch>
+      {renderNamedRoute(
+        routes,
+        ADD_PROJECT_SECTION_ROUTE_NAME,
+        PROJECT_DEFINITION_EDITOR_MAIN,
+        params
+      )}
+      <Route path={routes.getUrl(PROJECT_DEFINITION_EDITOR_MAIN)} exact={true}>
+        <LoadingFrame loaderComponent={<CircularProgress />}>
+          {(getLoader) => (
+            <Grid container spacing={1} wrap={"wrap"}>
+              <Grid item xs={12}>
+                <RootSectionBar onLoading={getLoader("RootSectionBar")} />
               </Grid>
-            </Route>
-          </Grid>
-        )}
-      </LoadingFrame>
-    </TranslationScope>
+              <Grid item xs={5}>
+                <SidePanel onLoading={getLoader("SidePanel")} />
+              </Grid>
+              <Grid item xs={7}>
+                <FormDefinitionEditor
+                  onLoading={getLoader("FormDefinitionEditor")}
+                />
+              </Grid>
+            </Grid>
+          )}
+        </LoadingFrame>
+      </Route>
+    </Switch>
   );
 }

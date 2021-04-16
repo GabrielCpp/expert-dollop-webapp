@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from "uuid";
 import {
   AddProjectDefinitionNodeDocument,
   FieldDetailsType,
-  ProjectDefinitionNodeInput,
 } from "../../../generated";
 import { Services } from "../../../hooks";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
@@ -26,7 +25,7 @@ import {
   useForm,
   validateForm,
 } from "../../table-fields";
-import { useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 
 export interface FieldTranslationProps {
   path: string[];
@@ -122,9 +121,10 @@ interface AddContainerFormParams {
 }
 
 export function AddContainerForm({
-  navigateBack,
+  returnUrl,
   configType,
 }: AddContainerFormProps) {
+  const history = useHistory();
   const { reduxDb, ajv, apollo } = useServices<Services>();
   const { projectDefId } = useParams<AddContainerFormParams>();
   const { parentNodeId } = useUrlQueryParams();
@@ -170,7 +170,7 @@ export function AddContainerForm({
       },
     });
 
-    navigateBack();
+    history.push(returnUrl);
   }
 
   return (
@@ -239,17 +239,19 @@ export function AddContainerForm({
           alignItems="flex-start"
         >
           <Button onClick={onSubmit}>Add</Button>
-          <Button onClick={navigateBack}>Cancel</Button>
+          <Button component={Link} to={returnUrl}>
+            Cancel
+          </Button>
         </Grid>
       </Grid>
     </form>
   );
 }
 
-export function AddContainerView({ navigateBack }: RouteViewCompoenentProps) {
+export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
   return (
     <AddContainerForm
-      navigateBack={navigateBack}
+      returnUrl={returnUrl}
       configType={FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG}
     />
   );
