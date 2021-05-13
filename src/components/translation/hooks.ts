@@ -1,7 +1,6 @@
 import { TFunction, useTranslation } from "react-i18next";
 import { Translation } from "../../generated";
-import { Services } from "../../hooks";
-import { useServices } from "../../shared/service-context";
+import { useServices } from "../../services-def";
 
 interface TranslationHook {
   labelTrans: (key: string) => string;
@@ -11,7 +10,7 @@ interface TranslationHook {
 }
 
 export function useDbTranslation(ressourceId: string): TranslationHook {
-  const { reduxDb } = useServices<Services>();
+  const { reduxDb } = useServices();
   const { t, i18n } = useTranslation();
   const translation = reduxDb.getTable("translation");
 

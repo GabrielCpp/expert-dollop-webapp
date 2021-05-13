@@ -16,6 +16,7 @@ function TabPanel(props: any) {
     <div
       role="tabpanel"
       hidden={value !== index}
+      style={{ width: "100%" }}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}

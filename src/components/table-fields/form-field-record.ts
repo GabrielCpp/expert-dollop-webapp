@@ -1,8 +1,8 @@
 import { ErrorObject, JSONSchemaType, Schema } from "ajv";
 import { head, isEqual, reverse, sortBy, startsWith } from "lodash";
 import { v4 as uuidv4 } from "uuid";
+import { AjvFactory } from "../../services-def";
 
-import { AjvFactory } from "../../hooks";
 import {
   ops,
   PrimaryIndex,

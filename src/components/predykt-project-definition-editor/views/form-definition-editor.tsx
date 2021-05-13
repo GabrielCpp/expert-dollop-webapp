@@ -18,6 +18,7 @@ import {
   StaticChoiceFieldConfig,
   useFindProjectDefinitionFormContentQuery,
 } from "../../../generated";
+import { useLoader } from "../../loading-frame";
 import { MouseOverPopover } from "../../mouse-over-popover";
 import { Field, radioField, textField } from "../../table-fields";
 import { checkboxField } from "../../table-fields/table-checkbox-field";
@@ -131,7 +132,11 @@ function FormAccordionSection({ node }: FormProps): JSX.Element {
           name={node.definition.name}
           text={helpTextTrans(node.definition.name)}
         >
-          <Typography>{labelTrans(node.definition.name)}</Typography>
+          {(props) => (
+            <Typography {...props}>
+              {labelTrans(node.definition.name)}
+            </Typography>
+          )}
         </MouseOverPopover>
       </AccordionSummary>
       <AccordionDetails>
@@ -159,9 +164,11 @@ function FormInlineSection({ node }: FormProps): JSX.Element {
           name={node.definition.name}
           text={helpTextTrans(node.definition.name)}
         >
-          <Typography variant="h5" component="h5" gutterBottom>
-            {labelTrans(node.definition.name)}
-          </Typography>
+          {(props) => (
+            <Typography {...props} variant="h5" component="h5" gutterBottom>
+              {labelTrans(node.definition.name)}
+            </Typography>
+          )}
         </MouseOverPopover>
 
         <Grid container direction="column">
@@ -196,11 +203,8 @@ interface FormDefinitionEditorParams extends Record<string, string> {
   selectedPath: string;
 }
 
-interface FormEditorProps {
-  onLoading: (isLoading: boolean, error?: Error) => void;
-}
-
-export function FormDefinitionEditor({ onLoading }: FormEditorProps) {
+export function FormDefinitionEditor() {
+  const { onLoading } = useLoader();
   const {
     projectDefinitionId,
     selectedPath,
@@ -229,9 +233,11 @@ export function FormDefinitionEditor({ onLoading }: FormEditorProps) {
           name={formNode.name}
           text={helpTextTrans(formNode.name)}
         >
-          <Typography variant="h4" component="h4" gutterBottom>
-            {labelTrans(formNode.name)}
-          </Typography>
+          {(props) => (
+            <Typography {...props} variant="h4" component="h4" gutterBottom>
+              {labelTrans(formNode.name)}
+            </Typography>
+          )}
         </MouseOverPopover>
       )}
       <form>

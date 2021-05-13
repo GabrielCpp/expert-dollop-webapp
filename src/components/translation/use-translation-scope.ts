@@ -1,19 +1,24 @@
-import { Services } from "../../hooks";
-import { useServices } from "../../shared/service-context";
 import { AsyncRestCursor } from "../../shared/async-cursor";
 import { Translation } from "../../generated";
 import { addTranslations } from "./tables";
 import { useTranslation } from "react-i18next";
 import { useRef, useState } from "react";
+import { useServices } from "../../services-def";
+
+interface TranlationScopeHook {
+  isLoading: boolean;
+  error: Error | undefined;
+}
 
 export function useTranlationScope(
   routeName: string,
   ressourceId: string
-): boolean {
-  const { reduxDb, axios, routes } = useServices<Services>();
+): TranlationScopeHook {
+  const { reduxDb, axios, routes } = useServices();
   const { i18n } = useTranslation();
   const isLoaded = useRef(false);
   const [isLoading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | undefined>(undefined);
 
   async function fetch(): Promise<void> {
     const cursor = new AsyncRestCursor<Translation>(
@@ -36,8 +41,8 @@ export function useTranlationScope(
 
   if (isLoaded.current === false) {
     isLoaded.current = true;
-    fetch();
+    fetch().catch((error) => setError(error));
   }
 
-  return isLoading;
+  return { isLoading, error };
 }

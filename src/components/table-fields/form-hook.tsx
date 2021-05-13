@@ -4,7 +4,7 @@ import { useId } from "../../shared/redux-db";
 import { useServices } from "../../shared/service-context";
 import {
   createFormFieldRecord,
-  deleteFormFieldRecords,
+  FormFieldTableName,
   upsertFormFieldRecord,
 } from "./form-field-record";
 
@@ -26,23 +26,22 @@ export function useForm(name?: string, parentPath: string[] = []): UseFormHook {
   }, [formId, formPath, parentPath]);
 
   useEffect(() => {
-    const path = formPath.current as string[];
-
     if (name !== undefined) {
-      upsertFormFieldRecord(reduxDb, [
-        createFormFieldRecord(
-          true,
-          path.slice(0, path.length - 1),
-          name,
-          null,
-          last(path)
-        ),
-      ]);
-    }
+      const path = formPath.current as string[];
+      const record = createFormFieldRecord(
+        true,
+        path.slice(0, path.length - 1),
+        name,
+        null,
+        last(path)
+      );
 
-    return () => {
-      deleteFormFieldRecords(reduxDb, path);
-    };
+      upsertFormFieldRecord(reduxDb, [record]);
+
+      return () => {
+        reduxDb.getTable(FormFieldTableName).removeMany([record]);
+      };
+    }
   }, [reduxDb, formPath, name]);
 
   return {

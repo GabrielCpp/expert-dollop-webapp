@@ -1,5 +1,6 @@
 import { JSONSchemaType, Schema } from "ajv";
 import { isBoolean } from "lodash";
+import { useEffect, useRef } from "react";
 import { useId, useTableRecord } from "../../shared/redux-db";
 import { useServices } from "../../shared/service-context";
 import {
@@ -39,21 +40,29 @@ export function Field({
   component,
   ...others
 }: FieldProps) {
-  const { ajv } = useServices();
+  const { ajv, reduxDb } = useServices();
   const fieldId = useId(id);
-  const fieldDetails = createFormFieldRecord(
-    validator,
-    path,
-    name,
-    defaultValue,
-    fieldId
+  const fieldDetailsRef = useRef(
+    createFormFieldRecord(validator, path, name, defaultValue, fieldId)
   );
+  const fieldDetails = fieldDetailsRef.current;
   const primaryKey = buildFormFieldRecordPk(fieldDetails);
   const [item, updateItem, updateLocalItem] = useTableRecord<FormFieldRecord>(
     FormFieldTableName,
     primaryKey,
     fieldDetails
   );
+
+  useEffect(() => {
+    reduxDb.getTable(FormFieldTableName).upsertMany([fieldDetailsRef.current]);
+  });
+
+  useEffect(() => {
+    const record = fieldDetailsRef.current;
+    return () => {
+      reduxDb.getTable(FormFieldTableName).removeMany([record]);
+    };
+  }, [reduxDb]);
 
   function getType(): "number" | "integer" | "string" | "boolean" {
     if (isBoolean(fieldDetails.jsonSchemaValidator)) {

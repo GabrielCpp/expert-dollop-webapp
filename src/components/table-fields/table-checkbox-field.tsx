@@ -34,7 +34,7 @@ export function checkboxField({
       label={
         popover !== undefined ? (
           <MouseOverPopover {...popover} name={`${name}-popover`}>
-            <Typography>{t(label)}</Typography>
+            {(props) => <Typography {...props}>{t(label)}</Typography>}
           </MouseOverPopover>
         ) : (
           t(label)

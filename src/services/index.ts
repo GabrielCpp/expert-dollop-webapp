@@ -3,7 +3,8 @@ import { createAxiosClient } from "./axios";
 import { createNamedRouteService } from "./named-routes";
 import { createReduxDb } from "./redux-db";
 import { AjvWithError } from "./ajv";
-import { Services } from "../hooks";
+import { LoaderService } from "./loader-service";
+import { Services } from "../services-def";
 
 export const services: Services = {
   apollo: createApolloClient(),
@@ -11,4 +12,5 @@ export const services: Services = {
   routes: createNamedRouteService(),
   reduxDb: createReduxDb(),
   ajv: new AjvWithError(),
+  loader: new LoaderService(),
 };

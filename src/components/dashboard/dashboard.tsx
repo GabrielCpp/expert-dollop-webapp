@@ -1,7 +1,6 @@
 import AppBar from "@material-ui/core/AppBar";
 import Box from "@material-ui/core/Box";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
@@ -9,21 +8,23 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { fade, makeStyles } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ApartmentIcon from "@material-ui/icons/Apartment";
 import AccountTreeIcon from "@material-ui/icons/AccountTree";
 import ListAltIcon from "@material-ui/icons/ListAlt";
 import MenuIcon from "@material-ui/icons/Menu";
+import SearchIcon from "@material-ui/icons/Search";
+import InputBase from "@material-ui/core/InputBase";
+import Paper from "@material-ui/core/Paper";
 import clsx from "clsx";
 import React from "react";
 import { Link as RouterLink, Route, Switch } from "react-router-dom";
 
-import { Services } from "../../hooks";
-import { useServices } from "../../shared/service-context";
+import { LoadingFrame } from "../loading-frame";
+import { Button, CircularProgress } from "@material-ui/core";
+import { useServices } from "../../services-def";
 
 function Copyright() {
   return (
@@ -38,134 +39,132 @@ function Copyright() {
   );
 }
 
-const drawerWidth = 240;
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
   },
   menuButton: {
     marginRight: 36,
   },
-  hide: {
-    display: "none",
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-  },
-  drawerOpen: {
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-    width: theme.spacing(7) + 1,
-    [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9) + 1,
-    },
-  },
   toolbar: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-end",
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
+    justifyContent: "flex-start",
     ...theme.mixins.toolbar,
+    height: "100%",
+  },
+  drawer: {
+    width: 200,
+  },
+  drawerPaper: {
+    width: 200,
   },
   content: {
+    margin: theme.spacing(1),
+  },
+  main: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+  },
+  search: {
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    "&:hover": {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(3),
+      width: "auto",
+    },
+  },
+  searchIcon: {
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inputRoot: {
+    color: "inherit",
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "20ch",
+    },
+  },
+  actionToolbarBackground: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    width: "100%",
+    height: theme.spacing(6),
+    borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+    borderRadius: 0,
+  },
+  actionToolbar: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
 }));
 
 export function Dashboard() {
-  const { routes } = useServices<Services>();
+  const { routes } = useServices();
   const classes = useStyles();
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
-      >
-        <Toolbar>
+      <AppBar position="fixed" className={clsx(classes.appBar)}>
+        <Toolbar className={clsx(classes.toolbar)}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
             edge="start"
-            className={clsx(classes.menuButton, {
-              [classes.hide]: open,
-            })}
+            className={clsx(classes.menuButton)}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
             Predykt
           </Typography>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ "aria-label": "search" }}
+            />
+          </div>
         </Toolbar>
       </AppBar>
 
       <Drawer
         variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        })}
+        className={classes.drawer}
         classes={{
-          paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          }),
+          paper: classes.drawerPaper,
         }}
       >
-        <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </div>
-        <Divider />
+        <div className={classes.toolbar} />
         <List>
           <ListItem
             button
@@ -191,26 +190,35 @@ export function Dashboard() {
           </ListItem>
         </List>
       </Drawer>
-      <main className={classes.content}>
+      <main className={classes.main}>
         <div className={classes.toolbar} />
-        <Switch>
-          {routes.allHavingTag("main-content").map((route) => {
-            const Component = route.component;
+        <Paper elevation={0} className={classes.actionToolbarBackground}>
+          <Toolbar className={clsx(classes.actionToolbar)}>
+            <Button startIcon={<ApartmentIcon />}>Delete</Button>
+          </Toolbar>
+        </Paper>
+        <div className={classes.content}>
+          <LoadingFrame loaderComponent={<CircularProgress />}>
+            <Switch>
+              {routes.allHavingTag("main-content").map((route) => {
+                const Component = route.component;
 
-            if (Component === undefined) {
-              return null;
-            }
+                if (Component === undefined) {
+                  return null;
+                }
 
-            return (
-              <Route key={route.name} path={route.path} exact={route.exact}>
-                <Component returnUrl={"/"} />
-              </Route>
-            );
-          })}
-        </Switch>
-        <Box pt={4}>
-          <Copyright />
-        </Box>
+                return (
+                  <Route key={route.name} path={route.path} exact={route.exact}>
+                    <Component returnUrl={"/"} />
+                  </Route>
+                );
+              })}
+            </Switch>
+            <Box pt={4}>
+              <Copyright />
+            </Box>
+          </LoadingFrame>
+        </div>
       </main>
     </div>
   );

@@ -1,56 +1,25 @@
-import { useRef, useState } from "react";
-
-export type OnLoading = (isLoading: boolean, error?: Error) => void;
+import { useEffect, useState } from "react";
+import { useServices } from "../services-def";
+import { useId } from "../shared/redux-db";
 
 interface LoadingSpinnerProps {
-  children: (getLoader: (name: string) => OnLoading) => JSX.Element;
+  children: JSX.Element | JSX.Element[];
   loaderComponent: JSX.Element;
-}
-
-interface ComponentLoadingState {
-  setLoadingState: (isLoading: boolean) => void;
-  isLoading: boolean;
 }
 
 export function LoadingFrame({
   children,
   loaderComponent,
 }: LoadingSpinnerProps) {
-  const loaders = useRef<Record<string, ComponentLoadingState>>({});
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { loader } = useServices();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const buildSetLoading = (name: string) => (
-    isLoading: boolean,
-    error?: Error
-  ) => {
-    loaders.current[name].isLoading = isLoading;
+  useEffect(() => {
+    loader.setEffect(onLoading);
+  });
 
-    let newLoadingState = true;
-
-    for (const state of Object.values(loaders.current)) {
-      newLoadingState = newLoadingState && state.isLoading;
-    }
-
-    setIsLoading(newLoadingState);
-
-    if (error) {
-      console.error(error);
-    }
-  };
-
-  function getLoader(name: string): (isLoading: boolean) => void {
-    let componentLoadingState = loaders.current[name];
-
-    if (componentLoadingState === undefined) {
-      componentLoadingState = {
-        setLoadingState: buildSetLoading(name),
-        isLoading: true,
-      };
-
-      loaders.current[name] = componentLoadingState;
-    }
-
-    return componentLoadingState.setLoadingState;
+  function onLoading(newIsLoading: boolean, error?: Error): void {
+    setIsLoading(newIsLoading);
   }
 
   return (
@@ -58,9 +27,20 @@ export function LoadingFrame({
       <span style={{ display: isLoading ? "inline" : "none" }}>
         {loaderComponent}
       </span>
-      <div style={{ display: isLoading ? "none" : "block" }}>
-        {children(getLoader)}
-      </div>
+      <div style={{ display: isLoading ? "none" : "block" }}>{children}</div>
     </>
   );
+}
+
+export function useLoader() {
+  const { loader } = useServices();
+  const componentId = useId();
+
+  useEffect(() => {
+    return () => loader.deleteEmitter(componentId);
+  }, [componentId, loader]);
+
+  return {
+    onLoading: loader.getEmitter(componentId),
+  };
 }

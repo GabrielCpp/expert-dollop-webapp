@@ -31,8 +31,8 @@ import {
   buildLinkFor,
   splitPath,
 } from "../routes";
-import { useServices } from "../../../shared/service-context";
-import { Services } from "../../../hooks";
+import { useLoader } from "../../loading-frame";
+import { useServices } from "../../../services-def";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -57,13 +57,10 @@ interface SidePanelParams extends Record<string, string> {
   selectedPath: string;
 }
 
-interface SidePanelProps {
-  onLoading: (isLoading: boolean, error?: Error) => void;
-}
-
-export function SidePanel({ onLoading }: SidePanelProps) {
+export function SidePanel() {
+  const { onLoading } = useLoader();
   const history = useHistory();
-  const { routes } = useServices<Services>();
+  const { routes } = useServices();
   const params = useParams<SidePanelParams>();
   const { projectDefinitionId, selectedPath } = params;
   const [rootSectionId, subSectionId, formId] = splitPath(selectedPath);
@@ -161,9 +158,12 @@ export function SidePanel({ onLoading }: SidePanelProps) {
                   name={`${firstLayerNode.definition.name}-popover`}
                   text={helpTextTrans(firstLayerNode.definition.name)}
                 >
-                  <ListItemText
-                    primary={labelTrans(firstLayerNode.definition.name)}
-                  />
+                  {(props) => (
+                    <ListItemText
+                      {...props}
+                      primary={labelTrans(firstLayerNode.definition.name)}
+                    />
+                  )}
                 </MouseOverPopover>
 
                 <EditNodeButtons />
@@ -222,7 +222,11 @@ function InnerPanel({
   firstLayerNode,
 }: InnerPanelProps) {
   const classes = useStyles();
-  const { labelTrans, helpTextTrans } = useDbTranslation(projectDefinitionId);
+  const params = useParams<SidePanelParams>();
+  const { routes } = useServices();
+  const { t, labelTrans, helpTextTrans } = useDbTranslation(
+    projectDefinitionId
+  );
 
   return (
     <List component="div" disablePadding>
@@ -233,36 +237,55 @@ function InnerPanel({
               name={`${firstLayerNode.definition.name}-popover`}
               text={helpTextTrans(secondLayerNode.definition.name)}
             >
-              {secondLayerNode.definition.id === formId && (
-                <ListItemText
-                  primaryTypographyProps={{
-                    className: classes.selectedListItem,
-                  }}
-                  primary={labelTrans(secondLayerNode.definition.name)}
-                />
-              )}
-              {secondLayerNode.definition.id !== formId && (
-                <ListItemText
-                  primary={
-                    <Link
-                      component={RouterLink}
-                      to={buildLinkFor(
-                        projectDefinitionId,
-                        rootSectionId as string,
-                        firstLayerNode.definition.id,
-                        secondLayerNode.definition.id
-                      )}
-                    >
-                      {labelTrans(secondLayerNode.definition.name)}
-                    </Link>
-                  }
-                />
+              {(props) => (
+                <>
+                  <ListItemText
+                    {...props}
+                    primaryTypographyProps={{
+                      className:
+                        secondLayerNode.definition.id !== formId
+                          ? classes.selectedListItem
+                          : undefined,
+                    }}
+                    primary={
+                      secondLayerNode.definition.id === formId ? (
+                        labelTrans(secondLayerNode.definition.name)
+                      ) : (
+                        <Link
+                          component={RouterLink}
+                          to={buildLinkFor(
+                            projectDefinitionId,
+                            rootSectionId as string,
+                            firstLayerNode.definition.id,
+                            secondLayerNode.definition.id
+                          )}
+                        >
+                          {labelTrans(secondLayerNode.definition.name)}
+                        </Link>
+                      )
+                    }
+                  />
+                </>
               )}
             </MouseOverPopover>
             <EditNodeButtons />
           </ListItem>
         </Fragment>
       ))}
+      <ListItem>
+        <ListItemText>
+          <Button
+            variant="contained"
+            color="primary"
+            component={RouterLink}
+            to={routes.render(ADD_PROJECT_SECTION_ROUTE_NAME, params, {
+              parentNodeId: firstLayerNode.definition.id,
+            })}
+          >
+            {t("add")}
+          </Button>
+        </ListItemText>
+      </ListItem>
     </List>
   );
 }

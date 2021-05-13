@@ -53,7 +53,9 @@ export function radioField({
                 <Typography>{t(option.label)}</Typography>
               ) : (
                 <MouseOverPopover {...option.popover} name={`${name}-popover`}>
-                  <Typography>{t(option.label)}</Typography>
+                  {(props) => (
+                    <Typography {...props}>{t(option.label)}</Typography>
+                  )}
                 </MouseOverPopover>
               )
             }

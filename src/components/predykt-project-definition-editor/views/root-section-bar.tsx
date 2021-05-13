@@ -6,17 +6,15 @@ import { useFindProjectDefinitionRootSectionsQuery } from "../../../generated/gr
 import { useDbTranslation } from "../../translation";
 import { splitPath } from "../routes";
 import { buildLinkFor } from "../routes";
+import { useLoader } from "../../loading-frame";
 
 interface RootSectionParams {
   projectDefinitionId: string;
   selectedPath: string;
 }
 
-interface RootSectionBarProps {
-  onLoading: (isLoading: boolean, error?: Error) => void;
-}
-
-export function RootSectionBar({ onLoading }: RootSectionBarProps) {
+export function RootSectionBar() {
+  const { onLoading } = useLoader();
   const { projectDefinitionId, selectedPath } = useParams<RootSectionParams>();
   const history = useHistory();
   const { labelTrans } = useDbTranslation(projectDefinitionId);

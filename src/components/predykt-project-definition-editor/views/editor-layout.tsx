@@ -1,16 +1,15 @@
-import { CircularProgress, Grid } from "@material-ui/core";
-import React from "react";
+import { Grid } from "@material-ui/core";
+import React, { useEffect } from "react";
 import { Route, useParams, Switch } from "react-router-dom";
+import { API_PROJECT_DEFINITION_TRANSLATION } from "../../../api-routes";
+import { useServices } from "../../../services-def";
 
-import { Services } from "../../../hooks";
 import { renderNamedRoute } from "../../../shared/named-routes";
-import { useServices } from "../../../shared/service-context";
-import { LoadingFrame } from "../../loading-frame";
+import { useLoader } from "../../loading-frame";
 import { useTranlationScope } from "../../translation";
 import {
   ADD_PROJECT_SECTION_ROUTE_NAME,
   PROJECT_DEFINITION_EDITOR_MAIN,
-  PROJECT_DEFINITION_TRANSLATION,
 } from "../routes";
 import { FormDefinitionEditor } from "./form-definition-editor";
 import { RootSectionBar } from "./root-section-bar";
@@ -23,15 +22,16 @@ interface EditorLayoutParams extends Record<string, string> {
 
 export function EditorLayout() {
   const params = useParams<EditorLayoutParams>();
-  const { routes } = useServices<Services>();
-  const isLoading = useTranlationScope(
-    PROJECT_DEFINITION_TRANSLATION,
+  const { routes } = useServices();
+  const { onLoading } = useLoader();
+  const { isLoading, error } = useTranlationScope(
+    API_PROJECT_DEFINITION_TRANSLATION,
     params.projectDefinitionId
   );
 
-  if (isLoading) {
-    return <CircularProgress />;
-  }
+  useEffect(() => {
+    onLoading(isLoading, error);
+  }, [error, isLoading, onLoading]);
 
   return (
     <Switch>
@@ -42,23 +42,17 @@ export function EditorLayout() {
         params
       )}
       <Route path={routes.getUrl(PROJECT_DEFINITION_EDITOR_MAIN)} exact={true}>
-        <LoadingFrame loaderComponent={<CircularProgress />}>
-          {(getLoader) => (
-            <Grid container spacing={1} wrap={"wrap"}>
-              <Grid item xs={12}>
-                <RootSectionBar onLoading={getLoader("RootSectionBar")} />
-              </Grid>
-              <Grid item xs={5}>
-                <SidePanel onLoading={getLoader("SidePanel")} />
-              </Grid>
-              <Grid item xs={7}>
-                <FormDefinitionEditor
-                  onLoading={getLoader("FormDefinitionEditor")}
-                />
-              </Grid>
-            </Grid>
-          )}
-        </LoadingFrame>
+        <Grid container spacing={1} wrap={"wrap"}>
+          <Grid item xs={12}>
+            <RootSectionBar />
+          </Grid>
+          <Grid item xs={5}>
+            <SidePanel />
+          </Grid>
+          <Grid item xs={7}>
+            <FormDefinitionEditor />
+          </Grid>
+        </Grid>
       </Route>
     </Switch>
   );

@@ -184,12 +184,19 @@ export type FieldDetailsUnionInput = {
 export type FieldValue = IntFieldValue | DecimalFieldValue | StringFieldValue | BoolFieldValue;
 
 export type FieldValueInput = {
-  kind: Scalars['String'];
+  kind: FieldValueType;
   int?: Maybe<IntFieldValueInput>;
   decimal?: Maybe<DecimalFieldValueInput>;
   string?: Maybe<StringFieldValueInput>;
   bool?: Maybe<BoolFieldValueInput>;
 };
+
+export enum FieldValueType {
+  INT_FIELD_VALUE = 'INT_FIELD_VALUE',
+  DECIMAL_FIELD_VALUE = 'DECIMAL_FIELD_VALUE',
+  STRING_FIELD_VALUE = 'STRING_FIELD_VALUE',
+  BOOL_FIELD_VALUE = 'BOOL_FIELD_VALUE'
+}
 
 export type IntFieldConfig = {
   __typename?: 'IntFieldConfig';
@@ -214,6 +221,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   addTranslations: Array<FieldWrapper<Translation>>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
+  updateProjectField: FieldWrapper<ProjectNode>;
 };
 
 
@@ -224,6 +232,13 @@ export type MutationAddTranslationsArgs = {
 
 export type MutationAddProjectDefinitionNodeArgs = {
   node: ProjectDefinitionNodeInput;
+};
+
+
+export type MutationUpdateProjectFieldArgs = {
+  project_id: Scalars['ID'];
+  node_id: Scalars['ID'];
+  value: FieldValueInput;
 };
 
 export type NodeConfig = {
@@ -243,15 +258,10 @@ export type PageInfo = {
   endCursor: FieldWrapper<Scalars['String']>;
 };
 
-export type Project = {
-  __typename?: 'Project';
-  id: FieldWrapper<Scalars['ID']>;
-  name: FieldWrapper<Scalars['String']>;
-  isStaged?: Maybe<FieldWrapper<Scalars['Boolean']>>;
-  projectDefId: FieldWrapper<Scalars['String']>;
-  projectDefinition: FieldWrapper<ProjectDefinition>;
-  datasheetId: FieldWrapper<Scalars['String']>;
-  datasheet: FieldWrapper<Datasheet>;
+export type ProjectConnection = {
+  __typename?: 'ProjectConnection';
+  edges: Array<FieldWrapper<ProjectEdge>>;
+  pageInfo: FieldWrapper<PageInfo>;
 };
 
 export type ProjectDefinition = {
@@ -333,6 +343,57 @@ export type ProjectDefinitionTreeNode = {
   children: Array<FieldWrapper<ProjectDefinitionTreeNode>>;
 };
 
+export type ProjectDetails = {
+  __typename?: 'ProjectDetails';
+  id: FieldWrapper<Scalars['ID']>;
+  name: FieldWrapper<Scalars['String']>;
+  isStaged?: Maybe<FieldWrapper<Scalars['Boolean']>>;
+  projectDefId: FieldWrapper<Scalars['String']>;
+  projectDefinition: FieldWrapper<ProjectDefinition>;
+  datasheetId: FieldWrapper<Scalars['String']>;
+  datasheet: FieldWrapper<Datasheet>;
+};
+
+export type ProjectEdge = {
+  __typename?: 'ProjectEdge';
+  node: FieldWrapper<ProjectDetails>;
+  cursor: FieldWrapper<Scalars['String']>;
+};
+
+export type ProjectNode = {
+  __typename?: 'ProjectNode';
+  id: FieldWrapper<Scalars['ID']>;
+  project_id: FieldWrapper<Scalars['String']>;
+  type_path: Array<FieldWrapper<Scalars['String']>>;
+  type_id: FieldWrapper<Scalars['String']>;
+  path: Array<FieldWrapper<Scalars['String']>>;
+  value?: Maybe<FieldWrapper<FieldValue>>;
+};
+
+export type ProjectNodeMetaState = {
+  __typename?: 'ProjectNodeMetaState';
+  isVisible?: Maybe<FieldWrapper<Scalars['Boolean']>>;
+  selectedChild?: Maybe<FieldWrapper<Scalars['String']>>;
+};
+
+export type ProjectNodeTree = {
+  __typename?: 'ProjectNodeTree';
+  roots: Array<FieldWrapper<ProjectNodeTreeTypeNode>>;
+};
+
+export type ProjectNodeTreeNode = {
+  __typename?: 'ProjectNodeTreeNode';
+  node: FieldWrapper<ProjectNode>;
+  children: Array<FieldWrapper<ProjectNodeTreeTypeNode>>;
+};
+
+export type ProjectNodeTreeTypeNode = {
+  __typename?: 'ProjectNodeTreeTypeNode';
+  definition: FieldWrapper<ProjectDefinitionNode>;
+  state: FieldWrapper<ProjectNodeMetaState>;
+  nodes: Array<FieldWrapper<ProjectNodeTreeNode>>;
+};
+
 export type Query = {
   __typename?: 'Query';
   findDatasheet: FieldWrapper<Datasheet>;
@@ -343,6 +404,10 @@ export type Query = {
   findProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   findRessourceTranslation: FieldWrapper<TranslationConnection>;
   findProjectDefintions: FieldWrapper<ProjectDefinitionConnection>;
+  findProjectRootSections: FieldWrapper<ProjectNodeTree>;
+  findProjectRootSectionContainers: FieldWrapper<ProjectNodeTree>;
+  findProjectFormContent: FieldWrapper<ProjectNodeTree>;
+  findProjects: FieldWrapper<ProjectConnection>;
 };
 
 
@@ -386,7 +451,31 @@ export type QueryFindRessourceTranslationArgs = {
 
 
 export type QueryFindProjectDefintionsArgs = {
-  queryFilter: Scalars['String'];
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryFindProjectRootSectionsArgs = {
+  projectId: Scalars['ID'];
+};
+
+
+export type QueryFindProjectRootSectionContainersArgs = {
+  projectId: Scalars['ID'];
+  rootSectionId: Scalars['ID'];
+};
+
+
+export type QueryFindProjectFormContentArgs = {
+  projectId: Scalars['ID'];
+  formId: Scalars['ID'];
+};
+
+
+export type QueryFindProjectsArgs = {
+  query: Scalars['String'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
 };
@@ -854,6 +943,342 @@ export type FindProjectDefintionsQuery = (
       { __typename?: 'PageInfo' }
       & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
     ) }
+  ) }
+);
+
+export type FindProjectsQueryVariables = Exact<{
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+}>;
+
+
+export type FindProjectsQuery = (
+  { __typename?: 'Query' }
+  & { findProjects: (
+    { __typename?: 'ProjectConnection' }
+    & { edges: Array<(
+      { __typename?: 'ProjectEdge' }
+      & Pick<ProjectEdge, 'cursor'>
+      & { node: (
+        { __typename?: 'ProjectDetails' }
+        & Pick<ProjectDetails, 'id' | 'name' | 'isStaged' | 'projectDefId' | 'datasheetId'>
+      ) }
+    )>, pageInfo: (
+      { __typename?: 'PageInfo' }
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
+    ) }
+  ) }
+);
+
+export type FindProjectRootSectionsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+}>;
+
+
+export type FindProjectRootSectionsQuery = (
+  { __typename?: 'Query' }
+  & { findProjectRootSections: (
+    { __typename?: 'ProjectNodeTree' }
+    & { roots: Array<(
+      { __typename?: 'ProjectNodeTreeTypeNode' }
+      & { definition: (
+        { __typename?: 'ProjectDefinitionNode' }
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+        & { config: (
+          { __typename?: 'NodeConfig' }
+          & Pick<NodeConfig, 'valueValidator'>
+          & { fieldDetails?: Maybe<(
+            { __typename: 'IntFieldConfig' }
+            & Pick<IntFieldConfig, 'unit'>
+          ) | (
+            { __typename: 'DecimalFieldConfig' }
+            & Pick<DecimalFieldConfig, 'unit' | 'precision'>
+          ) | (
+            { __typename: 'StringFieldConfig' }
+            & Pick<StringFieldConfig, 'transforms'>
+          ) | (
+            { __typename: 'BoolFieldConfig' }
+            & Pick<BoolFieldConfig, 'isCheckbox'>
+          ) | (
+            { __typename: 'StaticChoiceFieldConfig' }
+            & { options: Array<(
+              { __typename?: 'StaticChoiceOption' }
+              & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
+            )> }
+          ) | (
+            { __typename: 'CollapsibleContainerFieldConfig' }
+            & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+          )> }
+        ) }
+      ), state: (
+        { __typename?: 'ProjectNodeMetaState' }
+        & Pick<ProjectNodeMetaState, 'isVisible' | 'selectedChild'>
+      ), nodes: Array<(
+        { __typename?: 'ProjectNodeTreeNode' }
+        & { node: (
+          { __typename?: 'ProjectNode' }
+          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+          & { value?: Maybe<(
+            { __typename: 'IntFieldValue' }
+            & Pick<IntFieldValue, 'integer'>
+          ) | (
+            { __typename: 'DecimalFieldValue' }
+            & Pick<DecimalFieldValue, 'numeric'>
+          ) | (
+            { __typename: 'StringFieldValue' }
+            & Pick<StringFieldValue, 'text'>
+          ) | (
+            { __typename: 'BoolFieldValue' }
+            & Pick<BoolFieldValue, 'enabled'>
+          )> }
+        ) }
+      )> }
+    )> }
+  ) }
+);
+
+export type FindProjectRootSectionContainersQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  rootSectionId: Scalars['ID'];
+}>;
+
+
+export type FindProjectRootSectionContainersQuery = (
+  { __typename?: 'Query' }
+  & { findProjectRootSectionContainers: (
+    { __typename?: 'ProjectNodeTree' }
+    & { roots: Array<(
+      { __typename?: 'ProjectNodeTreeTypeNode' }
+      & { definition: (
+        { __typename?: 'ProjectDefinitionNode' }
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+        & { config: (
+          { __typename?: 'NodeConfig' }
+          & Pick<NodeConfig, 'valueValidator'>
+          & { fieldDetails?: Maybe<(
+            { __typename: 'IntFieldConfig' }
+            & Pick<IntFieldConfig, 'unit'>
+          ) | (
+            { __typename: 'DecimalFieldConfig' }
+            & Pick<DecimalFieldConfig, 'unit' | 'precision'>
+          ) | (
+            { __typename: 'StringFieldConfig' }
+            & Pick<StringFieldConfig, 'transforms'>
+          ) | (
+            { __typename: 'BoolFieldConfig' }
+            & Pick<BoolFieldConfig, 'isCheckbox'>
+          ) | (
+            { __typename: 'StaticChoiceFieldConfig' }
+            & { options: Array<(
+              { __typename?: 'StaticChoiceOption' }
+              & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
+            )> }
+          ) | (
+            { __typename: 'CollapsibleContainerFieldConfig' }
+            & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+          )> }
+        ) }
+      ), state: (
+        { __typename?: 'ProjectNodeMetaState' }
+        & Pick<ProjectNodeMetaState, 'isVisible' | 'selectedChild'>
+      ), nodes: Array<(
+        { __typename?: 'ProjectNodeTreeNode' }
+        & { node: (
+          { __typename?: 'ProjectNode' }
+          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+          & { value?: Maybe<(
+            { __typename: 'IntFieldValue' }
+            & Pick<IntFieldValue, 'integer'>
+          ) | (
+            { __typename: 'DecimalFieldValue' }
+            & Pick<DecimalFieldValue, 'numeric'>
+          ) | (
+            { __typename: 'StringFieldValue' }
+            & Pick<StringFieldValue, 'text'>
+          ) | (
+            { __typename: 'BoolFieldValue' }
+            & Pick<BoolFieldValue, 'enabled'>
+          )> }
+        ), children: Array<(
+          { __typename?: 'ProjectNodeTreeTypeNode' }
+          & { definition: (
+            { __typename?: 'ProjectDefinitionNode' }
+            & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+            & { config: (
+              { __typename?: 'NodeConfig' }
+              & Pick<NodeConfig, 'valueValidator'>
+              & { fieldDetails?: Maybe<(
+                { __typename: 'IntFieldConfig' }
+                & Pick<IntFieldConfig, 'unit'>
+              ) | (
+                { __typename: 'DecimalFieldConfig' }
+                & Pick<DecimalFieldConfig, 'unit' | 'precision'>
+              ) | (
+                { __typename: 'StringFieldConfig' }
+                & Pick<StringFieldConfig, 'transforms'>
+              ) | (
+                { __typename: 'BoolFieldConfig' }
+                & Pick<BoolFieldConfig, 'isCheckbox'>
+              ) | (
+                { __typename: 'StaticChoiceFieldConfig' }
+                & { options: Array<(
+                  { __typename?: 'StaticChoiceOption' }
+                  & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
+                )> }
+              ) | (
+                { __typename: 'CollapsibleContainerFieldConfig' }
+                & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+              )> }
+            ) }
+          ), state: (
+            { __typename?: 'ProjectNodeMetaState' }
+            & Pick<ProjectNodeMetaState, 'isVisible' | 'selectedChild'>
+          ), nodes: Array<(
+            { __typename?: 'ProjectNodeTreeNode' }
+            & { node: (
+              { __typename?: 'ProjectNode' }
+              & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+              & { value?: Maybe<(
+                { __typename: 'IntFieldValue' }
+                & Pick<IntFieldValue, 'integer'>
+              ) | (
+                { __typename: 'DecimalFieldValue' }
+                & Pick<DecimalFieldValue, 'numeric'>
+              ) | (
+                { __typename: 'StringFieldValue' }
+                & Pick<StringFieldValue, 'text'>
+              ) | (
+                { __typename: 'BoolFieldValue' }
+                & Pick<BoolFieldValue, 'enabled'>
+              )> }
+            ) }
+          )> }
+        )> }
+      )> }
+    )> }
+  ) }
+);
+
+export type FindProjectFormContentQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  formId: Scalars['ID'];
+}>;
+
+
+export type FindProjectFormContentQuery = (
+  { __typename?: 'Query' }
+  & { findProjectFormContent: (
+    { __typename?: 'ProjectNodeTree' }
+    & { roots: Array<(
+      { __typename?: 'ProjectNodeTreeTypeNode' }
+      & { definition: (
+        { __typename?: 'ProjectDefinitionNode' }
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+        & { config: (
+          { __typename?: 'NodeConfig' }
+          & Pick<NodeConfig, 'valueValidator'>
+          & { fieldDetails?: Maybe<(
+            { __typename: 'IntFieldConfig' }
+            & Pick<IntFieldConfig, 'unit'>
+          ) | (
+            { __typename: 'DecimalFieldConfig' }
+            & Pick<DecimalFieldConfig, 'unit' | 'precision'>
+          ) | (
+            { __typename: 'StringFieldConfig' }
+            & Pick<StringFieldConfig, 'transforms'>
+          ) | (
+            { __typename: 'BoolFieldConfig' }
+            & Pick<BoolFieldConfig, 'isCheckbox'>
+          ) | (
+            { __typename: 'StaticChoiceFieldConfig' }
+            & { options: Array<(
+              { __typename?: 'StaticChoiceOption' }
+              & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
+            )> }
+          ) | (
+            { __typename: 'CollapsibleContainerFieldConfig' }
+            & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+          )> }
+        ) }
+      ), state: (
+        { __typename?: 'ProjectNodeMetaState' }
+        & Pick<ProjectNodeMetaState, 'isVisible' | 'selectedChild'>
+      ), nodes: Array<(
+        { __typename?: 'ProjectNodeTreeNode' }
+        & { node: (
+          { __typename?: 'ProjectNode' }
+          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+          & { value?: Maybe<(
+            { __typename: 'IntFieldValue' }
+            & Pick<IntFieldValue, 'integer'>
+          ) | (
+            { __typename: 'DecimalFieldValue' }
+            & Pick<DecimalFieldValue, 'numeric'>
+          ) | (
+            { __typename: 'StringFieldValue' }
+            & Pick<StringFieldValue, 'text'>
+          ) | (
+            { __typename: 'BoolFieldValue' }
+            & Pick<BoolFieldValue, 'enabled'>
+          )> }
+        ), children: Array<(
+          { __typename?: 'ProjectNodeTreeTypeNode' }
+          & { definition: (
+            { __typename?: 'ProjectDefinitionNode' }
+            & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+            & { config: (
+              { __typename?: 'NodeConfig' }
+              & Pick<NodeConfig, 'valueValidator'>
+              & { fieldDetails?: Maybe<(
+                { __typename: 'IntFieldConfig' }
+                & Pick<IntFieldConfig, 'unit'>
+              ) | (
+                { __typename: 'DecimalFieldConfig' }
+                & Pick<DecimalFieldConfig, 'unit' | 'precision'>
+              ) | (
+                { __typename: 'StringFieldConfig' }
+                & Pick<StringFieldConfig, 'transforms'>
+              ) | (
+                { __typename: 'BoolFieldConfig' }
+                & Pick<BoolFieldConfig, 'isCheckbox'>
+              ) | (
+                { __typename: 'StaticChoiceFieldConfig' }
+                & { options: Array<(
+                  { __typename?: 'StaticChoiceOption' }
+                  & Pick<StaticChoiceOption, 'id' | 'label' | 'help_text'>
+                )> }
+              ) | (
+                { __typename: 'CollapsibleContainerFieldConfig' }
+                & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+              )> }
+            ) }
+          ), state: (
+            { __typename?: 'ProjectNodeMetaState' }
+            & Pick<ProjectNodeMetaState, 'isVisible' | 'selectedChild'>
+          ), nodes: Array<(
+            { __typename?: 'ProjectNodeTreeNode' }
+            & { node: (
+              { __typename?: 'ProjectNode' }
+              & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+              & { value?: Maybe<(
+                { __typename: 'IntFieldValue' }
+                & Pick<IntFieldValue, 'integer'>
+              ) | (
+                { __typename: 'DecimalFieldValue' }
+                & Pick<DecimalFieldValue, 'numeric'>
+              ) | (
+                { __typename: 'StringFieldValue' }
+                & Pick<StringFieldValue, 'text'>
+              ) | (
+                { __typename: 'BoolFieldValue' }
+                & Pick<BoolFieldValue, 'enabled'>
+              )> }
+            ) }
+          )> }
+        )> }
+      )> }
+    )> }
   ) }
 );
 
@@ -1417,7 +1842,7 @@ export type FindProjectDefinitionNodeLazyQueryHookResult = ReturnType<typeof use
 export type FindProjectDefinitionNodeQueryResult = Apollo.QueryResult<FindProjectDefinitionNodeQuery, FindProjectDefinitionNodeQueryVariables>;
 export const FindProjectDefintionsDocument = gql`
     query findProjectDefintions($query: String!, $first: Int!, $after: String) {
-  findProjectDefintions(queryFilter: $query, first: $first, after: $after) {
+  findProjectDefintions(query: $query, first: $first, after: $after) {
     edges {
       node {
         id
@@ -1463,3 +1888,495 @@ export function useFindProjectDefintionsLazyQuery(baseOptions?: Apollo.LazyQuery
 export type FindProjectDefintionsQueryHookResult = ReturnType<typeof useFindProjectDefintionsQuery>;
 export type FindProjectDefintionsLazyQueryHookResult = ReturnType<typeof useFindProjectDefintionsLazyQuery>;
 export type FindProjectDefintionsQueryResult = Apollo.QueryResult<FindProjectDefintionsQuery, FindProjectDefintionsQueryVariables>;
+export const FindProjectsDocument = gql`
+    query findProjects($query: String!, $first: Int!, $after: String) {
+  findProjects(query: $query, first: $first, after: $after) {
+    edges {
+      node {
+        id
+        name
+        isStaged
+        projectDefId
+        datasheetId
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindProjectsQuery__
+ *
+ * To run a query within a React component, call `useFindProjectsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectsQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useFindProjectsQuery(baseOptions: Apollo.QueryHookOptions<FindProjectsQuery, FindProjectsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectsQuery, FindProjectsQueryVariables>(FindProjectsDocument, options);
+      }
+export function useFindProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectsQuery, FindProjectsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectsQuery, FindProjectsQueryVariables>(FindProjectsDocument, options);
+        }
+export type FindProjectsQueryHookResult = ReturnType<typeof useFindProjectsQuery>;
+export type FindProjectsLazyQueryHookResult = ReturnType<typeof useFindProjectsLazyQuery>;
+export type FindProjectsQueryResult = Apollo.QueryResult<FindProjectsQuery, FindProjectsQueryVariables>;
+export const FindProjectRootSectionsDocument = gql`
+    query findProjectRootSections($projectId: ID!) {
+  findProjectRootSections(projectId: $projectId) {
+    roots {
+      definition {
+        id
+        projectDefId
+        name
+        isCollection
+        instanciateByDefault
+        orderIndex
+        config {
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+            }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+            }
+            ... on StringFieldConfig {
+              transforms
+            }
+            ... on BoolFieldConfig {
+              isCheckbox
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                help_text
+              }
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+          }
+          valueValidator
+        }
+      }
+      state {
+        isVisible
+        selectedChild
+      }
+      nodes {
+        node {
+          id
+          project_id
+          type_path
+          type_id
+          path
+          value {
+            __typename
+            ... on IntFieldValue {
+              integer
+            }
+            ... on DecimalFieldValue {
+              numeric
+            }
+            ... on StringFieldValue {
+              text
+            }
+            ... on BoolFieldValue {
+              enabled
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindProjectRootSectionsQuery__
+ *
+ * To run a query within a React component, call `useFindProjectRootSectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectRootSectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectRootSectionsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useFindProjectRootSectionsQuery(baseOptions: Apollo.QueryHookOptions<FindProjectRootSectionsQuery, FindProjectRootSectionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectRootSectionsQuery, FindProjectRootSectionsQueryVariables>(FindProjectRootSectionsDocument, options);
+      }
+export function useFindProjectRootSectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectRootSectionsQuery, FindProjectRootSectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectRootSectionsQuery, FindProjectRootSectionsQueryVariables>(FindProjectRootSectionsDocument, options);
+        }
+export type FindProjectRootSectionsQueryHookResult = ReturnType<typeof useFindProjectRootSectionsQuery>;
+export type FindProjectRootSectionsLazyQueryHookResult = ReturnType<typeof useFindProjectRootSectionsLazyQuery>;
+export type FindProjectRootSectionsQueryResult = Apollo.QueryResult<FindProjectRootSectionsQuery, FindProjectRootSectionsQueryVariables>;
+export const FindProjectRootSectionContainersDocument = gql`
+    query findProjectRootSectionContainers($projectId: ID!, $rootSectionId: ID!) {
+  findProjectRootSectionContainers(
+    projectId: $projectId
+    rootSectionId: $rootSectionId
+  ) {
+    roots {
+      definition {
+        id
+        projectDefId
+        name
+        isCollection
+        instanciateByDefault
+        orderIndex
+        config {
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+            }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+            }
+            ... on StringFieldConfig {
+              transforms
+            }
+            ... on BoolFieldConfig {
+              isCheckbox
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                help_text
+              }
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+          }
+          valueValidator
+        }
+      }
+      state {
+        isVisible
+        selectedChild
+      }
+      nodes {
+        node {
+          id
+          project_id
+          type_path
+          type_id
+          path
+          value {
+            __typename
+            ... on IntFieldValue {
+              integer
+            }
+            ... on DecimalFieldValue {
+              numeric
+            }
+            ... on StringFieldValue {
+              text
+            }
+            ... on BoolFieldValue {
+              enabled
+            }
+          }
+        }
+        children {
+          definition {
+            id
+            projectDefId
+            name
+            isCollection
+            instanciateByDefault
+            orderIndex
+            config {
+              fieldDetails {
+                __typename
+                ... on IntFieldConfig {
+                  unit
+                }
+                ... on DecimalFieldConfig {
+                  unit
+                  precision
+                }
+                ... on StringFieldConfig {
+                  transforms
+                }
+                ... on BoolFieldConfig {
+                  isCheckbox
+                }
+                ... on StaticChoiceFieldConfig {
+                  options {
+                    id
+                    label
+                    help_text
+                  }
+                }
+                ... on CollapsibleContainerFieldConfig {
+                  isCollapsible
+                }
+              }
+              valueValidator
+            }
+          }
+          state {
+            isVisible
+            selectedChild
+          }
+          nodes {
+            node {
+              id
+              project_id
+              type_path
+              type_id
+              path
+              value {
+                __typename
+                ... on IntFieldValue {
+                  integer
+                }
+                ... on DecimalFieldValue {
+                  numeric
+                }
+                ... on StringFieldValue {
+                  text
+                }
+                ... on BoolFieldValue {
+                  enabled
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindProjectRootSectionContainersQuery__
+ *
+ * To run a query within a React component, call `useFindProjectRootSectionContainersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectRootSectionContainersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectRootSectionContainersQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      rootSectionId: // value for 'rootSectionId'
+ *   },
+ * });
+ */
+export function useFindProjectRootSectionContainersQuery(baseOptions: Apollo.QueryHookOptions<FindProjectRootSectionContainersQuery, FindProjectRootSectionContainersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectRootSectionContainersQuery, FindProjectRootSectionContainersQueryVariables>(FindProjectRootSectionContainersDocument, options);
+      }
+export function useFindProjectRootSectionContainersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectRootSectionContainersQuery, FindProjectRootSectionContainersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectRootSectionContainersQuery, FindProjectRootSectionContainersQueryVariables>(FindProjectRootSectionContainersDocument, options);
+        }
+export type FindProjectRootSectionContainersQueryHookResult = ReturnType<typeof useFindProjectRootSectionContainersQuery>;
+export type FindProjectRootSectionContainersLazyQueryHookResult = ReturnType<typeof useFindProjectRootSectionContainersLazyQuery>;
+export type FindProjectRootSectionContainersQueryResult = Apollo.QueryResult<FindProjectRootSectionContainersQuery, FindProjectRootSectionContainersQueryVariables>;
+export const FindProjectFormContentDocument = gql`
+    query findProjectFormContent($projectId: ID!, $formId: ID!) {
+  findProjectFormContent(projectId: $projectId, formId: $formId) {
+    roots {
+      definition {
+        id
+        projectDefId
+        name
+        isCollection
+        instanciateByDefault
+        orderIndex
+        config {
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+            }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+            }
+            ... on StringFieldConfig {
+              transforms
+            }
+            ... on BoolFieldConfig {
+              isCheckbox
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                help_text
+              }
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+          }
+          valueValidator
+        }
+      }
+      state {
+        isVisible
+        selectedChild
+      }
+      nodes {
+        node {
+          id
+          project_id
+          type_path
+          type_id
+          path
+          value {
+            __typename
+            ... on IntFieldValue {
+              integer
+            }
+            ... on DecimalFieldValue {
+              numeric
+            }
+            ... on StringFieldValue {
+              text
+            }
+            ... on BoolFieldValue {
+              enabled
+            }
+          }
+        }
+        children {
+          definition {
+            id
+            projectDefId
+            name
+            isCollection
+            instanciateByDefault
+            orderIndex
+            config {
+              fieldDetails {
+                __typename
+                ... on IntFieldConfig {
+                  unit
+                }
+                ... on DecimalFieldConfig {
+                  unit
+                  precision
+                }
+                ... on StringFieldConfig {
+                  transforms
+                }
+                ... on BoolFieldConfig {
+                  isCheckbox
+                }
+                ... on StaticChoiceFieldConfig {
+                  options {
+                    id
+                    label
+                    help_text
+                  }
+                }
+                ... on CollapsibleContainerFieldConfig {
+                  isCollapsible
+                }
+              }
+              valueValidator
+            }
+          }
+          state {
+            isVisible
+            selectedChild
+          }
+          nodes {
+            node {
+              id
+              project_id
+              type_path
+              type_id
+              path
+              value {
+                __typename
+                ... on IntFieldValue {
+                  integer
+                }
+                ... on DecimalFieldValue {
+                  numeric
+                }
+                ... on StringFieldValue {
+                  text
+                }
+                ... on BoolFieldValue {
+                  enabled
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindProjectFormContentQuery__
+ *
+ * To run a query within a React component, call `useFindProjectFormContentQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectFormContentQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectFormContentQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      formId: // value for 'formId'
+ *   },
+ * });
+ */
+export function useFindProjectFormContentQuery(baseOptions: Apollo.QueryHookOptions<FindProjectFormContentQuery, FindProjectFormContentQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectFormContentQuery, FindProjectFormContentQueryVariables>(FindProjectFormContentDocument, options);
+      }
+export function useFindProjectFormContentLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectFormContentQuery, FindProjectFormContentQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectFormContentQuery, FindProjectFormContentQueryVariables>(FindProjectFormContentDocument, options);
+        }
+export type FindProjectFormContentQueryHookResult = ReturnType<typeof useFindProjectFormContentQuery>;
+export type FindProjectFormContentLazyQueryHookResult = ReturnType<typeof useFindProjectFormContentLazyQuery>;
+export type FindProjectFormContentQueryResult = Apollo.QueryResult<FindProjectFormContentQuery, FindProjectFormContentQueryVariables>;

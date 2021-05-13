@@ -1,4 +1,4 @@
-import { Button, Grid } from "@material-ui/core";
+import { Button, Card, CardContent, Grid } from "@material-ui/core";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
@@ -6,13 +6,12 @@ import { v4 as uuidv4 } from "uuid";
 import {
   AddProjectDefinitionNodeDocument,
   FieldDetailsType,
+  FindProjectDefinitionNodeQuery,
+  FindProjectDefinitionNodeDocument,
 } from "../../../generated";
-import { Services } from "../../../hooks";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { useServices } from "../../../shared/service-context";
-
 import { useUrlQueryParams } from "../../../shared/named-routes";
-import { useFindProjectDefinitionNodeQuery } from "../../../generated/graphql";
+
 import {
   BOOLEAN_VALIDATOR,
   checkboxField,
@@ -26,6 +25,14 @@ import {
   validateForm,
 } from "../../table-fields";
 import { Link, useHistory, useParams } from "react-router-dom";
+import { useServices } from "../../../services-def";
+
+const NAME_VALIDATOR = {
+  type: "string",
+  minLength: 1,
+  maxLength: 64,
+  pattern: "^[a-z_][a-z0-9_]*$",
+};
 
 export interface FieldTranslationProps {
   path: string[];
@@ -117,7 +124,7 @@ interface AddContainerFormBody {
 }
 
 interface AddContainerFormParams {
-  projectDefId: string;
+  projectDefinitionId: string;
 }
 
 export function AddContainerForm({
@@ -125,15 +132,9 @@ export function AddContainerForm({
   configType,
 }: AddContainerFormProps) {
   const history = useHistory();
-  const { reduxDb, ajv, apollo } = useServices<Services>();
-  const { projectDefId } = useParams<AddContainerFormParams>();
+  const { reduxDb, ajv, apollo } = useServices();
+  const { projectDefinitionId } = useParams<AddContainerFormParams>();
   const { parentNodeId } = useUrlQueryParams();
-  const { data } = useFindProjectDefinitionNodeQuery({
-    variables: {
-      projectDefId,
-      nodeId: parentNodeId,
-    },
-  });
 
   const { t } = useTranslation();
   const { formPath: path } = useForm();
@@ -142,6 +143,14 @@ export function AddContainerForm({
     if (validateForm(reduxDb, ajv)(path) === false) {
       return;
     }
+
+    const { data } = await apollo.query<FindProjectDefinitionNodeQuery>({
+      query: FindProjectDefinitionNodeDocument,
+      variables: {
+        projectDefId: projectDefinitionId,
+        nodeId: parentNodeId,
+      },
+    });
 
     if (data === undefined) {
       return;
@@ -153,20 +162,25 @@ export function AddContainerForm({
     await apollo.mutate({
       mutation: AddProjectDefinitionNodeDocument,
       variables: {
-        id: uuidv4(),
-        projectDefId: node.projectDefId,
-        name: form.name,
-        isCollection: form.isCollection,
-        instanciateByDefault: form.instanciateByDefault,
-        orderIndex: form.orderIndex,
-        config: {
-          kind: configType,
-          collapsibleContainer: {
-            isCollapsible: form.config?.isCollapsible,
+        node: {
+          id: uuidv4(),
+          projectDefId: node.projectDefId,
+          name: form.name,
+          isCollection: form.isCollection,
+          instanciateByDefault: form.instanciateByDefault,
+          orderIndex: form.orderIndex,
+          config: {
+            fieldDetails: {
+              kind: configType,
+              collapsibleContainer: {
+                isCollapsible: form.config?.isCollapsible,
+              },
+            },
+            valueValidator: null,
           },
+          defaultValue: null,
+          path: [...node.path, node.id],
         },
-        defaultValue: null,
-        path: node.path,
       },
     });
 
@@ -174,77 +188,81 @@ export function AddContainerForm({
   }
 
   return (
-    <form>
-      <Grid
-        container
-        direction="column"
-        justify="flex-start"
-        alignItems="flex-start"
-      >
-        <Field
-          validator={NAME_VALIDATOR}
-          path={path}
-          defaultValue={""}
-          name="name"
-          component={textField}
-          label="name"
-          t={t}
-        />
-        <Field
-          validator={BOOLEAN_VALIDATOR}
-          path={path}
-          defaultValue={false}
-          name="isCollection"
-          component={checkboxField}
-          label="is_collection"
-          t={t}
-        />
-        <Field
-          validator={BOOLEAN_VALIDATOR}
-          path={path}
-          defaultValue={true}
-          name="instanciateByDefault"
-          component={checkboxField}
-          label="instanciate_by_default"
-          t={t}
-        />
-        <Field
-          validator={INT_VALIDATOR}
-          path={path}
-          defaultValue={0}
-          name="orderIndex"
-          component={textField}
-          label="order_index"
-          t={t}
-        />
-        <FixedTabDisplay
-          path={path}
-          defaultSelectedField={"fr"}
-          tabs={[
-            ["fr", "french"],
-            ["en", "english"],
-          ]}
-        >
-          {FieldTranslation}
-        </FixedTabDisplay>
-        <ConfigForm
-          path={path}
-          name="config"
-          configType={FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG}
-        />
-        <Grid
-          container
-          direction="row"
-          justify="flex-start"
-          alignItems="flex-start"
-        >
-          <Button onClick={onSubmit}>Add</Button>
-          <Button component={Link} to={returnUrl}>
-            Cancel
-          </Button>
-        </Grid>
-      </Grid>
-    </form>
+    <Card>
+      <CardContent>
+        <form>
+          <Grid
+            container
+            direction="column"
+            justify="flex-start"
+            alignItems="flex-start"
+          >
+            <Field
+              validator={NAME_VALIDATOR}
+              path={path}
+              defaultValue={""}
+              name="name"
+              component={textField}
+              label="name"
+              t={t}
+            />
+            <Field
+              validator={BOOLEAN_VALIDATOR}
+              path={path}
+              defaultValue={false}
+              name="isCollection"
+              component={checkboxField}
+              label="is_collection"
+              t={t}
+            />
+            <Field
+              validator={BOOLEAN_VALIDATOR}
+              path={path}
+              defaultValue={true}
+              name="instanciateByDefault"
+              component={checkboxField}
+              label="instanciate_by_default"
+              t={t}
+            />
+            <Field
+              validator={INT_VALIDATOR}
+              path={path}
+              defaultValue={0}
+              name="orderIndex"
+              component={textField}
+              label="order_index"
+              t={t}
+            />
+            <FixedTabDisplay
+              path={path}
+              defaultSelectedField={"fr"}
+              tabs={[
+                ["fr", "french"],
+                ["en", "english"],
+              ]}
+            >
+              {FieldTranslation}
+            </FixedTabDisplay>
+            <ConfigForm
+              path={path}
+              name="config"
+              configType={FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG}
+            />
+            <Grid
+              container
+              direction="row"
+              justify="flex-start"
+              alignItems="flex-start"
+            >
+              <Button onClick={onSubmit}>Add</Button>
+              <Button component={Link} to={returnUrl}>
+                Cancel
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -256,10 +274,3 @@ export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
     />
   );
 }
-
-const NAME_VALIDATOR = {
-  type: "string",
-  minLength: 1,
-  maxLength: 64,
-  pattern: "^[a-z_][a-z0-9_]*$",
-};

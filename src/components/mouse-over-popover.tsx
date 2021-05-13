@@ -30,10 +30,17 @@ export interface MouseOverPopoverChildren {
   onMouseLeave: () => void;
 }
 
+interface MouseOverPopoverChildrenProps {
+  onMouseEnter: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onMouseLeave: () => void;
+  "aria-owns": string | undefined;
+  "aria-haspopup": "true";
+}
+
 export interface MouseOverPopoverProps {
   text: string;
   name: string;
-  children: React.ReactNode;
+  children: (props: MouseOverPopoverChildrenProps) => JSX.Element;
 }
 
 export function MouseOverPopover({
@@ -57,30 +64,14 @@ export function MouseOverPopover({
 
   const open = Boolean(anchorEl);
 
-  if (Array.isArray(children)) {
-    children = children
-      .filter((child) => React.isValidElement(child))
-      .map((child, index) =>
-        React.cloneElement(child as any, {
-          "aria-owns": open ? name : undefined,
-          "aria-haspopup": "true",
-          onMouseEnter: handlePopoverOpen,
-          onMouseLeave: handlePopoverClose,
-          key: index,
-        })
-      );
-  } else if (React.isValidElement(children)) {
-    children = React.cloneElement(children, {
-      "aria-owns": open ? name : undefined,
-      "aria-haspopup": "true",
-      onMouseEnter: handlePopoverOpen,
-      onMouseLeave: handlePopoverClose,
-    });
-  }
-
   return (
     <>
-      {children}
+      {children({
+        "aria-owns": open ? name : undefined,
+        "aria-haspopup": "true",
+        onMouseEnter: handlePopoverOpen,
+        onMouseLeave: handlePopoverClose,
+      })}
       <Popover
         id={name}
         className={classes.popover}
