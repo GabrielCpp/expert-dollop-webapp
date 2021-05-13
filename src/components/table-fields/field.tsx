@@ -54,11 +54,9 @@ export function Field({
   );
 
   useEffect(() => {
-    reduxDb.getTable(FormFieldTableName).upsertMany([fieldDetailsRef.current]);
-  });
-
-  useEffect(() => {
     const record = fieldDetailsRef.current;
+    reduxDb.getTable(FormFieldTableName).upsertMany([fieldDetailsRef.current]);
+
     return () => {
       reduxDb.getTable(FormFieldTableName).removeMany([record]);
     };
