@@ -15,7 +15,7 @@ export interface NamedRoute {
   name: string;
   path: string;
   exact?: boolean;
-  component?: (props: RouteViewCompoenentProps) => JSX.Element;
+  component?: (props: RouteViewCompoenentProps) => JSX.Element | null;
   tags: string[];
 }
 

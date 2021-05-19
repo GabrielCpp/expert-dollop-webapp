@@ -22,3 +22,4 @@ export type { TabTableCollectionProps } from "./fixed-table-display";
 export { FixedTabDisplay } from "./fixed-table-display";
 export { Field } from "./field";
 export { useForm, Form } from "./form-hook";
+export { selectField } from "./select-field";

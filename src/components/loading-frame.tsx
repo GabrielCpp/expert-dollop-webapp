@@ -44,3 +44,17 @@ export function useLoader() {
     onLoading: loader.getEmitter(componentId),
   };
 }
+
+export function useLoaderEffect(
+  error: Error | undefined,
+  ...loading: boolean[]
+) {
+  const { onLoading } = useLoader();
+
+  useEffect(() => {
+    onLoading(
+      loading.some((x) => x === true),
+      error
+    );
+  }, [error, ...loading, onLoading]);
+}

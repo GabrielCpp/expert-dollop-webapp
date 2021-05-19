@@ -222,6 +222,7 @@ export type Mutation = {
   addTranslations: Array<FieldWrapper<Translation>>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
+  createProject: FieldWrapper<ProjectDetails>;
 };
 
 
@@ -239,6 +240,11 @@ export type MutationUpdateProjectFieldArgs = {
   project_id: Scalars['ID'];
   node_id: Scalars['ID'];
   value: FieldValueInput;
+};
+
+
+export type MutationCreateProjectArgs = {
+  projectDetails?: Maybe<ProjectDetailsInput>;
 };
 
 export type NodeConfig = {
@@ -352,6 +358,13 @@ export type ProjectDetails = {
   projectDefinition: FieldWrapper<ProjectDefinition>;
   datasheetId: FieldWrapper<Scalars['String']>;
   datasheet: FieldWrapper<Datasheet>;
+};
+
+export type ProjectDetailsInput = {
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  projectDefId: Scalars['String'];
+  datasheetId: Scalars['String'];
 };
 
 export type ProjectEdge = {
@@ -943,6 +956,19 @@ export type FindProjectDefintionsQuery = (
       { __typename?: 'PageInfo' }
       & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
     ) }
+  ) }
+);
+
+export type CreateProjectMutationVariables = Exact<{
+  projectDetails: ProjectDetailsInput;
+}>;
+
+
+export type CreateProjectMutation = (
+  { __typename?: 'Mutation' }
+  & { createProject: (
+    { __typename?: 'ProjectDetails' }
+    & Pick<ProjectDetails, 'id' | 'name' | 'isStaged' | 'projectDefId' | 'datasheetId'>
   ) }
 );
 
@@ -1888,6 +1914,43 @@ export function useFindProjectDefintionsLazyQuery(baseOptions?: Apollo.LazyQuery
 export type FindProjectDefintionsQueryHookResult = ReturnType<typeof useFindProjectDefintionsQuery>;
 export type FindProjectDefintionsLazyQueryHookResult = ReturnType<typeof useFindProjectDefintionsLazyQuery>;
 export type FindProjectDefintionsQueryResult = Apollo.QueryResult<FindProjectDefintionsQuery, FindProjectDefintionsQueryVariables>;
+export const CreateProjectDocument = gql`
+    mutation createProject($projectDetails: ProjectDetailsInput!) {
+  createProject(projectDetails: $projectDetails) {
+    id
+    name
+    isStaged
+    projectDefId
+    datasheetId
+  }
+}
+    `;
+export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutation, CreateProjectMutationVariables>;
+
+/**
+ * __useCreateProjectMutation__
+ *
+ * To run a mutation, you first call `useCreateProjectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateProjectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createProjectMutation, { data, loading, error }] = useCreateProjectMutation({
+ *   variables: {
+ *      projectDetails: // value for 'projectDetails'
+ *   },
+ * });
+ */
+export function useCreateProjectMutation(baseOptions?: Apollo.MutationHookOptions<CreateProjectMutation, CreateProjectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, options);
+      }
+export type CreateProjectMutationHookResult = ReturnType<typeof useCreateProjectMutation>;
+export type CreateProjectMutationResult = Apollo.MutationResult<CreateProjectMutation>;
+export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<CreateProjectMutation, CreateProjectMutationVariables>;
 export const FindProjectsDocument = gql`
     query findProjects($query: String!, $first: Int!, $after: String) {
   findProjects(query: $query, first: $first, after: $after) {

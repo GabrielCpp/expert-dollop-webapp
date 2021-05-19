@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import {
@@ -21,6 +21,7 @@ import { useLoader } from "../../loading-frame";
 import { MouseOverPopover } from "../../mouse-over-popover";
 import { useDbTranslation } from "../../translation";
 import { buildLinkFor } from "../routes";
+import { NodePicker } from "./node-picker";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,7 +56,6 @@ export function SidePanel({
 }: SidePanelProps) {
   const classes = useStyles();
   const { onLoading } = useLoader();
-  const { labelTrans, helpTextTrans } = useDbTranslation(projectId);
   const [expanded, setExpanded] = React.useState<string | undefined>(
     subSectionId
   );
@@ -83,109 +83,163 @@ export function SidePanel({
 
   return (
     <List component="nav" className={classes.root}>
-      {subSections.map((firstLayerNode) =>
-        firstLayerNode.nodes.map((node) => (
-          <Fragment key={node.node.id}>
-            <ListItem>
-              <MouseOverPopover
-                name={`${firstLayerNode.definition.name}-popover`}
-                text={helpTextTrans(firstLayerNode.definition.name)}
-              >
-                {(props) => (
-                  <ListItemText
-                    {...props}
-                    primary={labelTrans(firstLayerNode.definition.name)}
-                  />
-                )}
-              </MouseOverPopover>
-
-              {expanded === node.node.id ? (
-                <ExpandLess onClick={handleChange(node.node.id)} />
-              ) : (
-                <ExpandMore onClick={handleChange(node.node.id)} />
-              )}
-            </ListItem>
-            <Collapse
-              in={expanded === node.node.id}
-              timeout="auto"
-              unmountOnExit
-            >
-              <InnerPanel
-                projectDefinitionId={projectId}
-                rootSectionId={rootSectionId}
-                formId={formId}
-                firstLayerNode={firstLayerNode}
-                node={node}
-              />
-            </Collapse>
-          </Fragment>
-        ))
-      )}
+      {subSections.map((firstLayerNode) => (
+        <SubSectionPicker
+          key={firstLayerNode.definition.name}
+          projectId={projectId}
+          rootSectionId={rootSectionId}
+          formId={formId}
+          expanded={expanded}
+          handleChange={handleChange}
+          definition={firstLayerNode.definition}
+          nodes={firstLayerNode.nodes}
+        />
+      ))}
     </List>
   );
 }
 
-interface InnerPanelProps {
-  projectDefinitionId: string;
+function SubSectionPicker({
+  projectId,
+  rootSectionId,
+  formId,
+  expanded,
+  handleChange,
+  definition,
+  nodes,
+}: {
+  projectId: string;
   rootSectionId: string;
   formId: string;
-  firstLayerNode: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number];
-  node: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"][number];
+  expanded: string | undefined;
+  handleChange: (id: string) => () => void;
+  definition: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["definition"];
+  nodes: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"];
+}) {
+  const [currentNodeId, setCurrentNodeId] = useState(nodes[0]?.node.id);
+  const { labelTrans, helpTextTrans } = useDbTranslation(projectId);
+
+  const currentNode = nodes.find((x) => x.node.id === currentNodeId);
+
+  if (currentNode === undefined) {
+    return null;
+  }
+
+  return (
+    <Fragment>
+      <ListItem>
+        {definition.isCollection && (
+          <NodePicker
+            nodes={nodes}
+            current={currentNodeId}
+            onChange={setCurrentNodeId}
+          />
+        )}
+        <MouseOverPopover
+          name={`${definition.name}-popover`}
+          text={helpTextTrans(definition.name)}
+        >
+          {(props) => (
+            <ListItemText {...props} primary={labelTrans(definition.name)} />
+          )}
+        </MouseOverPopover>
+
+        {expanded === definition.id ? (
+          <ExpandLess onClick={handleChange(definition.id)} />
+        ) : (
+          <ExpandMore onClick={handleChange(definition.id)} />
+        )}
+      </ListItem>
+      <Collapse in={expanded === definition.id} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          {currentNode.children.map((secondLayerNode) => (
+            <InnerPanel
+              key={secondLayerNode.definition.name}
+              projectId={projectId}
+              rootSectionId={rootSectionId}
+              formId={formId}
+              secondLayerNode={secondLayerNode}
+            />
+          ))}
+        </List>
+      </Collapse>
+    </Fragment>
+  );
+}
+
+interface InnerPanelProps {
+  projectId: string;
+  rootSectionId: string;
+  formId: string;
+  secondLayerNode: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"][number]["children"][number];
 }
 
 function InnerPanel({
-  projectDefinitionId,
+  projectId,
   rootSectionId,
   formId,
-  firstLayerNode,
-  node,
+  secondLayerNode,
 }: InnerPanelProps) {
   const classes = useStyles();
-  const { labelTrans, helpTextTrans } = useDbTranslation(projectDefinitionId);
+  const [currentNodeId, setCurrentNodeId] = useState(
+    secondLayerNode.nodes[0]?.node.id
+  );
+  const { labelTrans, helpTextTrans } = useDbTranslation(projectId);
+
+  const currentNode = secondLayerNode.nodes.find(
+    (x) => x.node.id === currentNodeId
+  );
+
+  if (currentNode === undefined) {
+    return null;
+  }
 
   return (
-    <List component="div" disablePadding>
-      {node.children.map((secondLayerNode) => (
-        <ListItem
-          button
-          className={classes.nested}
-          key={secondLayerNode.definition.id}
-        >
-          <MouseOverPopover
-            name={`${firstLayerNode.definition.name}-popover`}
-            text={helpTextTrans(secondLayerNode.definition.name)}
-          >
-            {(props) => (
-              <ListItemText
-                {...props}
-                primaryTypographyProps={{
-                  className:
-                    secondLayerNode.definition.id !== formId
-                      ? classes.selectedListItem
-                      : undefined,
-                }}
-                primary={
-                  secondLayerNode.definition.id === formId ? (
-                    labelTrans(secondLayerNode.definition.name)
-                  ) : (
-                    <Link
-                      component={RouterLink}
-                      to={buildLinkFor(
-                        projectDefinitionId,
-                        rootSectionId,
-                        firstLayerNode.nodes[0].node.id,
-                        secondLayerNode.nodes[0].node.id
-                      )}
-                    >
-                      {labelTrans(secondLayerNode.definition.name)}
-                    </Link>
-                  )
-                }
-              />
-            )}
-          </MouseOverPopover>
-        </ListItem>
-      ))}
-    </List>
+    <ListItem
+      button
+      className={classes.nested}
+      key={secondLayerNode.definition.id}
+    >
+      {secondLayerNode.definition.isCollection && (
+        <NodePicker
+          nodes={secondLayerNode.nodes}
+          current={currentNodeId}
+          onChange={setCurrentNodeId}
+        />
+      )}
+      <MouseOverPopover
+        name={`${secondLayerNode.definition.name}-popover`}
+        text={helpTextTrans(secondLayerNode.definition.name)}
+      >
+        {(props) => (
+          <ListItemText
+            {...props}
+            primaryTypographyProps={{
+              className:
+                secondLayerNode.definition.id !== formId
+                  ? classes.selectedListItem
+                  : undefined,
+            }}
+            primary={
+              secondLayerNode.definition.id === formId ? (
+                labelTrans(secondLayerNode.definition.name)
+              ) : (
+                <Link
+                  component={RouterLink}
+                  to={buildLinkFor(
+                    projectId,
+                    rootSectionId,
+                    secondLayerNode.nodes[0].node.id,
+                    secondLayerNode.nodes[0].node.id
+                  )}
+                >
+                  {labelTrans(secondLayerNode.definition.name)}
+                </Link>
+              )
+            }
+          />
+        )}
+      </MouseOverPopover>
+    </ListItem>
   );
 }

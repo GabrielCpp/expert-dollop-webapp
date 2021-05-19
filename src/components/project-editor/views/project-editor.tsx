@@ -37,14 +37,14 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
     <Switch>
       <Route path={routes.getUrl(PROJECT_EDITOR)} exact={true}>
         {rootSectionId && (
-          <Grid container spacing={1} wrap={"wrap"}>
+          <Grid container spacing={1} wrap={"wrap"} direction="row">
             <Grid item xs={12}>
               <RootSectionBar
                 projectId={projectId}
                 rootSectionId={rootSectionId}
               />
             </Grid>
-            <Grid item xs={5}>
+            <Grid item lg={6} xs={4}>
               {subSectionId && formId && (
                 <SidePanel
                   projectId={projectId}
@@ -54,7 +54,7 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
                 />
               )}
             </Grid>
-            <Grid item xs={7}>
+            <Grid item lg={6} xs={7}>
               {formId && <FormEditor projectId={projectId} formId={formId} />}
             </Grid>
           </Grid>

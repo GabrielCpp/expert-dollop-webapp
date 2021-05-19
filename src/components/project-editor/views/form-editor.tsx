@@ -32,6 +32,7 @@ import { Field, radioField, textField } from "../../table-fields";
 import { checkboxField } from "../../table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../translation";
 import { head } from "lodash";
+import { NodePicker } from "./node-picker";
 
 interface FormProps {
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number];
@@ -148,36 +149,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface NodePickerProps<T> {
-  nodes: T[];
-  current: string;
-  onChange: (current: string) => void;
-}
-
-function NodePicker<T extends { node: { id: string } }>({
-  nodes,
-  current,
-  onChange,
-}: NodePickerProps<T>) {
-  const handleChange = (
-    event: React.ChangeEvent<{ name?: string; value: unknown }>
-  ) => {
-    onChange(event.target.value as string);
-  };
-
-  if (nodes.length === 0) {
-    return null;
-  }
-
-  return (
-    <Select native value={current} onChange={handleChange}>
-      {nodes.map((node, index) => (
-        <option value={node.node.id}>{index}</option>
-      ))}
-    </Select>
-  );
-}
-
 function FormFieldCard({ node }: FormProps) {
   const classes = useStyles();
   const [currentNodeId, setCurrentNodeId] = useState(node.nodes[0]?.node.id);
@@ -271,7 +242,7 @@ function FormSection({ node }: FormProps): JSX.Element {
           <CardContent className={classes.cardContent}>
             <Grid container direction="column">
               {currentNode.children.map((x) => (
-                <Grid>
+                <Grid key={x.definition.name}>
                   <FormFieldCard node={x as any} />
                 </Grid>
               ))}

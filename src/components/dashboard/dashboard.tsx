@@ -19,11 +19,10 @@ import SearchIcon from "@material-ui/icons/Search";
 import InputBase from "@material-ui/core/InputBase";
 import Paper from "@material-ui/core/Paper";
 import clsx from "clsx";
-import React from "react";
 import { Link as RouterLink, Route, Switch } from "react-router-dom";
 
 import { LoadingFrame } from "../loading-frame";
-import { Button, CircularProgress } from "@material-ui/core";
+import { CircularProgress } from "@material-ui/core";
 import { useServices } from "../../services-def";
 
 function Copyright() {
@@ -119,11 +118,15 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "flex-start",
   },
+  hidden: {
+    display: "none",
+  },
 }));
 
 export function Dashboard() {
   const { routes } = useServices();
   const classes = useStyles();
+  const toolbarWidgets = routes.allHavingTag("main-toolbar");
 
   return (
     <div className={classes.root}>
@@ -192,9 +195,28 @@ export function Dashboard() {
       </Drawer>
       <main className={classes.main}>
         <div className={classes.toolbar} />
-        <Paper elevation={0} className={classes.actionToolbarBackground}>
+        <Paper
+          elevation={0}
+          className={clsx(classes.actionToolbarBackground, {
+            [classes.hidden]: toolbarWidgets.length === 0,
+          })}
+        >
           <Toolbar className={clsx(classes.actionToolbar)}>
-            <Button startIcon={<ApartmentIcon />}>Delete</Button>
+            <Switch>
+              {toolbarWidgets.map((route) => {
+                const Component = route.component;
+
+                if (Component === undefined) {
+                  return null;
+                }
+
+                return (
+                  <Route key={route.name} path={route.path} exact={route.exact}>
+                    <Component returnUrl={"/"} />
+                  </Route>
+                );
+              })}
+            </Switch>
           </Toolbar>
         </Paper>
         <div className={classes.content}>
@@ -214,11 +236,11 @@ export function Dashboard() {
                 );
               })}
             </Switch>
-            <Box pt={4}>
-              <Copyright />
-            </Box>
           </LoadingFrame>
         </div>
+        <Box pt={4}>
+          <Copyright />
+        </Box>
       </main>
     </div>
   );
