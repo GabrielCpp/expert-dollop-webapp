@@ -18,12 +18,21 @@ import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import InputBase from "@material-ui/core/InputBase";
 import Paper from "@material-ui/core/Paper";
+import AssignmentIcon from "@material-ui/icons/Assignment";
 import clsx from "clsx";
-import { Link as RouterLink, Route, Switch } from "react-router-dom";
+import {
+  Link as RouterLink,
+  matchPath,
+  Route,
+  Switch,
+  useHistory,
+} from "react-router-dom";
 
 import { LoadingFrame } from "../loading-frame";
 import { CircularProgress } from "@material-ui/core";
 import { useServices } from "../../services-def";
+import { NamedRoutes } from "../../shared/named-routes";
+import React, { useEffect, useState } from "react";
 
 function Copyright() {
   return (
@@ -126,7 +135,6 @@ const useStyles = makeStyles((theme) => ({
 export function Dashboard() {
   const { routes } = useServices();
   const classes = useStyles();
-  const toolbarWidgets = routes.allHavingTag("main-toolbar");
 
   return (
     <div className={classes.root}>
@@ -185,6 +193,12 @@ export function Dashboard() {
             </ListItemIcon>
             <ListItemText primary={"Projects"} />
           </ListItem>
+          <ListItem button component={RouterLink} to="/datasheet_template">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Datasheet Template"} />
+          </ListItem>
           <ListItem button component={RouterLink} to="/datasheet">
             <ListItemIcon>
               <ListAltIcon />
@@ -195,30 +209,7 @@ export function Dashboard() {
       </Drawer>
       <main className={classes.main}>
         <div className={classes.toolbar} />
-        <Paper
-          elevation={0}
-          className={clsx(classes.actionToolbarBackground, {
-            [classes.hidden]: toolbarWidgets.length === 0,
-          })}
-        >
-          <Toolbar className={clsx(classes.actionToolbar)}>
-            <Switch>
-              {toolbarWidgets.map((route) => {
-                const Component = route.component;
-
-                if (Component === undefined) {
-                  return null;
-                }
-
-                return (
-                  <Route key={route.name} path={route.path} exact={route.exact}>
-                    <Component returnUrl={"/"} />
-                  </Route>
-                );
-              })}
-            </Switch>
-          </Toolbar>
-        </Paper>
+        <RouterToolbar routes={routes} />
         <div className={classes.content}>
           <LoadingFrame loaderComponent={<CircularProgress />}>
             <Switch>
@@ -243,5 +234,56 @@ export function Dashboard() {
         </Box>
       </main>
     </div>
+  );
+}
+
+function RouterToolbar({ routes }: { routes: NamedRoutes }) {
+  const classes = useStyles();
+  const history = useHistory();
+  const toolbarWidgets = routes.allHavingTag("main-toolbar");
+  const [haveMatchingToolbarwidget, setHaveMatchingWidgets] = useState(false);
+
+  useEffect(() => {
+    const unlisten = history.listen((location, action) => {
+      setHaveMatchingWidgets(
+        toolbarWidgets.some(
+          (route) =>
+            matchPath(window.location.pathname, {
+              path: route.path,
+              exact: route.exact,
+              strict: true,
+            }) !== null
+        )
+      );
+    });
+
+    return unlisten;
+  });
+
+  return (
+    <Paper
+      elevation={0}
+      className={clsx(classes.actionToolbarBackground, {
+        [classes.hidden]: !haveMatchingToolbarwidget,
+      })}
+    >
+      <Toolbar className={clsx(classes.actionToolbar)}>
+        <Switch>
+          {toolbarWidgets.map((route) => {
+            const Component = route.component;
+
+            if (Component === undefined) {
+              return null;
+            }
+
+            return (
+              <Route key={route.name} path={route.path} exact={route.exact}>
+                <Component returnUrl={"/"} />
+              </Route>
+            );
+          })}
+        </Switch>
+      </Toolbar>
+    </Paper>
   );
 }

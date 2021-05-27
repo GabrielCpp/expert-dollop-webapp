@@ -63,7 +63,7 @@ export type DatasheetDefinition = {
   __typename?: 'DatasheetDefinition';
   id: FieldWrapper<Scalars['ID']>;
   name: FieldWrapper<Scalars['String']>;
-  elementPropertiesSchema?: Maybe<FieldWrapper<DatasheetDefinitionPropertySchemaDict>>;
+  properties: Array<FieldWrapper<DatasheetDefinitionPropertySchemaDict>>;
   elementsDefinition?: Maybe<FieldWrapper<DatasheetDefinitionElementConnection>>;
 };
 
@@ -71,6 +71,18 @@ export type DatasheetDefinition = {
 export type DatasheetDefinitionElementsDefinitionArgs = {
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
+};
+
+export type DatasheetDefinitionConnection = {
+  __typename?: 'DatasheetDefinitionConnection';
+  edges: Array<FieldWrapper<DatasheetDefinitionEdge>>;
+  pageInfo: FieldWrapper<PageInfo>;
+};
+
+export type DatasheetDefinitionEdge = {
+  __typename?: 'DatasheetDefinitionEdge';
+  node: FieldWrapper<DatasheetDefinition>;
+  cursor: FieldWrapper<Scalars['String']>;
 };
 
 export type DatasheetDefinitionElement = {
@@ -82,14 +94,14 @@ export type DatasheetDefinitionElement = {
   datasheetDefinition?: Maybe<FieldWrapper<DatasheetDefinition>>;
   orderIndex: FieldWrapper<Scalars['Int']>;
   name: FieldWrapper<Scalars['String']>;
-  defaultProperties?: Maybe<FieldWrapper<DatasheetDefinitionElementPropertyDict>>;
+  defaultProperties: Array<FieldWrapper<DatasheetDefinitionElementPropertyDict>>;
   tags: Array<FieldWrapper<Scalars['String']>>;
   creationDateUtc: FieldWrapper<Scalars['String']>;
 };
 
 export type DatasheetDefinitionElementConnection = {
   __typename?: 'DatasheetDefinitionElementConnection';
-  edges: Array<FieldWrapper<DatasheetDefinitionElement>>;
+  edges: Array<FieldWrapper<DatasheetDefinitionElementEdge>>;
   pageInfo: FieldWrapper<PageInfo>;
 };
 
@@ -111,10 +123,15 @@ export type DatasheetDefinitionElementPropertyDict = {
   property: FieldWrapper<DatasheetDefinitionElementProperty>;
 };
 
+export type DatasheetDefinitionPropertySchema = {
+  __typename?: 'DatasheetDefinitionPropertySchema';
+  valueValidator: FieldWrapper<Scalars['JsonSchema']>;
+};
+
 export type DatasheetDefinitionPropertySchemaDict = {
   __typename?: 'DatasheetDefinitionPropertySchemaDict';
   name: FieldWrapper<Scalars['String']>;
-  schema: FieldWrapper<Scalars['String']>;
+  schema: FieldWrapper<DatasheetDefinitionPropertySchema>;
 };
 
 export type DatasheetElement = {
@@ -410,6 +427,10 @@ export type ProjectNodeTreeTypeNode = {
 export type Query = {
   __typename?: 'Query';
   findDatasheet: FieldWrapper<Datasheet>;
+  findDatasheetDefinitions: FieldWrapper<DatasheetDefinitionConnection>;
+  findDatasheetDefinition: FieldWrapper<DatasheetDefinition>;
+  findDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
+  queryDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
   findProjectDefinition: FieldWrapper<ProjectDefinition>;
   findProjectDefinitionRootSections: FieldWrapper<ProjectDefinitionNodeTree>;
   findProjectDefinitionRootSectionContainers: FieldWrapper<ProjectDefinitionNodeTree>;
@@ -426,6 +447,32 @@ export type Query = {
 
 export type QueryFindDatasheetArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryFindDatasheetDefinitionsArgs = {
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryFindDatasheetDefinitionArgs = {
+  datasheetDefinitionId: Scalars['ID'];
+};
+
+
+export type QueryFindDatasheetDefinitionElementsArgs = {
+  datasheetDefinitionId: Scalars['ID'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryQueryDatasheetDefinitionElementsArgs = {
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
 };
 
 
@@ -564,6 +611,93 @@ export type TranslationInput = {
   name: Scalars['String'];
   value: Scalars['String'];
 };
+
+export type FindDatasheetDefinitionsQueryVariables = Exact<{
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+}>;
+
+
+export type FindDatasheetDefinitionsQuery = (
+  { __typename?: 'Query' }
+  & { findDatasheetDefinitions: (
+    { __typename?: 'DatasheetDefinitionConnection' }
+    & { edges: Array<(
+      { __typename?: 'DatasheetDefinitionEdge' }
+      & Pick<DatasheetDefinitionEdge, 'cursor'>
+      & { node: (
+        { __typename?: 'DatasheetDefinition' }
+        & Pick<DatasheetDefinition, 'id' | 'name'>
+        & { properties: Array<(
+          { __typename?: 'DatasheetDefinitionPropertySchemaDict' }
+          & Pick<DatasheetDefinitionPropertySchemaDict, 'name'>
+          & { schema: (
+            { __typename?: 'DatasheetDefinitionPropertySchema' }
+            & Pick<DatasheetDefinitionPropertySchema, 'valueValidator'>
+          ) }
+        )> }
+      ) }
+    )>, pageInfo: (
+      { __typename?: 'PageInfo' }
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
+    ) }
+  ) }
+);
+
+export type FindDatasheetDefinitionQueryVariables = Exact<{
+  datasheetDefinitionId: Scalars['ID'];
+}>;
+
+
+export type FindDatasheetDefinitionQuery = (
+  { __typename?: 'Query' }
+  & { findDatasheetDefinition: (
+    { __typename?: 'DatasheetDefinition' }
+    & Pick<DatasheetDefinition, 'name'>
+    & { properties: Array<(
+      { __typename?: 'DatasheetDefinitionPropertySchemaDict' }
+      & Pick<DatasheetDefinitionPropertySchemaDict, 'name'>
+      & { schema: (
+        { __typename?: 'DatasheetDefinitionPropertySchema' }
+        & Pick<DatasheetDefinitionPropertySchema, 'valueValidator'>
+      ) }
+    )> }
+  ) }
+);
+
+export type QueryDatasheetDefinitionElementsQueryVariables = Exact<{
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+}>;
+
+
+export type QueryDatasheetDefinitionElementsQuery = (
+  { __typename?: 'Query' }
+  & { queryDatasheetDefinitionElements: (
+    { __typename?: 'DatasheetDefinitionElementConnection' }
+    & { edges: Array<(
+      { __typename?: 'DatasheetDefinitionElementEdge' }
+      & Pick<DatasheetDefinitionElementEdge, 'cursor'>
+      & { node: (
+        { __typename?: 'DatasheetDefinitionElement' }
+        & Pick<DatasheetDefinitionElement, 'id' | 'unitId' | 'isCollection' | 'datasheetDefId' | 'orderIndex' | 'name' | 'tags'>
+        & { defaultProperties: Array<(
+          { __typename?: 'DatasheetDefinitionElementPropertyDict' }
+          & Pick<DatasheetDefinitionElementPropertyDict, 'name'>
+          & { property: (
+            { __typename?: 'DatasheetDefinitionElementProperty' }
+            & Pick<DatasheetDefinitionElementProperty, 'is_readonly' | 'value'>
+          ) }
+        )> }
+      ) }
+    )>, pageInfo: (
+      { __typename?: 'PageInfo' }
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
+    ) }
+  ) }
+);
 
 export type AddProjectDefinitionNodeMutationVariables = Exact<{
   node: ProjectDefinitionNodeInput;
@@ -1309,6 +1443,159 @@ export type FindProjectFormContentQuery = (
 );
 
 
+export const FindDatasheetDefinitionsDocument = gql`
+    query findDatasheetDefinitions($query: String!, $first: Int!, $after: String) {
+  findDatasheetDefinitions(query: $query, first: $first, after: $after) {
+    edges {
+      node {
+        id
+        name
+        properties {
+          name
+          schema {
+            valueValidator
+          }
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindDatasheetDefinitionsQuery__
+ *
+ * To run a query within a React component, call `useFindDatasheetDefinitionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindDatasheetDefinitionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindDatasheetDefinitionsQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useFindDatasheetDefinitionsQuery(baseOptions: Apollo.QueryHookOptions<FindDatasheetDefinitionsQuery, FindDatasheetDefinitionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindDatasheetDefinitionsQuery, FindDatasheetDefinitionsQueryVariables>(FindDatasheetDefinitionsDocument, options);
+      }
+export function useFindDatasheetDefinitionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindDatasheetDefinitionsQuery, FindDatasheetDefinitionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindDatasheetDefinitionsQuery, FindDatasheetDefinitionsQueryVariables>(FindDatasheetDefinitionsDocument, options);
+        }
+export type FindDatasheetDefinitionsQueryHookResult = ReturnType<typeof useFindDatasheetDefinitionsQuery>;
+export type FindDatasheetDefinitionsLazyQueryHookResult = ReturnType<typeof useFindDatasheetDefinitionsLazyQuery>;
+export type FindDatasheetDefinitionsQueryResult = Apollo.QueryResult<FindDatasheetDefinitionsQuery, FindDatasheetDefinitionsQueryVariables>;
+export const FindDatasheetDefinitionDocument = gql`
+    query findDatasheetDefinition($datasheetDefinitionId: ID!) {
+  findDatasheetDefinition(datasheetDefinitionId: $datasheetDefinitionId) {
+    name
+    properties {
+      name
+      schema {
+        valueValidator
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindDatasheetDefinitionQuery__
+ *
+ * To run a query within a React component, call `useFindDatasheetDefinitionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindDatasheetDefinitionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindDatasheetDefinitionQuery({
+ *   variables: {
+ *      datasheetDefinitionId: // value for 'datasheetDefinitionId'
+ *   },
+ * });
+ */
+export function useFindDatasheetDefinitionQuery(baseOptions: Apollo.QueryHookOptions<FindDatasheetDefinitionQuery, FindDatasheetDefinitionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindDatasheetDefinitionQuery, FindDatasheetDefinitionQueryVariables>(FindDatasheetDefinitionDocument, options);
+      }
+export function useFindDatasheetDefinitionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindDatasheetDefinitionQuery, FindDatasheetDefinitionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindDatasheetDefinitionQuery, FindDatasheetDefinitionQueryVariables>(FindDatasheetDefinitionDocument, options);
+        }
+export type FindDatasheetDefinitionQueryHookResult = ReturnType<typeof useFindDatasheetDefinitionQuery>;
+export type FindDatasheetDefinitionLazyQueryHookResult = ReturnType<typeof useFindDatasheetDefinitionLazyQuery>;
+export type FindDatasheetDefinitionQueryResult = Apollo.QueryResult<FindDatasheetDefinitionQuery, FindDatasheetDefinitionQueryVariables>;
+export const QueryDatasheetDefinitionElementsDocument = gql`
+    query queryDatasheetDefinitionElements($query: String!, $first: Int!, $after: String) {
+  queryDatasheetDefinitionElements(query: $query, first: $first, after: $after) {
+    edges {
+      node {
+        id
+        unitId
+        isCollection
+        datasheetDefId
+        orderIndex
+        name
+        defaultProperties {
+          name
+          property {
+            is_readonly
+            value
+          }
+        }
+        tags
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+    `;
+
+/**
+ * __useQueryDatasheetDefinitionElementsQuery__
+ *
+ * To run a query within a React component, call `useQueryDatasheetDefinitionElementsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQueryDatasheetDefinitionElementsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQueryDatasheetDefinitionElementsQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useQueryDatasheetDefinitionElementsQuery(baseOptions: Apollo.QueryHookOptions<QueryDatasheetDefinitionElementsQuery, QueryDatasheetDefinitionElementsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QueryDatasheetDefinitionElementsQuery, QueryDatasheetDefinitionElementsQueryVariables>(QueryDatasheetDefinitionElementsDocument, options);
+      }
+export function useQueryDatasheetDefinitionElementsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QueryDatasheetDefinitionElementsQuery, QueryDatasheetDefinitionElementsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QueryDatasheetDefinitionElementsQuery, QueryDatasheetDefinitionElementsQueryVariables>(QueryDatasheetDefinitionElementsDocument, options);
+        }
+export type QueryDatasheetDefinitionElementsQueryHookResult = ReturnType<typeof useQueryDatasheetDefinitionElementsQuery>;
+export type QueryDatasheetDefinitionElementsLazyQueryHookResult = ReturnType<typeof useQueryDatasheetDefinitionElementsLazyQuery>;
+export type QueryDatasheetDefinitionElementsQueryResult = Apollo.QueryResult<QueryDatasheetDefinitionElementsQuery, QueryDatasheetDefinitionElementsQueryVariables>;
 export const AddProjectDefinitionNodeDocument = gql`
     mutation addProjectDefinitionNode($node: ProjectDefinitionNodeInput!) {
   addProjectDefinitionNode(node: $node) {

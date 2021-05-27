@@ -83,7 +83,7 @@ export function SearchGrid({ types, headers, fetch }: SearchGridProps) {
         InputProps={{ endAdornment: <SearchIcon /> }}
       />
       <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
+        <Table className={classes.table}>
           <TableHead>
             <TableRow>
               {headers.map(([name, label]) => (
@@ -93,7 +93,7 @@ export function SearchGrid({ types, headers, fetch }: SearchGridProps) {
           </TableHead>
           <TableBody>
             {results.map((result) => (
-              <TableRow key={result.nextPageToken}>
+              <TableRow key={result.uri}>
                 {headers.map(([name]) => (
                   <TableCell key={name}>
                     <Link to={result.uri}>{result.properties[name]}</Link>

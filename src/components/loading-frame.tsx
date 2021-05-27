@@ -50,11 +50,9 @@ export function useLoaderEffect(
   ...loading: boolean[]
 ) {
   const { onLoading } = useLoader();
+  const isLoading = loading.some((x) => x === true);
 
   useEffect(() => {
-    onLoading(
-      loading.some((x) => x === true),
-      error
-    );
-  }, [error, ...loading, onLoading]);
+    onLoading(isLoading, error);
+  }, [error, isLoading, onLoading]);
 }

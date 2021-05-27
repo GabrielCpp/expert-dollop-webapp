@@ -11,13 +11,13 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import React, { Fragment, useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { NavLink as RouterLink } from "react-router-dom";
 
 import {
   FindProjectRootSectionContainersQuery,
   useFindProjectRootSectionContainersQuery,
 } from "../../../generated/graphql";
-import { useLoader } from "../../loading-frame";
+import { useLoaderEffect } from "../../loading-frame";
 import { MouseOverPopover } from "../../mouse-over-popover";
 import { useDbTranslation } from "../../translation";
 import { buildLinkFor } from "../routes";
@@ -55,10 +55,7 @@ export function SidePanel({
   formId,
 }: SidePanelProps) {
   const classes = useStyles();
-  const { onLoading } = useLoader();
-  const [expanded, setExpanded] = React.useState<string | undefined>(
-    subSectionId
-  );
+  const [expanded, setExpanded] = React.useState<string | undefined>(undefined);
   const { data, loading, error } = useFindProjectRootSectionContainersQuery({
     skip: rootSectionId === undefined,
     variables: {
@@ -67,34 +64,33 @@ export function SidePanel({
     },
   });
 
-  useEffect(() => {
-    setExpanded(subSectionId);
-  }, [subSectionId]);
+  useLoaderEffect(error, loading);
+
+  const subSections = data?.findProjectRootSectionContainers.roots;
 
   useEffect(() => {
-    onLoading(loading, error);
-  }, [error, loading, onLoading]);
-
-  const handleChange = (id: string) => () => {
-    setExpanded(expanded === id ? undefined : id);
-  };
-
-  const subSections = data?.findProjectRootSectionContainers.roots || [];
+    if (subSections !== undefined && subSections.length > 0) {
+      setExpanded(subSections[0].definition.id);
+    } else {
+      setExpanded(undefined);
+    }
+  }, [subSections]);
 
   return (
     <List component="nav" className={classes.root}>
-      {subSections.map((firstLayerNode) => (
-        <SubSectionPicker
-          key={firstLayerNode.definition.name}
-          projectId={projectId}
-          rootSectionId={rootSectionId}
-          formId={formId}
-          expanded={expanded}
-          handleChange={handleChange}
-          definition={firstLayerNode.definition}
-          nodes={firstLayerNode.nodes}
-        />
-      ))}
+      {subSections &&
+        subSections.map((subSection) => (
+          <SubSectionPicker
+            key={subSection.definition.name}
+            projectId={projectId}
+            rootSectionId={rootSectionId}
+            formId={formId}
+            expanded={expanded}
+            setExpanded={setExpanded}
+            definition={subSection.definition}
+            nodes={subSection.nodes}
+          />
+        ))}
     </List>
   );
 }
@@ -104,7 +100,7 @@ function SubSectionPicker({
   rootSectionId,
   formId,
   expanded,
-  handleChange,
+  setExpanded,
   definition,
   nodes,
 }: {
@@ -112,14 +108,17 @@ function SubSectionPicker({
   rootSectionId: string;
   formId: string;
   expanded: string | undefined;
-  handleChange: (id: string) => () => void;
+  setExpanded: (id: string | undefined) => void;
   definition: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["definition"];
   nodes: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"];
 }) {
   const [currentNodeId, setCurrentNodeId] = useState(nodes[0]?.node.id);
   const { labelTrans, helpTextTrans } = useDbTranslation(projectId);
-
   const currentNode = nodes.find((x) => x.node.id === currentNodeId);
+
+  const handleChange = (id: string) => () => {
+    setExpanded(expanded === id ? undefined : id);
+  };
 
   if (currentNode === undefined) {
     return null;
@@ -153,7 +152,7 @@ function SubSectionPicker({
       <Collapse in={expanded === definition.id} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           {currentNode.children.map((secondLayerNode) => (
-            <InnerPanel
+            <FormPicker
               key={secondLayerNode.definition.name}
               projectId={projectId}
               rootSectionId={rootSectionId}
@@ -167,19 +166,19 @@ function SubSectionPicker({
   );
 }
 
-interface InnerPanelProps {
+interface FormPickerProps {
   projectId: string;
   rootSectionId: string;
   formId: string;
   secondLayerNode: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"][number]["children"][number];
 }
 
-function InnerPanel({
+function FormPicker({
   projectId,
   rootSectionId,
   formId,
   secondLayerNode,
-}: InnerPanelProps) {
+}: FormPickerProps) {
   const classes = useStyles();
   const [currentNodeId, setCurrentNodeId] = useState(
     secondLayerNode.nodes[0]?.node.id

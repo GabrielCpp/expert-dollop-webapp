@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -8,13 +7,12 @@ import {
   Grid,
   IconButton,
   makeStyles,
-  Select,
   Typography,
 } from "@material-ui/core";
 import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AddIcon from "@material-ui/icons/Add";
 import {
   BoolFieldValue,
@@ -31,7 +29,6 @@ import { MouseOverPopover } from "../../mouse-over-popover";
 import { Field, radioField, textField } from "../../table-fields";
 import { checkboxField } from "../../table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../translation";
-import { head } from "lodash";
 import { NodePicker } from "./node-picker";
 
 interface FormProps {

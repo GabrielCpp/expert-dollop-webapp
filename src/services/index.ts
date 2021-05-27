@@ -5,9 +5,11 @@ import { createReduxDb } from "./redux-db";
 import { AjvWithError } from "./ajv";
 import { LoaderService } from "./loader-service";
 import { Services } from "../services-def";
+import { createAuth0Wrapper } from "./auth0-wrapper";
 
 export const services: Services = {
-  apollo: createApolloClient(),
+  auth0: createAuth0Wrapper(),
+  apollo: createApolloClient(() => services),
   axios: createAxiosClient(),
   routes: createNamedRouteService(),
   reduxDb: createReduxDb(),
