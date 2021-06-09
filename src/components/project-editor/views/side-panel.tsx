@@ -1,6 +1,9 @@
 import {
+  Card,
+  CardContent,
   Collapse,
   createStyles,
+  Divider,
   Link,
   List,
   ListItem,
@@ -77,21 +80,28 @@ export function SidePanel({
   }, [subSections]);
 
   return (
-    <List component="nav" className={classes.root}>
-      {subSections &&
-        subSections.map((subSection) => (
-          <SubSectionPicker
-            key={subSection.definition.name}
-            projectId={projectId}
-            rootSectionId={rootSectionId}
-            formId={formId}
-            expanded={expanded}
-            setExpanded={setExpanded}
-            definition={subSection.definition}
-            nodes={subSection.nodes}
-          />
-        ))}
-    </List>
+    <Card>
+      <CardContent>
+        <List component="nav" className={classes.root}>
+          {subSections &&
+            subSections.map((subSection, index) => (
+              <>
+                <SubSectionPicker
+                  key={subSection.definition.name}
+                  projectId={projectId}
+                  rootSectionId={rootSectionId}
+                  formId={formId}
+                  expanded={expanded}
+                  setExpanded={setExpanded}
+                  definition={subSection.definition}
+                  nodes={subSection.nodes}
+                />
+                {index < subSections.length - 1 && <Divider />}
+              </>
+            ))}
+        </List>
+      </CardContent>
+    </Card>
   );
 }
 

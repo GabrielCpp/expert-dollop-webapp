@@ -24,7 +24,7 @@ class Auth0Wrapper implements Auth0Context {
         audience: process.env.REACT_APP_AUTH0_AUDIENCE as string,
       });
     } catch (e) {
-      if (e.message == "Consent required") {
+      if (e.message === "Consent required") {
         this.auth0.loginWithRedirect();
       }
     }

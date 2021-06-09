@@ -46,7 +46,6 @@ export function AddProjectView({ returnUrl }: RouteViewCompoenentProps) {
     }
 
     const form = hydrateForm<AddProjectViewForm>(reduxDb)(path);
-    console.log(form);
 
     const { data } = await apollo.mutate<
       CreateProjectMutation,
@@ -66,8 +65,6 @@ export function AddProjectView({ returnUrl }: RouteViewCompoenentProps) {
     if (data === undefined) {
       return;
     }
-
-    console.log(data);
   }
 
   if (data === undefined) {

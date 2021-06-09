@@ -3,11 +3,17 @@ import React, { useRef } from "react";
 import {
   FindProjectDefintionsDocument,
   FindProjectDefintionsQuery,
+  ProjectDefinition,
 } from "../../../generated";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
-import { SearchGrid, SearchResultSet } from "../../search-grid";
 import { useServices } from "../../../services-def";
+import { PaginatedDataGrid, HeadCell, SearchResultSet } from "../../data-grid";
+import { useTranslation } from "react-i18next";
+import { IconButton, Typography } from "@material-ui/core";
+import { Link } from "react-router-dom";
+import DeleteIcon from "@material-ui/icons/Delete";
+type Result = Pick<ProjectDefinition, "id" | "name" | "defaultDatasheetId">;
 
 interface ProjectDefinitionHomeProps extends RouteViewCompoenentProps {}
 
@@ -15,42 +21,62 @@ export function ProjectDefinitionHome({
   returnUrl,
 }: ProjectDefinitionHomeProps) {
   const { apollo, routes } = useServices();
-  const types = useRef<[string, string][]>([
-    ["project-definition", "project_definition"],
-  ]);
-  const headers = useRef<[string, string][]>([["name", "name"]]);
+  const { t } = useTranslation();
 
   function fetch(
     query: string,
-    types: string[],
-    nextPageToken: string | null
-  ): Promise<SearchResultSet> {
+    limit: number,
+    nextPageToken?: string
+  ): Promise<SearchResultSet<Result>> {
     return apollo
       .query<FindProjectDefintionsQuery>({
         query: FindProjectDefintionsDocument,
         variables: {
           query,
-          first: 100,
+          first: limit,
           after: nextPageToken,
         },
       })
       .then((result) => ({
-        nextPageToken: result.data.findProjectDefintions.pageInfo.hasNextPage
-          ? result.data.findProjectDefintions.pageInfo.endCursor
-          : null,
+        pageInfo: {
+          endCursor: result.data.findProjectDefintions.pageInfo.endCursor,
+          hasNextPage: result.data.findProjectDefintions.pageInfo.hasNextPage,
+          totalCount: 2,
+        },
         results: result.data.findProjectDefintions.edges.map((item) => ({
-          properties: { name: item.node.name },
-          nextPageToken: item.cursor,
-          type: "project-definition",
-          uri: routes.render(PROJECT_DEFINITION_EDITOR_MAIN, {
-            projectDefinitionId: item.node.id,
-            selectedPath: "~",
-          }),
+          columns: {
+            name: () => (
+              <Link
+                to={routes.render(PROJECT_DEFINITION_EDITOR_MAIN, {
+                  projectDefinitionId: item.node.id,
+                  selectedPath: "~",
+                })}
+              >
+                {item.node.name}
+              </Link>
+            ),
+            id: () => <Typography>{item.node.name}</Typography>,
+            defaultDatasheetId: () => <Typography>{item.node.name}</Typography>,
+          },
+          rowKey: item.node.id,
         })),
       }));
   }
 
+  const headers: HeadCell<Result>[] = [
+    {
+      disablePadding: false,
+      id: "name",
+      label: t("name"),
+      numeric: false,
+    },
+  ];
+
   return (
-    <SearchGrid fetch={fetch} headers={headers.current} types={types.current} />
+    <PaginatedDataGrid
+      fetch={fetch}
+      headers={headers}
+      displayActionColumn={true}
+    />
   );
 }

@@ -277,7 +277,7 @@ export type NodeConfigInput = {
 
 export type PageInfo = {
   __typename?: 'PageInfo';
-  hasNextPage?: Maybe<FieldWrapper<Scalars['Boolean']>>;
+  hasNextPage: FieldWrapper<Scalars['Boolean']>;
   endCursor: FieldWrapper<Scalars['String']>;
 };
 

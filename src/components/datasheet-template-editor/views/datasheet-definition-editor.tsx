@@ -19,6 +19,7 @@ import { mapValues, noop } from "lodash";
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import CreateIcon from "@material-ui/icons/Create";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import {
   PageInfo,
@@ -40,6 +41,7 @@ type NamedColumnComponent = Record<string, () => JSX.Element | null>;
 export interface SearchResult {
   columns: NamedColumnComponent;
   rowKey: string;
+  actionComponent?: () => JSX.Element;
 }
 
 export interface SearchResultSet {
@@ -52,6 +54,7 @@ export interface SearchGridProps<T> {
   document: Apollo.DocumentNode;
   pickPageInfo: (data: T) => PageInfo;
   buildResults: (data: T) => SearchResult[];
+  displayActionColumn?: boolean;
   limit?: number;
 }
 
@@ -60,6 +63,7 @@ export function SearchGrid<QueryResult>({
   document,
   pickPageInfo,
   buildResults,
+  displayActionColumn = false,
   limit = 100,
 }: SearchGridProps<QueryResult>) {
   const { apollo, routes } = useServices();
@@ -100,6 +104,7 @@ export function SearchGrid<QueryResult>({
         };
       });
   }
+
   useLoaderEffect(error, results === undefined);
 
   function fetchResults(query: string) {
@@ -133,29 +138,34 @@ export function SearchGrid<QueryResult>({
               {headers.map(([name, label]) => (
                 <TableCell key={name}>{t(label)}</TableCell>
               ))}
-              <TableCell />
+              {displayActionColumn && <TableCell />}
             </TableRow>
           </TableHead>
           <TableBody>
             {results &&
-              results.map((result) => (
-                <TableRow key={result.rowKey}>
-                  {headers.map(([name]) => {
-                    const Component = result.columns[name];
+              results.map((result) => {
+                const ActionComponent = result.actionComponent;
 
-                    return (
-                      <TableCell key={name}>
-                        <Component />
+                return (
+                  <TableRow key={result.rowKey}>
+                    {headers.map(([name]) => {
+                      const Component = result.columns[name];
+
+                      return (
+                        <TableCell key={name}>
+                          <Component />
+                        </TableCell>
+                      );
+                    })}
+
+                    {displayActionColumn && (
+                      <TableCell align="right">
+                        {ActionComponent && <ActionComponent />}
                       </TableCell>
-                    );
-                  })}
-                  <TableCell align="right">
-                    <IconButton>
-                      <MoreVertIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    )}
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -169,6 +179,7 @@ interface DatasheetDefinitionEditorParam {
 
 export function DatasheetDefinitionEditor() {
   const { datasheetDefinitionId } = useParams<DatasheetDefinitionEditorParam>();
+  const { t } = useTranslation();
   const { data, loading, error } = useFindDatasheetDefinitionQuery({
     variables: {
       datasheetDefinitionId,
@@ -183,6 +194,8 @@ export function DatasheetDefinitionEditor() {
 
   const headers: [string, string][] = [
     ["name", "name"],
+    ["isCollection", "isCollection"],
+    ["orderIndex", "orderIndex"],
     ...data.findDatasheetDefinition.properties.map<[string, string]>((x) => [
       x.name,
       x.name,
@@ -200,6 +213,12 @@ export function DatasheetDefinitionEditor() {
       rowKey: item.node.id,
       columns: {
         name: () => <Typography>{item.node.name}</Typography>,
+        isCollection: () => (
+          <Typography>
+            {item.node.isCollection ? t("true") : t("false")}
+          </Typography>
+        ),
+        orderIndex: () => <Typography>{item.node.orderIndex}</Typography>,
         ...item.node.defaultProperties.reduce<NamedColumnComponent>(
           (obj, property) => {
             obj[property.name] = () => (
@@ -210,6 +229,16 @@ export function DatasheetDefinitionEditor() {
           {}
         ),
       },
+      actionComponent: () => (
+        <>
+          <IconButton>
+            <CreateIcon />
+          </IconButton>
+          <IconButton>
+            <MoreVertIcon />
+          </IconButton>
+        </>
+      ),
     }));
   }
 
@@ -221,6 +250,7 @@ export function DatasheetDefinitionEditor() {
         buildResults={buildResults}
         pickPageInfo={pickPageInfo}
         headers={headers}
+        displayActionColumn={true}
       />
     </Box>
   );

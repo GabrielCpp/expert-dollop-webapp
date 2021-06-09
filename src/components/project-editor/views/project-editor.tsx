@@ -44,7 +44,8 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
                 rootSectionId={rootSectionId}
               />
             </Grid>
-            <Grid item lg={6} xs={4}>
+
+            <Grid item style={{ minWidth: "4em" }}>
               {subSectionId && formId && (
                 <SidePanel
                   projectId={projectId}
@@ -54,7 +55,8 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
                 />
               )}
             </Grid>
-            <Grid item lg={6} xs={7}>
+
+            <Grid item>
               {formId && <FormEditor projectId={projectId} formId={formId} />}
             </Grid>
           </Grid>
