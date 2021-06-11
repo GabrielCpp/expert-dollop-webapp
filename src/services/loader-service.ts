@@ -50,7 +50,7 @@ export class LoaderService {
       }
     }
 
-    if (isLoading !== this.lastLoadingState) {
+    if (isLoading !== this.lastLoadingState || error) {
       this.triggerEffect(isLoading, error);
     }
   }

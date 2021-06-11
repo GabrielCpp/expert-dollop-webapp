@@ -14,13 +14,14 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import SearchIcon from "@material-ui/icons/Search";
-import { mapValues, noop } from "lodash";
-import React, { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
 import CreateIcon from "@material-ui/icons/Create";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import SearchIcon from "@material-ui/icons/Search";
+import { noop } from "lodash";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+
 import {
   PageInfo,
   QueryDatasheetDefinitionElementsDocument,
@@ -66,7 +67,7 @@ export function SearchGrid<QueryResult>({
   displayActionColumn = false,
   limit = 100,
 }: SearchGridProps<QueryResult>) {
-  const { apollo, routes } = useServices();
+  const { apollo } = useServices();
   const { t } = useTranslation();
   const classes = useStyles();
   const nextPageToken = useRef<string | null>(null);

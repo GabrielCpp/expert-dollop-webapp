@@ -19,6 +19,9 @@ export function LoadingFrame({
   });
 
   function onLoading(newIsLoading: boolean, error?: Error): void {
+    if (error) {
+      console.error(error);
+    }
     setIsLoading(newIsLoading);
   }
 

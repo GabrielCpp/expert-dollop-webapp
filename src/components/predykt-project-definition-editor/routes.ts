@@ -1,6 +1,6 @@
 import { NamedRoute } from "../../shared/named-routes";
 import { AddContainerView } from "./views/add-node-view";
-import { EditorLayout } from "./views/editor-layout";
+import { EditorLayout } from "./views/project-def-editor";
 import { ProjectDefinitionHome } from "./views/home";
 
 export const PROJECT_DEFINITION_EDITOR_HOME = "project_definition_editor_home";

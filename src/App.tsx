@@ -1,5 +1,5 @@
 import { ApolloProvider } from "@apollo/client";
-import React from "react";
+import React, { Suspense } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import { theme } from "./theme";
@@ -10,6 +10,7 @@ import { ThemeProvider } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
 import { Login } from "./components/login";
+import { GlobalLoading } from "./components/global-loading";
 
 const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
   const history = useHistory();
@@ -41,24 +42,26 @@ const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <Auth0ProviderWithHistory>
-          <ServiceContext.Provider value={services}>
-            <ApolloProvider client={services.apollo}>
-              <Switch>
-                <Route path={"/login"}>
-                  <Login />
-                </Route>
-                <Route>
-                  <Dashboard />
-                </Route>
-              </Switch>
-            </ApolloProvider>
-          </ServiceContext.Provider>
-        </Auth0ProviderWithHistory>
-      </Router>
-    </ThemeProvider>
+    <Suspense fallback={<GlobalLoading />}>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <Auth0ProviderWithHistory>
+            <ServiceContext.Provider value={services}>
+              <ApolloProvider client={services.apollo}>
+                <Switch>
+                  <Route path={"/login"}>
+                    <Login />
+                  </Route>
+                  <Route>
+                    <Dashboard />
+                  </Route>
+                </Switch>
+              </ApolloProvider>
+            </ServiceContext.Provider>
+          </Auth0ProviderWithHistory>
+        </Router>
+      </ThemeProvider>
+    </Suspense>
   );
 }
 

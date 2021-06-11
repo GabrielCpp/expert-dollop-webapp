@@ -8,8 +8,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import { ExpandMore as ExpandMoreIcon } from "@material-ui/icons";
-import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
 
 import {
   CollapsibleContainerFieldConfig,
@@ -18,12 +16,11 @@ import {
   StaticChoiceFieldConfig,
   useFindProjectDefinitionFormContentQuery,
 } from "../../../generated";
-import { useLoader } from "../../loading-frame";
+import { useLoaderEffect } from "../../loading-frame";
 import { MouseOverPopover } from "../../mouse-over-popover";
 import { Field, radioField, textField } from "../../table-fields";
 import { checkboxField } from "../../table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../translation";
-import { splitPath } from "../routes";
 
 interface FormProps {
   node: ProjectDefinitionTreeNode;
@@ -198,30 +195,24 @@ function FormSection({ node }: FormProps): JSX.Element {
   return <FormInlineSection node={node} />;
 }
 
-interface FormDefinitionEditorParams extends Record<string, string> {
+interface FormDefinitionEditorProps {
   projectDefinitionId: string;
-  selectedPath: string;
+  formDefId: string;
 }
 
-export function FormDefinitionEditor() {
-  const { onLoading } = useLoader();
-  const {
-    projectDefinitionId,
-    selectedPath,
-  } = useParams<FormDefinitionEditorParams>();
+export function FormDefinitionEditor({
+  projectDefinitionId,
+  formDefId,
+}: FormDefinitionEditorProps) {
   const { labelTrans, helpTextTrans } = useDbTranslation(projectDefinitionId);
-  const [, , formId] = splitPath(selectedPath);
   const { loading, data, error } = useFindProjectDefinitionFormContentQuery({
-    skip: formId === undefined,
     variables: {
       id: projectDefinitionId,
-      formId,
+      formId: formDefId,
     },
   });
 
-  useEffect(() => {
-    onLoading(loading, error);
-  }, [error, loading, onLoading]);
+  useLoaderEffect(error, loading);
 
   const formNode = data?.findProjectDefinitionNode;
   const formContent = data?.findProjectDefinitionFormContent.roots;

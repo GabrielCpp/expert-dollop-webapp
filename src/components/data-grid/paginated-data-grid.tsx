@@ -1,5 +1,6 @@
-import React, { useRef, useState } from "react";
-import clsx from "clsx";
+import { debounce, TextField } from "@material-ui/core";
+import Checkbox from "@material-ui/core/Checkbox";
+import Paper from "@material-ui/core/Paper";
 import {
   createStyles,
   lighten,
@@ -15,16 +16,10 @@ import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
-import Checkbox from "@material-ui/core/Checkbox";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
-import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
-import { useLoaderEffect } from "../loading-frame";
-import { debounce, TextField } from "@material-ui/core";
-import { noop, result } from "lodash";
-import { useTranslation } from "react-i18next";
+import clsx from "clsx";
+import { noop } from "lodash";
+import React, { useRef, useState } from "react";
 
 export interface HeadCell<Data> {
   disablePadding: boolean;

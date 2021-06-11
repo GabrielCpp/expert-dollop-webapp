@@ -37,8 +37,3 @@ export function createApolloClient(
 
   return apollo;
 }
-function setContext(
-  arg0: (_: any, { headers }: { headers: any }) => Promise<{ headers: any }>
-) {
-  throw new Error("Function not implemented.");
-}

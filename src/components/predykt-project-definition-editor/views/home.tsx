@@ -1,18 +1,17 @@
-import React, { useRef } from "react";
+import { Typography } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 import {
   FindProjectDefintionsDocument,
   FindProjectDefintionsQuery,
   ProjectDefinition,
 } from "../../../generated";
-import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 import { useServices } from "../../../services-def";
-import { PaginatedDataGrid, HeadCell, SearchResultSet } from "../../data-grid";
-import { useTranslation } from "react-i18next";
-import { IconButton, Typography } from "@material-ui/core";
-import { Link } from "react-router-dom";
-import DeleteIcon from "@material-ui/icons/Delete";
+import { RouteViewCompoenentProps } from "../../../shared/named-routes";
+import { HeadCell, PaginatedDataGrid, SearchResultSet } from "../../data-grid";
+import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
+
 type Result = Pick<ProjectDefinition, "id" | "name" | "defaultDatasheetId">;
 
 interface ProjectDefinitionHomeProps extends RouteViewCompoenentProps {}

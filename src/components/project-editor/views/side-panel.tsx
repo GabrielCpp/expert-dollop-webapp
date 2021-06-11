@@ -4,9 +4,11 @@ import {
   Collapse,
   createStyles,
   Divider,
+  IconButton,
   Link,
   List,
   ListItem,
+  ListItemSecondaryAction,
   ListItemText,
   makeStyles,
   Theme,
@@ -81,13 +83,12 @@ export function SidePanel({
 
   return (
     <Card>
-      <CardContent>
+      <CardContent style={{ padding: "0" }}>
         <List component="nav" className={classes.root}>
           {subSections &&
             subSections.map((subSection, index) => (
-              <>
+              <Fragment key={subSection.definition.name}>
                 <SubSectionPicker
-                  key={subSection.definition.name}
                   projectId={projectId}
                   rootSectionId={rootSectionId}
                   formId={formId}
@@ -97,7 +98,7 @@ export function SidePanel({
                   nodes={subSection.nodes}
                 />
                 {index < subSections.length - 1 && <Divider />}
-              </>
+              </Fragment>
             ))}
         </List>
       </CardContent>
@@ -153,13 +154,19 @@ function SubSectionPicker({
           )}
         </MouseOverPopover>
 
-        {expanded === definition.id ? (
-          <ExpandLess onClick={handleChange(definition.id)} />
-        ) : (
-          <ExpandMore onClick={handleChange(definition.id)} />
-        )}
+        <ListItemSecondaryAction>
+          {expanded === definition.id ? (
+            <IconButton size="small" onClick={handleChange(definition.id)}>
+              <ExpandLess />
+            </IconButton>
+          ) : (
+            <IconButton size="small" onClick={handleChange(definition.id)}>
+              <ExpandMore />
+            </IconButton>
+          )}
+        </ListItemSecondaryAction>
       </ListItem>
-      <Collapse in={expanded === definition.id} timeout="auto" unmountOnExit>
+      <Collapse in={expanded === definition.id} timeout="auto">
         <List component="div" disablePadding>
           {currentNode.children.map((secondLayerNode) => (
             <FormPicker

@@ -1,65 +1,59 @@
-import { Button } from "@material-ui/core";
-import React, { useEffect } from "react";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { Tab, Tabs } from "@material-ui/core";
+import React from "react";
+import { useHistory } from "react-router-dom";
 
 import { useFindProjectDefinitionRootSectionsQuery } from "../../../generated/graphql";
+import { useLoaderEffect } from "../../loading-frame";
 import { useDbTranslation } from "../../translation";
-import { splitPath } from "../routes";
 import { buildLinkFor } from "../routes";
-import { useLoader } from "../../loading-frame";
 
-interface RootSectionParams {
+interface RootSectionBarProps {
   projectDefinitionId: string;
-  selectedPath: string;
+  rootSectionDefId: string | undefined;
 }
 
-export function RootSectionBar() {
-  const { onLoading } = useLoader();
-  const { projectDefinitionId, selectedPath } = useParams<RootSectionParams>();
+export function RootSectionBar({
+  projectDefinitionId,
+  rootSectionDefId,
+}: RootSectionBarProps) {
   const history = useHistory();
   const { labelTrans } = useDbTranslation(projectDefinitionId);
-  const [rootSectionId] = splitPath(selectedPath);
   const { loading, data, error } = useFindProjectDefinitionRootSectionsQuery({
     variables: {
       id: projectDefinitionId,
     },
   });
 
-  useEffect(() => {
-    if (
-      rootSectionId === undefined &&
-      data !== undefined &&
-      loading === false &&
-      data.findProjectDefinitionRootSections.roots.length > 0
-    ) {
-      history.push(
-        buildLinkFor(
-          projectDefinitionId,
-          data.findProjectDefinitionRootSections.roots[0].definition.id
-        )
-      );
-    }
-  }, [data, loading, history, rootSectionId, projectDefinitionId]);
+  useLoaderEffect(error, loading);
 
-  useEffect(() => {
-    onLoading(loading, error);
-  }, [error, loading, onLoading]);
+  const onChange = (_: React.ChangeEvent<{}>, newRootSectionDefId: string) => {
+    history.push(buildLinkFor(projectDefinitionId, newRootSectionDefId));
+  };
 
-  const roots = data?.findProjectDefinitionRootSections.roots;
+  if (data === undefined) {
+    return null;
+  }
+
+  const roots = data.findProjectDefinitionRootSections.roots;
 
   return (
-    <>
-      {roots &&
-        roots.map((c) => (
-          <Button
-            key={c.definition.name}
-            component={Link}
-            to={buildLinkFor(projectDefinitionId, c.definition.id)}
-            color="primary"
-          >
-            {labelTrans(c.definition.name)}
-          </Button>
-        ))}
-    </>
+    <div>
+      {rootSectionDefId && roots && (
+        <Tabs
+          value={rootSectionDefId}
+          onChange={onChange}
+          variant="scrollable"
+          scrollButtons="auto"
+        >
+          {roots.map((def) => (
+            <Tab
+              value={def.definition.id}
+              key={def.definition.id}
+              label={labelTrans(def.definition.name)}
+            />
+          ))}
+        </Tabs>
+      )}
+    </div>
   );
 }

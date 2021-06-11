@@ -1,0 +1,74 @@
+.pg-loaded .inner {
+  display: block;
+}
+
+.pg-loaded {
+  opacity: 1;
+  -webkit-animation: pgAnimLoading 0.3s cubic-bezier(0.7, 0, 0.3, 1) both;
+  -moz-animation: pgAnimLoading 0.3s cubic-bezier(0.7, 0, 0.3, 1) both;
+  -ms-animation: pgAnimLoading 0.3s cubic-bezier(0.7, 0, 0.3, 1) both;
+  -o-animation: pgAnimLoading 0.3s cubic-bezier(0.7, 0, 0.3, 1) both;
+  animation: pgAnimLoading 0.3s cubic-bezier(0.7, 0, 0.3, 1) both;
+}
+
+.container section.header {
+  padding-top: 50px;
+  text-align: center;
+  position: relative;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 25px;
+  margin-bottom: 25px;
+}
+
+.container section.header h2 {
+  font-weight: 300;
+  font-size: 32px;
+}
+
+.container section.header h4 {
+  font-weight: 300;
+  margin-top: 15px;
+}
+
+.container section.header button {
+  margin-top: 25px;
+  text-transform: uppercase;
+  font-weight: 300;
+  font-size: 14px;
+}
+
+.container section.header .info {
+  margin-top: 90px;
+}
+
+.container section.instructions > section {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 25px;
+  margin-bottom: 25px;
+}
+
+.pg-loading-screen .pg-loading-html {
+  margin-top: 30px;
+}
+
+.pg-loading-screen .pg-loading-html p {
+  color: #fff;
+  font-weight: 300;
+}
+
+.pg-loading-screen .pg-loading-html form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.pg-loading-screen .pg-loading-html p.loading-message {
+  font-size: 20px;
+  margin-bottom: 100px;
+}
+
+.close-please-wait {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  z-index: 10000000;
+}
