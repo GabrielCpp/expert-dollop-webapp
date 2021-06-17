@@ -194,6 +194,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
       isCollection
       instanciateByDefault
       orderIndex
+      path
       config {
         valueValidator
         fieldDetails {
@@ -377,6 +378,14 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
             isCollapsible
           }
         }
+      }
+      translations {
+        id
+        ressourceId
+        locale
+        scope
+        name
+        value
       }
     }
   }

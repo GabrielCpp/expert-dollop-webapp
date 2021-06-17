@@ -19,7 +19,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import React, { Fragment, useEffect } from "react";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 import {
   FindProjectDefinitionRootSectionContainersQuery,
@@ -29,7 +29,13 @@ import { useServices } from "../../../services-def";
 import { useLoaderEffect } from "../../loading-frame";
 import { MouseOverPopover } from "../../mouse-over-popover";
 import { useDbTranslation } from "../../translation";
-import { ADD_PROJECT_SECTION_ROUTE_NAME, buildLinkFor } from "../routes";
+import {
+  buildAddNodeParams,
+  buildEditNodeParams,
+  buildLinkFor,
+  PROJECT_DEFINITION_EDITOR_NODE_ADD,
+  PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+} from "../routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -57,18 +63,12 @@ interface SidePanelProps {
   formDefId: string | undefined;
 }
 
-interface SidePanelParams extends Record<string, string> {
-  projectDefinitionId: string;
-  selectedPath: string;
-}
-
 export function SidePanel({
   projectDefinitionId,
   rootSectionDefId,
   subSectionDefId,
   formDefId,
 }: SidePanelProps) {
-  const params = useParams<SidePanelParams>();
   const { routes } = useServices();
   const { t, labelTrans, helpTextTrans } = useDbTranslation(
     projectDefinitionId
@@ -108,7 +108,7 @@ export function SidePanel({
       <CardContent style={{ padding: "0" }}>
         <List component="nav" className={classes.root}>
           {subSections &&
-            subSections.map((subSection, index) => (
+            subSections.map((subSection) => (
               <Fragment key={subSection.definition.name}>
                 <ListItem>
                   <MouseOverPopover
@@ -118,7 +118,21 @@ export function SidePanel({
                     {(props) => (
                       <ListItemText
                         {...props}
-                        primary={labelTrans(subSection.definition.name)}
+                        primary={
+                          <Link
+                            component={RouterLink}
+                            to={routes.render(
+                              PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+                              buildEditNodeParams(
+                                projectDefinitionId,
+                                subSection.definition.path,
+                                subSection.definition.id
+                              )
+                            )}
+                          >
+                            {labelTrans(subSection.definition.name)}
+                          </Link>
+                        }
                       />
                     )}
                   </MouseOverPopover>
@@ -145,7 +159,7 @@ export function SidePanel({
                   in={expanded === subSection.definition.id}
                   timeout="auto"
                 >
-                  <InnerPanel
+                  <FormLinkList
                     projectDefinitionId={projectDefinitionId}
                     rootSectionId={rootSectionDefId}
                     formId={formDefId}
@@ -160,15 +174,21 @@ export function SidePanel({
               {t("project_definition_editor.add_new_sub_section")}
             </ListItemText>
             <ListItemSecondaryAction>
-              <IconButton
-                size="small"
-                component={RouterLink}
-                to={routes.render(ADD_PROJECT_SECTION_ROUTE_NAME, params, {
-                  parentNodeId: rootSectionDefId,
-                })}
+              <Tooltip
+                title={t("button.add") as string}
+                aria-label={t("button.add")}
               >
-                <AddIcon />
-              </IconButton>
+                <IconButton
+                  size="small"
+                  component={RouterLink}
+                  to={routes.render(
+                    PROJECT_DEFINITION_EDITOR_NODE_ADD,
+                    buildAddNodeParams(projectDefinitionId, [rootSectionDefId])
+                  )}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Tooltip>
             </ListItemSecondaryAction>
           </ListItem>
         </List>
@@ -177,21 +197,20 @@ export function SidePanel({
   );
 }
 
-interface InnerPanelProps {
+interface FormLinkListProps {
   projectDefinitionId: string;
   rootSectionId: string;
   formId: string | undefined;
   subSection: FindProjectDefinitionRootSectionContainersQuery["findProjectDefinitionRootSectionContainers"]["roots"][number];
 }
 
-function InnerPanel({
+function FormLinkList({
   projectDefinitionId,
   rootSectionId,
   formId,
   subSection,
-}: InnerPanelProps) {
+}: FormLinkListProps) {
   const classes = useStyles();
-  const params = useParams<SidePanelParams>();
   const { routes } = useServices();
   const { t, labelTrans, helpTextTrans } = useDbTranslation(
     projectDefinitionId
@@ -199,12 +218,12 @@ function InnerPanel({
 
   return (
     <List component="div" disablePadding>
-      {subSection.children.map((secondLayerNode) => (
-        <Fragment key={secondLayerNode.definition.name}>
+      {subSection.children.map((formNode) => (
+        <Fragment key={formNode.definition.name}>
           <ListItem className={classes.nested}>
             <MouseOverPopover
               name={`${subSection.definition.name}-popover`}
-              text={helpTextTrans(secondLayerNode.definition.name)}
+              text={helpTextTrans(formNode.definition.name)}
             >
               {(props) => (
                 <>
@@ -212,13 +231,13 @@ function InnerPanel({
                     {...props}
                     primaryTypographyProps={{
                       className:
-                        secondLayerNode.definition.id !== formId
+                        formNode.definition.id !== formId
                           ? classes.selectedListItem
                           : undefined,
                     }}
                     primary={
-                      secondLayerNode.definition.id === formId ? (
-                        labelTrans(secondLayerNode.definition.name)
+                      formNode.definition.id === formId ? (
+                        labelTrans(formNode.definition.name)
                       ) : (
                         <Link
                           component={RouterLink}
@@ -226,10 +245,10 @@ function InnerPanel({
                             projectDefinitionId,
                             rootSectionId as string,
                             subSection.definition.id,
-                            secondLayerNode.definition.id
+                            formNode.definition.id
                           )}
                         >
-                          {labelTrans(secondLayerNode.definition.name)}
+                          {labelTrans(formNode.definition.name)}
                         </Link>
                       )
                     }
@@ -238,8 +257,23 @@ function InnerPanel({
               )}
             </MouseOverPopover>
             <ListItemSecondaryAction>
-              <Tooltip title="Edit" aria-label="Edit">
-                <IconButton aria-label="edit" size="small">
+              <Tooltip
+                title={t("button.edit") as string}
+                aria-label={t("button.edit")}
+              >
+                <IconButton
+                  aria-label="edit"
+                  size="small"
+                  component={RouterLink}
+                  to={routes.render(
+                    PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+                    buildEditNodeParams(
+                      projectDefinitionId,
+                      formNode.definition.path,
+                      formNode.definition.id
+                    )
+                  )}
+                >
                   <EditIcon fontSize="inherit" />
                 </IconButton>
               </Tooltip>
@@ -252,15 +286,24 @@ function InnerPanel({
           {t("project_definition_editor.add_new_form")}
         </ListItemText>
         <ListItemSecondaryAction>
-          <IconButton
-            size="small"
-            component={RouterLink}
-            to={routes.render(ADD_PROJECT_SECTION_ROUTE_NAME, params, {
-              parentNodeId: subSection.definition.id,
-            })}
+          <Tooltip
+            title={t("button.add") as string}
+            aria-label={t("button.add")}
           >
-            <AddIcon />
-          </IconButton>
+            <IconButton
+              size="small"
+              component={RouterLink}
+              to={routes.render(
+                PROJECT_DEFINITION_EDITOR_NODE_ADD,
+                buildAddNodeParams(projectDefinitionId, [
+                  ...subSection.definition.path,
+                  subSection.definition.id,
+                ])
+              )}
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
         </ListItemSecondaryAction>
       </ListItem>
     </List>

@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   FindProjectDefinitionRootSectionContainersDocument,
@@ -78,18 +78,26 @@ export function useProjectDefPath(projectDefId: string, selectedPath: string) {
     selectedPath
   );
   const [path, setPath] = useState<(string | undefined)[]>([]);
+  const loading = useRef(true);
 
   useEffect(() => {
+    loading.current = true;
     buildPathCache(
       apollo,
       projectDefId,
       rootSectionDefId,
       subSectionDefId,
       formDefId
-    ).then((path) => {
-      setPath(path);
-    });
+    )
+      .then((path) => {
+        loading.current = false;
+        setPath(path);
+      })
+      .catch((e) => {
+        loading.current = false;
+        setPath([]);
+      });
   }, [projectDefId, rootSectionDefId, subSectionDefId, formDefId, apollo]);
 
-  return { loading: path === undefined, path };
+  return { loading: loading.current, path };
 }

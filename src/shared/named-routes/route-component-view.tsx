@@ -9,7 +9,7 @@ export function renderNamedRoute(
 ) {
   const Component = routes.getRouteByName(routeName).component;
   return (
-    <Route path={routes.getUrl(routeName)}>
+    <Route path={routes.getUrl(routeName)} key={routeName}>
       {Component && (
         <Component returnUrl={routes.render(backRouteName, params)} />
       )}

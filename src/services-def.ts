@@ -5,6 +5,7 @@ import { ReduxDatabase } from "./shared/redux-db/database";
 import { JSONSchemaType, Schema, ValidateFunction } from "ajv";
 import { useServices as useServicesGlobal } from "./shared/service-context";
 import { Auth0ContextInterface, useAuth0, User } from "@auth0/auth0-react";
+import { FeedMediator } from "./shared/feed";
 
 export interface AjvFactory {
   forSchema<T>(schema: Schema | JSONSchemaType<T>): ValidateFunction<T>;
@@ -30,6 +31,7 @@ export interface Services {
   ajv: AjvFactory;
   loader: LoaderNotifier;
   auth0: Auth0Context;
+  feeds: FeedMediator;
 }
 
 let useAuth0Wrapper: () => Auth0ContextInterface<User> | undefined = useAuth0;

@@ -9,6 +9,7 @@ import {
 } from "./form-field-record";
 
 interface UseFormHook {
+  formId: string;
   formPath: string[];
 }
 
@@ -45,6 +46,7 @@ export function useForm(name?: string, parentPath: string[] = []): UseFormHook {
   }, [reduxDb, formPath, name]);
 
   return {
+    formId,
     formPath: formPath.current,
   };
 }

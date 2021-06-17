@@ -1,13 +1,18 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Card,
   CardContent,
+  CardHeader,
+  Collapse,
   Grid,
+  IconButton,
+  makeStyles,
   Typography,
 } from "@material-ui/core";
 import { ExpandMore as ExpandMoreIcon } from "@material-ui/icons";
+import AddIcon from "@material-ui/icons/Add";
+import clsx from "clsx";
+import React, { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 import {
   CollapsibleContainerFieldConfig,
@@ -16,11 +21,17 @@ import {
   StaticChoiceFieldConfig,
   useFindProjectDefinitionFormContentQuery,
 } from "../../../generated";
+import { useServices } from "../../../services-def";
 import { useLoaderEffect } from "../../loading-frame";
 import { MouseOverPopover } from "../../mouse-over-popover";
 import { Field, radioField, textField } from "../../table-fields";
 import { checkboxField } from "../../table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../translation";
+import { EditButton } from "../components/edit-button";
+import {
+  buildAddNodeParams,
+  PROJECT_DEFINITION_EDITOR_NODE_ADD,
+} from "../routes";
 
 interface FormProps {
   node: ProjectDefinitionTreeNode;
@@ -113,86 +124,87 @@ function FormField({ node }: FormProps): JSX.Element {
   return <div key={node.definition.name}>{node.definition.name}</div>;
 }
 
-function FormAccordionSection({ node }: FormProps): JSX.Element {
-  const { labelTrans, helpTextTrans } = useDbTranslation(
-    node.definition.projectDefId
-  );
-
-  return (
-    <Accordion key={node.definition.name}>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="panel-header"
-        id={`${node.definition.name}-panel-header`}
-      >
-        <MouseOverPopover
-          name={node.definition.name}
-          text={helpTextTrans(node.definition.name)}
-        >
-          {(props) => (
-            <Typography {...props}>
-              {labelTrans(node.definition.name)}
-            </Typography>
-          )}
-        </MouseOverPopover>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Grid container direction="column">
-          {node.children.map((child) => (
-            <Grid item key={child.definition.name}>
-              <FormField node={child} />
-            </Grid>
-          ))}
-        </Grid>
-      </AccordionDetails>
-    </Accordion>
-  );
-}
-
-function FormInlineSection({ node }: FormProps): JSX.Element {
-  const { labelTrans, helpTextTrans } = useDbTranslation(
-    node.definition.projectDefId
-  );
-
-  return (
-    <Card variant="outlined">
-      <CardContent>
-        <MouseOverPopover
-          name={node.definition.name}
-          text={helpTextTrans(node.definition.name)}
-        >
-          {(props) => (
-            <Typography {...props} variant="h5" component="h5" gutterBottom>
-              {labelTrans(node.definition.name)}
-            </Typography>
-          )}
-        </MouseOverPopover>
-
-        <Grid container direction="column">
-          {node.children.map((child) => (
-            <Grid item key={child.definition.name}>
-              <FormField node={child} />
-            </Grid>
-          ))}
-        </Grid>
-      </CardContent>
-    </Card>
-  );
-}
+const useStyles = makeStyles((theme) => ({
+  expand: {
+    transform: "rotate(0deg)",
+    marginLeft: "auto",
+    transition: theme.transitions.create("transform", {
+      duration: theme.transitions.duration.shortest,
+    }),
+  },
+  expandOpen: {
+    transform: "rotate(180deg)",
+  },
+  cardContent: {
+    paddingTop: 0,
+  },
+  leftSideButton: {
+    marginLeft: "auto",
+  },
+}));
 
 function FormSection({ node }: FormProps): JSX.Element {
   const valueType = node.definition.config
     .fieldDetails as CollapsibleContainerFieldConfig;
+  const classes = useStyles();
+  const [expanded, setExpanded] = useState(!valueType.isCollapsible);
+  const { labelTrans, helpTextTrans } = useDbTranslation(
+    node.definition.projectDefId
+  );
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
 
-  if (
-    valueType !== null &&
-    valueType !== undefined &&
-    valueType.isCollapsible
-  ) {
-    return <FormAccordionSection node={node} />;
-  }
+  const action = valueType.isCollapsible ? (
+    <IconButton
+      className={clsx(classes.expand, {
+        [classes.expandOpen]: expanded,
+      })}
+      onClick={handleExpandClick}
+      aria-expanded={expanded}
+      aria-label="show more"
+    >
+      <ExpandMoreIcon />
+    </IconButton>
+  ) : undefined;
 
-  return <FormInlineSection node={node} />;
+  return (
+    <Card variant="outlined">
+      <CardHeader
+        avatar={
+          <EditButton
+            projectDefId={node.definition.projectDefId}
+            path={node.definition.path}
+            id={node.definition.id}
+          />
+        }
+        action={action}
+        title={
+          <MouseOverPopover
+            name={node.definition.name}
+            text={helpTextTrans(node.definition.name)}
+          >
+            {(props) => (
+              <Typography {...props} variant="h5" component="h5" gutterBottom>
+                {labelTrans(node.definition.name)}
+              </Typography>
+            )}
+          </MouseOverPopover>
+        }
+      />
+      <Collapse in={expanded} timeout="auto">
+        <CardContent className={classes.cardContent}>
+          <Grid container direction="column">
+            {node.children.map((child) => (
+              <Grid item key={child.definition.name}>
+                <FormField node={child} />
+              </Grid>
+            ))}
+          </Grid>
+        </CardContent>
+      </Collapse>
+    </Card>
+  );
 }
 
 interface FormDefinitionEditorProps {
@@ -204,7 +216,10 @@ export function FormDefinitionEditor({
   projectDefinitionId,
   formDefId,
 }: FormDefinitionEditorProps) {
-  const { labelTrans, helpTextTrans } = useDbTranslation(projectDefinitionId);
+  const { t, labelTrans, helpTextTrans } = useDbTranslation(
+    projectDefinitionId
+  );
+  const { routes } = useServices();
   const { loading, data, error } = useFindProjectDefinitionFormContentQuery({
     variables: {
       id: projectDefinitionId,
@@ -239,6 +254,31 @@ export function FormDefinitionEditor({
                 <FormSection node={node as ProjectDefinitionTreeNode} />
               </Grid>
             ))}
+          {formNode && (
+            <Card variant="outlined">
+              <CardHeader
+                action={
+                  <IconButton
+                    component={RouterLink}
+                    to={routes.render(
+                      PROJECT_DEFINITION_EDITOR_NODE_ADD,
+                      buildAddNodeParams(projectDefinitionId, [
+                        ...formNode.path,
+                        formNode.id,
+                      ])
+                    )}
+                  >
+                    <AddIcon />
+                  </IconButton>
+                }
+                title={
+                  <Typography variant="h5" component="h5" gutterBottom>
+                    {t("project_definition_editor.add_new_section")}
+                  </Typography>
+                }
+              />
+            </Card>
+          )}
         </Grid>
       </form>
     </>

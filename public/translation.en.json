@@ -1,6 +1,44 @@
 {
+  "button": {
+    "edit": "Edit",
+    "add": "Add",
+    "more": "More",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "save"
+  },
+  "field_validation": {
+    "name": {
+      "pattern": "Must only contain lower case letter a to z, numbers or underscore",
+      "length": "Should contain at least one character but no more than 64"
+    }
+  },
+  "language": {
+    "french": "French",
+    "english": "English"
+  },
   "project_definition_editor": {
     "add_new_sub_section": "Add new sub section",
-    "add_new_form": "Add new form"
+    "add_new_form": "Add new form",
+    "add_new_section": "Add new section",
+    "add_node_form": {
+      "add_root_section": "Add root section",
+      "edit_root_section": "Edit root section",
+      "add_sub_section": "Add sub section",
+      "edit_sub_section": "Edit sub section",
+      "add_form": "Add form",
+      "edit_form": "Edit form",
+      "add_section": "Add section",
+      "edit_section": "Edit section",
+      "add_field": "Add field",
+      "edit_field": "Edit field",
+      "is_collection": "Is a collection",
+      "name": "Name",
+      "instanciate_by_default": "Instanciate by default",
+      "order": "Order",
+      "label": "Label",
+      "help_text": "Help text",
+      "is_collapsible": "Is collapsible"
+    }
   }
 }

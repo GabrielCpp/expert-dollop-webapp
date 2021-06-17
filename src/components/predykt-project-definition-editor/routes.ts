@@ -1,11 +1,14 @@
 import { NamedRoute } from "../../shared/named-routes";
-import { AddContainerView } from "./views/add-node-view";
+import { AddContainerView, EditContainerView } from "./views/add-node-view";
 import { EditorLayout } from "./views/project-def-editor";
 import { ProjectDefinitionHome } from "./views/home";
 
-export const PROJECT_DEFINITION_EDITOR_HOME = "project_definition_editor_home";
-export const PROJECT_DEFINITION_EDITOR_MAIN = "project_definition_editor_main";
-export const ADD_PROJECT_SECTION_ROUTE_NAME = "add_project_section";
+export const PROJECT_DEFINITION_EDITOR_HOME = "PROJECT_DEFINITION_EDITOR_HOME";
+export const PROJECT_DEFINITION_EDITOR_MAIN = "PROJECT_DEFINITION_EDITOR_MAIN";
+export const PROJECT_DEFINITION_EDITOR_NODE_ADD =
+  "PROJECT_DEFINITION_EDITOR_NODE_ADD";
+export const PROJECT_DEFINITION_EDITOR_NODE_EDIT =
+  "PROJECT_DEFINITION_EDITOR_NODE_EDIT";
 
 export const routes: NamedRoute[] = [
   {
@@ -22,10 +25,16 @@ export const routes: NamedRoute[] = [
     tags: ["main-content"],
   },
   {
-    name: ADD_PROJECT_SECTION_ROUTE_NAME,
-    path:
-      "/project_definition_editor/:projectDefinitionId/:selectedPath/add_section",
+    name: PROJECT_DEFINITION_EDITOR_NODE_ADD,
+    path: "/project_definition_editor/:projectDefinitionId/:selectedPath/add",
     component: AddContainerView,
+    tags: ["project-definition-view"],
+  },
+  {
+    name: PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+    path:
+      "/project_definition_editor/:projectDefinitionId/:selectedPath/edit/:nodeId",
+    component: EditContainerView,
     tags: ["project-definition-view"],
   },
 ];
@@ -35,6 +44,29 @@ export function buildLinkFor(projectDefinitionId: string, ...path: string[]) {
   return `/project_definition_editor/${projectDefinitionId}/${selectedPath}`;
 }
 
+export function buildAddNodeParams(
+  projectDefinitionId: string,
+  path: string[]
+) {
+  const selectedPath = encodeURI(`~${path.join("~")}`);
+  return {
+    projectDefinitionId,
+    selectedPath,
+  };
+}
+
+export function buildEditNodeParams(
+  projectDefinitionId: string,
+  path: string[],
+  nodeId: string
+) {
+  const selectedPath = encodeURI(`~${path.join("~")}`);
+  return {
+    projectDefinitionId,
+    selectedPath,
+    nodeId,
+  };
+}
 export function splitPath(path: string): string[] {
   return (path || "")
     .trim()

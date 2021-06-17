@@ -7,10 +7,7 @@ import { renderNamedRoute } from "../../../shared/named-routes";
 import { useLoaderEffect } from "../../loading-frame";
 import { useTranlationScope } from "../../translation";
 import { useProjectDefPath } from "../hooks/project-def-path";
-import {
-  ADD_PROJECT_SECTION_ROUTE_NAME,
-  PROJECT_DEFINITION_EDITOR_MAIN,
-} from "../routes";
+import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 import { FormDefinitionEditor } from "./form-definition-editor";
 import { RootSectionBar } from "./root-section-bar";
 import { SidePanel } from "./side-panel";
@@ -38,12 +35,16 @@ export function EditorLayout() {
 
   return (
     <Switch>
-      {renderNamedRoute(
-        routes,
-        ADD_PROJECT_SECTION_ROUTE_NAME,
-        PROJECT_DEFINITION_EDITOR_MAIN,
-        params
-      )}
+      {routes
+        .allHavingTag("project-definition-view")
+        .map((route) =>
+          renderNamedRoute(
+            routes,
+            route.name,
+            PROJECT_DEFINITION_EDITOR_MAIN,
+            params
+          )
+        )}
       <Route path={routes.getUrl(PROJECT_DEFINITION_EDITOR_MAIN)} exact={true}>
         <Grid container spacing={1} wrap={"wrap"}>
           <Grid item xs={12}>
@@ -54,7 +55,7 @@ export function EditorLayout() {
           </Grid>
           {rootSectionDefId && (
             <>
-              <Grid item style={{ minWidth: "4em" }}>
+              <Grid item style={{ minWidth: "30%" }}>
                 <SidePanel
                   projectDefinitionId={projectDefinitionId}
                   rootSectionDefId={rootSectionDefId}

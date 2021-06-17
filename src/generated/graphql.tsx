@@ -341,6 +341,7 @@ export type ProjectDefinitionNode = {
   defaultValue?: Maybe<FieldWrapper<FieldValue>>;
   path: Array<FieldWrapper<Scalars['String']>>;
   children: Array<FieldWrapper<ProjectDefinitionNode>>;
+  translations: Array<FieldWrapper<Translation>>;
 };
 
 export type ProjectDefinitionNodeInput = {
@@ -907,7 +908,7 @@ export type FindProjectDefinitionFormContentQuery = (
   { __typename?: 'Query' }
   & { findProjectDefinitionNode: (
     { __typename?: 'ProjectDefinitionNode' }
-    & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+    & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
     & { config: (
       { __typename?: 'NodeConfig' }
       & Pick<NodeConfig, 'valueValidator'>
@@ -1064,7 +1065,10 @@ export type FindProjectDefinitionNodeQuery = (
         { __typename: 'CollapsibleContainerFieldConfig' }
         & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
       )> }
-    ) }
+    ), translations: Array<(
+      { __typename?: 'Translation' }
+      & Pick<Translation, 'id' | 'ressourceId' | 'locale' | 'scope' | 'name' | 'value'>
+    )> }
   ) }
 );
 
@@ -1909,6 +1913,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
     isCollection
     instanciateByDefault
     orderIndex
+    path
     config {
       valueValidator
       fieldDetails {
@@ -2120,6 +2125,14 @@ export const FindProjectDefinitionNodeDocument = gql`
           isCollapsible
         }
       }
+    }
+    translations {
+      id
+      ressourceId
+      locale
+      scope
+      name
+      value
     }
   }
 }

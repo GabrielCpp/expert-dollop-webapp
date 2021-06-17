@@ -1,6 +1,28 @@
 {
+  "button": {
+    "edit": "Éditer",
+    "add": "Ajouter",
+    "more": "Plus de choix",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Sauvegarder"
+  },
+  "language": {
+    "french": "Français",
+    "english": "Anglais"
+  },
   "project_definition_editor": {
     "add_new_sub_section": "Ajouter une sous section",
-    "add_new_form": "Ajouter un nouveau formulaire"
+    "add_new_form": "Ajouter un nouveau formulaire",
+    "add_root_section": "Ajouter une section principal",
+    "add_node_form": {
+      "is_collection": "Est une collection",
+      "name": "Nom",
+      "instanciate_by_default": "Créer la section par défaut",
+      "order": "Ordre",
+      "label": "Étiquette",
+      "help_text": "Texte d'aide",
+      "is_collapsible": "Rendre pliable"
+    }
   }
 }
