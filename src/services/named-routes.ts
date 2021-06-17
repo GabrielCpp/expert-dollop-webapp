@@ -1,8 +1,8 @@
 import { NamedRoutes } from "../shared/named-routes";
 import { routes as apiRoutes } from "../api-routes";
-import { routes as projectDefinitionEditorRoutes } from "../components/predykt-project-definition-editor";
-import { routes as projectEditorRoutes } from "../components/project-editor";
-import { routes as datasheetDefinitionRoutes } from "../components/datasheet-template-editor";
+import { routes as projectDefinitionEditorRoutes } from "../pages/project-definition-editor";
+import { routes as projectEditorRoutes } from "../pages/project-editor";
+import { routes as datasheetDefinitionRoutes } from "../pages/datasheet-template-editor";
 
 export function createNamedRouteService() {
   return new NamedRoutes([

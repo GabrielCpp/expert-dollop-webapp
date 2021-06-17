@@ -9,7 +9,11 @@ import {
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { HeadCell, PaginatedDataGrid, SearchResultSet } from "../../data-grid";
+import {
+  HeadCell,
+  PaginatedDataGrid,
+  SearchResultSet,
+} from "../../../components/data-grid";
 import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 
 type Result = Pick<ProjectDefinition, "id" | "name" | "defaultDatasheetId">;

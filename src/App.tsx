@@ -3,13 +3,13 @@ import React, { Suspense } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import { theme } from "./theme";
-import { Dashboard } from "./components/dashboard";
+import { Dashboard } from "./pages/dashboard";
 import { services } from "./services";
 import { ServiceContext } from "./shared/service-context";
 import { ThemeProvider } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
-import { Login } from "./components/login";
+import { Login } from "./pages/login";
 import { GlobalLoading } from "./components/global-loading";
 
 const Auth0ProviderWithHistory = ({ children }: { children: any }) => {

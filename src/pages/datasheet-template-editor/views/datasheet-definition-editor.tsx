@@ -29,7 +29,7 @@ import {
   useFindDatasheetDefinitionQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { useLoaderEffect } from "../../loading-frame";
+import { useLoaderEffect } from "../../../components/loading-frame";
 
 export const useStyles = makeStyles({
   table: {

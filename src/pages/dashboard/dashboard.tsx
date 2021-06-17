@@ -28,7 +28,7 @@ import {
   useHistory,
 } from "react-router-dom";
 
-import { LoadingFrame } from "../loading-frame";
+import { LoadingFrame } from "../../components/loading-frame";
 import { CircularProgress } from "@material-ui/core";
 import { useServices } from "../../services-def";
 import { NamedRoutes } from "../../shared/named-routes";

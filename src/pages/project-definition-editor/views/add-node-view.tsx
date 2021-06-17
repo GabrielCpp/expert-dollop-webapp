@@ -22,7 +22,7 @@ import {
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { useLoaderEffect } from "../../loading-frame";
+import { useLoaderEffect } from "../../../components/loading-frame";
 import { splitPath } from "../../project-editor/routes";
 import {
   BOOLEAN_VALIDATOR,
@@ -35,7 +35,7 @@ import {
   textField,
   useForm,
   validateForm,
-} from "../../table-fields";
+} from "../../../components/table-fields";
 
 const NAME_VALIDATOR = {
   type: "string",

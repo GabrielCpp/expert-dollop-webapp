@@ -12,7 +12,7 @@ import {
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { useLoaderEffect } from "../../loading-frame";
+import { useLoaderEffect } from "../../../components/loading-frame";
 import {
   Field,
   hydrateForm,
@@ -21,7 +21,7 @@ import {
   textField,
   useForm,
   validateForm,
-} from "../../table-fields";
+} from "../../../components/table-fields";
 
 interface AddProjectViewForm {
   name: string;

@@ -22,9 +22,9 @@ import {
   FindProjectRootSectionContainersQuery,
   useFindProjectRootSectionContainersQuery,
 } from "../../../generated/graphql";
-import { useLoaderEffect } from "../../loading-frame";
-import { MouseOverPopover } from "../../mouse-over-popover";
-import { useDbTranslation } from "../../translation";
+import { useLoaderEffect } from "../../../components/loading-frame";
+import { MouseOverPopover } from "../../../components/mouse-over-popover";
+import { useDbTranslation } from "../../../components/translation";
 import { buildLinkFor } from "../routes";
 import { NodePicker } from "./node-picker";
 

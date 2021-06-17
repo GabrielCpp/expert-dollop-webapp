@@ -24,11 +24,11 @@ import {
   StringFieldValue,
   useFindProjectFormContentQuery,
 } from "../../../generated";
-import { useLoader } from "../../loading-frame";
-import { MouseOverPopover } from "../../mouse-over-popover";
-import { Field, radioField, textField } from "../../table-fields";
-import { checkboxField } from "../../table-fields/table-checkbox-field";
-import { useDbTranslation } from "../../translation";
+import { useLoader } from "../../../components/loading-frame";
+import { MouseOverPopover } from "../../../components/mouse-over-popover";
+import { Field, radioField, textField } from "../../../components/table-fields";
+import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
+import { useDbTranslation } from "../../../components/translation";
 import { NodePicker } from "./node-picker";
 
 interface FormProps {

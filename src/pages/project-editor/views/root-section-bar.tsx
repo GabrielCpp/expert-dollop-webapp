@@ -4,8 +4,8 @@ import {
   FindProjectRootSectionsQuery,
   useFindProjectRootSectionsQuery,
 } from "../../../generated/graphql";
-import { useDbTranslation } from "../../translation";
-import { useLoader } from "../../loading-frame";
+import { useDbTranslation } from "../../../components/translation";
+import { useLoader } from "../../../components/loading-frame";
 import { head } from "lodash";
 import { useHistory } from "react-router-dom";
 import { buildLinkFor } from "../routes";

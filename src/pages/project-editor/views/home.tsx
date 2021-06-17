@@ -1,13 +1,10 @@
 import { useRef } from "react";
-import {
-  FindDatasheetDefinitionsDocument,
-  FindDatasheetDefinitionsQuery,
-} from "../../../generated";
+import { FindProjectsQuery, FindProjectsDocument } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { SearchGrid, SearchResultSet } from "../../search-grid";
-import { DATASHEET_TEMPLATE_EDITOR_MAIN } from "../routes";
+import { SearchGrid, SearchResultSet } from "../../../components/search-grid";
+import { PROJECT_EDITOR } from "../routes";
 
-export function DatasheetDefinitionHome() {
+export function ProjectSearchHome() {
   const { apollo, routes } = useServices();
   const types = useRef<[string, string][]>([
     ["project-definition", "project_definition"],
@@ -20,8 +17,8 @@ export function DatasheetDefinitionHome() {
     nextPageToken: string | null
   ): Promise<SearchResultSet> {
     return apollo
-      .query<FindDatasheetDefinitionsQuery>({
-        query: FindDatasheetDefinitionsDocument,
+      .query<FindProjectsQuery>({
+        query: FindProjectsDocument,
         variables: {
           query,
           first: 100,
@@ -29,15 +26,16 @@ export function DatasheetDefinitionHome() {
         },
       })
       .then((result) => ({
-        nextPageToken: result.data.findDatasheetDefinitions.pageInfo.hasNextPage
-          ? result.data.findDatasheetDefinitions.pageInfo.endCursor
+        nextPageToken: result.data.findProjects.pageInfo.hasNextPage
+          ? result.data.findProjects.pageInfo.endCursor
           : null,
-        results: result.data.findDatasheetDefinitions.edges.map((item) => ({
+        results: result.data.findProjects.edges.map((item) => ({
           properties: { name: item.node.name },
           nextPageToken: item.cursor,
           type: "project-definition",
-          uri: routes.render(DATASHEET_TEMPLATE_EDITOR_MAIN, {
-            datasheetDefinitionId: item.node.id,
+          uri: routes.render(PROJECT_EDITOR, {
+            projectId: item.node.id,
+            selectedPath: "~",
           }),
         })),
       }));

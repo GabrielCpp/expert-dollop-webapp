@@ -6,9 +6,9 @@ import { Link as RouterLink, useHistory } from "react-router-dom";
 
 import { useFindProjectDefinitionRootSectionsQuery } from "../../../generated/graphql";
 import { useServices } from "../../../services-def";
-import { MoreButton } from "../../buttons";
-import { useLoaderEffect } from "../../loading-frame";
-import { useDbTranslation } from "../../translation";
+import { MoreButton } from "../../../components/buttons";
+import { useLoaderEffect } from "../../../components/loading-frame";
+import { useDbTranslation } from "../../../components/translation";
 import {
   buildAddNodeParams,
   buildEditNodeParams,

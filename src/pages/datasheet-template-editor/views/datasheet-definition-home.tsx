@@ -1,10 +1,13 @@
 import { useRef } from "react";
-import { FindProjectsQuery, FindProjectsDocument } from "../../../generated";
+import {
+  FindDatasheetDefinitionsDocument,
+  FindDatasheetDefinitionsQuery,
+} from "../../../generated";
 import { useServices } from "../../../services-def";
-import { SearchGrid, SearchResultSet } from "../../search-grid";
-import { PROJECT_EDITOR } from "../routes";
+import { SearchGrid, SearchResultSet } from "../../../components/search-grid";
+import { DATASHEET_TEMPLATE_EDITOR_MAIN } from "../routes";
 
-export function ProjectSearchHome() {
+export function DatasheetDefinitionHome() {
   const { apollo, routes } = useServices();
   const types = useRef<[string, string][]>([
     ["project-definition", "project_definition"],
@@ -17,8 +20,8 @@ export function ProjectSearchHome() {
     nextPageToken: string | null
   ): Promise<SearchResultSet> {
     return apollo
-      .query<FindProjectsQuery>({
-        query: FindProjectsDocument,
+      .query<FindDatasheetDefinitionsQuery>({
+        query: FindDatasheetDefinitionsDocument,
         variables: {
           query,
           first: 100,
@@ -26,16 +29,15 @@ export function ProjectSearchHome() {
         },
       })
       .then((result) => ({
-        nextPageToken: result.data.findProjects.pageInfo.hasNextPage
-          ? result.data.findProjects.pageInfo.endCursor
+        nextPageToken: result.data.findDatasheetDefinitions.pageInfo.hasNextPage
+          ? result.data.findDatasheetDefinitions.pageInfo.endCursor
           : null,
-        results: result.data.findProjects.edges.map((item) => ({
+        results: result.data.findDatasheetDefinitions.edges.map((item) => ({
           properties: { name: item.node.name },
           nextPageToken: item.cursor,
           type: "project-definition",
-          uri: routes.render(PROJECT_EDITOR, {
-            projectId: item.node.id,
-            selectedPath: "~",
+          uri: routes.render(DATASHEET_TEMPLATE_EDITOR_MAIN, {
+            datasheetDefinitionId: item.node.id,
           }),
         })),
       }));

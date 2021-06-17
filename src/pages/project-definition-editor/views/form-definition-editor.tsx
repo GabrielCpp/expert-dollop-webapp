@@ -22,11 +22,11 @@ import {
   useFindProjectDefinitionFormContentQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { useLoaderEffect } from "../../loading-frame";
-import { MouseOverPopover } from "../../mouse-over-popover";
-import { Field, radioField, textField } from "../../table-fields";
-import { checkboxField } from "../../table-fields/table-checkbox-field";
-import { useDbTranslation } from "../../translation";
+import { useLoaderEffect } from "../../../components/loading-frame";
+import { MouseOverPopover } from "../../../components/mouse-over-popover";
+import { Field, radioField, textField } from "../../../components/table-fields";
+import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
+import { useDbTranslation } from "../../../components/translation";
 import { EditButton } from "../components/edit-button";
 import {
   buildAddNodeParams,

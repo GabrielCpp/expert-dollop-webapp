@@ -26,9 +26,9 @@ import {
   useFindProjectDefinitionRootSectionContainersQuery,
 } from "../../../generated/graphql";
 import { useServices } from "../../../services-def";
-import { useLoaderEffect } from "../../loading-frame";
-import { MouseOverPopover } from "../../mouse-over-popover";
-import { useDbTranslation } from "../../translation";
+import { useLoaderEffect } from "../../../components/loading-frame";
+import { MouseOverPopover } from "../../../components/mouse-over-popover";
+import { useDbTranslation } from "../../../components/translation";
 import {
   buildAddNodeParams,
   buildEditNodeParams,
