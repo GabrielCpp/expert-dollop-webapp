@@ -244,7 +244,7 @@ function RouterToolbar({ routes }: { routes: NamedRoutes }) {
   const [haveMatchingToolbarwidget, setHaveMatchingWidgets] = useState(false);
 
   useEffect(() => {
-    const unlisten = history.listen((location, action) => {
+    const toogleToolbarItems = () => {
       setHaveMatchingWidgets(
         toolbarWidgets.some(
           (route) =>
@@ -255,7 +255,10 @@ function RouterToolbar({ routes }: { routes: NamedRoutes }) {
             }) !== null
         )
       );
-    });
+    };
+
+    const unlisten = history.listen(toogleToolbarItems);
+    toogleToolbarItems();
 
     return unlisten;
   });

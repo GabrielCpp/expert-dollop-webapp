@@ -2,6 +2,7 @@ import { NamedRoute } from "../../shared/named-routes";
 import { AddContainerView, EditContainerView } from "./views/add-node-view";
 import { EditorLayout } from "./views/project-def-editor";
 import { ProjectDefinitionHome } from "./views/home";
+import { EditFormulas } from "./toolbars/edit-formulas";
 
 export const PROJECT_DEFINITION_EDITOR_HOME = "PROJECT_DEFINITION_EDITOR_HOME";
 export const PROJECT_DEFINITION_EDITOR_MAIN = "PROJECT_DEFINITION_EDITOR_MAIN";
@@ -9,6 +10,9 @@ export const PROJECT_DEFINITION_EDITOR_NODE_ADD =
   "PROJECT_DEFINITION_EDITOR_NODE_ADD";
 export const PROJECT_DEFINITION_EDITOR_NODE_EDIT =
   "PROJECT_DEFINITION_EDITOR_NODE_EDIT";
+
+export const PROJECT_DEFINITION_EDITOR_FORMULAS_EDIT =
+  "PROJECT_DEFINITION_EDITOR_FORMULAS_EDIT";
 
 export const routes: NamedRoute[] = [
   {
@@ -36,6 +40,19 @@ export const routes: NamedRoute[] = [
       "/project_definition_editor/:projectDefinitionId/:selectedPath/edit/:nodeId",
     component: EditContainerView,
     tags: ["project-definition-view"],
+  },
+  {
+    name: PROJECT_DEFINITION_EDITOR_FORMULAS_EDIT,
+    path:
+      "/project_definition_editor/:projectDefinitionId/:selectedPath/formulas",
+    tags: ["project-definition-view"],
+  },
+  {
+    name: "add_formulas_toobar",
+    path: "/project_definition_editor/:projectDefinitionId/:selectedPath",
+    component: EditFormulas,
+    tags: ["main-toolbar"],
+    exact: true,
   },
 ];
 
