@@ -1,5 +1,34 @@
 import { gql } from "@apollo/client";
 
+export const FIND_PROJECT_DEFINITION_FORMULAS_WITH_TOTAL_COUNT = gql`
+  query findProjectDefinitionFormulas(
+    $projectDefId: ID!
+    $query: String!
+    $first: Int!
+    $after: String
+  ) {
+    findProjectDefinitionFormulas(
+      projectDefId: $projectDefId
+      query: $query
+      first: $first
+      after: $after
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        totalCount
+      }
+      edges {
+        node {
+          id
+          name
+          expression
+        }
+      }
+    }
+  }
+`;
+
 export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
   query findProjectDefinitionRootSections($id: ID!) {
     findProjectDefinitionRootSections(projectDefId: $id) {
@@ -405,6 +434,7 @@ export const FIND_PROJECT_DEFINTIONS = gql`
       pageInfo {
         hasNextPage
         endCursor
+        totalCount
       }
     }
   }

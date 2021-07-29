@@ -23,6 +23,7 @@ export const FIND_DATASHEET_DEFINITIONS = gql`
       pageInfo {
         hasNextPage
         endCursor
+        totalCount
       }
     }
   }
@@ -75,6 +76,7 @@ export const QUERY_DATASHEET_DEFINITION_ELEMENTS = gql`
       pageInfo {
         hasNextPage
         endCursor
+        totalCount
       }
     }
   }

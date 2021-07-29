@@ -1,8 +1,11 @@
 import { Typography } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import {
+  FindProjectDefinitionFormulasDocument,
+  FindProjectDefinitionFormulasQuery,
+  FindProjectDefinitionFormulasQueryVariables,
   FindProjectDefintionsDocument,
   FindProjectDefintionsQuery,
   ProjectDefinition,
@@ -14,67 +17,93 @@ import {
   PaginatedDataGrid,
   SearchResultSet,
 } from "../../../components/data-grid";
-import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
+import { PROJECT_DEFINITION_EDITOR_FORMULA_EDIT } from "../routes";
+
+type Result = {
+  name: string;
+  expression: string;
+};
+
+interface FormulasSearchParams extends Record<string, string> {
+  projectDefinitionId: string;
+  selectedPath: string;
+}
 
 export function FormulasSearch() {
-  /*
-    const { apollo, routes } = useServices();
-    const { t } = useTranslation();
-  
-    function fetch(
-      query: string,
-      limit: number,
-      nextPageToken?: string
-    ): Promise<SearchResultSet<Result>> {
-      return apollo
-        .query<FindProjectDefintionsQuery>({
-          query: FindProjectDefintionsDocument,
-          variables: {
-            query,
-            first: limit,
-            after: nextPageToken,
-          },
-        })
-        .then((result) => ({
-          pageInfo: {
-            endCursor: result.data.findProjectDefintions.pageInfo.endCursor,
-            hasNextPage: result.data.findProjectDefintions.pageInfo.hasNextPage,
-            totalCount: 2,
-          },
-          results: result.data.findProjectDefintions.edges.map((item) => ({
+  const { apollo, routes } = useServices();
+  const { projectDefinitionId, selectedPath } =
+    useParams<FormulasSearchParams>();
+  const { t } = useTranslation();
+
+  function fetch(
+    query: string,
+    limit: number,
+    nextPageToken?: string
+  ): Promise<SearchResultSet<Result>> {
+    return apollo
+      .query<
+        FindProjectDefinitionFormulasQuery,
+        FindProjectDefinitionFormulasQueryVariables
+      >({
+        query: FindProjectDefinitionFormulasDocument,
+        variables: {
+          query,
+          projectDefId: projectDefinitionId,
+          first: limit,
+          after: nextPageToken,
+        },
+      })
+      .then((result) => ({
+        pageInfo: {
+          endCursor:
+            result.data.findProjectDefinitionFormulas.pageInfo.endCursor,
+          hasNextPage:
+            result.data.findProjectDefinitionFormulas.pageInfo.hasNextPage,
+          totalCount:
+            result.data.findProjectDefinitionFormulas.pageInfo.totalCount,
+        },
+        results: result.data.findProjectDefinitionFormulas.edges.map(
+          (item) => ({
             columns: {
               name: () => (
                 <Link
-                  to={routes.render(PROJECT_DEFINITION_EDITOR_MAIN, {
-                    projectDefinitionId: item.node.id,
-                    selectedPath: "~",
+                  to={routes.render(PROJECT_DEFINITION_EDITOR_FORMULA_EDIT, {
+                    projectDefinitionId,
+                    selectedPath,
+                    formulaId: item.node.id,
                   })}
                 >
                   {item.node.name}
                 </Link>
               ),
-              id: () => <Typography>{item.node.name}</Typography>,
-              defaultDatasheetId: () => <Typography>{item.node.name}</Typography>,
+              expression: () => <Typography>{item.node.expression}</Typography>,
             },
             rowKey: item.node.id,
-          })),
-        }));
-    }
-  
-    const headers: HeadCell<Result>[] = [
-      {
-        disablePadding: false,
-        id: "name",
-        label: t("name"),
-        numeric: false,
-      },
-    ];
-  
-    return (
-      <PaginatedDataGrid
-        fetch={fetch}
-        headers={headers}
-        displayActionColumn={true}
-      />
-    );*/
+          })
+        ),
+      }));
+  }
+
+  const headers: HeadCell<Result>[] = [
+    {
+      disablePadding: false,
+      id: "name",
+      label: t("name"),
+      numeric: false,
+    },
+    {
+      disablePadding: false,
+      id: "expression",
+      label: t("expression"),
+      numeric: false,
+    },
+  ];
+
+  return (
+    <PaginatedDataGrid
+      fetch={fetch}
+      headers={headers}
+      displayActionColumn={true}
+    />
+  );
 }

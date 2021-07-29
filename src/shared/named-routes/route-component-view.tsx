@@ -7,9 +7,11 @@ export function renderNamedRoute(
   backRouteName: string,
   params?: Record<string, string>
 ) {
-  const Component = routes.getRouteByName(routeName).component;
+  const route = routes.getRouteByName(routeName);
+  const Component = route.component;
+
   return (
-    <Route path={routes.getUrl(routeName)} key={routeName}>
+    <Route path={route.path} key={routeName} exact={route.exact}>
       {Component && (
         <Component returnUrl={routes.render(backRouteName, params)} />
       )}

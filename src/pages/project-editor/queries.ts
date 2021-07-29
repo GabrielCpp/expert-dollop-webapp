@@ -16,6 +16,7 @@ export const FIND_PROJECTS = gql`
       pageInfo {
         hasNextPage
         endCursor
+        totalCount
       }
     }
   }

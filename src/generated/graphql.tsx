@@ -215,6 +215,28 @@ export enum FieldValueType {
   BOOL_FIELD_VALUE = 'BOOL_FIELD_VALUE'
 }
 
+export type Formula = {
+  __typename?: 'Formula';
+  id: FieldWrapper<Scalars['ID']>;
+  project_def_id: FieldWrapper<Scalars['String']>;
+  attached_to_type_id: FieldWrapper<Scalars['String']>;
+  name: FieldWrapper<Scalars['String']>;
+  expression: FieldWrapper<Scalars['String']>;
+  generated_ast: FieldWrapper<Scalars['String']>;
+};
+
+export type FormulaConnection = {
+  __typename?: 'FormulaConnection';
+  edges: Array<FieldWrapper<FormulaEdge>>;
+  pageInfo: FieldWrapper<PageInfo>;
+};
+
+export type FormulaEdge = {
+  __typename?: 'FormulaEdge';
+  node: FieldWrapper<Formula>;
+  cursor: FieldWrapper<Scalars['String']>;
+};
+
 export type IntFieldConfig = {
   __typename?: 'IntFieldConfig';
   unit: FieldWrapper<Scalars['String']>;
@@ -279,6 +301,7 @@ export type PageInfo = {
   __typename?: 'PageInfo';
   hasNextPage: FieldWrapper<Scalars['Boolean']>;
   endCursor: FieldWrapper<Scalars['String']>;
+  totalCount: FieldWrapper<Scalars['Int']>;
 };
 
 export type ProjectConnection = {
@@ -443,6 +466,7 @@ export type Query = {
   findProjectRootSectionContainers: FieldWrapper<ProjectNodeTree>;
   findProjectFormContent: FieldWrapper<ProjectNodeTree>;
   findProjects: FieldWrapper<ProjectConnection>;
+  findProjectDefinitionFormulas: FieldWrapper<FormulaConnection>;
 };
 
 
@@ -536,6 +560,14 @@ export type QueryFindProjectFormContentArgs = {
 
 
 export type QueryFindProjectsArgs = {
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryFindProjectDefinitionFormulasArgs = {
+  projectDefId: Scalars['ID'];
   query: Scalars['String'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
@@ -641,7 +673,7 @@ export type FindDatasheetDefinitionsQuery = (
       ) }
     )>, pageInfo: (
       { __typename?: 'PageInfo' }
-      & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor' | 'totalCount'>
     ) }
   ) }
 );
@@ -695,7 +727,7 @@ export type QueryDatasheetDefinitionElementsQuery = (
       ) }
     )>, pageInfo: (
       { __typename?: 'PageInfo' }
-      & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor' | 'totalCount'>
     ) }
   ) }
 );
@@ -736,6 +768,31 @@ export type AddProjectDefinitionNodeMutation = (
         & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
       )> }
     ) }
+  ) }
+);
+
+export type FindProjectDefinitionFormulasQueryVariables = Exact<{
+  projectDefId: Scalars['ID'];
+  query: Scalars['String'];
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+}>;
+
+
+export type FindProjectDefinitionFormulasQuery = (
+  { __typename?: 'Query' }
+  & { findProjectDefinitionFormulas: (
+    { __typename?: 'FormulaConnection' }
+    & { pageInfo: (
+      { __typename?: 'PageInfo' }
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor' | 'totalCount'>
+    ), edges: Array<(
+      { __typename?: 'FormulaEdge' }
+      & { node: (
+        { __typename?: 'Formula' }
+        & Pick<Formula, 'id' | 'name' | 'expression'>
+      ) }
+    )> }
   ) }
 );
 
@@ -1092,7 +1149,7 @@ export type FindProjectDefintionsQuery = (
       ) }
     )>, pageInfo: (
       { __typename?: 'PageInfo' }
-      & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor' | 'totalCount'>
     ) }
   ) }
 );
@@ -1130,7 +1187,7 @@ export type FindProjectsQuery = (
       ) }
     )>, pageInfo: (
       { __typename?: 'PageInfo' }
-      & Pick<PageInfo, 'hasNextPage' | 'endCursor'>
+      & Pick<PageInfo, 'hasNextPage' | 'endCursor' | 'totalCount'>
     ) }
   ) }
 );
@@ -1466,6 +1523,7 @@ export const FindDatasheetDefinitionsDocument = gql`
     pageInfo {
       hasNextPage
       endCursor
+      totalCount
     }
   }
 }
@@ -1566,6 +1624,7 @@ export const QueryDatasheetDefinitionElementsDocument = gql`
     pageInfo {
       hasNextPage
       endCursor
+      totalCount
     }
   }
 }
@@ -1667,6 +1726,60 @@ export function useAddProjectDefinitionNodeMutation(baseOptions?: Apollo.Mutatio
 export type AddProjectDefinitionNodeMutationHookResult = ReturnType<typeof useAddProjectDefinitionNodeMutation>;
 export type AddProjectDefinitionNodeMutationResult = Apollo.MutationResult<AddProjectDefinitionNodeMutation>;
 export type AddProjectDefinitionNodeMutationOptions = Apollo.BaseMutationOptions<AddProjectDefinitionNodeMutation, AddProjectDefinitionNodeMutationVariables>;
+export const FindProjectDefinitionFormulasDocument = gql`
+    query findProjectDefinitionFormulas($projectDefId: ID!, $query: String!, $first: Int!, $after: String) {
+  findProjectDefinitionFormulas(
+    projectDefId: $projectDefId
+    query: $query
+    first: $first
+    after: $after
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor
+      totalCount
+    }
+    edges {
+      node {
+        id
+        name
+        expression
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindProjectDefinitionFormulasQuery__
+ *
+ * To run a query within a React component, call `useFindProjectDefinitionFormulasQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectDefinitionFormulasQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectDefinitionFormulasQuery({
+ *   variables: {
+ *      projectDefId: // value for 'projectDefId'
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useFindProjectDefinitionFormulasQuery(baseOptions: Apollo.QueryHookOptions<FindProjectDefinitionFormulasQuery, FindProjectDefinitionFormulasQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectDefinitionFormulasQuery, FindProjectDefinitionFormulasQueryVariables>(FindProjectDefinitionFormulasDocument, options);
+      }
+export function useFindProjectDefinitionFormulasLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectDefinitionFormulasQuery, FindProjectDefinitionFormulasQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectDefinitionFormulasQuery, FindProjectDefinitionFormulasQueryVariables>(FindProjectDefinitionFormulasDocument, options);
+        }
+export type FindProjectDefinitionFormulasQueryHookResult = ReturnType<typeof useFindProjectDefinitionFormulasQuery>;
+export type FindProjectDefinitionFormulasLazyQueryHookResult = ReturnType<typeof useFindProjectDefinitionFormulasLazyQuery>;
+export type FindProjectDefinitionFormulasQueryResult = Apollo.QueryResult<FindProjectDefinitionFormulasQuery, FindProjectDefinitionFormulasQueryVariables>;
 export const FindProjectDefinitionRootSectionsDocument = gql`
     query findProjectDefinitionRootSections($id: ID!) {
   findProjectDefinitionRootSections(projectDefId: $id) {
@@ -2180,6 +2293,7 @@ export const FindProjectDefintionsDocument = gql`
     pageInfo {
       hasNextPage
       endCursor
+      totalCount
     }
   }
 }
@@ -2267,6 +2381,7 @@ export const FindProjectsDocument = gql`
     pageInfo {
       hasNextPage
       endCursor
+      totalCount
     }
   }
 }

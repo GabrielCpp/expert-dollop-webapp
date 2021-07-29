@@ -44,7 +44,7 @@ export function ProjectDefinitionHome({
         pageInfo: {
           endCursor: result.data.findProjectDefintions.pageInfo.endCursor,
           hasNextPage: result.data.findProjectDefintions.pageInfo.hasNextPage,
-          totalCount: 2,
+          totalCount: result.data.findProjectDefintions.pageInfo.totalCount,
         },
         results: result.data.findProjectDefintions.edges.map((item) => ({
           columns: {
