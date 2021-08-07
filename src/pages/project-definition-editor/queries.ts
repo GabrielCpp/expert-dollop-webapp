@@ -226,6 +226,18 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
       path
       config {
         valueValidator
+        triggers {
+          action
+          targetTypeId
+          params {
+            name
+            value
+          }
+        }
+        translations {
+          helpTextName
+          label
+        }
         fieldDetails {
           __typename
           ... on IntFieldConfig {
@@ -265,6 +277,18 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
           orderIndex
           config {
             valueValidator
+            triggers {
+              action
+              targetTypeId
+              params {
+                name
+                value
+              }
+            }
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -319,6 +343,18 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
             orderIndex
             config {
               valueValidator
+              triggers {
+                action
+                targetTypeId
+                params {
+                  name
+                  value
+                }
+              }
+              translations {
+                helpTextName
+                label
+              }
               fieldDetails {
                 __typename
                 ... on IntFieldConfig {
@@ -381,6 +417,18 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
       path
       config {
         valueValidator
+        triggers {
+          action
+          targetTypeId
+          params {
+            name
+            value
+          }
+        }
+        translations {
+          helpTextName
+          label
+        }
         fieldDetails {
           __typename
           ... on IntFieldConfig {

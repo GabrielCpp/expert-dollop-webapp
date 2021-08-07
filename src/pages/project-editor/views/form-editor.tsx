@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -299,6 +300,11 @@ export function FormEditor({ projectId, formId }: FormEditorProps) {
                 <FormSection node={node} />
               </Grid>
             ))}
+          <Grid container item alignItems="flex-end">
+            <Button variant="contained" color="primary">
+              Save
+            </Button>
+          </Grid>
         </Grid>
       </form>
     </>

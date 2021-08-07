@@ -1,6 +1,6 @@
 import { JSONSchemaType, Schema } from "ajv";
 import { isBoolean } from "lodash";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useId, useTableRecord } from "../../shared/redux-db";
 import { useServices } from "../../shared/service-context";
 import {
@@ -53,7 +53,7 @@ export function Field({
     fieldDetails
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const record = fieldDetailsRef.current;
     reduxDb.getTable(FormFieldTableName).upsertMany([fieldDetailsRef.current]);
 

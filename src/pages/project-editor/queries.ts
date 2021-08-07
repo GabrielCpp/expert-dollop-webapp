@@ -74,6 +74,7 @@ export const FIND_PROJECT_ROOT_SECTIONS = gql`
             type_path
             type_id
             path
+            label
             value {
               __typename
               ... on IntFieldValue {

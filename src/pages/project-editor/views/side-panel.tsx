@@ -25,7 +25,7 @@ import {
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { MouseOverPopover } from "../../../components/mouse-over-popover";
 import { useDbTranslation } from "../../../components/translation";
-import { buildLinkFor } from "../routes";
+import { buildLinkToProjectPath } from "../routes";
 import { NodePicker } from "./node-picker";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -242,7 +242,7 @@ function FormPicker({
               ) : (
                 <Link
                   component={RouterLink}
-                  to={buildLinkFor(
+                  to={buildLinkToProjectPath(
                     projectId,
                     rootSectionId,
                     secondLayerNode.nodes[0].node.id,

@@ -1,5 +1,5 @@
 import { last } from "lodash";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useId } from "../../shared/redux-db";
 import { useServices } from "../../shared/service-context";
 import {
@@ -22,11 +22,11 @@ export function useForm(name?: string, parentPath: string[] = []): UseFormHook {
     formPath.current = [...parentPath, formId];
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     formPath.current = [...parentPath, formId];
   }, [formId, formPath, parentPath]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (name !== undefined) {
       const path = formPath.current as string[];
       const record = createFormFieldRecord(

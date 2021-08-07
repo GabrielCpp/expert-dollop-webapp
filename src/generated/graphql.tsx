@@ -259,6 +259,7 @@ export type IntFieldValueInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addTranslations: Array<FieldWrapper<Translation>>;
+  updateTranslations: Array<FieldWrapper<Translation>>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   createProject: FieldWrapper<ProjectDetails>;
@@ -267,6 +268,11 @@ export type Mutation = {
 
 export type MutationAddTranslationsArgs = {
   translations: Array<TranslationInput>;
+};
+
+
+export type MutationUpdateTranslationsArgs = {
+  translations: Array<TranslationUpdateInput>;
 };
 
 
@@ -290,6 +296,8 @@ export type NodeConfig = {
   __typename?: 'NodeConfig';
   fieldDetails?: Maybe<FieldWrapper<FieldDetailsUnion>>;
   valueValidator?: Maybe<FieldWrapper<Scalars['JsonSchema']>>;
+  triggers: Array<Maybe<FieldWrapper<Trigger>>>;
+  translations: FieldWrapper<TranslationConfig>;
 };
 
 export type NodeConfigInput = {
@@ -422,6 +430,7 @@ export type ProjectNode = {
   type_id: FieldWrapper<Scalars['String']>;
   path: Array<FieldWrapper<Scalars['String']>>;
   value?: Maybe<FieldWrapper<FieldValue>>;
+  label?: Maybe<FieldWrapper<Scalars['String']>>;
 };
 
 export type ProjectNodeMetaState = {
@@ -625,6 +634,12 @@ export type Translation = {
   value: FieldWrapper<Scalars['String']>;
 };
 
+export type TranslationConfig = {
+  __typename?: 'TranslationConfig';
+  helpTextName: FieldWrapper<Scalars['String']>;
+  label?: Maybe<FieldWrapper<Scalars['String']>>;
+};
+
 export type TranslationConnection = {
   __typename?: 'TranslationConnection';
   edges: Array<FieldWrapper<TranslationEdge>>;
@@ -639,10 +654,32 @@ export type TranslationEdge = {
 
 export type TranslationInput = {
   ressourceId: Scalars['String'];
-  locale: Scalars['String'];
   scope: Scalars['String'];
+  locale: Scalars['String'];
   name: Scalars['String'];
   value: Scalars['String'];
+};
+
+export type TranslationUpdateInput = {
+  id: Scalars['ID'];
+  ressourceId: Scalars['String'];
+  scope: Scalars['String'];
+  locale: Scalars['String'];
+  name: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type Trigger = {
+  __typename?: 'Trigger';
+  action: FieldWrapper<Scalars['String']>;
+  targetTypeId: FieldWrapper<Scalars['String']>;
+  params: Array<FieldWrapper<TriggerParam>>;
+};
+
+export type TriggerParam = {
+  __typename?: 'TriggerParam';
+  name: FieldWrapper<Scalars['String']>;
+  value: FieldWrapper<Scalars['String']>;
 };
 
 export type FindDatasheetDefinitionsQueryVariables = Exact<{
@@ -969,7 +1006,17 @@ export type FindProjectDefinitionFormContentQuery = (
     & { config: (
       { __typename?: 'NodeConfig' }
       & Pick<NodeConfig, 'valueValidator'>
-      & { fieldDetails?: Maybe<(
+      & { triggers: Array<Maybe<(
+        { __typename?: 'Trigger' }
+        & Pick<Trigger, 'action' | 'targetTypeId'>
+        & { params: Array<(
+          { __typename?: 'TriggerParam' }
+          & Pick<TriggerParam, 'name' | 'value'>
+        )> }
+      )>>, translations: (
+        { __typename?: 'TranslationConfig' }
+        & Pick<TranslationConfig, 'helpTextName' | 'label'>
+      ), fieldDetails?: Maybe<(
         { __typename: 'IntFieldConfig' }
         & Pick<IntFieldConfig, 'unit'>
       ) | (
@@ -1002,7 +1049,17 @@ export type FindProjectDefinitionFormContentQuery = (
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
-          & { fieldDetails?: Maybe<(
+          & { triggers: Array<Maybe<(
+            { __typename?: 'Trigger' }
+            & Pick<Trigger, 'action' | 'targetTypeId'>
+            & { params: Array<(
+              { __typename?: 'TriggerParam' }
+              & Pick<TriggerParam, 'name' | 'value'>
+            )> }
+          )>>, translations: (
+            { __typename?: 'TranslationConfig' }
+            & Pick<TranslationConfig, 'helpTextName' | 'label'>
+          ), fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
             & Pick<IntFieldConfig, 'unit'>
           ) | (
@@ -1045,7 +1102,17 @@ export type FindProjectDefinitionFormContentQuery = (
           & { config: (
             { __typename?: 'NodeConfig' }
             & Pick<NodeConfig, 'valueValidator'>
-            & { fieldDetails?: Maybe<(
+            & { triggers: Array<Maybe<(
+              { __typename?: 'Trigger' }
+              & Pick<Trigger, 'action' | 'targetTypeId'>
+              & { params: Array<(
+                { __typename?: 'TriggerParam' }
+                & Pick<TriggerParam, 'name' | 'value'>
+              )> }
+            )>>, translations: (
+              { __typename?: 'TranslationConfig' }
+              & Pick<TranslationConfig, 'helpTextName' | 'label'>
+            ), fieldDetails?: Maybe<(
               { __typename: 'IntFieldConfig' }
               & Pick<IntFieldConfig, 'unit'>
             ) | (
@@ -1100,7 +1167,17 @@ export type FindProjectDefinitionNodeQuery = (
     & { config: (
       { __typename?: 'NodeConfig' }
       & Pick<NodeConfig, 'valueValidator'>
-      & { fieldDetails?: Maybe<(
+      & { triggers: Array<Maybe<(
+        { __typename?: 'Trigger' }
+        & Pick<Trigger, 'action' | 'targetTypeId'>
+        & { params: Array<(
+          { __typename?: 'TriggerParam' }
+          & Pick<TriggerParam, 'name' | 'value'>
+        )> }
+      )>>, translations: (
+        { __typename?: 'TranslationConfig' }
+        & Pick<TranslationConfig, 'helpTextName' | 'label'>
+      ), fieldDetails?: Maybe<(
         { __typename: 'IntFieldConfig' }
         & Pick<IntFieldConfig, 'unit'>
       ) | (
@@ -1239,7 +1316,7 @@ export type FindProjectRootSectionsQuery = (
         { __typename?: 'ProjectNodeTreeNode' }
         & { node: (
           { __typename?: 'ProjectNode' }
-          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path' | 'label'>
           & { value?: Maybe<(
             { __typename: 'IntFieldValue' }
             & Pick<IntFieldValue, 'integer'>
@@ -2029,6 +2106,18 @@ export const FindProjectDefinitionFormContentDocument = gql`
     path
     config {
       valueValidator
+      triggers {
+        action
+        targetTypeId
+        params {
+          name
+          value
+        }
+      }
+      translations {
+        helpTextName
+        label
+      }
       fieldDetails {
         __typename
         ... on IntFieldConfig {
@@ -2068,6 +2157,18 @@ export const FindProjectDefinitionFormContentDocument = gql`
         orderIndex
         config {
           valueValidator
+          triggers {
+            action
+            targetTypeId
+            params {
+              name
+              value
+            }
+          }
+          translations {
+            helpTextName
+            label
+          }
           fieldDetails {
             __typename
             ... on IntFieldConfig {
@@ -2122,6 +2223,18 @@ export const FindProjectDefinitionFormContentDocument = gql`
           orderIndex
           config {
             valueValidator
+            triggers {
+              action
+              targetTypeId
+              params {
+                name
+                value
+              }
+            }
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -2212,6 +2325,18 @@ export const FindProjectDefinitionNodeDocument = gql`
     path
     config {
       valueValidator
+      triggers {
+        action
+        targetTypeId
+        params {
+          name
+          value
+        }
+      }
+      translations {
+        helpTextName
+        label
+      }
       fieldDetails {
         __typename
         ... on IntFieldConfig {
@@ -2468,6 +2593,7 @@ export const FindProjectRootSectionsDocument = gql`
           type_path
           type_id
           path
+          label
           value {
             __typename
             ... on IntFieldValue {

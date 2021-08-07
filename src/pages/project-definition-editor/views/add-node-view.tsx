@@ -328,10 +328,8 @@ function ContainerForm({
 export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
   const { formPath: path } = useForm();
   const { reduxDb, ajv, apollo } = useServices();
-  const {
-    projectDefinitionId,
-    selectedPath,
-  } = useParams<AddContainerFormParams>();
+  const { projectDefinitionId, selectedPath } =
+    useParams<AddContainerFormParams>();
   const nodePath = splitPath(selectedPath);
   const level = levelMapping[nodePath.length];
   const history = useHistory();
@@ -396,6 +394,11 @@ export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
     config: {
       fieldDetails: null,
       valueValidator: null,
+      translations: {
+        helpTextName: "",
+        label: "",
+      },
+      triggers: [],
     },
     defaultValue: null,
     path: [],
@@ -424,11 +427,8 @@ interface EditContainerFormParams extends RouteViewCompoenentProps {
 export function EditContainerView({ returnUrl }: RouteViewCompoenentProps) {
   const { formPath: path } = useForm();
   const { reduxDb, ajv, apollo } = useServices();
-  const {
-    projectDefinitionId,
-    selectedPath,
-    nodeId,
-  } = useParams<EditContainerFormParams>();
+  const { projectDefinitionId, selectedPath, nodeId } =
+    useParams<EditContainerFormParams>();
   const nodePath = splitPath(selectedPath);
   const level = levelMapping[nodePath.length];
   const history = useHistory();
