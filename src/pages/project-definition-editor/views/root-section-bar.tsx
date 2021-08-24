@@ -29,7 +29,7 @@ export function RootSectionBar({
   const { routes } = useServices();
   const { t } = useTranslation();
   const history = useHistory();
-  const { labelTrans } = useDbTranslation(projectDefinitionId);
+  const { dbTrans } = useDbTranslation(projectDefinitionId);
   const { loading, data, error } = useFindProjectDefinitionRootSectionsQuery({
     variables: {
       id: projectDefinitionId,
@@ -51,13 +51,16 @@ export function RootSectionBar({
   const roots = data.findProjectDefinitionRootSections.roots;
 
   if (rootSectionDefId) {
-    const rootSectionDefName =
-      roots.find((x) => x.definition.id === rootSectionDefId)?.definition
-        .name || "";
+    const rootSectionDef = roots.find(
+      (x) => x.definition.id === rootSectionDefId
+    )?.definition;
 
     links.push(
       {
-        label: t("button.edit") + " " + labelTrans(rootSectionDefName),
+        label:
+          t("button.edit") +
+          " " +
+          dbTrans(rootSectionDef?.config.translations.label),
         action: () =>
           history.push(
             routes.render(
@@ -67,7 +70,10 @@ export function RootSectionBar({
           ),
       },
       {
-        label: t("button.delete") + " " + labelTrans(rootSectionDefName),
+        label:
+          t("button.delete") +
+          " " +
+          dbTrans(rootSectionDef?.config.translations.helpTextName),
         action: () =>
           history.push(
             routes.render(
@@ -93,7 +99,7 @@ export function RootSectionBar({
               <Tab
                 value={def.definition.id}
                 key={def.definition.id}
-                label={labelTrans(def.definition.name)}
+                label={dbTrans(def.definition.config.translations.label)}
               />
             ))}
           </Tabs>

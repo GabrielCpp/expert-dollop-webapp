@@ -124,7 +124,7 @@ function SubSectionPicker({
   nodes: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"];
 }) {
   const [currentNodeId, setCurrentNodeId] = useState(nodes[0]?.node.id);
-  const { labelTrans, helpTextTrans } = useDbTranslation(projectId);
+  const { dbTrans } = useDbTranslation(projectId);
   const currentNode = nodes.find((x) => x.node.id === currentNodeId);
 
   const handleChange = (id: string) => () => {
@@ -147,10 +147,13 @@ function SubSectionPicker({
         )}
         <MouseOverPopover
           name={`${definition.name}-popover`}
-          text={helpTextTrans(definition.name)}
+          text={dbTrans(definition.config.translations.helpTextName)}
         >
           {(props) => (
-            <ListItemText {...props} primary={labelTrans(definition.name)} />
+            <ListItemText
+              {...props}
+              primary={dbTrans(definition.config.translations.label)}
+            />
           )}
         </MouseOverPopover>
 
@@ -200,7 +203,7 @@ function FormPicker({
   const [currentNodeId, setCurrentNodeId] = useState(
     secondLayerNode.nodes[0]?.node.id
   );
-  const { labelTrans, helpTextTrans } = useDbTranslation(projectId);
+  const { dbTrans } = useDbTranslation(projectId);
 
   const currentNode = secondLayerNode.nodes.find(
     (x) => x.node.id === currentNodeId
@@ -225,7 +228,9 @@ function FormPicker({
       )}
       <MouseOverPopover
         name={`${secondLayerNode.definition.name}-popover`}
-        text={helpTextTrans(secondLayerNode.definition.name)}
+        text={dbTrans(
+          secondLayerNode.definition.config.translations.helpTextName
+        )}
       >
         {(props) => (
           <ListItemText
@@ -238,7 +243,7 @@ function FormPicker({
             }}
             primary={
               secondLayerNode.definition.id === formId ? (
-                labelTrans(secondLayerNode.definition.name)
+                dbTrans(secondLayerNode.definition.config.translations.label)
               ) : (
                 <Link
                   component={RouterLink}
@@ -249,7 +254,9 @@ function FormPicker({
                     secondLayerNode.nodes[0].node.id
                   )}
                 >
-                  {labelTrans(secondLayerNode.definition.name)}
+                  {dbTrans(
+                    secondLayerNode.definition.config.translations.label
+                  )}
                 </Link>
               )
             }

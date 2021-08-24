@@ -850,7 +850,10 @@ export type FindProjectDefinitionRootSectionsQuery = (
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
-          & { fieldDetails?: Maybe<(
+          & { translations: (
+            { __typename?: 'TranslationConfig' }
+            & Pick<TranslationConfig, 'helpTextName' | 'label'>
+          ), fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
             & Pick<IntFieldConfig, 'unit'>
           ) | (
@@ -908,7 +911,10 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
-          & { fieldDetails?: Maybe<(
+          & { translations: (
+            { __typename?: 'TranslationConfig' }
+            & Pick<TranslationConfig, 'helpTextName' | 'label'>
+          ), fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
             & Pick<IntFieldConfig, 'unit'>
           ) | (
@@ -951,7 +957,10 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
           & { config: (
             { __typename?: 'NodeConfig' }
             & Pick<NodeConfig, 'valueValidator'>
-            & { fieldDetails?: Maybe<(
+            & { translations: (
+              { __typename?: 'TranslationConfig' }
+              & Pick<TranslationConfig, 'helpTextName' | 'label'>
+            ), fieldDetails?: Maybe<(
               { __typename: 'IntFieldConfig' }
               & Pick<IntFieldConfig, 'unit'>
             ) | (
@@ -1286,7 +1295,10 @@ export type FindProjectRootSectionsQuery = (
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
-          & { fieldDetails?: Maybe<(
+          & { translations: (
+            { __typename?: 'TranslationConfig' }
+            & Pick<TranslationConfig, 'helpTextName' | 'label'>
+          ), fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
             & Pick<IntFieldConfig, 'unit'>
           ) | (
@@ -1354,7 +1366,10 @@ export type FindProjectRootSectionContainersQuery = (
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
-          & { fieldDetails?: Maybe<(
+          & { translations: (
+            { __typename?: 'TranslationConfig' }
+            & Pick<TranslationConfig, 'helpTextName' | 'label'>
+          ), fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
             & Pick<IntFieldConfig, 'unit'>
           ) | (
@@ -1406,7 +1421,10 @@ export type FindProjectRootSectionContainersQuery = (
             & { config: (
               { __typename?: 'NodeConfig' }
               & Pick<NodeConfig, 'valueValidator'>
-              & { fieldDetails?: Maybe<(
+              & { translations: (
+                { __typename?: 'TranslationConfig' }
+                & Pick<TranslationConfig, 'helpTextName' | 'label'>
+              ), fieldDetails?: Maybe<(
                 { __typename: 'IntFieldConfig' }
                 & Pick<IntFieldConfig, 'unit'>
               ) | (
@@ -1476,7 +1494,10 @@ export type FindProjectFormContentQuery = (
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
-          & { fieldDetails?: Maybe<(
+          & { translations: (
+            { __typename?: 'TranslationConfig' }
+            & Pick<TranslationConfig, 'helpTextName' | 'label'>
+          ), fieldDetails?: Maybe<(
             { __typename: 'IntFieldConfig' }
             & Pick<IntFieldConfig, 'unit'>
           ) | (
@@ -1528,7 +1549,10 @@ export type FindProjectFormContentQuery = (
             & { config: (
               { __typename?: 'NodeConfig' }
               & Pick<NodeConfig, 'valueValidator'>
-              & { fieldDetails?: Maybe<(
+              & { translations: (
+                { __typename?: 'TranslationConfig' }
+                & Pick<TranslationConfig, 'helpTextName' | 'label'>
+              ), fieldDetails?: Maybe<(
                 { __typename: 'IntFieldConfig' }
                 & Pick<IntFieldConfig, 'unit'>
               ) | (
@@ -1870,6 +1894,10 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
         orderIndex
         config {
           valueValidator
+          translations {
+            helpTextName
+            label
+          }
           fieldDetails {
             __typename
             ... on IntFieldConfig {
@@ -1962,6 +1990,10 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
         orderIndex
         config {
           valueValidator
+          translations {
+            helpTextName
+            label
+          }
           fieldDetails {
             __typename
             ... on IntFieldConfig {
@@ -2016,6 +2048,10 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
           orderIndex
           config {
             valueValidator
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -2553,6 +2589,10 @@ export const FindProjectRootSectionsDocument = gql`
         instanciateByDefault
         orderIndex
         config {
+          translations {
+            helpTextName
+            label
+          }
           fieldDetails {
             __typename
             ... on IntFieldConfig {
@@ -2658,6 +2698,10 @@ export const FindProjectRootSectionContainersDocument = gql`
         instanciateByDefault
         orderIndex
         config {
+          translations {
+            helpTextName
+            label
+          }
           fieldDetails {
             __typename
             ... on IntFieldConfig {
@@ -2723,6 +2767,10 @@ export const FindProjectRootSectionContainersDocument = gql`
             instanciateByDefault
             orderIndex
             config {
+              translations {
+                helpTextName
+                label
+              }
               fieldDetails {
                 __typename
                 ... on IntFieldConfig {
@@ -2827,6 +2875,10 @@ export const FindProjectFormContentDocument = gql`
         instanciateByDefault
         orderIndex
         config {
+          translations {
+            helpTextName
+            label
+          }
           fieldDetails {
             __typename
             ... on IntFieldConfig {
@@ -2892,6 +2944,10 @@ export const FindProjectFormContentDocument = gql`
             instanciateByDefault
             orderIndex
             config {
+              translations {
+                helpTextName
+                label
+              }
               fieldDetails {
                 __typename
                 ... on IntFieldConfig {

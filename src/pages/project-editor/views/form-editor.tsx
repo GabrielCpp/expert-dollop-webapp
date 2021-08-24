@@ -69,7 +69,7 @@ function FormField({
   definition: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["definition"];
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["nodes"][number]["node"];
 }): JSX.Element {
-  const { labelTrans } = useDbTranslation(definition.projectDefId);
+  const { dbTrans } = useDbTranslation(definition.projectDefId);
   const { __typename: fieldType } = definition.config.fieldDetails || {};
   const value = getFieldValue(node.value);
   const validator = JSON.parse(definition.config.valueValidator);
@@ -87,7 +87,7 @@ function FormField({
         defaultValue={value}
         id={node.id}
         label={definition.name}
-        t={labelTrans}
+        t={dbTrans}
         component={textField}
       />
     );
@@ -102,7 +102,7 @@ function FormField({
         defaultValue={value}
         id={node.id}
         label={definition.name}
-        t={labelTrans}
+        t={dbTrans}
         component={checkboxField}
       />
     );
@@ -119,7 +119,7 @@ function FormField({
         defaultValue={value}
         id={node.id}
         label={definition.name}
-        t={labelTrans}
+        t={dbTrans}
         component={radioField}
       />
     );
@@ -195,9 +195,7 @@ function FormSection({ node }: FormProps): JSX.Element {
     .fieldDetails as CollapsibleContainerFieldConfig;
   const [expanded, setExpanded] = useState(!collapsibleConfig.isCollapsible);
   const [currentNodeId, setCurrentNode] = useState(node.nodes[0]?.node.id);
-  const { labelTrans, helpTextTrans } = useDbTranslation(
-    node.definition.projectDefId
-  );
+  const { dbTrans } = useDbTranslation(node.definition.projectDefId);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -225,11 +223,11 @@ function FormSection({ node }: FormProps): JSX.Element {
         title={
           <MouseOverPopover
             name={node.definition.name}
-            text={helpTextTrans(node.definition.name)}
+            text={dbTrans(node.definition.config.translations.label)}
           >
             {(props) => (
               <Typography {...props} variant="h5" component="h5" gutterBottom>
-                {labelTrans(node.definition.name)}
+                {dbTrans(node.definition.config.translations.helpTextName)}
               </Typography>
             )}
           </MouseOverPopover>
@@ -276,7 +274,7 @@ interface FormEditorProps {
 
 export function FormEditor({ projectId, formId }: FormEditorProps) {
   const { onLoading } = useLoader();
-  const { labelTrans, helpTextTrans } = useDbTranslation(projectId);
+  const { dbTrans } = useDbTranslation(projectId);
   const { loading, data, error } = useFindProjectFormContentQuery({
     variables: {
       projectId,
@@ -315,10 +313,10 @@ export function FormEditor({ projectId, formId }: FormEditorProps) {
       {formNode && (
         <MouseOverPopover
           name={formNode.name}
-          text={helpTextTrans(formNode.name)}
+          text={dbTrans(formNode.name)}
         >
           <Typography variant="h4" component="h4" gutterBottom>
-            {labelTrans(formNode.definition.name)}
+            {dbTrans(formNode.definition.name)}
           </Typography>
         </MouseOverPopover>
       )}

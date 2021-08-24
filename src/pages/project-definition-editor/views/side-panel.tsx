@@ -70,24 +70,19 @@ export function SidePanel({
   formDefId,
 }: SidePanelProps) {
   const { routes } = useServices();
-  const { t, labelTrans, helpTextTrans } = useDbTranslation(
-    projectDefinitionId
-  );
+  const { t, dbTrans } = useDbTranslation(projectDefinitionId);
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState<string | undefined>(
     subSectionDefId
   );
 
-  const {
-    data,
-    loading,
-    error,
-  } = useFindProjectDefinitionRootSectionContainersQuery({
-    variables: {
-      id: projectDefinitionId,
-      rootSectionId: rootSectionDefId,
-    },
-  });
+  const { data, loading, error } =
+    useFindProjectDefinitionRootSectionContainersQuery({
+      variables: {
+        id: projectDefinitionId,
+        rootSectionId: rootSectionDefId,
+      },
+    });
 
   useEffect(() => {
     if (subSectionDefId !== undefined) {
@@ -113,7 +108,9 @@ export function SidePanel({
                 <ListItem>
                   <MouseOverPopover
                     name={`${subSection.definition.name}-popover`}
-                    text={helpTextTrans(subSection.definition.name)}
+                    text={dbTrans(
+                      subSection.definition.config.translations.helpTextName
+                    )}
                   >
                     {(props) => (
                       <ListItemText
@@ -130,7 +127,9 @@ export function SidePanel({
                               )
                             )}
                           >
-                            {labelTrans(subSection.definition.name)}
+                            {dbTrans(
+                              subSection.definition.config.translations.label
+                            )}
                           </Link>
                         }
                       />
@@ -212,9 +211,7 @@ function FormLinkList({
 }: FormLinkListProps) {
   const classes = useStyles();
   const { routes } = useServices();
-  const { t, labelTrans, helpTextTrans } = useDbTranslation(
-    projectDefinitionId
-  );
+  const { t, dbTrans } = useDbTranslation(projectDefinitionId);
 
   return (
     <List component="div" disablePadding>
@@ -223,7 +220,9 @@ function FormLinkList({
           <ListItem className={classes.nested}>
             <MouseOverPopover
               name={`${subSection.definition.name}-popover`}
-              text={helpTextTrans(formNode.definition.name)}
+              text={dbTrans(
+                formNode.definition.config.translations.helpTextName
+              )}
             >
               {(props) => (
                 <>
@@ -237,7 +236,7 @@ function FormLinkList({
                     }}
                     primary={
                       formNode.definition.id === formId ? (
-                        labelTrans(formNode.definition.name)
+                        dbTrans(formNode.definition.config.translations.label)
                       ) : (
                         <Link
                           component={RouterLink}
@@ -248,7 +247,9 @@ function FormLinkList({
                             formNode.definition.id
                           )}
                         >
-                          {labelTrans(formNode.definition.name)}
+                          {dbTrans(
+                            formNode.definition.config.translations.label
+                          )}
                         </Link>
                       )
                     }

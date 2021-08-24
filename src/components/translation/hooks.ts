@@ -3,9 +3,7 @@ import { Translation } from "../../generated";
 import { useServices } from "../../services-def";
 
 interface TranslationHook {
-  labelTrans: (key: string) => string;
-  helpTextTrans: (key: string) => string;
-  dbTrans: (key: string) => string;
+  dbTrans: (key?: string | null) => string;
   t: TFunction<"translation">;
 }
 
@@ -14,10 +12,11 @@ export function useDbTranslation(ressourceId: string): TranslationHook {
   const { t, i18n } = useTranslation();
   const translation = reduxDb.getTable("translation");
 
-  function trans(key: string, suffix: string = "") {
+  function trans(key?: string | null) {
+    key = key || "";
     return (
       translation.findRecordSafe<Translation>(
-        `${ressourceId}-${i18n.language}-${key}${suffix}`
+        `${ressourceId}-${i18n.language}-${key}`
       )?.value || key
     );
   }
@@ -25,7 +24,5 @@ export function useDbTranslation(ressourceId: string): TranslationHook {
   return {
     t,
     dbTrans: trans,
-    labelTrans: trans,
-    helpTextTrans: (key: string) => trans(key, "_helptext"),
   };
 }

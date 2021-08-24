@@ -34,6 +34,10 @@ export const FIND_PROJECT_ROOT_SECTIONS = gql`
           instanciateByDefault
           orderIndex
           config {
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -112,6 +116,10 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
           instanciateByDefault
           orderIndex
           config {
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -177,6 +185,10 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
               instanciateByDefault
               orderIndex
               config {
+                translations {
+                  helpTextName
+                  label
+                }
                 fieldDetails {
                   __typename
                   ... on IntFieldConfig {
@@ -253,6 +265,10 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
           instanciateByDefault
           orderIndex
           config {
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -318,6 +334,10 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
               instanciateByDefault
               orderIndex
               config {
+                translations {
+                  helpTextName
+                  label
+                }
                 fieldDetails {
                   __typename
                   ... on IntFieldConfig {

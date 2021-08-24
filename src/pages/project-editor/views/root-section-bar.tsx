@@ -161,7 +161,7 @@ export function RootSectionBar({
   const history = useHistory();
   const classes = useStyles();
   const urls = useRef<Map<string, CollectionItem> | undefined>(undefined);
-  const { labelTrans } = useDbTranslation(projectId);
+  const { dbTrans } = useDbTranslation(projectId);
   const { loading, data, error } = useFindProjectRootSectionsQuery({
     variables: {
       projectId,
@@ -211,7 +211,7 @@ export function RootSectionBar({
         scrollButtons="auto"
       >
         {roots.map((def) =>
-          renderRootTab(labelTrans, rootSectionId, def, classes, urls.current!)
+          renderRootTab(dbTrans, rootSectionId, def, classes, urls.current!)
         )}
       </Tabs>
       {Array.from(urls.current.values())
@@ -227,7 +227,7 @@ const useStyles = makeStyles({
 });
 
 function renderRootTab(
-  labelTrans: (k: string) => string,
+  dbTrans: (k?: string | null) => string,
   rootSectionId: string,
   def: FindProjectRootSectionsQuery["findProjectRootSections"]["roots"][number],
   classes: ClassNameMap<"tab">,
@@ -250,7 +250,7 @@ function renderRootTab(
           classes={{ wrapper: classes.tab }}
           value={def.definition.id}
           key={def.definition.id}
-          label={labelTrans(def.definition.name)}
+          label={dbTrans(def.definition.config.translations.label)}
           icon={<ArrowDropDownIcon onClick={item?.handleClick} />}
         />
       );
@@ -261,7 +261,9 @@ function renderRootTab(
         classes={{ wrapper: classes.tab }}
         value={node.node.id}
         key={node.node.id}
-        label={node.node.label || labelTrans(def.definition.name)}
+        label={
+          node.node.label || dbTrans(def.definition.config.translations.label)
+        }
         icon={<ArrowDropDownIcon onClick={item?.handleClick} />}
       />
     );
@@ -273,7 +275,7 @@ function renderRootTab(
     <Tab
       value={node.id}
       key={node.id}
-      label={labelTrans(def.definition.name)}
+      label={dbTrans(def.definition.config.translations.label)}
     />
   );
 }

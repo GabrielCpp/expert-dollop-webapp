@@ -42,6 +42,10 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
           orderIndex
           config {
             valueValidator
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -110,6 +114,10 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
           orderIndex
           config {
             valueValidator
+            translations {
+              helpTextName
+              label
+            }
             fieldDetails {
               __typename
               ... on IntFieldConfig {
@@ -164,6 +172,10 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
             orderIndex
             config {
               valueValidator
+              translations {
+                helpTextName
+                label
+              }
               fieldDetails {
                 __typename
                 ... on IntFieldConfig {
