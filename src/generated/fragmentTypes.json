@@ -6,7 +6,8 @@
       "StringFieldConfig",
       "BoolFieldConfig",
       "StaticChoiceFieldConfig",
-      "CollapsibleContainerFieldConfig"
+      "CollapsibleContainerFieldConfig",
+      "StaticNumberFieldConfig"
     ],
     "FieldValue": [
       "IntFieldValue",

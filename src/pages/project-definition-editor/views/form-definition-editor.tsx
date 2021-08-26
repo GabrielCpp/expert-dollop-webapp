@@ -114,11 +114,15 @@ function FormField({ node }: FormProps): JSX.Element {
         name={node.definition.name}
         defaultValue={value}
         id={node.definition.id}
-        label={node.definition.name}
+        label={node.definition.config.translations.label}
         t={dbTrans}
         component={radioField}
       />
     );
+  }
+
+  if (fieldType === "StaticNumberFieldConfig") {
+    return <label>{dbTrans(node.definition.name)}</label>;
   }
 
   return <div key={node.definition.name}>{node.definition.name}</div>;

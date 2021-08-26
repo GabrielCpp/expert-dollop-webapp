@@ -37,11 +37,15 @@ export function radioField({
   t,
   options,
 }: RadiodProps) {
+  const translatedLabel = t(label);
+
   return (
     <fieldset>
-      <legend>
-        <FormLabel>{t(label)}</FormLabel>
-      </legend>
+      {translatedLabel !== "" && (
+        <legend>
+          <FormLabel>{translatedLabel}</FormLabel>
+        </legend>
+      )}
       <RadioGroup name={name} value={value} onChange={onChange} id={id}>
         {options.map((option) => (
           <FormControlLabel

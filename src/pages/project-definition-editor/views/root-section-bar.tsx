@@ -73,7 +73,7 @@ export function RootSectionBar({
         label:
           t("button.delete") +
           " " +
-          dbTrans(rootSectionDef?.config.translations.helpTextName),
+          dbTrans(rootSectionDef?.config.translations.label),
         action: () =>
           history.push(
             routes.render(
@@ -94,6 +94,9 @@ export function RootSectionBar({
             onChange={onChange}
             variant="scrollable"
             scrollButtons="auto"
+            style={{
+              maxWidth: "calc(100vw - 200px - 36px - 36px - 28px - 28px)",
+            }}
           >
             {roots.map((def) => (
               <Tab

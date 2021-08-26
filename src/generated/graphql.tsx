@@ -183,10 +183,11 @@ export enum FieldDetailsType {
   STRING_FIELD_CONFIG = 'STRING_FIELD_CONFIG',
   BOOL_FIELD_CONFIG = 'BOOL_FIELD_CONFIG',
   STATIC_CHOICE_FIELD_CONFIG = 'STATIC_CHOICE_FIELD_CONFIG',
-  COLLAPSIBLE_CONTAINER_FIELD_CONFIG = 'COLLAPSIBLE_CONTAINER_FIELD_CONFIG'
+  COLLAPSIBLE_CONTAINER_FIELD_CONFIG = 'COLLAPSIBLE_CONTAINER_FIELD_CONFIG',
+  STATIC_NUMBER_FIELD_CONFIG = 'STATIC_NUMBER_FIELD_CONFIG'
 }
 
-export type FieldDetailsUnion = IntFieldConfig | DecimalFieldConfig | StringFieldConfig | BoolFieldConfig | StaticChoiceFieldConfig | CollapsibleContainerFieldConfig;
+export type FieldDetailsUnion = IntFieldConfig | DecimalFieldConfig | StringFieldConfig | BoolFieldConfig | StaticChoiceFieldConfig | CollapsibleContainerFieldConfig | StaticNumberFieldConfig;
 
 export type FieldDetailsUnionInput = {
   kind: FieldDetailsType;
@@ -196,6 +197,7 @@ export type FieldDetailsUnionInput = {
   bool?: Maybe<BoolFieldConfigInput>;
   staticChoice?: Maybe<StaticChoiceFieldConfigInput>;
   collapsibleContainer?: Maybe<CollapsibleContainerFieldConfigInput>;
+  staticNumberFieldConfig?: Maybe<StaticNumberFieldConfigInput>;
 };
 
 export type FieldValue = IntFieldValue | DecimalFieldValue | StringFieldValue | BoolFieldValue;
@@ -605,6 +607,19 @@ export type StaticChoiceOptionInput = {
   help_text: Scalars['String'];
 };
 
+export type StaticNumberFieldConfig = {
+  __typename?: 'StaticNumberFieldConfig';
+  passToTranslation: FieldWrapper<Scalars['Boolean']>;
+  precision: FieldWrapper<Scalars['Int']>;
+  unit: FieldWrapper<Scalars['String']>;
+};
+
+export type StaticNumberFieldConfigInput = {
+  passToTranslation: Scalars['Boolean'];
+  precision: Scalars['Int'];
+  unit: Scalars['String'];
+};
+
 export type StringFieldConfig = {
   __typename?: 'StringFieldConfig';
   transforms: Array<FieldWrapper<Scalars['String']>>;
@@ -803,7 +818,7 @@ export type AddProjectDefinitionNodeMutation = (
       ) | (
         { __typename: 'CollapsibleContainerFieldConfig' }
         & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-      )> }
+      ) | { __typename: 'StaticNumberFieldConfig' }> }
     ) }
   ) }
 );
@@ -874,6 +889,9 @@ export type FindProjectDefinitionRootSectionsQuery = (
           ) | (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+          ) | (
+            { __typename: 'StaticNumberFieldConfig' }
+            & Pick<StaticNumberFieldConfig, 'passToTranslation' | 'precision' | 'unit'>
           )> }
         ), defaultValue?: Maybe<(
           { __typename: 'IntFieldValue' }
@@ -935,6 +953,9 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
           ) | (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+          ) | (
+            { __typename: 'StaticNumberFieldConfig' }
+            & Pick<StaticNumberFieldConfig, 'passToTranslation' | 'precision' | 'unit'>
           )> }
         ), defaultValue?: Maybe<(
           { __typename: 'IntFieldValue' }
@@ -981,6 +1002,9 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
             ) | (
               { __typename: 'CollapsibleContainerFieldConfig' }
               & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+            ) | (
+              { __typename: 'StaticNumberFieldConfig' }
+              & Pick<StaticNumberFieldConfig, 'passToTranslation' | 'precision' | 'unit'>
             )> }
           ), defaultValue?: Maybe<(
             { __typename: 'IntFieldValue' }
@@ -1046,6 +1070,9 @@ export type FindProjectDefinitionFormContentQuery = (
       ) | (
         { __typename: 'CollapsibleContainerFieldConfig' }
         & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+      ) | (
+        { __typename: 'StaticNumberFieldConfig' }
+        & Pick<StaticNumberFieldConfig, 'passToTranslation' | 'precision' | 'unit'>
       )> }
     ) }
   ), findProjectDefinitionFormContent: (
@@ -1089,6 +1116,9 @@ export type FindProjectDefinitionFormContentQuery = (
           ) | (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+          ) | (
+            { __typename: 'StaticNumberFieldConfig' }
+            & Pick<StaticNumberFieldConfig, 'passToTranslation' | 'precision' | 'unit'>
           )> }
         ), defaultValue?: Maybe<(
           { __typename: 'IntFieldValue' }
@@ -1142,6 +1172,9 @@ export type FindProjectDefinitionFormContentQuery = (
             ) | (
               { __typename: 'CollapsibleContainerFieldConfig' }
               & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+            ) | (
+              { __typename: 'StaticNumberFieldConfig' }
+              & Pick<StaticNumberFieldConfig, 'passToTranslation' | 'precision' | 'unit'>
             )> }
           ), defaultValue?: Maybe<(
             { __typename: 'IntFieldValue' }
@@ -1207,6 +1240,9 @@ export type FindProjectDefinitionNodeQuery = (
       ) | (
         { __typename: 'CollapsibleContainerFieldConfig' }
         & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+      ) | (
+        { __typename: 'StaticNumberFieldConfig' }
+        & Pick<StaticNumberFieldConfig, 'passToTranslation' | 'precision' | 'unit'>
       )> }
     ), translations: Array<(
       { __typename?: 'Translation' }
@@ -1319,7 +1355,7 @@ export type FindProjectRootSectionsQuery = (
           ) | (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-          )> }
+          ) | { __typename: 'StaticNumberFieldConfig' }> }
         ) }
       ), state: (
         { __typename?: 'ProjectNodeMetaState' }
@@ -1390,7 +1426,7 @@ export type FindProjectRootSectionContainersQuery = (
           ) | (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-          )> }
+          ) | { __typename: 'StaticNumberFieldConfig' }> }
         ) }
       ), state: (
         { __typename?: 'ProjectNodeMetaState' }
@@ -1445,7 +1481,7 @@ export type FindProjectRootSectionContainersQuery = (
               ) | (
                 { __typename: 'CollapsibleContainerFieldConfig' }
                 & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-              )> }
+              ) | { __typename: 'StaticNumberFieldConfig' }> }
             ) }
           ), state: (
             { __typename?: 'ProjectNodeMetaState' }
@@ -1518,7 +1554,7 @@ export type FindProjectFormContentQuery = (
           ) | (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-          )> }
+          ) | { __typename: 'StaticNumberFieldConfig' }> }
         ) }
       ), state: (
         { __typename?: 'ProjectNodeMetaState' }
@@ -1573,7 +1609,7 @@ export type FindProjectFormContentQuery = (
               ) | (
                 { __typename: 'CollapsibleContainerFieldConfig' }
                 & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-              )> }
+              ) | { __typename: 'StaticNumberFieldConfig' }> }
             ) }
           ), state: (
             { __typename?: 'ProjectNodeMetaState' }
@@ -1923,6 +1959,11 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
             ... on CollapsibleContainerFieldConfig {
               isCollapsible
             }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
+            }
           }
         }
         defaultValue {
@@ -2019,6 +2060,11 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
             ... on CollapsibleContainerFieldConfig {
               isCollapsible
             }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
+            }
           }
         }
         defaultValue {
@@ -2076,6 +2122,11 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
               }
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
+              }
+              ... on StaticNumberFieldConfig {
+                passToTranslation
+                precision
+                unit
               }
             }
           }
@@ -2179,6 +2230,11 @@ export const FindProjectDefinitionFormContentDocument = gql`
         ... on CollapsibleContainerFieldConfig {
           isCollapsible
         }
+        ... on StaticNumberFieldConfig {
+          passToTranslation
+          precision
+          unit
+        }
       }
     }
   }
@@ -2229,6 +2285,11 @@ export const FindProjectDefinitionFormContentDocument = gql`
             }
             ... on CollapsibleContainerFieldConfig {
               isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
             }
           }
         }
@@ -2295,6 +2356,11 @@ export const FindProjectDefinitionFormContentDocument = gql`
               }
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
+              }
+              ... on StaticNumberFieldConfig {
+                passToTranslation
+                precision
+                unit
               }
             }
           }
@@ -2397,6 +2463,11 @@ export const FindProjectDefinitionNodeDocument = gql`
         }
         ... on CollapsibleContainerFieldConfig {
           isCollapsible
+        }
+        ... on StaticNumberFieldConfig {
+          passToTranslation
+          precision
+          unit
         }
       }
     }

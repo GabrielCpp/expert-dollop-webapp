@@ -75,6 +75,7 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     flexGrow: 1,
+    width: "calc(100vw - 200px)",
   },
   search: {
     position: "relative",

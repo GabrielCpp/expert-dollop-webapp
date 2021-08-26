@@ -71,6 +71,11 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
               }
+              ... on StaticNumberFieldConfig {
+                passToTranslation
+                precision
+                unit
+              }
             }
           }
           defaultValue {
@@ -143,6 +148,11 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
               }
+              ... on StaticNumberFieldConfig {
+                passToTranslation
+                precision
+                unit
+              }
             }
           }
           defaultValue {
@@ -200,6 +210,11 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
                 }
                 ... on CollapsibleContainerFieldConfig {
                   isCollapsible
+                }
+                ... on StaticNumberFieldConfig {
+                  passToTranslation
+                  precision
+                  unit
                 }
               }
             }
@@ -275,6 +290,11 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
           ... on CollapsibleContainerFieldConfig {
             isCollapsible
           }
+          ... on StaticNumberFieldConfig {
+            passToTranslation
+            precision
+            unit
+          }
         }
       }
     }
@@ -325,6 +345,11 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
               }
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
+              }
+              ... on StaticNumberFieldConfig {
+                passToTranslation
+                precision
+                unit
               }
             }
           }
@@ -391,6 +416,11 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
                 }
                 ... on CollapsibleContainerFieldConfig {
                   isCollapsible
+                }
+                ... on StaticNumberFieldConfig {
+                  passToTranslation
+                  precision
+                  unit
                 }
               }
             }
@@ -465,6 +495,11 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
           }
           ... on CollapsibleContainerFieldConfig {
             isCollapsible
+          }
+          ... on StaticNumberFieldConfig {
+            passToTranslation
+            precision
+            unit
           }
         }
       }
