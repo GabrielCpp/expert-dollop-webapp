@@ -18,6 +18,7 @@ import {
   FindProjectDefinitionNodeQuery,
   ProjectDefinitionNode,
   Translation,
+  TranslationConfig,
   useFindProjectDefinitionNodeQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
@@ -53,12 +54,14 @@ export interface FieldTranslationProps {
   path: string[];
   name: string;
   translations: Translation[];
+  translationConfig: TranslationConfig;
 }
 
 export function FieldTranslation({
   path,
   name,
   translations,
+  translationConfig,
 }: FieldTranslationProps) {
   const { t } = useTranslation();
   const { formPath } = useForm(name, path);
@@ -66,11 +69,12 @@ export function FieldTranslation({
     (translation) => translation.locale === name
   );
   const helpText =
-    tabTranslations.find((translation) => translation.name.endsWith("helptext"))
-      ?.value || "";
+    tabTranslations.find(
+      (translation) => translation.name == translationConfig.label
+    )?.value || "";
   const label =
     tabTranslations.find(
-      (translation) => !translation.name.endsWith("helptext")
+      (translation) => translation.name == translationConfig.helpTextName
     )?.value || "";
 
   return (
@@ -293,6 +297,7 @@ function ContainerForm({
                 <FieldTranslation
                   path={path}
                   name={name}
+                  translationConfig={node.config.translations}
                   translations={node.translations}
                 />
               )}
@@ -426,12 +431,11 @@ interface EditContainerFormParams extends RouteViewCompoenentProps {
 
 export function EditContainerView({ returnUrl }: RouteViewCompoenentProps) {
   const { formPath: path } = useForm();
-  const { reduxDb, ajv, apollo } = useServices();
+  const { reduxDb, ajv } = useServices();
   const { projectDefinitionId, selectedPath, nodeId } =
     useParams<EditContainerFormParams>();
   const nodePath = splitPath(selectedPath);
   const level = levelMapping[nodePath.length];
-  const history = useHistory();
   async function onSubmit() {
     if (validateForm(reduxDb, ajv)(path) === false) {
       return;
