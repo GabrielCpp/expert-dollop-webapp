@@ -46,6 +46,21 @@ export function createFormFieldRecord(
   };
 }
 
+export function queryPathByName(name: string, path: string[]): Query {
+  return QueryBuilder.fromTable(FormFieldTableName)
+    .where(
+      ops(
+        "and",
+        ops("isEqual", recordParam("fieldPath"), queryParam("path")),
+        ops("isEqual", recordParam("fieldName"), queryParam("name"))
+      )
+    )
+    .bindParameters({
+      path,
+      name,
+    }).query;
+}
+
 export function queryDirectChildrenOf(path: string[]): Query {
   return QueryBuilder.fromTable(FormFieldTableName)
     .where(ops("isEqual", recordParam("fieldPath"), queryParam("path")))
@@ -132,70 +147,69 @@ export interface HydratedFormNode<T extends FormFieldRecordValue> {
   value: T;
 }
 
-export const hydrateForm = <T>(database: ReduxDatabase) => (
-  rootPath: string[]
-): T => {
-  const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-  const sortedRecords = reverse(
-    sortBy(records, [(o) => o.fieldPath.length, (o) => o.fieldPath.join(".")])
-  );
-  const treeOfChildren = new Map<string, Record<string, unknown>>();
+export const hydrateForm =
+  <T>(database: ReduxDatabase) =>
+  (rootPath: string[]): T => {
+    const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
+    const sortedRecords = reverse(
+      sortBy(records, [(o) => o.fieldPath.length, (o) => o.fieldPath.join(".")])
+    );
+    const treeOfChildren = new Map<string, Record<string, unknown>>();
 
-  for (const record of sortedRecords) {
-    const myPath = [...record.fieldPath, record.fieldId].join(".");
-    const children = treeOfChildren.get(myPath);
+    for (const record of sortedRecords) {
+      const myPath = [...record.fieldPath, record.fieldId].join(".");
+      const children = treeOfChildren.get(myPath);
 
-    const parentPath = record.fieldPath.join(".");
-    let parentRecord = treeOfChildren.get(parentPath);
+      const parentPath = record.fieldPath.join(".");
+      let parentRecord = treeOfChildren.get(parentPath);
 
-    if (parentRecord === undefined) {
-      parentRecord = {};
-      treeOfChildren.set(parentPath, parentRecord);
+      if (parentRecord === undefined) {
+        parentRecord = {};
+        treeOfChildren.set(parentPath, parentRecord);
+      }
+
+      if (children === undefined) {
+        parentRecord[record.fieldName] = record.value;
+      } else {
+        parentRecord[record.fieldName] = children;
+      }
+
+      treeOfChildren.delete(myPath);
     }
 
-    if (children === undefined) {
-      parentRecord[record.fieldName] = record.value;
-    } else {
-      parentRecord[record.fieldName] = children;
+    if (treeOfChildren.size !== 1) {
+      throw new Error("Something went wrong when building form tree");
     }
 
-    treeOfChildren.delete(myPath);
-  }
+    return head(Array.from(treeOfChildren.values())) as T;
+  };
 
-  if (treeOfChildren.size !== 1) {
-    throw new Error("Something went wrong when building form tree");
-  }
+export const validateForm =
+  (database: ReduxDatabase, ajvFactory: AjvFactory) =>
+  (rootPath: string[]): boolean => {
+    const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
+    const recordToUpdates: FormFieldRecord[] = [];
+    let isValidForm = true;
 
-  return head(Array.from(treeOfChildren.values())) as T;
-};
+    for (const record of records) {
+      const validator = ajvFactory.forSchema(record.jsonSchemaValidator);
+      validator(record.value);
 
-export const validateForm = (
-  database: ReduxDatabase,
-  ajvFactory: AjvFactory
-) => (rootPath: string[]): boolean => {
-  const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-  const recordToUpdates: FormFieldRecord[] = [];
-  let isValidForm = true;
+      const errors = validator.errors || [];
 
-  for (const record of records) {
-    const validator = ajvFactory.forSchema(record.jsonSchemaValidator);
-    validator(record.value);
+      if (errors.length > 0) {
+        isValidForm = false;
+      }
 
-    const errors = validator.errors || [];
-
-    if (errors.length > 0) {
-      isValidForm = false;
+      if (!isEqual(record.errors, errors)) {
+        recordToUpdates.push({
+          ...record,
+          errors,
+        });
+      }
     }
 
-    if (!isEqual(record.errors, errors)) {
-      recordToUpdates.push({
-        ...record,
-        errors,
-      });
-    }
-  }
+    upsertFormFieldRecord(database, recordToUpdates);
 
-  upsertFormFieldRecord(database, recordToUpdates);
-
-  return isValidForm;
-};
+    return isValidForm;
+  };

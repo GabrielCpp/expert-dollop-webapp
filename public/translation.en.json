@@ -39,7 +39,12 @@
       "order": "Order",
       "label": "Label",
       "help_text": "Help text",
-      "is_collapsible": "Is collapsible"
+      "is_collapsible": "Is collapsible",
+      "triggers": {
+        "action": "Action",
+        "change_name_option": "On Change",
+        "set_visibility_option": "Toggle visibility"
+      }
     }
   }
 }

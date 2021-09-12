@@ -274,7 +274,6 @@ interface FormEditorProps {
 
 export function FormEditor({ projectId, formId }: FormEditorProps) {
   const { onLoading } = useLoader();
-  const { dbTrans } = useDbTranslation(projectId);
   const { loading, data, error } = useFindProjectFormContentQuery({
     variables: {
       projectId,

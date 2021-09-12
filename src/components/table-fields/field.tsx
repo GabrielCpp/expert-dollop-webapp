@@ -1,6 +1,6 @@
 import { JSONSchemaType, Schema } from "ajv";
 import { isBoolean } from "lodash";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useId, useTableRecord } from "../../shared/redux-db";
 import { useServices } from "../../shared/service-context";
 import {
@@ -42,10 +42,20 @@ export function Field({
 }: FieldProps) {
   const { ajv, reduxDb } = useServices();
   const fieldId = useId(id);
-  const fieldDetailsRef = useRef(
-    createFormFieldRecord(validator, path, name, defaultValue, fieldId)
-  );
-  const fieldDetails = fieldDetailsRef.current;
+  const fieldDetailsRef = useRef<FormFieldRecord | undefined>(undefined);
+  if (fieldDetailsRef.current === undefined) {
+    fieldDetailsRef.current = createFormFieldRecord(
+      validator,
+      path,
+      name,
+      defaultValue,
+      fieldId
+    );
+
+    reduxDb.getTable(FormFieldTableName).upsertMany([fieldDetailsRef.current]);
+  }
+
+  const fieldDetails = fieldDetailsRef.current as FormFieldRecord;
   const primaryKey = buildFormFieldRecordPk(fieldDetails);
   const [item, updateItem, updateLocalItem] = useTableRecord<FormFieldRecord>(
     FormFieldTableName,
@@ -53,10 +63,8 @@ export function Field({
     fieldDetails
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const record = fieldDetailsRef.current;
-    reduxDb.getTable(FormFieldTableName).upsertMany([fieldDetailsRef.current]);
-
     return () => {
       reduxDb.getTable(FormFieldTableName).removeMany([record]);
     };

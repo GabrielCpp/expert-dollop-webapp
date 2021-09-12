@@ -4,18 +4,20 @@ import {
   CardContent,
   CardHeader,
   Grid,
+  IconButton,
   Typography,
 } from "@material-ui/core";
-import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 import {
   AddProjectDefinitionNodeDocument,
+  CollapsibleContainerFieldConfig,
   FieldDetailsType,
   FindProjectDefinitionNodeDocument,
   FindProjectDefinitionNodeQuery,
+  NodeConfig,
   ProjectDefinitionNode,
   Translation,
   TranslationConfig,
@@ -32,12 +34,17 @@ import {
   FixedTabDisplay,
   hydrateForm,
   INT_VALIDATOR,
+  selectField,
   STRING_VALIDATOR,
   textField,
   useForm,
+  useFormValue,
+  useLocalRef,
   validateForm,
 } from "../../../components/table-fields";
-
+import { useState } from "react";
+import AddIcon from "@material-ui/icons/Add";
+import DeleteIcon from "@material-ui/icons/Delete";
 const NAME_VALIDATOR = {
   type: "string",
   minLength: 1,
@@ -70,18 +77,18 @@ export function FieldTranslation({
   );
   const helpText =
     tabTranslations.find(
-      (translation) => translation.name == translationConfig.label
+      (translation) => translation.name === translationConfig.label
     )?.value || "";
   const label =
     tabTranslations.find(
-      (translation) => translation.name == translationConfig.helpTextName
+      (translation) => translation.name === translationConfig.helpTextName
     )?.value || "";
 
   return (
     <Grid
       container
       direction="column"
-      justify="flex-start"
+      justifyContent="flex-start"
       alignItems="flex-start"
     >
       <Field
@@ -106,21 +113,99 @@ export function FieldTranslation({
   );
 }
 
+interface TriggersProps {
+  path: string[];
+}
+
+function Triggers({ path }: TriggersProps) {
+  const { t } = useTranslation();
+  const { formPath } = useForm("triggers", path);
+  const [ids, setIds] = useState<string[]>([]);
+
+  function addTrigger() {
+    setIds([...ids, uuidv4()]);
+  }
+
+  const deleteTrigger = (id: string) => () => {
+    setIds(ids.filter((x) => x !== id));
+  };
+
+  return (
+    <Card>
+      <CardHeader
+        action={
+          <IconButton aria-label="settings" onClick={addTrigger}>
+            <AddIcon />
+          </IconButton>
+        }
+        title="Triggers"
+      />
+      <CardContent>
+        <Grid direction="column" container>
+          {ids.map((id) => (
+            <Grid key={id}>
+              <IconButton onClick={deleteTrigger(id)}>
+                <DeleteIcon />
+              </IconButton>
+              <Field
+                id={id}
+                validator={STRING_VALIDATOR}
+                defaultValue={"SET_VISIBILITY"}
+                path={formPath}
+                name="action"
+                component={selectField}
+                label="project_definition_editor.add_node_form.triggers.action"
+                options={[
+                  {
+                    id: "CHANGE_NAME",
+                    label:
+                      "project_definition_editor.add_node_form.triggers.change_name_option",
+                  },
+                  {
+                    id: "SET_VISIBILITY",
+                    label:
+                      "project_definition_editor.add_node_form.triggers.set_visibility_option",
+                  },
+                ]}
+                t={t}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+}
+
 interface ConfigFormProps {
-  configType: FieldDetailsType;
+  config: NodeConfig;
+  level: string;
   name: string;
   path: string[];
 }
 
-function ConfigForm({ name, path, configType }: ConfigFormProps) {
+function ConfigForm({ name, path, config, level }: ConfigFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm(name, path);
+  const { value, id: configTypeId } = useLocalRef(
+    "fieldConfigType",
+    formPath,
+    "string"
+  );
+
+  const configType =
+    level === "section"
+      ? FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG
+      : null;
+  useFormValue(name, path, configType);
 
   if (configType === FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG) {
+    const collapsibleContainerFieldConfig =
+      config.fieldDetails as CollapsibleContainerFieldConfig;
     return (
       <Field
         validator={BOOLEAN_VALIDATOR}
-        defaultValue={true}
+        defaultValue={collapsibleContainerFieldConfig.isCollapsible}
         path={formPath}
         name="isCollapsible"
         component={checkboxField}
@@ -130,7 +215,60 @@ function ConfigForm({ name, path, configType }: ConfigFormProps) {
     );
   }
 
-  return <span></span>;
+  return (
+    <>
+      {level === "field" && (
+        <Field
+          id={configTypeId}
+          validator={STRING_VALIDATOR}
+          defaultValue={value}
+          path={formPath}
+          name="fieldConfigType"
+          component={selectField}
+          label="project_definition_editor.add_node_form.field_details"
+          options={[
+            {
+              id: "string",
+              label: "string",
+            },
+            {
+              id: "INT_FIELD_CONFIG",
+              label: "integer",
+            },
+            {
+              id: "DECIMAL_FIELD_CONFIG",
+              label: "float",
+            },
+            {
+              id: "BOOL_FIELD_CONFIG",
+              label: "boolean",
+            },
+            {
+              id: "STATIC_CHOICE_FIELD_CONFIG",
+              label: "choix",
+            },
+            {
+              id: "STATIC_NUMBER_FIELD_CONFIG",
+              label: "calcul",
+            },
+          ]}
+          t={t}
+        />
+      )}
+      {value === "boolean" && (
+        <Field
+          validator={BOOLEAN_VALIDATOR}
+          defaultValue={true}
+          path={formPath}
+          name="isCheckbox"
+          component={checkboxField}
+          label="project_definition_editor.add_node_form.config.is_checkbox"
+          t={t}
+        />
+      )}
+      <Triggers path={formPath} />
+    </>
+  );
 }
 
 export interface AddContainerFormProps extends RouteViewCompoenentProps {
@@ -246,7 +384,7 @@ function ContainerForm({
           <Grid
             container
             direction="column"
-            justify="flex-start"
+            justifyContent="flex-start"
             alignItems="flex-start"
           >
             <Field
@@ -302,18 +440,16 @@ function ContainerForm({
                 />
               )}
             </FixedTabDisplay>
-            {(level === "section" || level === "field") && (
-              <ConfigForm
-                path={path}
-                name="config"
-                configType={FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG}
-              />
-            )}
-
+            <ConfigForm
+              path={path}
+              name="config"
+              level={level}
+              config={node.config}
+            />
             <Grid
               container
               direction="row"
-              justify="flex-start"
+              justifyContent="flex-start"
               alignItems="flex-start"
             >
               <Button variant="contained" color="primary" onClick={onSubmit}>
@@ -383,7 +519,6 @@ export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
           path: newNodePath,
         },
       },
-      update(cache, { data: { addTodo } }) {},
     });
 
     history.push(returnUrl);

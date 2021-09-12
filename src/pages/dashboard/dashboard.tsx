@@ -8,7 +8,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import { fade, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import ApartmentIcon from "@material-ui/icons/Apartment";
@@ -29,10 +29,10 @@ import {
 } from "react-router-dom";
 
 import { LoadingFrame } from "../../components/loading-frame";
-import { CircularProgress } from "@material-ui/core";
+import { alpha, CircularProgress } from "@material-ui/core";
 import { useServices } from "../../services-def";
 import { NamedRoutes } from "../../shared/named-routes";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 function Copyright() {
   return (
@@ -80,9 +80,9 @@ const useStyles = makeStyles((theme) => ({
   search: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
     "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
+      backgroundColor: alpha(theme.palette.common.white, 0.25),
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,

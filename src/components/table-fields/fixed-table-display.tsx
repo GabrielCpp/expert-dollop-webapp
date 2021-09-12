@@ -42,11 +42,7 @@ export function FixedTabDisplay({
 
   return (
     <>
-      <Tabs
-        value={selectedTab}
-        onChange={handleChange}
-        aria-label="simple tabs example"
-      >
+      <Tabs value={selectedTab} onChange={handleChange}>
         {avaiablesComponents.map(([name, label]) => (
           <Tab key={name} label={t(label)} value={name} />
         ))}

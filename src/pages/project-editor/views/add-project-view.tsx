@@ -83,7 +83,7 @@ export function AddProjectView({ returnUrl }: RouteViewCompoenentProps) {
           <Grid
             container
             direction="column"
-            justify="flex-start"
+            justifyContent="flex-start"
             alignItems="flex-start"
           >
             <Field
@@ -109,7 +109,7 @@ export function AddProjectView({ returnUrl }: RouteViewCompoenentProps) {
             <Grid
               container
               direction="row"
-              justify="flex-start"
+              justifyContent="flex-start"
               alignItems="flex-start"
             >
               <Button onClick={onSubmit}>Add</Button>

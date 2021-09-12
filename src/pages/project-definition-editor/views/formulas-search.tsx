@@ -6,12 +6,8 @@ import {
   FindProjectDefinitionFormulasDocument,
   FindProjectDefinitionFormulasQuery,
   FindProjectDefinitionFormulasQueryVariables,
-  FindProjectDefintionsDocument,
-  FindProjectDefintionsQuery,
-  ProjectDefinition,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 import {
   HeadCell,
   PaginatedDataGrid,

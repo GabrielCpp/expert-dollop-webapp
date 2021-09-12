@@ -49,7 +49,8 @@ export class DatabaseTable {
     try {
       return this._table.getRecord(primaryKey).value as T;
     } catch (e) {
-      if (e.name !== "primary_key_missing") {
+      const error = e as Error;
+      if (error.name !== "primary_key_missing") {
         throw e;
       }
     }

@@ -188,7 +188,6 @@ export function RootSectionBar({
   };
 
   if (data === undefined) {
-    console.log(data, urls.current);
     return null;
   }
 

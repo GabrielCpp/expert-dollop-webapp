@@ -88,7 +88,6 @@ export function useWatchFeed(id: string, onEvent: (event: FeedEvent) => void) {
   useEffect(() => {
     const unsubcribe = feeds.subscribe(id, onEvent);
     myFeed.current = unsubcribe;
-    console.log("Subscribed");
 
     return () => {
       unsubcribe();

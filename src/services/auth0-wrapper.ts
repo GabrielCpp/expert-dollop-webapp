@@ -23,8 +23,9 @@ class Auth0Wrapper implements Auth0Context {
       token = await this.auth0.getAccessTokenSilently({
         audience: process.env.REACT_APP_AUTH0_AUDIENCE as string,
       });
-    } catch (e) {
-      if (e.message === "Consent required") {
+    } catch (e: unknown) {
+      const error = e as Error;
+      if (error.message === "Consent required") {
         this.auth0.loginWithRedirect();
       }
     }

@@ -1,8 +1,8 @@
-import { createMuiTheme } from "@material-ui/core/styles";
+import { createTheme } from "@material-ui/core/styles";
 import orange from "@material-ui/core/colors/orange";
 import green from "@material-ui/core/colors/green";
 
-export const theme = createMuiTheme({
+export const theme = createTheme({
   mixins: {
     toolbar: {
       minHeight: 36,

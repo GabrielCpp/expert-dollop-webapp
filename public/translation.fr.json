@@ -22,7 +22,12 @@
       "order": "Ordre",
       "label": "Étiquette",
       "help_text": "Texte d'aide",
-      "is_collapsible": "Rendre pliable"
+      "is_collapsible": "Rendre pliable",
+      "triggers": {
+        "action": "Action",
+        "change_name_option": "Sur un changement",
+        "set_visibility_option": "Inverser la visibilité"
+      }
     }
   }
 }

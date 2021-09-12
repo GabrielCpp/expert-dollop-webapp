@@ -9,7 +9,7 @@ interface LoaderComponentState {
 export class LoaderService {
   private triggerEffect: (isLoading: boolean, error?: Error) => void = noop;
   private loadingEmitters = new Map<string, LoaderComponentState>();
-  private lastLoadingState = true;
+  private lastLoadingState = false;
 
   setEffect(handler: (isLoading: boolean, error?: Error) => void) {
     this.triggerEffect = handler;
@@ -47,10 +47,12 @@ export class LoaderService {
       isLoading = isLoading || state.isLoading;
       if (state.error !== undefined) {
         error = state.error;
+        break;
       }
     }
 
     if (isLoading !== this.lastLoadingState || error) {
+      this.lastLoadingState = isLoading;
       this.triggerEffect(isLoading, error);
     }
   }

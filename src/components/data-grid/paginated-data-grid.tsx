@@ -223,9 +223,10 @@ export function PaginatedDataGrid<Data>({
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
   const [query, setQuery] = useState<string>("");
-  const delayedQuery = useRef<
-    (query: string, limit: number, nextPageToken: string | undefined) => void
-  >(noop);
+  const delayedQuery =
+    useRef<
+      (query: string, limit: number, nextPageToken: string | undefined) => void
+    >(noop);
   const pageInfo = useRef<PageInfo>({
     hasNextPage: false,
     endCursor: undefined,
@@ -398,8 +399,8 @@ export function PaginatedDataGrid<Data>({
           count={pageInfo.current.totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
     </div>

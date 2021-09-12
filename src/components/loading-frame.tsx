@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useServices } from "../services-def";
 import { useId } from "../shared/redux-db";
 
@@ -14,16 +14,15 @@ export function LoadingFrame({
   const { loader } = useServices();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useLayoutEffect(() => {
-    loader.setEffect(onLoading);
-  });
-
   function onLoading(newIsLoading: boolean, error?: Error): void {
     if (error) {
       console.error(error);
     }
+
     setIsLoading(newIsLoading);
   }
+
+  loader.setEffect(onLoading);
 
   return (
     <>

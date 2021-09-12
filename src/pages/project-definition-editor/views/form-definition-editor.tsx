@@ -30,8 +30,11 @@ import { useDbTranslation } from "../../../components/translation";
 import { EditButton } from "../components/edit-button";
 import {
   buildAddNodeParams,
+  buildEditNodeParams,
   PROJECT_DEFINITION_EDITOR_NODE_ADD,
+  PROJECT_DEFINITION_EDITOR_NODE_EDIT,
 } from "../routes";
+import EditIcon from "@material-ui/icons/Edit";
 
 interface FormProps {
   node: ProjectDefinitionTreeNode;
@@ -57,6 +60,8 @@ function getFieldValue(node: ProjectDefinitionNode): string | number | boolean {
 
 function FormField({ node }: FormProps): JSX.Element {
   const { dbTrans } = useDbTranslation(node.definition.projectDefId);
+  const { routes } = useServices();
+  const classes = useStyles();
 
   if (
     node.definition.config.fieldDetails === null ||
@@ -68,6 +73,22 @@ function FormField({ node }: FormProps): JSX.Element {
   const { __typename: fieldType } = node.definition.config.fieldDetails;
   const value = getFieldValue(node.definition);
   const validator = JSON.parse(node.definition.config.valueValidator);
+  const EditButton = (
+    <IconButton
+      aria-label="edit"
+      component={RouterLink}
+      to={routes.render(
+        PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+        buildEditNodeParams(
+          node.definition.projectDefId,
+          node.definition.path,
+          node.definition.id
+        )
+      )}
+    >
+      <EditIcon fontSize="inherit" />
+    </IconButton>
+  );
 
   if (
     fieldType === "StringFieldConfig" ||
@@ -75,31 +96,45 @@ function FormField({ node }: FormProps): JSX.Element {
     fieldType === "DecimalFieldConfig"
   ) {
     return (
-      <Field
-        validator={validator}
-        path={node.definition.path}
-        name={node.definition.name}
-        defaultValue={value}
-        id={node.definition.id}
-        label={node.definition.name}
-        t={dbTrans}
-        component={textField}
-      />
+      <Grid container className={classes.grid}>
+        <Grid item className={classes.field}>
+          <Field
+            validator={validator}
+            path={node.definition.path}
+            name={node.definition.name}
+            defaultValue={value}
+            id={node.definition.id}
+            label={node.definition.name}
+            t={dbTrans}
+            component={textField}
+          />
+        </Grid>
+        <Grid item className={classes.editButton}>
+          {EditButton}
+        </Grid>
+      </Grid>
     );
   }
 
   if (fieldType === "BoolFieldConfig") {
     return (
-      <Field
-        validator={validator}
-        path={node.definition.path}
-        name={node.definition.name}
-        defaultValue={value}
-        id={node.definition.id}
-        label={node.definition.name}
-        t={dbTrans}
-        component={checkboxField}
-      />
+      <Grid container className={classes.grid}>
+        <Grid item className={classes.field}>
+          <Field
+            validator={validator}
+            path={node.definition.path}
+            name={node.definition.name}
+            defaultValue={value}
+            id={node.definition.id}
+            label={node.definition.name}
+            t={dbTrans}
+            component={checkboxField}
+          />
+        </Grid>
+        <Grid item className={classes.editButton}>
+          {EditButton}
+        </Grid>
+      </Grid>
     );
   }
 
@@ -107,22 +142,38 @@ function FormField({ node }: FormProps): JSX.Element {
     const choices = node.definition.config
       .fieldDetails as StaticChoiceFieldConfig;
     return (
-      <Field
-        options={choices.options}
-        validator={validator}
-        path={node.definition.path}
-        name={node.definition.name}
-        defaultValue={value}
-        id={node.definition.id}
-        label={node.definition.config.translations.label}
-        t={dbTrans}
-        component={radioField}
-      />
+      <Grid container className={classes.grid}>
+        <Grid item className={classes.field}>
+          <Field
+            options={choices.options}
+            validator={validator}
+            path={node.definition.path}
+            name={node.definition.name}
+            defaultValue={value}
+            id={node.definition.id}
+            label={node.definition.config.translations.label}
+            t={dbTrans}
+            component={radioField}
+          />
+        </Grid>
+        <Grid item className={classes.editButton}>
+          {EditButton}
+        </Grid>
+      </Grid>
     );
   }
 
   if (fieldType === "StaticNumberFieldConfig") {
-    return <label>{dbTrans(node.definition.name)}</label>;
+    return (
+      <Grid container className={classes.grid}>
+        <Grid item className={classes.field}>
+          <label>{dbTrans(node.definition.name)}</label>{" "}
+        </Grid>
+        <Grid item className={classes.editButton}>
+          {EditButton}
+        </Grid>
+      </Grid>
+    );
   }
 
   return <div key={node.definition.name}>{node.definition.name}</div>;
@@ -144,6 +195,15 @@ const useStyles = makeStyles((theme) => ({
   },
   leftSideButton: {
     marginLeft: "auto",
+  },
+  grid: {
+    width: "100%",
+  },
+  field: {
+    width: "90%",
+  },
+  editButton: {
+    width: "10%",
   },
 }));
 
