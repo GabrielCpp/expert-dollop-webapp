@@ -1,5 +1,5 @@
 import { ErrorObject, JSONSchemaType, Schema } from "ajv";
-import { head, isEqual, reverse, sortBy, startsWith } from "lodash";
+import { isEqual, map, omit, set, sortBy, startsWith, tail } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { AjvFactory } from "../../services-def";
 
@@ -141,47 +141,33 @@ export function buildFieldByNameMap(
   return fieldMap;
 }
 
-export interface HydratedFormNode<T extends FormFieldRecordValue> {
-  id: string;
-  name: string;
-  value: T;
+interface IndexedRecord extends Record<string, unknown> {
+  index: number
+}
+
+export function indexRecords<T>(objectArray: Record<string, IndexedRecord>): T[] {
+  const tuples: [number, unknown][] = map(objectArray, x => [x.index, omit(x, 'index')])
+  const sortedArray = sortBy(tuples, x => x[0]).map(x => x[1])
+  return sortedArray as T[]
 }
 
 export const hydrateForm =
   <T>(database: ReduxDatabase) =>
   (rootPath: string[]): T => {
     const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-    const sortedRecords = reverse(
-      sortBy(records, [(o) => o.fieldPath.length, (o) => o.fieldPath.join(".")])
-    );
-    const treeOfChildren = new Map<string, Record<string, unknown>>();
+    const valuePaths: Array<[string[], unknown]> = records.map(record => [
+      [...tail(record.fieldPath), record.fieldName],
+      record.value
+    ])
+    console.log(records)
 
-    for (const record of sortedRecords) {
-      const myPath = [...record.fieldPath, record.fieldId].join(".");
-      const children = treeOfChildren.get(myPath);
+    const result = {}
 
-      const parentPath = record.fieldPath.join(".");
-      let parentRecord = treeOfChildren.get(parentPath);
-
-      if (parentRecord === undefined) {
-        parentRecord = {};
-        treeOfChildren.set(parentPath, parentRecord);
-      }
-
-      if (children === undefined) {
-        parentRecord[record.fieldName] = record.value;
-      } else {
-        parentRecord[record.fieldName] = children;
-      }
-
-      treeOfChildren.delete(myPath);
+    for( const [ path, value ] of valuePaths) {
+      set(result, path.join('.'), value)
     }
 
-    if (treeOfChildren.size !== 1) {
-      throw new Error("Something went wrong when building form tree");
-    }
-
-    return head(Array.from(treeOfChildren.values())) as T;
+    return result as T;
   };
 
 export const validateForm =

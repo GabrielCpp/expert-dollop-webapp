@@ -686,10 +686,15 @@ export type TranslationUpdateInput = {
 
 export type Trigger = {
   __typename?: 'Trigger';
-  action: FieldWrapper<Scalars['String']>;
+  action: FieldWrapper<TriggerAction>;
   targetTypeId: FieldWrapper<Scalars['String']>;
   params: Array<FieldWrapper<TriggerParam>>;
 };
+
+export enum TriggerAction {
+  CHANGE_NAME = 'CHANGE_NAME',
+  SET_VISIBILITY = 'SET_VISIBILITY'
+}
 
 export type TriggerParam = {
   __typename?: 'TriggerParam';

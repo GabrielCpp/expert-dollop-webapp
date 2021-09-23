@@ -31,6 +31,7 @@ import {
   BOOLEAN_VALIDATOR,
   checkboxField,
   Field,
+  FieldArray,
   FixedTabDisplay,
   hydrateForm,
   INT_VALIDATOR,
@@ -142,7 +143,8 @@ function Triggers({ path }: TriggersProps) {
       />
       <CardContent>
         <Grid direction="column" container>
-          {ids.map((id) => (
+          <FieldArray fields={ids} path={formPath}>
+          {(subpath, id) => (
             <Grid key={id}>
               <IconButton onClick={deleteTrigger(id)}>
                 <DeleteIcon />
@@ -151,7 +153,7 @@ function Triggers({ path }: TriggersProps) {
                 id={id}
                 validator={STRING_VALIDATOR}
                 defaultValue={"SET_VISIBILITY"}
-                path={formPath}
+                path={subpath}
                 name="action"
                 component={selectField}
                 label="project_definition_editor.add_node_form.triggers.action"
@@ -170,7 +172,8 @@ function Triggers({ path }: TriggersProps) {
                 t={t}
               />
             </Grid>
-          ))}
+          )}
+          </FieldArray>
         </Grid>
       </CardContent>
     </Card>
@@ -575,6 +578,9 @@ export function EditContainerView({ returnUrl }: RouteViewCompoenentProps) {
     if (validateForm(reduxDb, ajv)(path) === false) {
       return;
     }
+
+    const form = hydrateForm<AddContainerFormBody>(reduxDb)(path);
+    console.log(form)
   }
 
   const { data, loading, error } = useFindProjectDefinitionNodeQuery({
