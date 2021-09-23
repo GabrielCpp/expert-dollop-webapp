@@ -200,7 +200,8 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
     level === "section"
       ? FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG
       : null;
-  useFormValue(name, path, configType);
+
+  useFormValue("configType", formPath, configType);
 
   if (configType === FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG) {
     const collapsibleContainerFieldConfig =
@@ -258,7 +259,7 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
           t={t}
         />
       )}
-      {value === "boolean" && (
+      {value === "BOOL_FIELD_CONFIG" && (
         <Field
           validator={BOOLEAN_VALIDATOR}
           defaultValue={true}
