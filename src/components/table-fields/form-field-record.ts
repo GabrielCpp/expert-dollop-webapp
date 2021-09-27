@@ -142,28 +142,36 @@ export function buildFieldByNameMap(
 }
 
 interface IndexedRecord extends Record<string, unknown> {
-  index: number
+  index: number;
 }
 
-export function indexRecords<T>(objectArray: Record<string, IndexedRecord>): T[] {
-  const tuples: [number, unknown][] = map(objectArray, x => [x.index, omit(x, 'index')])
-  const sortedArray = sortBy(tuples, x => x[0]).map(x => x[1])
-  return sortedArray as T[]
+export function indexRecords<T>(
+  objectArray: Record<string, IndexedRecord>
+): T[] {
+  const tuples: [number, unknown][] = map(objectArray, (x) => [
+    x.index,
+    omit(x, "index"),
+  ]);
+  const sortedArray = sortBy(tuples, (x) => x[0]).map((x) => x[1]);
+  return sortedArray as T[];
 }
 
 export const hydrateForm =
   <T>(database: ReduxDatabase) =>
   (rootPath: string[]): T => {
     const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-    const valuePaths: Array<[string[], unknown]> = sortBy(records.map(record => [
-      [...tail(record.fieldPath), record.fieldName],
-      record.value
-    ]), x => x[0].length)
+    const valuePaths: Array<[string[], unknown]> = sortBy(
+      records.map((record) => [
+        [...tail(record.fieldPath), record.fieldName],
+        record.value,
+      ]),
+      (x) => x[0].length
+    );
 
-    const result = {}
+    const result = {};
 
-    for( const [ path, value ] of valuePaths) {
-      set(result, path.join('.'), value)
+    for (const [path, value] of valuePaths) {
+      set(result, path.join("."), value);
     }
 
     return result as T;

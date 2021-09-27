@@ -74,9 +74,8 @@ async function buildPathCache(
 
 export function useProjectDefPath(projectDefId: string, selectedPath: string) {
   const { apollo } = useServices();
-  const [rootSectionDefId, subSectionDefId, formDefId] = splitPath(
-    selectedPath
-  );
+  const [rootSectionDefId, subSectionDefId, formDefId] =
+    splitPath(selectedPath);
   const [path, setPath] = useState<(string | undefined)[]>([]);
   const loading = useRef(true);
 

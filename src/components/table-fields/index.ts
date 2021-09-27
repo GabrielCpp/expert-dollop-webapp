@@ -13,7 +13,7 @@ export {
   validateForm,
   deleteFormFieldRecords,
   deleteChildFormFieldRecords,
-  indexRecords
+  indexRecords,
 } from "./form-field-record";
 export { textField } from "./table-text-field";
 export { checkboxField } from "./table-checkbox-field";
@@ -22,6 +22,11 @@ export type { TableRadioFieldOption } from "./table-radio-field";
 export type { TabTableCollectionProps } from "./fixed-table-display";
 export { FixedTabDisplay } from "./fixed-table-display";
 export { Field } from "./field";
-export { useForm, Form, useFormHiddenValue, useFormFieldValueRef } from "./form-hook";
+export {
+  useForm,
+  Form,
+  useFormHiddenValue,
+  useFormFieldValueRef,
+} from "./form-hook";
 export { selectField } from "./select-field";
-export { FieldArray } from './field-array'
+export { FieldArray } from "./field-array";

@@ -52,9 +52,8 @@ export class ReduxDatabase {
       this._queries.set(queryFootprint, queryExecutor);
     }
 
-    const unsubscribe = queryExecutor.queryChangeEmitter.addQueryWatcher(
-      onChange
-    );
+    const unsubscribe =
+      queryExecutor.queryChangeEmitter.addQueryWatcher(onChange);
     const records = queryExecutor.execute() as T[];
 
     return [records, unsubscribe];

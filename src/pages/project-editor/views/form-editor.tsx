@@ -13,7 +13,7 @@ import {
 import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AddIcon from "@material-ui/icons/Add";
 import {
   BoolFieldValue,
@@ -25,9 +25,14 @@ import {
   StringFieldValue,
   useFindProjectFormContentQuery,
 } from "../../../generated";
-import { useLoader, useLoaderEffect } from "../../../components/loading-frame";
+import { useLoaderEffect } from "../../../components/loading-frame";
 import { MouseOverPopover } from "../../../components/mouse-over-popover";
-import { Field, hydrateForm, radioField, textField } from "../../../components/table-fields";
+import {
+  Field,
+  hydrateForm,
+  radioField,
+  textField,
+} from "../../../components/table-fields";
 import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../../components/translation";
 import { NodePicker } from "./node-picker";
@@ -269,13 +274,17 @@ function FormSection({ node }: FormProps): JSX.Element {
 }
 
 interface FormEditorProps {
-  rootSectionId: string
+  rootSectionId: string;
   formId: string;
   projectId: string;
 }
 
-export function FormEditor({ projectId, rootSectionId, formId }: FormEditorProps) {
-  const {reduxDb} = useServices()
+export function FormEditor({
+  projectId,
+  rootSectionId,
+  formId,
+}: FormEditorProps) {
+  const { reduxDb } = useServices();
   const { loading, data, error } = useFindProjectFormContentQuery({
     variables: {
       projectId,
@@ -283,11 +292,11 @@ export function FormEditor({ projectId, rootSectionId, formId }: FormEditorProps
     },
   });
 
-  useLoaderEffect(error, loading )
+  useLoaderEffect(error, loading);
 
   function save() {
-    const form = hydrateForm(reduxDb)([rootSectionId])
-    console.log(form)
+    const form = hydrateForm(reduxDb)([rootSectionId]);
+    console.log(form);
   }
 
   const formContent = data?.findProjectFormContent.roots;

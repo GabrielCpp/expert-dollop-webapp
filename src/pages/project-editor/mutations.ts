@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const CREATE_PROJECT = gql`
   mutation createProject($projectDetails: ProjectDetailsInput!) {
@@ -10,4 +10,32 @@ export const CREATE_PROJECT = gql`
       datasheetId
     }
   }
-`;
+`
+
+export const UPDATE_FIELDS = gql`
+  mutation updateFields($projectId: ID!, $updates: [FieldUpdateInput!]!) {
+    updateProjectFields(projectId: $projectId, updates: $updates) {
+      id
+      projectId
+      typePath
+      typeId
+      path
+      value {
+        __typename
+        ... on IntFieldValue {
+          integer
+        }
+        ... on DecimalFieldValue {
+          numeric
+        }
+        ... on StringFieldValue {
+          text
+        }
+        ... on BoolFieldValue {
+          enabled
+        }
+      }
+      label
+    }
+  }
+`

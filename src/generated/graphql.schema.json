@@ -1561,7 +1561,7 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "node_id",
+            "name": "nodeId",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -2198,7 +2198,7 @@
             "description": null,
             "args": [
               {
-                "name": "project_id",
+                "name": "projectId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -2263,7 +2263,7 @@
             "description": null,
             "args": [
               {
-                "name": "project_id",
+                "name": "projectId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -2307,9 +2307,13 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "ProjectNode",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "ProjectNode",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": false,
@@ -3644,7 +3648,7 @@
             "deprecationReason": null
           },
           {
-            "name": "project_id",
+            "name": "projectId",
             "description": null,
             "args": [],
             "type": {
@@ -3660,7 +3664,7 @@
             "deprecationReason": null
           },
           {
-            "name": "type_path",
+            "name": "typePath",
             "description": null,
             "args": [],
             "type": {
@@ -3684,7 +3688,7 @@
             "deprecationReason": null
           },
           {
-            "name": "type_id",
+            "name": "typeId",
             "description": null,
             "args": [],
             "type": {

@@ -88,7 +88,11 @@ export function useFormHiddenValue(name: string, path: string[], value: any) {
   };
 }
 
-export function useFormFieldValueRef(name: string, path: string[], defaultValue: any) {
+export function useFormFieldValueRef(
+  name: string,
+  path: string[],
+  defaultValue: any
+) {
   const { reduxDb } = useServices();
   const id = useId();
   const [value, setValue] = useState(defaultValue);

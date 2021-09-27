@@ -201,7 +201,7 @@ export type FieldDetailsUnionInput = {
 };
 
 export type FieldUpdateInput = {
-  node_id: Scalars['ID'];
+  nodeId: Scalars['ID'];
   value: FieldValueInput;
 };
 
@@ -269,7 +269,7 @@ export type Mutation = {
   updateTranslations: Array<FieldWrapper<Translation>>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
-  updateProjectFields: FieldWrapper<ProjectNode>;
+  updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
   createProject: FieldWrapper<ProjectDetails>;
 };
 
@@ -290,14 +290,14 @@ export type MutationAddProjectDefinitionNodeArgs = {
 
 
 export type MutationUpdateProjectFieldArgs = {
-  project_id: Scalars['ID'];
+  projectId: Scalars['ID'];
   node_id: Scalars['ID'];
   value: FieldValueInput;
 };
 
 
 export type MutationUpdateProjectFieldsArgs = {
-  project_id: Scalars['ID'];
+  projectId: Scalars['ID'];
   updates: Array<FieldUpdateInput>;
 };
 
@@ -445,9 +445,9 @@ export type ProjectEdge = {
 export type ProjectNode = {
   __typename?: 'ProjectNode';
   id: FieldWrapper<Scalars['ID']>;
-  project_id: FieldWrapper<Scalars['String']>;
-  type_path: Array<FieldWrapper<Scalars['String']>>;
-  type_id: FieldWrapper<Scalars['String']>;
+  projectId: FieldWrapper<Scalars['String']>;
+  typePath: Array<FieldWrapper<Scalars['String']>>;
+  typeId: FieldWrapper<Scalars['String']>;
   path: Array<FieldWrapper<Scalars['String']>>;
   value?: Maybe<FieldWrapper<FieldValue>>;
   label?: Maybe<FieldWrapper<Scalars['String']>>;
@@ -1318,6 +1318,33 @@ export type CreateProjectMutation = (
   ) }
 );
 
+export type UpdateFieldsMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  updates: Array<FieldUpdateInput> | FieldUpdateInput;
+}>;
+
+
+export type UpdateFieldsMutation = (
+  { __typename?: 'Mutation' }
+  & { updateProjectFields: Array<Maybe<(
+    { __typename?: 'ProjectNode' }
+    & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path' | 'label'>
+    & { value?: Maybe<(
+      { __typename: 'IntFieldValue' }
+      & Pick<IntFieldValue, 'integer'>
+    ) | (
+      { __typename: 'DecimalFieldValue' }
+      & Pick<DecimalFieldValue, 'numeric'>
+    ) | (
+      { __typename: 'StringFieldValue' }
+      & Pick<StringFieldValue, 'text'>
+    ) | (
+      { __typename: 'BoolFieldValue' }
+      & Pick<BoolFieldValue, 'enabled'>
+    )> }
+  )>> }
+);
+
 export type FindProjectsQueryVariables = Exact<{
   query: Scalars['String'];
   first: Scalars['Int'];
@@ -1393,7 +1420,7 @@ export type FindProjectRootSectionsQuery = (
         { __typename?: 'ProjectNodeTreeNode' }
         & { node: (
           { __typename?: 'ProjectNode' }
-          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path' | 'label'>
+          & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path' | 'label'>
           & { value?: Maybe<(
             { __typename: 'IntFieldValue' }
             & Pick<IntFieldValue, 'integer'>
@@ -1464,7 +1491,7 @@ export type FindProjectRootSectionContainersQuery = (
         { __typename?: 'ProjectNodeTreeNode' }
         & { node: (
           { __typename?: 'ProjectNode' }
-          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+          & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path'>
           & { value?: Maybe<(
             { __typename: 'IntFieldValue' }
             & Pick<IntFieldValue, 'integer'>
@@ -1519,7 +1546,7 @@ export type FindProjectRootSectionContainersQuery = (
             { __typename?: 'ProjectNodeTreeNode' }
             & { node: (
               { __typename?: 'ProjectNode' }
-              & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+              & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path'>
               & { value?: Maybe<(
                 { __typename: 'IntFieldValue' }
                 & Pick<IntFieldValue, 'integer'>
@@ -1592,7 +1619,7 @@ export type FindProjectFormContentQuery = (
         { __typename?: 'ProjectNodeTreeNode' }
         & { node: (
           { __typename?: 'ProjectNode' }
-          & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+          & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path'>
           & { value?: Maybe<(
             { __typename: 'IntFieldValue' }
             & Pick<IntFieldValue, 'integer'>
@@ -1647,7 +1674,7 @@ export type FindProjectFormContentQuery = (
             { __typename?: 'ProjectNodeTreeNode' }
             & { node: (
               { __typename?: 'ProjectNode' }
-              & Pick<ProjectNode, 'id' | 'project_id' | 'type_path' | 'type_id' | 'path'>
+              & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path'>
               & { value?: Maybe<(
                 { __typename: 'IntFieldValue' }
                 & Pick<IntFieldValue, 'integer'>
@@ -2639,6 +2666,60 @@ export function useCreateProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateProjectMutationHookResult = ReturnType<typeof useCreateProjectMutation>;
 export type CreateProjectMutationResult = Apollo.MutationResult<CreateProjectMutation>;
 export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<CreateProjectMutation, CreateProjectMutationVariables>;
+export const UpdateFieldsDocument = gql`
+    mutation updateFields($projectId: ID!, $updates: [FieldUpdateInput!]!) {
+  updateProjectFields(projectId: $projectId, updates: $updates) {
+    id
+    projectId
+    typePath
+    typeId
+    path
+    value {
+      __typename
+      ... on IntFieldValue {
+        integer
+      }
+      ... on DecimalFieldValue {
+        numeric
+      }
+      ... on StringFieldValue {
+        text
+      }
+      ... on BoolFieldValue {
+        enabled
+      }
+    }
+    label
+  }
+}
+    `;
+export type UpdateFieldsMutationFn = Apollo.MutationFunction<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
+
+/**
+ * __useUpdateFieldsMutation__
+ *
+ * To run a mutation, you first call `useUpdateFieldsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFieldsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFieldsMutation, { data, loading, error }] = useUpdateFieldsMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      updates: // value for 'updates'
+ *   },
+ * });
+ */
+export function useUpdateFieldsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFieldsMutation, UpdateFieldsMutationVariables>(UpdateFieldsDocument, options);
+      }
+export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMutation>;
+export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
+export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
 export const FindProjectsDocument = gql`
     query findProjects($query: String!, $first: Int!, $after: String) {
   findProjects(query: $query, first: $first, after: $after) {
@@ -2742,9 +2823,9 @@ export const FindProjectRootSectionsDocument = gql`
       nodes {
         node {
           id
-          project_id
-          type_path
-          type_id
+          projectId
+          typePath
+          typeId
           path
           label
           value {
@@ -2851,9 +2932,9 @@ export const FindProjectRootSectionContainersDocument = gql`
       nodes {
         node {
           id
-          project_id
-          type_path
-          type_id
+          projectId
+          typePath
+          typeId
           path
           value {
             __typename
@@ -2920,9 +3001,9 @@ export const FindProjectRootSectionContainersDocument = gql`
           nodes {
             node {
               id
-              project_id
-              type_path
-              type_id
+              projectId
+              typePath
+              typeId
               path
               value {
                 __typename
@@ -3028,9 +3109,9 @@ export const FindProjectFormContentDocument = gql`
       nodes {
         node {
           id
-          project_id
-          type_path
-          type_id
+          projectId
+          typePath
+          typeId
           path
           value {
             __typename
@@ -3097,9 +3178,9 @@ export const FindProjectFormContentDocument = gql`
           nodes {
             node {
               id
-              project_id
-              type_path
-              type_id
+              projectId
+              typePath
+              typeId
               path
               value {
                 __typename

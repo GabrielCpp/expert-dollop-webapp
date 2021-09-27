@@ -13,7 +13,7 @@ interface TranlationScopeHook {
 export function useTranlationScope(
   routeName: string,
   ressourceId: string,
-  skip: boolean=false
+  skip: boolean = false
 ): TranlationScopeHook {
   const { reduxDb, axios, routes } = useServices();
   const { i18n } = useTranslation();
@@ -44,6 +44,6 @@ export function useTranlationScope(
     isLoaded.current = true;
     fetch().catch((error) => setError(error));
   }
-  
+
   return { isLoading, error };
 }

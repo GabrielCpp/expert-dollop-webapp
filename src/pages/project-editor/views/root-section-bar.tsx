@@ -209,9 +209,11 @@ export function RootSectionBar({
         variant="scrollable"
         scrollButtons="auto"
       >
-        {roots.filter(x => x.state.isVisible === true).map((def) =>
-          renderRootTab(dbTrans, rootSectionId, def, classes, urls.current!)
-        )}
+        {roots
+          .filter((x) => x.state.isVisible === true)
+          .map((def) =>
+            renderRootTab(dbTrans, rootSectionId, def, classes, urls.current!)
+          )}
       </Tabs>
       {Array.from(urls.current.values())
         .filter((x) => x.component !== undefined)

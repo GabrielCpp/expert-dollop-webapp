@@ -43,12 +43,11 @@ export function MoreButton({ links, placement }: MoreButtonProps) {
     setOpen(false);
   };
 
-  const handleAction = (action: () => void) => (
-    event: React.MouseEvent<EventTarget>
-  ) => {
-    handleClose(event);
-    action();
-  };
+  const handleAction =
+    (action: () => void) => (event: React.MouseEvent<EventTarget>) => {
+      handleClose(event);
+      action();
+    };
 
   function handleListKeyDown(event: React.KeyboardEvent) {
     if (event.key === "Tab") {

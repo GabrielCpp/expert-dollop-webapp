@@ -144,35 +144,35 @@ function Triggers({ path }: TriggersProps) {
       <CardContent>
         <Grid direction="column" container>
           <FieldArray fields={ids} path={formPath}>
-          {(subpath, id) => (
-            <Grid key={id}>
-              <IconButton onClick={deleteTrigger(id)}>
-                <DeleteIcon />
-              </IconButton>
-              <Field
-                id={id}
-                validator={STRING_VALIDATOR}
-                defaultValue={"SET_VISIBILITY"}
-                path={subpath}
-                name="action"
-                component={selectField}
-                label="project_definition_editor.add_node_form.triggers.action"
-                options={[
-                  {
-                    id: "CHANGE_NAME",
-                    label:
-                      "project_definition_editor.add_node_form.triggers.change_name_option",
-                  },
-                  {
-                    id: "SET_VISIBILITY",
-                    label:
-                      "project_definition_editor.add_node_form.triggers.set_visibility_option",
-                  },
-                ]}
-                t={t}
-              />
-            </Grid>
-          )}
+            {(subpath, id) => (
+              <Grid key={id}>
+                <IconButton onClick={deleteTrigger(id)}>
+                  <DeleteIcon />
+                </IconButton>
+                <Field
+                  id={id}
+                  validator={STRING_VALIDATOR}
+                  defaultValue={"SET_VISIBILITY"}
+                  path={subpath}
+                  name="action"
+                  component={selectField}
+                  label="project_definition_editor.add_node_form.triggers.action"
+                  options={[
+                    {
+                      id: "CHANGE_NAME",
+                      label:
+                        "project_definition_editor.add_node_form.triggers.change_name_option",
+                    },
+                    {
+                      id: "SET_VISIBILITY",
+                      label:
+                        "project_definition_editor.add_node_form.triggers.set_visibility_option",
+                    },
+                  ]}
+                  t={t}
+                />
+              </Grid>
+            )}
           </FieldArray>
         </Grid>
       </CardContent>
@@ -581,7 +581,7 @@ export function EditContainerView({ returnUrl }: RouteViewCompoenentProps) {
     }
 
     const form = hydrateForm<AddContainerFormBody>(reduxDb)(path);
-    console.log(form)
+    console.log(form);
   }
 
   const { data, loading, error } = useFindProjectDefinitionNodeQuery({

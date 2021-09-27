@@ -24,18 +24,22 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
   const { projectId, selectedPath } = useParams<ProjectEditorParams>();
   const { loading, path } = useProjectPath(projectId, selectedPath);
   const [rootSectionId, subSectionId, formId] = path || [];
-  const { data, loading: queryLoading, error: queryError  } = useFindProjectDefinitionIdQuery({
+  const {
+    data,
+    loading: queryLoading,
+    error: queryError,
+  } = useFindProjectDefinitionIdQuery({
     variables: {
-      projectId
-    }
-  })
+      projectId,
+    },
+  });
   const { isLoading, error } = useTranlationScope(
     API_PROJECT_DEFINITION_TRANSLATION,
     data?.findProjectDetails.projectDefId || "",
     data === undefined
   );
 
-  useLoaderEffect(error || queryError, isLoading, loading, queryLoading)
+  useLoaderEffect(error || queryError, isLoading, loading, queryLoading);
 
   return (
     <Switch>
@@ -61,7 +65,13 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
             </Grid>
 
             <Grid item>
-              {formId && <FormEditor projectId={projectId} rootSectionId={rootSectionId} formId={formId} />}
+              {formId && (
+                <FormEditor
+                  projectId={projectId}
+                  rootSectionId={rootSectionId}
+                  formId={formId}
+                />
+              )}
             </Grid>
           </Grid>
         )}
