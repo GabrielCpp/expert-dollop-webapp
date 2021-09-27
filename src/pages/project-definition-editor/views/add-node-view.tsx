@@ -39,8 +39,8 @@ import {
   STRING_VALIDATOR,
   textField,
   useForm,
-  useFormValue,
-  useLocalRef,
+  useFormHiddenValue,
+  useFormFieldValueRef,
   validateForm,
 } from "../../../components/table-fields";
 import { useState } from "react";
@@ -190,7 +190,7 @@ interface ConfigFormProps {
 function ConfigForm({ name, path, config, level }: ConfigFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm(name, path);
-  const { value, id: configTypeId } = useLocalRef(
+  const { value, id: configTypeId } = useFormFieldValueRef(
     "fieldConfigType",
     formPath,
     "string"
@@ -201,7 +201,7 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
       ? FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG
       : null;
 
-  useFormValue("configType", formPath, configType);
+  useFormHiddenValue("configType", formPath, configType);
 
   if (configType === FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG) {
     const collapsibleContainerFieldConfig =

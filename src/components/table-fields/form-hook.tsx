@@ -19,10 +19,34 @@ interface UseFormHook {
 export function useForm(name?: string, parentPath: string[] = []): UseFormHook {
   const formId = useId(name);
   const formPath = useRef<string[] | undefined>(undefined);
+  const { reduxDb } = useServices();
 
   if (formPath.current === undefined) {
     formPath.current = [...parentPath, formId];
   }
+
+  useLayoutEffect(() => {
+    formPath.current = [...parentPath, formId];
+  }, [formId, formPath, parentPath]);
+
+  useLayoutEffect(() => {
+    if (name !== undefined) {
+      const path = formPath.current as string[];
+      const record = createFormFieldRecord(
+        true,
+        path.slice(0, path.length - 1),
+        name,
+        null,
+        last(path)
+      );
+
+      upsertFormFieldRecord(reduxDb, [record]);
+
+      return () => {
+        reduxDb.getTable(FormFieldTableName).removeMany([record]);
+      };
+    }
+  }, [reduxDb, formPath, name]);
 
   return {
     formId,
@@ -30,7 +54,7 @@ export function useForm(name?: string, parentPath: string[] = []): UseFormHook {
   };
 }
 
-export function useFormValue(name: string, path: string[], value: any) {
+export function useFormHiddenValue(name: string, path: string[], value: any) {
   const { reduxDb } = useServices();
   const formId = useId(name);
   const formPath = useRef<string[] | undefined>(undefined);
@@ -64,7 +88,7 @@ export function useFormValue(name: string, path: string[], value: any) {
   };
 }
 
-export function useLocalRef(name: string, path: string[], defaultValue: any) {
+export function useFormFieldValueRef(name: string, path: string[], defaultValue: any) {
   const { reduxDb } = useServices();
   const id = useId();
   const [value, setValue] = useState(defaultValue);

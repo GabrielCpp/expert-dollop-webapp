@@ -25,12 +25,13 @@ import {
   StringFieldValue,
   useFindProjectFormContentQuery,
 } from "../../../generated";
-import { useLoader } from "../../../components/loading-frame";
+import { useLoader, useLoaderEffect } from "../../../components/loading-frame";
 import { MouseOverPopover } from "../../../components/mouse-over-popover";
-import { Field, radioField, textField } from "../../../components/table-fields";
+import { Field, hydrateForm, radioField, textField } from "../../../components/table-fields";
 import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../../components/translation";
 import { NodePicker } from "./node-picker";
+import { useServices } from "../../../shared/service-context";
 
 interface FormProps {
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number];
@@ -268,12 +269,13 @@ function FormSection({ node }: FormProps): JSX.Element {
 }
 
 interface FormEditorProps {
+  rootSectionId: string
   formId: string;
   projectId: string;
 }
 
-export function FormEditor({ projectId, formId }: FormEditorProps) {
-  const { onLoading } = useLoader();
+export function FormEditor({ projectId, rootSectionId, formId }: FormEditorProps) {
+  const {reduxDb} = useServices()
   const { loading, data, error } = useFindProjectFormContentQuery({
     variables: {
       projectId,
@@ -281,9 +283,12 @@ export function FormEditor({ projectId, formId }: FormEditorProps) {
     },
   });
 
-  useEffect(() => {
-    onLoading(loading, error);
-  }, [error, loading, onLoading]);
+  useLoaderEffect(error, loading )
+
+  function save() {
+    const form = hydrateForm(reduxDb)([rootSectionId])
+    console.log(form)
+  }
 
   const formContent = data?.findProjectFormContent.roots;
 
@@ -298,7 +303,7 @@ export function FormEditor({ projectId, formId }: FormEditorProps) {
               </Grid>
             ))}
           <Grid container item alignItems="flex-end">
-            <Button variant="contained" color="primary">
+            <Button variant="contained" color="primary" onClick={save}>
               Save
             </Button>
           </Grid>

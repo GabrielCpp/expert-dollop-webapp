@@ -401,3 +401,13 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
     }
   }
 `;
+
+
+export const FIND_PROJECT_DEFINITION_ID = gql`
+query findProjectDefinitionId($projectId: ID!) {
+  findProjectDetails(id: $projectId) {
+    projectDefId
+  }
+}
+`
+

@@ -155,11 +155,10 @@ export const hydrateForm =
   <T>(database: ReduxDatabase) =>
   (rootPath: string[]): T => {
     const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-    const valuePaths: Array<[string[], unknown]> = records.map(record => [
+    const valuePaths: Array<[string[], unknown]> = sortBy(records.map(record => [
       [...tail(record.fieldPath), record.fieldName],
       record.value
-    ])
-    console.log(records)
+    ]), x => x[0].length)
 
     const result = {}
 

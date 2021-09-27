@@ -200,6 +200,11 @@ export type FieldDetailsUnionInput = {
   staticNumberFieldConfig?: Maybe<StaticNumberFieldConfigInput>;
 };
 
+export type FieldUpdateInput = {
+  node_id: Scalars['ID'];
+  value: FieldValueInput;
+};
+
 export type FieldValue = IntFieldValue | DecimalFieldValue | StringFieldValue | BoolFieldValue;
 
 export type FieldValueInput = {
@@ -264,6 +269,7 @@ export type Mutation = {
   updateTranslations: Array<FieldWrapper<Translation>>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
+  updateProjectFields: FieldWrapper<ProjectNode>;
   createProject: FieldWrapper<ProjectDetails>;
 };
 
@@ -290,6 +296,12 @@ export type MutationUpdateProjectFieldArgs = {
 };
 
 
+export type MutationUpdateProjectFieldsArgs = {
+  project_id: Scalars['ID'];
+  updates: Array<FieldUpdateInput>;
+};
+
+
 export type MutationCreateProjectArgs = {
   projectDetails?: Maybe<ProjectDetailsInput>;
 };
@@ -300,11 +312,17 @@ export type NodeConfig = {
   valueValidator?: Maybe<FieldWrapper<Scalars['JsonSchema']>>;
   triggers: Array<Maybe<FieldWrapper<Trigger>>>;
   translations: FieldWrapper<TranslationConfig>;
+  meta?: Maybe<FieldWrapper<NodeMetaConfig>>;
 };
 
 export type NodeConfigInput = {
   fieldDetails?: Maybe<FieldDetailsUnionInput>;
   valueValidator?: Maybe<Scalars['JsonSchema']>;
+};
+
+export type NodeMetaConfig = {
+  __typename?: 'NodeMetaConfig';
+  isVisible?: Maybe<FieldWrapper<Scalars['Boolean']>>;
 };
 
 export type PageInfo = {
@@ -477,6 +495,7 @@ export type Query = {
   findProjectRootSectionContainers: FieldWrapper<ProjectNodeTree>;
   findProjectFormContent: FieldWrapper<ProjectNodeTree>;
   findProjects: FieldWrapper<ProjectConnection>;
+  findProjectDetails: FieldWrapper<ProjectDetails>;
   findProjectDefinitionFormulas: FieldWrapper<FormulaConnection>;
 };
 
@@ -574,6 +593,11 @@ export type QueryFindProjectsArgs = {
   query: Scalars['String'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryFindProjectDetailsArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -1642,6 +1666,19 @@ export type FindProjectFormContentQuery = (
         )> }
       )> }
     )> }
+  ) }
+);
+
+export type FindProjectDefinitionIdQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+}>;
+
+
+export type FindProjectDefinitionIdQuery = (
+  { __typename?: 'Query' }
+  & { findProjectDetails: (
+    { __typename?: 'ProjectDetails' }
+    & Pick<ProjectDetails, 'projectDefId'>
   ) }
 );
 
@@ -3116,3 +3153,38 @@ export function useFindProjectFormContentLazyQuery(baseOptions?: Apollo.LazyQuer
 export type FindProjectFormContentQueryHookResult = ReturnType<typeof useFindProjectFormContentQuery>;
 export type FindProjectFormContentLazyQueryHookResult = ReturnType<typeof useFindProjectFormContentLazyQuery>;
 export type FindProjectFormContentQueryResult = Apollo.QueryResult<FindProjectFormContentQuery, FindProjectFormContentQueryVariables>;
+export const FindProjectDefinitionIdDocument = gql`
+    query findProjectDefinitionId($projectId: ID!) {
+  findProjectDetails(id: $projectId) {
+    projectDefId
+  }
+}
+    `;
+
+/**
+ * __useFindProjectDefinitionIdQuery__
+ *
+ * To run a query within a React component, call `useFindProjectDefinitionIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectDefinitionIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectDefinitionIdQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useFindProjectDefinitionIdQuery(baseOptions: Apollo.QueryHookOptions<FindProjectDefinitionIdQuery, FindProjectDefinitionIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectDefinitionIdQuery, FindProjectDefinitionIdQueryVariables>(FindProjectDefinitionIdDocument, options);
+      }
+export function useFindProjectDefinitionIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectDefinitionIdQuery, FindProjectDefinitionIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectDefinitionIdQuery, FindProjectDefinitionIdQueryVariables>(FindProjectDefinitionIdDocument, options);
+        }
+export type FindProjectDefinitionIdQueryHookResult = ReturnType<typeof useFindProjectDefinitionIdQuery>;
+export type FindProjectDefinitionIdLazyQueryHookResult = ReturnType<typeof useFindProjectDefinitionIdLazyQuery>;
+export type FindProjectDefinitionIdQueryResult = Apollo.QueryResult<FindProjectDefinitionIdQuery, FindProjectDefinitionIdQueryVariables>;

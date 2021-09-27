@@ -5,13 +5,14 @@ import { Route, Switch, useParams } from "react-router-dom";
 import { API_PROJECT_DEFINITION_TRANSLATION } from "../../../api-routes";
 import { useServices } from "../../../services-def";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { useLoader } from "../../../components/loading-frame";
+import { useLoader, useLoaderEffect } from "../../../components/loading-frame";
 import { useTranlationScope } from "../../../components/translation";
 import { useProjectPath } from "../hooks/project-path";
 import { PROJECT_EDITOR } from "../routes";
 import { FormEditor } from "./form-editor";
 import { RootSectionBar } from "./root-section-bar";
 import { SidePanel } from "./side-panel";
+import { useFindProjectDefinitionIdQuery } from "../../../generated";
 
 interface ProjectEditorParams extends Record<string, string> {
   projectId: string;
@@ -23,15 +24,18 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
   const { projectId, selectedPath } = useParams<ProjectEditorParams>();
   const { loading, path } = useProjectPath(projectId, selectedPath);
   const [rootSectionId, subSectionId, formId] = path || [];
-  const { onLoading } = useLoader();
+  const { data, loading: queryLoading, error: queryError  } = useFindProjectDefinitionIdQuery({
+    variables: {
+      projectId
+    }
+  })
   const { isLoading, error } = useTranlationScope(
     API_PROJECT_DEFINITION_TRANSLATION,
-    projectId
+    data?.findProjectDetails.projectDefId || "",
+    data === undefined
   );
 
-  useEffect(() => {
-    onLoading(isLoading || loading, error);
-  }, [error, isLoading, loading, onLoading]);
+  useLoaderEffect(error || queryError, isLoading, loading, queryLoading)
 
   return (
     <Switch>
@@ -57,7 +61,7 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
             </Grid>
 
             <Grid item>
-              {formId && <FormEditor projectId={projectId} formId={formId} />}
+              {formId && <FormEditor projectId={projectId} rootSectionId={rootSectionId} formId={formId} />}
             </Grid>
           </Grid>
         )}
