@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const FIND_PROJECTS = gql`
   query findProjects($query: String!, $first: Int!, $after: String) {
@@ -20,7 +20,7 @@ export const FIND_PROJECTS = gql`
       }
     }
   }
-`
+`;
 
 export const FIND_PROJECT_ROOT_SECTIONS = gql`
   query findProjectRootSections($projectId: ID!) {
@@ -99,7 +99,7 @@ export const FIND_PROJECT_ROOT_SECTIONS = gql`
       }
     }
   }
-`
+`;
 
 export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
   query findProjectRootSectionContainers($projectId: ID!, $rootSectionId: ID!) {
@@ -251,7 +251,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
       }
     }
   }
-`
+`;
 
 export const FIND_PROJECT_FORM_CONTENT = gql`
   query findProjectFormContent($projectId: ID!, $formId: ID!) {
@@ -400,7 +400,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
       }
     }
   }
-`
+`;
 
 export const FIND_PROJECT_DEFINITION_ID = gql`
   query findProjectDefinitionId($projectId: ID!) {
@@ -408,4 +408,4 @@ export const FIND_PROJECT_DEFINITION_ID = gql`
       projectDefId
     }
   }
-`
+`;

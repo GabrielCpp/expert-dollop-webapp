@@ -14,6 +14,7 @@ export {
   deleteFormFieldRecords,
   deleteChildFormFieldRecords,
   indexRecords,
+  buildFormMapById,
 } from "./form-field-record";
 export { textField } from "./table-text-field";
 export { checkboxField } from "./table-checkbox-field";

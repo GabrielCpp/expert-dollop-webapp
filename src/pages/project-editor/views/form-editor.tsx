@@ -19,24 +19,28 @@ import {
   BoolFieldValue,
   CollapsibleContainerFieldConfig,
   DecimalFieldValue,
+  FieldUpdateInput,
   FindProjectFormContentQuery,
   IntFieldValue,
   StaticChoiceFieldConfig,
   StringFieldValue,
   useFindProjectFormContentQuery,
+  useUpdateFieldsMutation,
 } from "../../../generated";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { MouseOverPopover } from "../../../components/mouse-over-popover";
 import {
+  buildFormMapById,
   Field,
-  hydrateForm,
   radioField,
   textField,
+  validateForm,
 } from "../../../components/table-fields";
 import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../../components/translation";
 import { NodePicker } from "./node-picker";
 import { useServices } from "../../../shared/service-context";
+import { convertToFieldValue } from "../field-helper";
 
 interface FormProps {
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number];
@@ -229,11 +233,11 @@ function FormSection({ node }: FormProps): JSX.Element {
         title={
           <MouseOverPopover
             name={node.definition.name}
-            text={dbTrans(node.definition.config.translations.label)}
+            text={dbTrans(node.definition.config.translations.helpTextName)}
           >
             {(props) => (
               <Typography {...props} variant="h5" component="h5" gutterBottom>
-                {dbTrans(node.definition.config.translations.helpTextName)}
+                {dbTrans(node.definition.config.translations.label)}
               </Typography>
             )}
           </MouseOverPopover>
@@ -284,7 +288,7 @@ export function FormEditor({
   rootSectionId,
   formId,
 }: FormEditorProps) {
-  const { reduxDb } = useServices();
+  const { reduxDb, ajv } = useServices();
   const { loading, data, error } = useFindProjectFormContentQuery({
     variables: {
       projectId,
@@ -292,11 +296,31 @@ export function FormEditor({
     },
   });
 
+  const [updateFields] = useUpdateFieldsMutation();
+
   useLoaderEffect(error, loading);
 
-  function save() {
-    const form = hydrateForm(reduxDb)([rootSectionId]);
-    console.log(form);
+  async function save() {
+    if (validateForm(reduxDb, ajv)([rootSectionId]) === false) {
+      return;
+    }
+
+    const fields = buildFormMapById(reduxDb, [rootSectionId]);
+    const updates: FieldUpdateInput[] = [];
+
+    for (const [nodeId, rawValue] of fields.entries()) {
+      updates.push({
+        nodeId,
+        value: convertToFieldValue(rawValue),
+      });
+    }
+
+    await updateFields({
+      variables: {
+        projectId,
+        updates: updates,
+      },
+    });
   }
 
   const formContent = data?.findProjectFormContent.roots;

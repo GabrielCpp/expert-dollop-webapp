@@ -28,6 +28,7 @@ import { noop } from "lodash";
 import { Autocomplete } from "@material-ui/lab";
 
 interface RootSectionBarProps {
+  projectDefId: string;
   projectId: string;
   rootSectionId: string;
 }
@@ -155,13 +156,14 @@ function buildUrlMap(
 }
 
 export function RootSectionBar({
+  projectDefId,
   projectId,
   rootSectionId,
 }: RootSectionBarProps) {
   const history = useHistory();
   const classes = useStyles();
   const urls = useRef<Map<string, CollectionItem> | undefined>(undefined);
-  const { dbTrans } = useDbTranslation(projectId);
+  const { dbTrans } = useDbTranslation(projectDefId);
   const { loading, data, error } = useFindProjectRootSectionsQuery({
     variables: {
       projectId,

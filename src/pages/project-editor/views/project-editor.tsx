@@ -33,9 +33,11 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
       projectId,
     },
   });
+
+  const projectDefId = data?.findProjectDetails.projectDefId || "";
   const { isLoading, error } = useTranlationScope(
     API_PROJECT_DEFINITION_TRANSLATION,
-    data?.findProjectDetails.projectDefId || "",
+    projectDefId,
     data === undefined
   );
 
@@ -48,6 +50,7 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
           <Grid container spacing={1} wrap={"wrap"} direction="row">
             <Grid item xs={12}>
               <RootSectionBar
+                projectDefId={projectDefId}
                 projectId={projectId}
                 rootSectionId={rootSectionId}
               />
@@ -56,6 +59,7 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
             <Grid item style={{ minWidth: "4em" }}>
               {subSectionId && formId && (
                 <SidePanel
+                  projectDefId={projectDefId}
                   projectId={projectId}
                   rootSectionId={rootSectionId}
                   subSectionId={subSectionId}

@@ -156,16 +156,37 @@ export function indexRecords<T>(
   return sortedArray as T[];
 }
 
+export function buildFormMapById(
+  database: ReduxDatabase,
+  rootPath: string[]
+): Map<string, unknown> {
+  const fields = new Map<string, unknown>();
+  const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
+
+  for (const record of records) {
+    fields.set(record.fieldId, record.value);
+  }
+
+  return fields;
+}
+
 export const hydrateForm =
   <T>(database: ReduxDatabase) =>
-  (rootPath: string[]): T => {
+  (rootPath: string[], useFieldName = true): T => {
+    function getPathLength(x: [string[], unknown]): number {
+      return x[0].length;
+    }
+
     const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
     const valuePaths: Array<[string[], unknown]> = sortBy(
       records.map((record) => [
-        [...tail(record.fieldPath), record.fieldName],
+        [
+          ...tail(record.fieldPath),
+          useFieldName ? record.fieldName : record.fieldId,
+        ],
         record.value,
       ]),
-      (x) => x[0].length
+      getPathLength
     );
 
     const result = {};
