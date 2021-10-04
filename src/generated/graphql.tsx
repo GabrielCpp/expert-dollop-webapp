@@ -288,6 +288,7 @@ export type Mutation = {
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
+  addProjectCollectionItem: Array<Maybe<FieldWrapper<ProjectNode>>>;
   createProject: FieldWrapper<ProjectDetails>;
 };
 
@@ -312,6 +313,11 @@ export type MutationUpdateProjectFieldArgs = {
 export type MutationUpdateProjectFieldsArgs = {
   projectId: Scalars["ID"];
   updates: Array<FieldUpdateInput>;
+};
+
+export type MutationAddProjectCollectionItemArgs = {
+  projectId: Scalars["ID"];
+  collectionTarget: ProjectNodeCollectionTarget;
 };
 
 export type MutationCreateProjectArgs = {
@@ -460,6 +466,11 @@ export type ProjectNode = {
   path: Array<FieldWrapper<Scalars["String"]>>;
   value?: Maybe<FieldWrapper<FieldValue>>;
   label?: Maybe<FieldWrapper<Scalars["String"]>>;
+};
+
+export type ProjectNodeCollectionTarget = {
+  parentNodeId?: Maybe<Scalars["String"]>;
+  collectionTypeId: Scalars["String"];
 };
 
 export type ProjectNodeMetaState = {
@@ -613,13 +624,13 @@ export type StaticChoiceOption = {
   __typename?: "StaticChoiceOption";
   id: FieldWrapper<Scalars["String"]>;
   label: FieldWrapper<Scalars["String"]>;
-  help_text: FieldWrapper<Scalars["String"]>;
+  helpText: FieldWrapper<Scalars["String"]>;
 };
 
 export type StaticChoiceOptionInput = {
   id: Scalars["String"];
   label: Scalars["String"];
-  help_text: Scalars["String"];
+  helpText: Scalars["String"];
 };
 
 export type StaticNumberFieldConfig = {
@@ -863,7 +874,7 @@ export type AddProjectDefinitionNodeMutation = { __typename?: "Mutation" } & {
                 options: Array<
                   { __typename?: "StaticChoiceOption" } & Pick<
                     StaticChoiceOption,
-                    "id" | "label" | "help_text"
+                    "id" | "label" | "helpText"
                   >
                 >;
               })
@@ -952,7 +963,7 @@ export type FindProjectDefinitionRootSectionsQuery = {
                       options: Array<
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
-                          "id" | "label" | "help_text"
+                          "id" | "label" | "helpText"
                         >
                       >;
                     })
@@ -1042,7 +1053,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
                       options: Array<
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
-                          "id" | "label" | "help_text"
+                          "id" | "label" | "helpText"
                         >
                       >;
                     })
@@ -1116,7 +1127,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
                           options: Array<
                             { __typename?: "StaticChoiceOption" } & Pick<
                               StaticChoiceOption,
-                              "id" | "label" | "help_text"
+                              "id" | "label" | "helpText"
                             >
                           >;
                         })
@@ -1215,7 +1226,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                 options: Array<
                   { __typename?: "StaticChoiceOption" } & Pick<
                     StaticChoiceOption,
-                    "id" | "label" | "help_text"
+                    "id" | "label" | "helpText"
                   >
                 >;
               })
@@ -1289,7 +1300,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                       options: Array<
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
-                          "id" | "label" | "help_text"
+                          "id" | "label" | "helpText"
                         >
                       >;
                     })
@@ -1378,7 +1389,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                           options: Array<
                             { __typename?: "StaticChoiceOption" } & Pick<
                               StaticChoiceOption,
-                              "id" | "label" | "help_text"
+                              "id" | "label" | "helpText"
                             >
                           >;
                         })
@@ -1477,7 +1488,7 @@ export type FindProjectDefinitionNodeQuery = { __typename?: "Query" } & {
                 options: Array<
                   { __typename?: "StaticChoiceOption" } & Pick<
                     StaticChoiceOption,
-                    "id" | "label" | "help_text"
+                    "id" | "label" | "helpText"
                   >
                 >;
               })
@@ -1544,6 +1555,38 @@ export type UpdateFieldsMutationVariables = Exact<{
 
 export type UpdateFieldsMutation = { __typename?: "Mutation" } & {
   updateProjectFields: Array<
+    Maybe<
+      { __typename?: "ProjectNode" } & Pick<
+        ProjectNode,
+        "id" | "projectId" | "typePath" | "typeId" | "path" | "label"
+      > & {
+          value?: Maybe<
+            | ({ __typename: "IntFieldValue" } & Pick<IntFieldValue, "integer">)
+            | ({ __typename: "DecimalFieldValue" } & Pick<
+                DecimalFieldValue,
+                "numeric"
+              >)
+            | ({ __typename: "StringFieldValue" } & Pick<
+                StringFieldValue,
+                "text"
+              >)
+            | ({ __typename: "BoolFieldValue" } & Pick<
+                BoolFieldValue,
+                "enabled"
+              >)
+          >;
+        }
+    >
+  >;
+};
+
+export type AddProjectCollectionItemMutationVariables = Exact<{
+  projectId: Scalars["ID"];
+  collectionTarget: ProjectNodeCollectionTarget;
+}>;
+
+export type AddProjectCollectionItemMutation = { __typename?: "Mutation" } & {
+  addProjectCollectionItem: Array<
     Maybe<
       { __typename?: "ProjectNode" } & Pick<
         ProjectNode,
@@ -1638,7 +1681,7 @@ export type FindProjectRootSectionsQuery = { __typename?: "Query" } & {
                       options: Array<
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
-                          "id" | "label" | "help_text"
+                          "id" | "label" | "helpText"
                         >
                       >;
                     })
@@ -1733,7 +1776,7 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
                       options: Array<
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
-                          "id" | "label" | "help_text"
+                          "id" | "label" | "helpText"
                         >
                       >;
                     })
@@ -1813,7 +1856,7 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
                               options: Array<
                                 { __typename?: "StaticChoiceOption" } & Pick<
                                   StaticChoiceOption,
-                                  "id" | "label" | "help_text"
+                                  "id" | "label" | "helpText"
                                 >
                               >;
                             })
@@ -1914,7 +1957,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                       options: Array<
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
-                          "id" | "label" | "help_text"
+                          "id" | "label" | "helpText"
                         >
                       >;
                     })
@@ -1994,7 +2037,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                               options: Array<
                                 { __typename?: "StaticChoiceOption" } & Pick<
                                   StaticChoiceOption,
-                                  "id" | "label" | "help_text"
+                                  "id" | "label" | "helpText"
                                 >
                               >;
                             })
@@ -2325,7 +2368,7 @@ export const AddProjectDefinitionNodeDocument = gql`
             options {
               id
               label
-              help_text
+              helpText
             }
           }
           ... on CollapsibleContainerFieldConfig {
@@ -2498,7 +2541,7 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -2625,7 +2668,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -2688,7 +2731,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
                   options {
                     id
                     label
-                    help_text
+                    helpText
                   }
                 }
                 ... on CollapsibleContainerFieldConfig {
@@ -2817,7 +2860,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
             options {
               id
               label
-              help_text
+              helpText
             }
           }
           ... on CollapsibleContainerFieldConfig {
@@ -2873,7 +2916,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -2944,7 +2987,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
                   options {
                     id
                     label
-                    help_text
+                    helpText
                   }
                 }
                 ... on CollapsibleContainerFieldConfig {
@@ -3074,7 +3117,7 @@ export const FindProjectDefinitionNodeDocument = gql`
             options {
               id
               label
-              help_text
+              helpText
             }
           }
           ... on CollapsibleContainerFieldConfig {
@@ -3347,6 +3390,84 @@ export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<
   UpdateFieldsMutation,
   UpdateFieldsMutationVariables
 >;
+export const AddProjectCollectionItemDocument = gql`
+  mutation addProjectCollectionItem(
+    $projectId: ID!
+    $collectionTarget: ProjectNodeCollectionTarget!
+  ) {
+    addProjectCollectionItem(
+      projectId: $projectId
+      collectionTarget: $collectionTarget
+    ) {
+      id
+      projectId
+      typePath
+      typeId
+      path
+      value {
+        __typename
+        ... on IntFieldValue {
+          integer
+        }
+        ... on DecimalFieldValue {
+          numeric
+        }
+        ... on StringFieldValue {
+          text
+        }
+        ... on BoolFieldValue {
+          enabled
+        }
+      }
+      label
+    }
+  }
+`;
+export type AddProjectCollectionItemMutationFn = Apollo.MutationFunction<
+  AddProjectCollectionItemMutation,
+  AddProjectCollectionItemMutationVariables
+>;
+
+/**
+ * __useAddProjectCollectionItemMutation__
+ *
+ * To run a mutation, you first call `useAddProjectCollectionItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectCollectionItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectCollectionItemMutation, { data, loading, error }] = useAddProjectCollectionItemMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      collectionTarget: // value for 'collectionTarget'
+ *   },
+ * });
+ */
+export function useAddProjectCollectionItemMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddProjectCollectionItemMutation,
+    AddProjectCollectionItemMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddProjectCollectionItemMutation,
+    AddProjectCollectionItemMutationVariables
+  >(AddProjectCollectionItemDocument, options);
+}
+export type AddProjectCollectionItemMutationHookResult = ReturnType<
+  typeof useAddProjectCollectionItemMutation
+>;
+export type AddProjectCollectionItemMutationResult =
+  Apollo.MutationResult<AddProjectCollectionItemMutation>;
+export type AddProjectCollectionItemMutationOptions =
+  Apollo.BaseMutationOptions<
+    AddProjectCollectionItemMutation,
+    AddProjectCollectionItemMutationVariables
+  >;
 export const FindProjectsDocument = gql`
   query findProjects($query: String!, $first: Int!, $after: String) {
     findProjects(query: $query, first: $first, after: $after) {
@@ -3456,7 +3577,7 @@ export const FindProjectRootSectionsDocument = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -3588,7 +3709,7 @@ export const FindProjectRootSectionContainersDocument = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -3657,7 +3778,7 @@ export const FindProjectRootSectionContainersDocument = gql`
                     options {
                       id
                       label
-                      help_text
+                      helpText
                     }
                   }
                   ... on CollapsibleContainerFieldConfig {
@@ -3788,7 +3909,7 @@ export const FindProjectFormContentDocument = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -3857,7 +3978,7 @@ export const FindProjectFormContentDocument = gql`
                     options {
                       id
                       label
-                      help_text
+                      helpText
                     }
                   }
                   ... on CollapsibleContainerFieldConfig {

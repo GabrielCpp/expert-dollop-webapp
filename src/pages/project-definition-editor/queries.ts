@@ -65,7 +65,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -142,7 +142,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -205,7 +205,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
                   options {
                     id
                     label
-                    help_text
+                    helpText
                   }
                 }
                 ... on CollapsibleContainerFieldConfig {
@@ -284,7 +284,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
             options {
               id
               label
-              help_text
+              helpText
             }
           }
           ... on CollapsibleContainerFieldConfig {
@@ -340,7 +340,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -411,7 +411,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
                   options {
                     id
                     label
-                    help_text
+                    helpText
                   }
                 }
                 ... on CollapsibleContainerFieldConfig {
@@ -490,7 +490,7 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
             options {
               id
               label
-              help_text
+              helpText
             }
           }
           ... on CollapsibleContainerFieldConfig {

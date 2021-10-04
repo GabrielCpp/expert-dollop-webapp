@@ -24,6 +24,7 @@ import {
   IntFieldValue,
   StaticChoiceFieldConfig,
   StringFieldValue,
+  useAddProjectCollectionItemMutation,
   useFindProjectFormContentQuery,
   useUpdateFieldsMutation,
 } from "../../../generated";
@@ -41,10 +42,7 @@ import { useDbTranslation } from "../../../components/translation";
 import { NodePicker } from "./node-picker";
 import { useServices } from "../../../shared/service-context";
 import { convertToFieldValue } from "../field-helper";
-
-interface FormProps {
-  node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number];
-}
+import { useLayoutEffect } from "react";
 
 function getFieldValue(
   value:
@@ -157,9 +155,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function FormFieldCard({ node }: FormProps) {
+interface FormFieldCardProps {
+  node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["nodes"][number]["children"][number];
+}
+
+function FormFieldCard({ node }: FormFieldCardProps) {
   const classes = useStyles();
   const [currentNodeId, setCurrentNodeId] = useState(node.nodes[0]?.node.id);
+
+  useLayoutEffect(() => {
+    const newId = node.nodes[0]?.node.id;
+    if (newId !== undefined) {
+      setCurrentNodeId(newId);
+    }
+  }, [node]);
 
   const currentNode = node.nodes.find((x) => x.node.id === currentNodeId);
 
@@ -199,17 +208,50 @@ function FormFieldCard({ node }: FormProps) {
   );
 }
 
-function FormSection({ node }: FormProps): JSX.Element {
+interface FormSectionProps {
+  parentNodeId: string;
+  projectId: string;
+  node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number];
+}
+
+function FormSection({
+  node,
+  projectId,
+  parentNodeId,
+}: FormSectionProps): JSX.Element {
   const classes = useStyles();
   const collapsibleConfig = node.definition.config
     .fieldDetails as CollapsibleContainerFieldConfig;
   const [expanded, setExpanded] = useState(!collapsibleConfig.isCollapsible);
-  const [currentNodeId, setCurrentNode] = useState(node.nodes[0]?.node.id);
+  const [currentNodeId, setCurrentNodeId] = useState(node.nodes[0]?.node.id);
   const { dbTrans } = useDbTranslation(node.definition.projectDefId);
+  const [addProjectCollectionItemMutation, { loading, error }] =
+    useAddProjectCollectionItemMutation();
+
+  useLayoutEffect(() => {
+    const newId = node.nodes[0]?.node.id;
+    if (newId !== undefined) {
+      setCurrentNodeId(newId);
+    }
+  }, [node]);
+
+  useLoaderEffect(error, loading);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  async function addProjectCollectionItem() {
+    await addProjectCollectionItemMutation({
+      variables: {
+        projectId,
+        collectionTarget: {
+          collectionTypeId: node.definition.id,
+          parentNodeId,
+        },
+      },
+    });
+  }
 
   const action = collapsibleConfig.isCollapsible ? (
     <IconButton
@@ -243,13 +285,13 @@ function FormSection({ node }: FormProps): JSX.Element {
           </MouseOverPopover>
         }
       />
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded} timeout="auto">
         {currentNode && (
           <CardContent className={classes.cardContent}>
             <Grid container direction="column">
               {currentNode.children.map((x) => (
                 <Grid key={x.definition.name}>
-                  <FormFieldCard node={x as any} />
+                  <FormFieldCard node={x} />
                 </Grid>
               ))}
             </Grid>
@@ -261,10 +303,10 @@ function FormSection({ node }: FormProps): JSX.Element {
           <NodePicker
             nodes={node.nodes}
             current={currentNodeId}
-            onChange={setCurrentNode}
+            onChange={setCurrentNodeId}
           />
           <span className={classes.leftSideButton}>
-            <IconButton aria-label="add">
+            <IconButton aria-label="add" onClick={addProjectCollectionItem}>
               <AddIcon />
             </IconButton>
             <IconButton aria-label="settings">
@@ -332,7 +374,11 @@ export function FormEditor({
           {formContent &&
             formContent.map((node) => (
               <Grid item key={node.definition.name}>
-                <FormSection node={node} />
+                <FormSection
+                  projectId={projectId}
+                  parentNodeId={formId}
+                  node={node}
+                />
               </Grid>
             ))}
           <Grid container item alignItems="flex-end">

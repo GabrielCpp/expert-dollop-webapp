@@ -57,7 +57,7 @@ export const FIND_PROJECT_ROOT_SECTIONS = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -139,7 +139,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -208,7 +208,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
                     options {
                       id
                       label
-                      help_text
+                      helpText
                     }
                   }
                   ... on CollapsibleContainerFieldConfig {
@@ -288,7 +288,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
                 options {
                   id
                   label
-                  help_text
+                  helpText
                 }
               }
               ... on CollapsibleContainerFieldConfig {
@@ -357,7 +357,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
                     options {
                       id
                       label
-                      help_text
+                      helpText
                     }
                   }
                   ... on CollapsibleContainerFieldConfig {

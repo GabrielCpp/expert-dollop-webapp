@@ -1,11 +1,10 @@
 import { Grid } from "@material-ui/core";
-import { useEffect } from "react";
 import { Route, Switch, useParams } from "react-router-dom";
 
 import { API_PROJECT_DEFINITION_TRANSLATION } from "../../../api-routes";
 import { useServices } from "../../../services-def";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { useLoader, useLoaderEffect } from "../../../components/loading-frame";
+import { useLoaderEffect } from "../../../components/loading-frame";
 import { useTranlationScope } from "../../../components/translation";
 import { useProjectPath } from "../hooks/project-path";
 import { PROJECT_EDITOR } from "../routes";

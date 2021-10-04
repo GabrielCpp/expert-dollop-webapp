@@ -30,7 +30,7 @@ export const ADD_PROJECT_DEFINITION_NODE = gql`
             options {
               id
               label
-              help_text
+              helpText
             }
           }
           ... on CollapsibleContainerFieldConfig {
