@@ -18,6 +18,7 @@
     "english": "English"
   },
   "project_definition_editor": {
+    "empty_placeholder": "<empty>",
     "add_new_sub_section": "Add new sub section",
     "add_new_form": "Add new form",
     "add_new_section": "Add new section",

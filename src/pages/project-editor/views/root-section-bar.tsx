@@ -210,6 +210,9 @@ export function RootSectionBar({
         onChange={onChange}
         variant="scrollable"
         scrollButtons="auto"
+        style={{
+          maxWidth: "calc(100vw - 200px)",
+        }}
       >
         {roots
           .filter((x) => x.state.isVisible === true)

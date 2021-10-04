@@ -13,7 +13,8 @@ interface TranlationScopeHook {
 export function useTranlationScope(
   routeName: string,
   ressourceId: string,
-  skip: boolean = false
+  skip: boolean = false,
+  limit: number = 50000
 ): TranlationScopeHook {
   const { reduxDb, axios, routes } = useServices();
   const { i18n } = useTranslation();
@@ -24,7 +25,7 @@ export function useTranlationScope(
   async function fetch(): Promise<void> {
     const cursor = new AsyncRestCursor<Translation>(
       axios,
-      500,
+      limit,
       (nextPageToken: string | undefined, limit: number) =>
         routes.render(
           routeName,

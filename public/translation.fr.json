@@ -12,6 +12,7 @@
     "english": "Anglais"
   },
   "project_definition_editor": {
+    "empty_placeholder": "<vide>",
     "add_new_sub_section": "Ajouter une sous section",
     "add_new_form": "Ajouter un nouveau formulaire",
     "add_root_section": "Ajouter une section principal",

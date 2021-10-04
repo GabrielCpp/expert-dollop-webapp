@@ -83,6 +83,13 @@ export function SidePanel({
     }
   }, [subSections]);
 
+  if (
+    subSections &&
+    subSections.every((subSection) => subSection.state.isVisible === false)
+  ) {
+    return null;
+  }
+
   return (
     <Card>
       <CardContent style={{ padding: "0" }}>
