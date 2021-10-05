@@ -827,7 +827,7 @@
         "description": null,
         "fields": [
           {
-            "name": "is_readonly",
+            "name": "isReadonly",
             "description": null,
             "args": [],
             "type": {
@@ -1760,7 +1760,7 @@
             "deprecationReason": null
           },
           {
-            "name": "project_def_id",
+            "name": "projectDefId",
             "description": null,
             "args": [],
             "type": {
@@ -1776,7 +1776,7 @@
             "deprecationReason": null
           },
           {
-            "name": "attached_to_type_id",
+            "name": "attachedToTypeId",
             "description": null,
             "args": [],
             "type": {
@@ -1824,7 +1824,7 @@
             "deprecationReason": null
           },
           {
-            "name": "generated_ast",
+            "name": "generatedAst",
             "description": null,
             "args": [],
             "type": {
@@ -2214,7 +2214,7 @@
                 "deprecationReason": null
               },
               {
-                "name": "node_id",
+                "name": "nodeId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -2320,6 +2320,59 @@
             "deprecationReason": null
           },
           {
+            "name": "cloneProjectCollection",
+            "description": null,
+            "args": [
+              {
+                "name": "projectId",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "collectionNodeId",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "ProjectNode",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "addProjectCollectionItem",
             "description": null,
             "args": [
@@ -2347,7 +2400,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "ProjectNodeCollectionTarget",
+                    "name": "ProjectNodeCollectionTargetInput",
                     "ofType": null
                   }
                 },
@@ -3812,7 +3865,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "ProjectNodeCollectionTarget",
+        "name": "ProjectNodeCollectionTargetInput",
         "description": null,
         "fields": null,
         "inputFields": [

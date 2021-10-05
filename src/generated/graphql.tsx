@@ -121,7 +121,7 @@ export type DatasheetDefinitionElementEdge = {
 
 export type DatasheetDefinitionElementProperty = {
   __typename?: "DatasheetDefinitionElementProperty";
-  is_readonly: FieldWrapper<Scalars["Boolean"]>;
+  isReadonly: FieldWrapper<Scalars["Boolean"]>;
   value: FieldWrapper<Scalars["String"]>;
 };
 
@@ -244,11 +244,11 @@ export enum FieldValueType {
 export type Formula = {
   __typename?: "Formula";
   id: FieldWrapper<Scalars["ID"]>;
-  project_def_id: FieldWrapper<Scalars["String"]>;
-  attached_to_type_id: FieldWrapper<Scalars["String"]>;
+  projectDefId: FieldWrapper<Scalars["String"]>;
+  attachedToTypeId: FieldWrapper<Scalars["String"]>;
   name: FieldWrapper<Scalars["String"]>;
   expression: FieldWrapper<Scalars["String"]>;
-  generated_ast: FieldWrapper<Scalars["String"]>;
+  generatedAst: FieldWrapper<Scalars["String"]>;
 };
 
 export type FormulaConnection = {
@@ -288,6 +288,7 @@ export type Mutation = {
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
+  cloneProjectCollection: Array<Maybe<FieldWrapper<ProjectNode>>>;
   addProjectCollectionItem: Array<Maybe<FieldWrapper<ProjectNode>>>;
   createProject: FieldWrapper<ProjectDetails>;
 };
@@ -306,7 +307,7 @@ export type MutationAddProjectDefinitionNodeArgs = {
 
 export type MutationUpdateProjectFieldArgs = {
   projectId: Scalars["ID"];
-  node_id: Scalars["ID"];
+  nodeId: Scalars["ID"];
   value: FieldValueInput;
 };
 
@@ -315,9 +316,14 @@ export type MutationUpdateProjectFieldsArgs = {
   updates: Array<FieldUpdateInput>;
 };
 
+export type MutationCloneProjectCollectionArgs = {
+  projectId: Scalars["ID"];
+  collectionNodeId: Scalars["ID"];
+};
+
 export type MutationAddProjectCollectionItemArgs = {
   projectId: Scalars["ID"];
-  collectionTarget: ProjectNodeCollectionTarget;
+  collectionTarget: ProjectNodeCollectionTargetInput;
 };
 
 export type MutationCreateProjectArgs = {
@@ -468,7 +474,7 @@ export type ProjectNode = {
   label?: Maybe<FieldWrapper<Scalars["String"]>>;
 };
 
-export type ProjectNodeCollectionTarget = {
+export type ProjectNodeCollectionTargetInput = {
   parentNodeId?: Maybe<Scalars["String"]>;
   collectionTypeId: Scalars["String"];
 };
@@ -824,7 +830,7 @@ export type QueryDatasheetDefinitionElementsQuery = { __typename?: "Query" } & {
                       __typename?: "DatasheetDefinitionElementProperty";
                     } & Pick<
                       DatasheetDefinitionElementProperty,
-                      "is_readonly" | "value"
+                      "isReadonly" | "value"
                     >;
                   }
               >;
@@ -1582,11 +1588,43 @@ export type UpdateFieldsMutation = { __typename?: "Mutation" } & {
 
 export type AddProjectCollectionItemMutationVariables = Exact<{
   projectId: Scalars["ID"];
-  collectionTarget: ProjectNodeCollectionTarget;
+  collectionTarget: ProjectNodeCollectionTargetInput;
 }>;
 
 export type AddProjectCollectionItemMutation = { __typename?: "Mutation" } & {
   addProjectCollectionItem: Array<
+    Maybe<
+      { __typename?: "ProjectNode" } & Pick<
+        ProjectNode,
+        "id" | "projectId" | "typePath" | "typeId" | "path" | "label"
+      > & {
+          value?: Maybe<
+            | ({ __typename: "IntFieldValue" } & Pick<IntFieldValue, "integer">)
+            | ({ __typename: "DecimalFieldValue" } & Pick<
+                DecimalFieldValue,
+                "numeric"
+              >)
+            | ({ __typename: "StringFieldValue" } & Pick<
+                StringFieldValue,
+                "text"
+              >)
+            | ({ __typename: "BoolFieldValue" } & Pick<
+                BoolFieldValue,
+                "enabled"
+              >)
+          >;
+        }
+    >
+  >;
+};
+
+export type CloneProjectCollectionMutationVariables = Exact<{
+  projectId: Scalars["ID"];
+  collectionNodeId: Scalars["ID"];
+}>;
+
+export type CloneProjectCollectionMutation = { __typename?: "Mutation" } & {
+  cloneProjectCollection: Array<
     Maybe<
       { __typename?: "ProjectNode" } & Pick<
         ProjectNode,
@@ -2269,7 +2307,7 @@ export const QueryDatasheetDefinitionElementsDocument = gql`
           defaultProperties {
             name
             property {
-              is_readonly
+              isReadonly
               value
             }
           }
@@ -3393,7 +3431,7 @@ export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<
 export const AddProjectCollectionItemDocument = gql`
   mutation addProjectCollectionItem(
     $projectId: ID!
-    $collectionTarget: ProjectNodeCollectionTarget!
+    $collectionTarget: ProjectNodeCollectionTargetInput!
   ) {
     addProjectCollectionItem(
       projectId: $projectId
@@ -3468,6 +3506,80 @@ export type AddProjectCollectionItemMutationOptions =
     AddProjectCollectionItemMutation,
     AddProjectCollectionItemMutationVariables
   >;
+export const CloneProjectCollectionDocument = gql`
+  mutation cloneProjectCollection($projectId: ID!, $collectionNodeId: ID!) {
+    cloneProjectCollection(
+      projectId: $projectId
+      collectionNodeId: $collectionNodeId
+    ) {
+      id
+      projectId
+      typePath
+      typeId
+      path
+      value {
+        __typename
+        ... on IntFieldValue {
+          integer
+        }
+        ... on DecimalFieldValue {
+          numeric
+        }
+        ... on StringFieldValue {
+          text
+        }
+        ... on BoolFieldValue {
+          enabled
+        }
+      }
+      label
+    }
+  }
+`;
+export type CloneProjectCollectionMutationFn = Apollo.MutationFunction<
+  CloneProjectCollectionMutation,
+  CloneProjectCollectionMutationVariables
+>;
+
+/**
+ * __useCloneProjectCollectionMutation__
+ *
+ * To run a mutation, you first call `useCloneProjectCollectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCloneProjectCollectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cloneProjectCollectionMutation, { data, loading, error }] = useCloneProjectCollectionMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      collectionNodeId: // value for 'collectionNodeId'
+ *   },
+ * });
+ */
+export function useCloneProjectCollectionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CloneProjectCollectionMutation,
+    CloneProjectCollectionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CloneProjectCollectionMutation,
+    CloneProjectCollectionMutationVariables
+  >(CloneProjectCollectionDocument, options);
+}
+export type CloneProjectCollectionMutationHookResult = ReturnType<
+  typeof useCloneProjectCollectionMutation
+>;
+export type CloneProjectCollectionMutationResult =
+  Apollo.MutationResult<CloneProjectCollectionMutation>;
+export type CloneProjectCollectionMutationOptions = Apollo.BaseMutationOptions<
+  CloneProjectCollectionMutation,
+  CloneProjectCollectionMutationVariables
+>;
 export const FindProjectsDocument = gql`
   query findProjects($query: String!, $first: Int!, $after: String) {
     findProjects(query: $query, first: $first, after: $after) {

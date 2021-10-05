@@ -43,11 +43,42 @@ export const UPDATE_FIELDS = gql`
 export const ADD_PROJECT_COLLECTION_ITEM = gql`
   mutation addProjectCollectionItem(
     $projectId: ID!
-    $collectionTarget: ProjectNodeCollectionTarget!
+    $collectionTarget: ProjectNodeCollectionTargetInput!
   ) {
     addProjectCollectionItem(
       projectId: $projectId
       collectionTarget: $collectionTarget
+    ) {
+      id
+      projectId
+      typePath
+      typeId
+      path
+      value {
+        __typename
+        ... on IntFieldValue {
+          integer
+        }
+        ... on DecimalFieldValue {
+          numeric
+        }
+        ... on StringFieldValue {
+          text
+        }
+        ... on BoolFieldValue {
+          enabled
+        }
+      }
+      label
+    }
+  }
+`;
+
+export const CLONE_PROJECT_COLLECTION_ITEM = gql`
+  mutation cloneProjectCollection($projectId: ID!, $collectionNodeId: ID!) {
+    cloneProjectCollection(
+      projectId: $projectId
+      collectionNodeId: $collectionNodeId
     ) {
       id
       projectId

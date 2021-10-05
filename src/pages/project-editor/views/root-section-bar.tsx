@@ -11,6 +11,8 @@ import {
 import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   FindProjectRootSectionsQuery,
+  useAddProjectCollectionItemMutation,
+  useCloneProjectCollectionMutation,
   useFindProjectRootSectionsQuery,
 } from "../../../generated/graphql";
 import { useDbTranslation } from "../../../components/translation";
@@ -54,14 +56,48 @@ function makeCollectionItem(
 }
 
 function createTooSectionPopover(
+  projectId: string,
   root: FindProjectRootSectionsQuery["findProjectRootSections"]["roots"][number],
+  cloneProjectCollectionMutation: ReturnType<
+    typeof useCloneProjectCollectionMutation
+  >[0],
+  addProjectCollectionItemMutation: ReturnType<
+    typeof useAddProjectCollectionItemMutation
+  >[0],
+  rootSectionId: string,
+  historyPush: (url: string) => void,
   viewAll: () => void
 ) {
   const emitter = new EventEmitter();
 
+  function addCollectionItem() {
+    addProjectCollectionItemMutation({
+      variables: {
+        projectId,
+        collectionTarget: {
+          collectionTypeId: root.definition.id,
+        },
+      },
+    });
+  }
+
   function RootCollectionPicker() {
     const [anchorEl, setAnchorEl] = useState<SVGSVGElement | null>(null);
     const open = Boolean(anchorEl);
+    const collectionNodeId: string | undefined = root.nodes.find(
+      (x) => x.node.id === rootSectionId
+    )?.node.id;
+
+    function cloneCollectionItem() {
+      if (collectionNodeId !== undefined) {
+        cloneProjectCollectionMutation({
+          variables: {
+            collectionNodeId,
+            projectId,
+          },
+        });
+      }
+    }
 
     function handleClick(event: React.MouseEvent<SVGSVGElement>) {
       event.stopPropagation();
@@ -102,9 +138,14 @@ function createTooSectionPopover(
             )}
           />
           <List>
-            <ListItem button>
+            <ListItem button onClick={addCollectionItem}>
               <ListItemText primary="Add" />
             </ListItem>
+            {collectionNodeId && (
+              <ListItem button>
+                <ListItemText primary="Clone" onClick={cloneCollectionItem} />
+              </ListItem>
+            )}
             <ListItem button>
               <ListItemText primary="See all" onClick={viewAll} />
             </ListItem>
@@ -121,19 +162,41 @@ function createTooSectionPopover(
   };
 }
 
-function buildUrlMap(
-  projectId: string,
-  roots: FindProjectRootSectionsQuery["findProjectRootSections"]["roots"],
-  historyPush: (url: string) => void
-): Map<string, CollectionItem> {
+interface BuildUrlMapOptions {
+  projectId: string;
+  roots: FindProjectRootSectionsQuery["findProjectRootSections"]["roots"];
+  historyPush: (url: string) => void;
+  rootSectionId: string;
+  cloneProjectCollectionMutation: ReturnType<
+    typeof useCloneProjectCollectionMutation
+  >[0];
+  addProjectCollectionItemMutation: ReturnType<
+    typeof useAddProjectCollectionItemMutation
+  >[0];
+}
+
+function buildUrlMap({
+  projectId,
+  roots,
+  historyPush,
+  rootSectionId,
+  cloneProjectCollectionMutation,
+  addProjectCollectionItemMutation,
+}: BuildUrlMapOptions): Map<string, CollectionItem> {
   const urls = new Map<string, CollectionItem>();
 
   for (const root of roots) {
     let collectionItem;
     if (root.definition.isCollection) {
       const url = buildLinkToProjectCollection(projectId, root.definition.id);
-      const { component, handleClick } = createTooSectionPopover(root, () =>
-        historyPush(url)
+      const { component, handleClick } = createTooSectionPopover(
+        projectId,
+        root,
+        cloneProjectCollectionMutation,
+        addProjectCollectionItemMutation,
+        rootSectionId,
+        historyPush,
+        () => historyPush(url)
       );
       collectionItem = makeCollectionItem(url, component, handleClick);
     } else {
@@ -170,15 +233,28 @@ export function RootSectionBar({
     },
   });
 
+  const [addProjectCollectionItemMutation] =
+    useAddProjectCollectionItemMutation();
+  const [cloneProjectCollectionMutation] = useCloneProjectCollectionMutation();
+
   useLayoutEffect(() => {
     if (data !== undefined) {
-      urls.current = buildUrlMap(
+      urls.current = buildUrlMap({
+        cloneProjectCollectionMutation,
+        addProjectCollectionItemMutation,
         projectId,
-        data.findProjectRootSections.roots,
-        history.push.bind(history)
-      );
+        roots: data.findProjectRootSections.roots,
+        historyPush: history.push.bind(history),
+        rootSectionId,
+      });
     }
-  }, [data, history, projectId]);
+  }, [
+    addProjectCollectionItemMutation,
+    cloneProjectCollectionMutation,
+    data,
+    history,
+    projectId,
+  ]);
 
   useLoaderEffect(error, loading);
 
@@ -194,11 +270,14 @@ export function RootSectionBar({
   }
 
   if (urls.current === undefined) {
-    urls.current = buildUrlMap(
+    urls.current = buildUrlMap({
+      cloneProjectCollectionMutation,
+      addProjectCollectionItemMutation,
       projectId,
-      data.findProjectRootSections.roots,
-      history.push.bind(history)
-    );
+      roots: data.findProjectRootSections.roots,
+      historyPush: history.push.bind(history),
+      rootSectionId,
+    });
   }
 
   const roots = data.findProjectRootSections.roots;

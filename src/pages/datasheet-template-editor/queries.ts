@@ -65,7 +65,7 @@ export const QUERY_DATASHEET_DEFINITION_ELEMENTS = gql`
           defaultProperties {
             name
             property {
-              is_readonly
+              isReadonly
               value
             }
           }
