@@ -76,7 +76,6 @@ function EnhancedTableHead<Data>(props: EnhancedTableProps<Data>) {
             align={headCell.numeric ? "right" : "left"}
             padding={headCell.disablePadding ? "none" : "normal"}
           >
-            restaurent
             {headCell.label}
           </TableCell>
         ))}

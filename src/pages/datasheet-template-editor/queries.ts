@@ -48,11 +48,13 @@ export const QUERY_DATASHEET_DEFINITION_ELEMENTS = gql`
     $query: String!
     $first: Int!
     $after: String
+    $datasheetDefinitionId: ID!
   ) {
     queryDatasheetDefinitionElements(
       query: $query
       first: $first
       after: $after
+      datasheetDefinitionId: $datasheetDefinitionId
     ) {
       edges {
         node {

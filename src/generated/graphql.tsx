@@ -546,6 +546,7 @@ export type QueryFindDatasheetDefinitionElementsArgs = {
 };
 
 export type QueryQueryDatasheetDefinitionElementsArgs = {
+  datasheetDefinitionId: Scalars["ID"];
   query: Scalars["String"];
   first: Scalars["Int"];
   after?: Maybe<Scalars["String"]>;
@@ -801,6 +802,7 @@ export type QueryDatasheetDefinitionElementsQueryVariables = Exact<{
   query: Scalars["String"];
   first: Scalars["Int"];
   after?: Maybe<Scalars["String"]>;
+  datasheetDefinitionId: Scalars["ID"];
 }>;
 
 export type QueryDatasheetDefinitionElementsQuery = { __typename?: "Query" } & {
@@ -2290,11 +2292,13 @@ export const QueryDatasheetDefinitionElementsDocument = gql`
     $query: String!
     $first: Int!
     $after: String
+    $datasheetDefinitionId: ID!
   ) {
     queryDatasheetDefinitionElements(
       query: $query
       first: $first
       after: $after
+      datasheetDefinitionId: $datasheetDefinitionId
     ) {
       edges {
         node {
@@ -2339,6 +2343,7 @@ export const QueryDatasheetDefinitionElementsDocument = gql`
  *      query: // value for 'query'
  *      first: // value for 'first'
  *      after: // value for 'after'
+ *      datasheetDefinitionId: // value for 'datasheetDefinitionId'
  *   },
  * });
  */

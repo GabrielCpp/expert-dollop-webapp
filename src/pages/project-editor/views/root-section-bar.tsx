@@ -254,6 +254,7 @@ export function RootSectionBar({
     data,
     history,
     projectId,
+    rootSectionId,
   ]);
 
   useLoaderEffect(error, loading);
