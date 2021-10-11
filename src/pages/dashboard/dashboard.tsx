@@ -200,7 +200,7 @@ export function Dashboard() {
             </ListItemIcon>
             <ListItemText primary={"Datasheet Template"} />
           </ListItem>
-          <ListItem button component={RouterLink} to="/datasheet">
+          <ListItem button component={RouterLink} to="/datasheets">
             <ListItemIcon>
               <ListAltIcon />
             </ListItemIcon>

@@ -5,7 +5,7 @@ export function createAxiosClient(): AxiosInstance {
   const baseUrl = getUrl.protocol + "//" + getUrl.host;
   const instance = axios.create({
     baseURL: baseUrl,
-    timeout: 5000,
+    timeout: 60000,
   });
 
   return instance;
