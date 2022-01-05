@@ -1,22 +1,17 @@
-import { debounce, TextField } from "@material-ui/core";
-import Checkbox from "@material-ui/core/Checkbox";
-import Paper from "@material-ui/core/Paper";
-import {
-  createStyles,
-  lighten,
-  makeStyles,
-  Theme,
-} from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TablePagination from "@material-ui/core/TablePagination";
-import TableRow from "@material-ui/core/TableRow";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import FilterListIcon from "@material-ui/icons/FilterList";
+import { debounce, styled, TextField } from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
+import Paper from "@mui/material/Paper";
+import { createStyles, lighten } from "@mui/material/styles";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import clsx from "clsx";
 import { noop } from "lodash";
 import React, { useRef, useState } from "react";
@@ -85,27 +80,27 @@ function EnhancedTableHead<Data>(props: EnhancedTableProps<Data>) {
   );
 }
 
-const useToolbarStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(1),
-    },
-    highlight:
-      theme.palette.type === "light"
-        ? {
-            color: theme.palette.secondary.main,
-            backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-          }
-        : {
-            color: theme.palette.text.primary,
-            backgroundColor: theme.palette.secondary.dark,
-          },
-    title: {
-      flex: "1 1 100%",
-    },
-  })
-);
+interface MoreProps {
+  highlight: boolean;
+}
+
+const ToolbarRoot = styled(Toolbar)<MoreProps>(({ theme, highlight }) => {
+  const styles: Record<string, string> = {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(1),
+  };
+
+  if (highlight) {
+    styles.color = theme.palette.secondary.main;
+    styles.backgroundColor = lighten(theme.palette.secondary.light, 0.85);
+  }
+
+  return styles;
+});
+
+const TitleTypography = styled(Typography)(() => ({
+  flex: "1 1 100%",
+}));
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
@@ -115,25 +110,15 @@ interface EnhancedTableToolbarProps {
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-  const classes = useToolbarStyles();
   const { globalActions, numSelected, query, onQueryChange } = props;
   const Actions = globalActions;
 
   return (
-    <Toolbar
-      className={clsx(classes.root, {
-        [classes.highlight]: numSelected > 0,
-      })}
-    >
+    <ToolbarRoot highlight={numSelected > 0}>
       {numSelected > 0 ? (
-        <Typography
-          className={classes.title}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
+        <TitleTypography color="inherit" variant="subtitle1">
           {numSelected} selected
-        </Typography>
+        </TitleTypography>
       ) : (
         <TextField
           value={query}
@@ -145,35 +130,22 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         />
       )}
       {numSelected > 0 && Actions}
-    </Toolbar>
+    </ToolbarRoot>
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: "100%",
-    },
-    paper: {
-      width: "100%",
-      marginBottom: theme.spacing(2),
-    },
-    table: {
-      minWidth: 750,
-    },
-    visuallyHidden: {
-      border: 0,
-      clip: "rect(0 0 0 0)",
-      height: 1,
-      margin: -1,
-      overflow: "hidden",
-      padding: 0,
-      position: "absolute",
-      top: 20,
-      width: 1,
-    },
-  })
-);
+const TableRoot = styled("div")(() => ({
+  width: "100%",
+}));
+
+const SpacedPaper = styled(Paper)(({ theme }) => ({
+  width: "100%",
+  marginBottom: theme.spacing(2),
+}));
+
+const TableWithMinWidth = styled(Table)(() => ({
+  minWidth: 750,
+}));
 
 export interface PageInfo {
   hasNextPage: boolean;
@@ -218,7 +190,6 @@ export function PaginatedDataGrid<Data>({
   defaultRowsPerPage = 100,
   rowsPerPageOptions = [5, 10, 25, 100],
 }: PaginatedDataGridProps<Data>) {
-  const classes = useStyles();
   const [selected, setSelected] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
@@ -320,8 +291,8 @@ export function PaginatedDataGrid<Data>({
     GlobalActions === undefined ? null : <GlobalActions selected={selected} />;
 
   return (
-    <div className={classes.root}>
-      <Paper className={classes.paper}>
+    <TableRoot>
+      <SpacedPaper>
         <EnhancedTableToolbar
           numSelected={selected.length}
           query={query}
@@ -329,8 +300,7 @@ export function PaginatedDataGrid<Data>({
           globalActions={globalActionsMounted}
         />
         <TableContainer>
-          <Table
-            className={classes.table}
+          <TableWithMinWidth
             aria-labelledby="tableTitle"
             aria-label="enhanced table"
           >
@@ -391,7 +361,7 @@ export function PaginatedDataGrid<Data>({
                 );
               })}
             </TableBody>
-          </Table>
+          </TableWithMinWidth>
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={rowsPerPageOptions}
@@ -402,7 +372,7 @@ export function PaginatedDataGrid<Data>({
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-      </Paper>
-    </div>
+      </SpacedPaper>
+    </TableRoot>
   );
 }

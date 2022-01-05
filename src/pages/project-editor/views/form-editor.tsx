@@ -7,14 +7,14 @@ import {
   Collapse,
   Grid,
   IconButton,
-  makeStyles,
+  styled,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import clsx from "clsx";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
-import AddIcon from "@material-ui/icons/Add";
+import AddIcon from "@mui/icons-material/Add";
 import {
   BoolFieldValue,
   CollapsibleContainerFieldConfig,
@@ -43,15 +43,13 @@ import { NodePicker } from "./node-picker";
 import { useServices } from "../../../shared/service-context";
 import { convertToFieldValue } from "../field-helper";
 import { useLayoutEffect } from "react";
+import {
+  ExpandIconButton,
+  UnpadCardContent,
+} from "../../../components/custom-styles";
 
 function getFieldValue(
-  value:
-    | IntFieldValue
-    | DecimalFieldValue
-    | StringFieldValue
-    | BoolFieldValue
-    | null
-    | undefined
+  value: Record<string, string | number | boolean> | undefined | null
 ): string | number | boolean {
   const { text, numeric, enabled, integer } = {
     text: null,
@@ -136,23 +134,8 @@ function FormField({
   return <div key={definition.name}>{definition.name}</div>;
 }
 
-const useStyles = makeStyles((theme) => ({
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
-  },
-  cardContent: {
-    paddingTop: 0,
-  },
-  leftSideButton: {
-    marginLeft: "auto",
-  },
+const LeftSideButton = styled("span")(() => ({
+  marginLeft: "auto",
 }));
 
 interface FormFieldCardProps {
@@ -160,7 +143,6 @@ interface FormFieldCardProps {
 }
 
 function FormFieldCard({ node }: FormFieldCardProps) {
-  const classes = useStyles();
   const [currentNodeId, setCurrentNodeId] = useState(node.nodes[0]?.node.id);
 
   useLayoutEffect(() => {
@@ -195,14 +177,14 @@ function FormFieldCard({ node }: FormFieldCardProps) {
           current={currentNodeId}
           onChange={setCurrentNodeId}
         ></NodePicker>
-        <span className={classes.leftSideButton}>
+        <LeftSideButton>
           <IconButton aria-label="add">
             <AddIcon />
           </IconButton>
           <IconButton aria-label="settings">
             <MoreVertIcon />
           </IconButton>
-        </span>
+        </LeftSideButton>
       </CardActions>
     </Card>
   );
@@ -219,7 +201,6 @@ function FormSection({
   projectId,
   parentNodeId,
 }: FormSectionProps): JSX.Element {
-  const classes = useStyles();
   const collapsibleConfig = node.definition.config
     .fieldDetails as CollapsibleContainerFieldConfig;
   const [expanded, setExpanded] = useState(!collapsibleConfig.isCollapsible);
@@ -254,16 +235,14 @@ function FormSection({
   }
 
   const action = collapsibleConfig.isCollapsible ? (
-    <IconButton
-      className={clsx(classes.expand, {
-        [classes.expandOpen]: expanded,
-      })}
+    <ExpandIconButton
+      expanded={expanded}
       onClick={handleExpandClick}
       aria-expanded={expanded}
       aria-label="show more"
     >
       <ExpandMoreIcon />
-    </IconButton>
+    </ExpandIconButton>
   ) : undefined;
 
   const currentNode = node.nodes.find((x) => x.node.id === currentNodeId);
@@ -287,7 +266,7 @@ function FormSection({
       />
       <Collapse in={expanded} timeout="auto">
         {currentNode && (
-          <CardContent className={classes.cardContent}>
+          <UnpadCardContent>
             <Grid container direction="column">
               {currentNode.children.map((x) => (
                 <Grid key={x.definition.name}>
@@ -295,7 +274,7 @@ function FormSection({
                 </Grid>
               ))}
             </Grid>
-          </CardContent>
+          </UnpadCardContent>
         )}
       </Collapse>
       {node.definition.isCollection && (
@@ -305,14 +284,14 @@ function FormSection({
             current={currentNodeId}
             onChange={setCurrentNodeId}
           />
-          <span className={classes.leftSideButton}>
+          <LeftSideButton>
             <IconButton aria-label="add" onClick={addProjectCollectionItem}>
               <AddIcon />
             </IconButton>
             <IconButton aria-label="settings">
               <MoreVertIcon />
             </IconButton>
-          </span>
+          </LeftSideButton>
         </CardActions>
       )}
     </Card>

@@ -1,4 +1,4 @@
-import { Select } from "@material-ui/core";
+import { Select } from "@mui/material";
 import React from "react";
 
 interface NodePickerProps<T> {

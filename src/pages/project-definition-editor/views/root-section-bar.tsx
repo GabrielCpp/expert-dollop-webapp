@@ -1,5 +1,5 @@
-import { Grid, IconButton, Tab, Tabs, Tooltip } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
+import { Grid, IconButton, Tab, Tabs, Tooltip } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink, useHistory } from "react-router-dom";

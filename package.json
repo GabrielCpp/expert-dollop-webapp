@@ -1,14 +1,15 @@
 {
-  "name": "t2-webapp",
+  "name": "expert-dollup-webapp",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:8000",
   "dependencies": {
     "@apollo/client": "^3.3.12",
     "@auth0/auth0-react": "^1.5.0",
-    "@material-ui/core": "^4.11.2",
-    "@material-ui/icons": "^4.11.2",
-    "@material-ui/lab": "^4.0.0-alpha.58",
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/icons-material": "^5.2.5",
+    "@mui/material": "^5.2.7",
     "ajv": "^7.0.2",
     "ajv-errors": "^2.0.0",
     "axios": "^0.21.1",
@@ -36,12 +37,6 @@
     "@graphql-codegen/typescript": "^1.21.1",
     "@graphql-codegen/typescript-operations": "^1.17.15",
     "@graphql-codegen/typescript-react-apollo": "^2.2.3",
-    "@storybook/addon-actions": "^6.2.9",
-    "@storybook/addon-essentials": "^6.2.9",
-    "@storybook/addon-links": "^6.2.9",
-    "@storybook/node-logger": "^6.2.9",
-    "@storybook/preset-create-react-app": "^3.1.7",
-    "@storybook/react": "^6.2.9",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -59,7 +54,6 @@
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "react-scripts": "4.0.3",
-    "sb": "^6.2.9",
     "typescript": "^4.1.2"
   },
   "scripts": {
@@ -68,9 +62,6 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "g:s": "graphql-codegen --config codegen.yml",
-    "pretty": "prettier --write .",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public",
     "prettify": "yarn prettier --write src"
   },
   "eslintConfig": {

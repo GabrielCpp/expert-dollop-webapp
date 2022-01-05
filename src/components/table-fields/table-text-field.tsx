@@ -1,4 +1,4 @@
-import { InputAdornment, TextField, Typography } from "@material-ui/core";
+import { InputAdornment, TextField, Typography } from "@mui/material";
 import React from "react";
 import { Namespace, TFunction } from "react-i18next";
 

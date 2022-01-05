@@ -8,8 +8,8 @@ import {
   Popper,
   PopperPlacementType,
   Tooltip,
-} from "@material-ui/core";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+} from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import React from "react";
 import { useTranslation } from "react-i18next";
 

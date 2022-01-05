@@ -1,18 +1,11 @@
 import React from "react";
-import { Typography, Popover } from "@material-ui/core";
-import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
+import { Typography, Popover, styled } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    popover: {
-      pointerEvents: "none",
-    },
-    paper: {
-      padding: theme.spacing(1),
-    },
-  })
-);
+const HelpTextPopover = styled(Popover)`
+  pointerEvents: "none"
+  padding: ${(props) => props.theme.spacing(1)}
+`;
 
 export interface MouseOverPopoverChildren {
   "aria-owns": string | undefined;
@@ -48,7 +41,6 @@ export function MouseOverPopover({
   name,
   children,
 }: MouseOverPopoverProps) {
-  const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const { t } = useTranslation();
 
@@ -72,12 +64,8 @@ export function MouseOverPopover({
         onMouseEnter: handlePopoverOpen,
         onMouseLeave: handlePopoverClose,
       })}
-      <Popover
+      <HelpTextPopover
         id={name}
-        className={classes.popover}
-        classes={{
-          paper: classes.paper,
-        }}
         open={open}
         anchorEl={anchorEl}
         anchorOrigin={{
@@ -92,7 +80,7 @@ export function MouseOverPopover({
         disableRestoreFocus
       >
         <Typography>{t(text)}</Typography>
-      </Popover>
+      </HelpTextPopover>
     </>
   );
 }

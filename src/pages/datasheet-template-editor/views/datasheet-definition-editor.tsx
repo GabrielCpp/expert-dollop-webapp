@@ -1,6 +1,6 @@
-import { Box, IconButton, Typography } from "@material-ui/core";
-import CreateIcon from "@material-ui/icons/Create";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import { Box, IconButton, Typography } from "@mui/material";
+import CreateIcon from "@mui/icons-material/Create";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {

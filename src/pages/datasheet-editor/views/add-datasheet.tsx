@@ -1,4 +1,4 @@
-import { Card, CardContent, Grid, Button } from "@material-ui/core";
+import { Card, CardContent, Grid, Button } from "@mui/material";
 import { head } from "lodash";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";

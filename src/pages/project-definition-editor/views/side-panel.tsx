@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   Collapse,
-  createStyles,
   Divider,
   IconButton,
   Link,
@@ -10,14 +9,12 @@ import {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-  makeStyles,
-  Theme,
   Tooltip,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import EditIcon from "@material-ui/icons/Edit";
-import ExpandLess from "@material-ui/icons/ExpandLess";
-import ExpandMore from "@material-ui/icons/ExpandMore";
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import React, { Fragment, useEffect } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -36,25 +33,11 @@ import {
   PROJECT_DEFINITION_EDITOR_NODE_ADD,
   PROJECT_DEFINITION_EDITOR_NODE_EDIT,
 } from "../routes";
+import { ListRoot, NestedListItem } from "../../../components/custom-styles";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: "100%",
-      backgroundColor: theme.palette.background.paper,
-      padding: "o",
-    },
-    nested: {
-      paddingLeft: theme.spacing(4),
-    },
-    selectedListItem: {
-      fontWeight: "bold",
-    },
-    grid: {
-      width: "100%",
-    },
-  })
-);
+const boldListItem: React.CSSProperties = {
+  fontWeight: "bold",
+};
 
 interface SidePanelProps {
   projectDefinitionId: string;
@@ -71,7 +54,6 @@ export function SidePanel({
 }: SidePanelProps) {
   const { routes } = useServices();
   const { t, dbTrans } = useDbTranslation(projectDefinitionId);
-  const classes = useStyles();
   const [expanded, setExpanded] = React.useState<string | undefined>(
     subSectionDefId
   );
@@ -101,7 +83,7 @@ export function SidePanel({
   return (
     <Card>
       <CardContent style={{ padding: "0" }}>
-        <List component="nav" className={classes.root}>
+        <ListRoot>
           {subSections &&
             subSections.map((subSection) => (
               <Fragment key={subSection.definition.name}>
@@ -190,7 +172,7 @@ export function SidePanel({
               </Tooltip>
             </ListItemSecondaryAction>
           </ListItem>
-        </List>
+        </ListRoot>
       </CardContent>
     </Card>
   );
@@ -209,7 +191,6 @@ function FormLinkList({
   formId,
   subSection,
 }: FormLinkListProps) {
-  const classes = useStyles();
   const { routes } = useServices();
   const { t, dbTrans } = useDbTranslation(projectDefinitionId);
 
@@ -217,7 +198,7 @@ function FormLinkList({
     <List component="div" disablePadding>
       {subSection.children.map((formNode) => (
         <Fragment key={formNode.definition.name}>
-          <ListItem className={classes.nested}>
+          <NestedListItem>
             <MouseOverPopover
               name={`${subSection.definition.name}-popover`}
               text={dbTrans(
@@ -229,10 +210,11 @@ function FormLinkList({
                   <ListItemText
                     {...props}
                     primaryTypographyProps={{
-                      className:
-                        formNode.definition.id !== formId
-                          ? classes.selectedListItem
-                          : undefined,
+                      style: {
+                        ...(formNode.definition.id !== formId
+                          ? boldListItem
+                          : undefined),
+                      },
                     }}
                     primary={
                       formNode.definition.id === formId ? (
@@ -279,10 +261,10 @@ function FormLinkList({
                 </IconButton>
               </Tooltip>
             </ListItemSecondaryAction>
-          </ListItem>
+          </NestedListItem>
         </Fragment>
       ))}
-      <ListItem className={classes.nested}>
+      <NestedListItem>
         <ListItemText>
           {t("project_definition_editor.add_new_form")}
         </ListItemText>
@@ -306,7 +288,7 @@ function FormLinkList({
             </IconButton>
           </Tooltip>
         </ListItemSecondaryAction>
-      </ListItem>
+      </NestedListItem>
     </List>
   );
 }

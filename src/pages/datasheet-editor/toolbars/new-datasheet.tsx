@@ -1,4 +1,4 @@
-import { Button } from "@material-ui/core";
+import { Button } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { useServices } from "../../../services-def";

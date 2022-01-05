@@ -4,7 +4,7 @@ import {
   Radio,
   RadioGroup,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import React from "react";
 import { Namespace, TFunction } from "react-i18next";
 

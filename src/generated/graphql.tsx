@@ -16,6 +16,12 @@ export type Scalars = {
   JsonSchema: any;
 };
 
+export type AttributeBucket = {
+  __typename?: 'AttributeBucket';
+  bucketName: FieldWrapper<Scalars['String']>;
+  attributeName: FieldWrapper<Scalars['String']>;
+};
+
 export type BoolFieldConfig = {
   __typename?: 'BoolFieldConfig';
   isCheckbox: FieldWrapper<Scalars['Boolean']>;
@@ -223,7 +229,7 @@ export type FieldUpdateInput = {
   value: FieldValueInput;
 };
 
-export type FieldValue = IntFieldValue | DecimalFieldValue | StringFieldValue | BoolFieldValue;
+export type FieldValue = IntFieldValue | DecimalFieldValue | StringFieldValue | BoolFieldValue | ReferenceId;
 
 export type FieldValueInput = {
   kind: FieldValueType;
@@ -247,7 +253,6 @@ export type Formula = {
   attachedToTypeId: FieldWrapper<Scalars['String']>;
   name: FieldWrapper<Scalars['String']>;
   expression: FieldWrapper<Scalars['String']>;
-  generatedAst: FieldWrapper<Scalars['String']>;
 };
 
 export type FormulaConnection = {
@@ -486,6 +491,7 @@ export type ProjectNode = {
   projectId: FieldWrapper<Scalars['String']>;
   typePath: Array<FieldWrapper<Scalars['String']>>;
   typeId: FieldWrapper<Scalars['String']>;
+  typeName: FieldWrapper<Scalars['String']>;
   path: Array<FieldWrapper<Scalars['String']>>;
   value?: Maybe<FieldWrapper<FieldValue>>;
   label?: Maybe<FieldWrapper<Scalars['String']>>;
@@ -541,6 +547,9 @@ export type Query = {
   findProjects: FieldWrapper<ProjectConnection>;
   findProjectDetails: FieldWrapper<ProjectDetails>;
   findProjectDefinitionFormulas: FieldWrapper<FormulaConnection>;
+  findReportDefinitions: Array<FieldWrapper<ReportDefinition>>;
+  findReportDefinition: FieldWrapper<ReportDefinition>;
+  findProjectReport: FieldWrapper<Report>;
 };
 
 
@@ -658,6 +667,76 @@ export type QueryFindProjectDefinitionFormulasArgs = {
   query: Scalars['String'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryFindReportDefinitionsArgs = {
+  projectDefId: Scalars['ID'];
+};
+
+
+export type QueryFindReportDefinitionArgs = {
+  reportDefinitionId: Scalars['ID'];
+};
+
+
+export type QueryFindProjectReportArgs = {
+  projectId: Scalars['ID'];
+  reportDefinitionId: Scalars['ID'];
+};
+
+export type ReferenceId = {
+  __typename?: 'ReferenceId';
+  uuid: FieldWrapper<Scalars['String']>;
+};
+
+export type Report = {
+  __typename?: 'Report';
+  stages: Array<FieldWrapper<ReportStage>>;
+  creationDateUtc?: Maybe<FieldWrapper<Scalars['String']>>;
+};
+
+export type ReportColumnDefinition = {
+  __typename?: 'ReportColumnDefinition';
+  name: FieldWrapper<Scalars['String']>;
+  expression: FieldWrapper<Scalars['String']>;
+  isVisible: FieldWrapper<Scalars['Boolean']>;
+  unitId?: Maybe<FieldWrapper<Scalars['String']>>;
+};
+
+export type ReportDefinition = {
+  __typename?: 'ReportDefinition';
+  id: FieldWrapper<Scalars['String']>;
+  project_def_id: FieldWrapper<Scalars['String']>;
+  name: FieldWrapper<Scalars['String']>;
+  structure?: Maybe<FieldWrapper<ReportDefinitionStructure>>;
+};
+
+export type ReportDefinitionStructure = {
+  __typename?: 'ReportDefinitionStructure';
+  formulaAttribute?: Maybe<FieldWrapper<AttributeBucket>>;
+  datasheetAttribute?: Maybe<FieldWrapper<AttributeBucket>>;
+  columns: Array<FieldWrapper<ReportColumnDefinition>>;
+};
+
+export type ReportRow = {
+  __typename?: 'ReportRow';
+  projectId: FieldWrapper<Scalars['ID']>;
+  reportDefId: FieldWrapper<Scalars['ID']>;
+  nodeId: FieldWrapper<Scalars['ID']>;
+  formulaId: FieldWrapper<Scalars['ID']>;
+  orderIndex: FieldWrapper<Scalars['Int']>;
+  datasheetId: FieldWrapper<Scalars['String']>;
+  elementId: FieldWrapper<Scalars['String']>;
+  childReferenceId: FieldWrapper<Scalars['String']>;
+  columns: Array<Maybe<FieldWrapper<FieldValue>>>;
+};
+
+export type ReportStage = {
+  __typename?: 'ReportStage';
+  label?: Maybe<FieldWrapper<Scalars['String']>>;
+  summary?: Maybe<FieldWrapper<FieldValue>>;
+  rows: Array<FieldWrapper<ReportRow>>;
 };
 
 export type StaticChoiceFieldConfig = {
@@ -1025,7 +1104,7 @@ export type FindProjectDefinitionRootSectionsQuery = (
         ) | (
           { __typename: 'BoolFieldValue' }
           & Pick<BoolFieldValue, 'enabled'>
-        )> }
+        ) | { __typename: 'ReferenceId' }> }
       ) }
     )> }
   ) }
@@ -1089,7 +1168,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
         ) | (
           { __typename: 'BoolFieldValue' }
           & Pick<BoolFieldValue, 'enabled'>
-        )> }
+        ) | { __typename: 'ReferenceId' }> }
       ), children: Array<(
         { __typename?: 'ProjectDefinitionTreeNode' }
         & { definition: (
@@ -1138,7 +1217,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
           ) | (
             { __typename: 'BoolFieldValue' }
             & Pick<BoolFieldValue, 'enabled'>
-          )> }
+          ) | { __typename: 'ReferenceId' }> }
         ) }
       )> }
     )> }
@@ -1252,7 +1331,7 @@ export type FindProjectDefinitionFormContentQuery = (
         ) | (
           { __typename: 'BoolFieldValue' }
           & Pick<BoolFieldValue, 'enabled'>
-        )> }
+        ) | { __typename: 'ReferenceId' }> }
       ), children: Array<(
         { __typename?: 'ProjectDefinitionTreeNode' }
         & { definition: (
@@ -1308,7 +1387,7 @@ export type FindProjectDefinitionFormContentQuery = (
           ) | (
             { __typename: 'BoolFieldValue' }
             & Pick<BoolFieldValue, 'enabled'>
-          )> }
+          ) | { __typename: 'ReferenceId' }> }
         ) }
       )> }
     )> }
@@ -1432,7 +1511,7 @@ export type UpdateFieldsMutation = (
     ) | (
       { __typename: 'BoolFieldValue' }
       & Pick<BoolFieldValue, 'enabled'>
-    )> }
+    ) | { __typename: 'ReferenceId' }> }
   )>> }
 );
 
@@ -1459,7 +1538,7 @@ export type AddProjectCollectionItemMutation = (
     ) | (
       { __typename: 'BoolFieldValue' }
       & Pick<BoolFieldValue, 'enabled'>
-    )> }
+    ) | { __typename: 'ReferenceId' }> }
   )>> }
 );
 
@@ -1486,7 +1565,7 @@ export type CloneProjectCollectionMutation = (
     ) | (
       { __typename: 'BoolFieldValue' }
       & Pick<BoolFieldValue, 'enabled'>
-    )> }
+    ) | { __typename: 'ReferenceId' }> }
   )>> }
 );
 
@@ -1578,7 +1657,7 @@ export type FindProjectRootSectionsQuery = (
           ) | (
             { __typename: 'BoolFieldValue' }
             & Pick<BoolFieldValue, 'enabled'>
-          )> }
+          ) | { __typename: 'ReferenceId' }> }
         ) }
       )> }
     )> }
@@ -1649,7 +1728,7 @@ export type FindProjectRootSectionContainersQuery = (
           ) | (
             { __typename: 'BoolFieldValue' }
             & Pick<BoolFieldValue, 'enabled'>
-          )> }
+          ) | { __typename: 'ReferenceId' }> }
         ), children: Array<(
           { __typename?: 'ProjectNodeTreeTypeNode' }
           & { definition: (
@@ -1704,7 +1783,7 @@ export type FindProjectRootSectionContainersQuery = (
               ) | (
                 { __typename: 'BoolFieldValue' }
                 & Pick<BoolFieldValue, 'enabled'>
-              )> }
+              ) | { __typename: 'ReferenceId' }> }
             ) }
           )> }
         )> }
@@ -1777,7 +1856,7 @@ export type FindProjectFormContentQuery = (
           ) | (
             { __typename: 'BoolFieldValue' }
             & Pick<BoolFieldValue, 'enabled'>
-          )> }
+          ) | { __typename: 'ReferenceId' }> }
         ), children: Array<(
           { __typename?: 'ProjectNodeTreeTypeNode' }
           & { definition: (
@@ -1832,7 +1911,7 @@ export type FindProjectFormContentQuery = (
               ) | (
                 { __typename: 'BoolFieldValue' }
                 & Pick<BoolFieldValue, 'enabled'>
-              )> }
+              ) | { __typename: 'ReferenceId' }> }
             ) }
           )> }
         )> }
@@ -1852,6 +1931,99 @@ export type FindProjectDefinitionIdQuery = (
     { __typename?: 'ProjectDetails' }
     & Pick<ProjectDetails, 'projectDefId'>
   ) }
+);
+
+export type FindProjectReportQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  reportDefinitionId: Scalars['ID'];
+}>;
+
+
+export type FindProjectReportQuery = (
+  { __typename?: 'Query' }
+  & { findProjectReport: (
+    { __typename?: 'Report' }
+    & Pick<Report, 'creationDateUtc'>
+    & { stages: Array<(
+      { __typename?: 'ReportStage' }
+      & Pick<ReportStage, 'label'>
+      & { summary?: Maybe<(
+        { __typename: 'IntFieldValue' }
+        & Pick<IntFieldValue, 'integer'>
+      ) | (
+        { __typename: 'DecimalFieldValue' }
+        & Pick<DecimalFieldValue, 'numeric'>
+      ) | (
+        { __typename: 'StringFieldValue' }
+        & Pick<StringFieldValue, 'text'>
+      ) | (
+        { __typename: 'BoolFieldValue' }
+        & Pick<BoolFieldValue, 'enabled'>
+      ) | { __typename: 'ReferenceId' }>, rows: Array<(
+        { __typename?: 'ReportRow' }
+        & Pick<ReportRow, 'nodeId' | 'formulaId' | 'orderIndex' | 'datasheetId' | 'elementId' | 'childReferenceId'>
+        & { columns: Array<Maybe<(
+          { __typename: 'IntFieldValue' }
+          & Pick<IntFieldValue, 'integer'>
+        ) | (
+          { __typename: 'DecimalFieldValue' }
+          & Pick<DecimalFieldValue, 'numeric'>
+        ) | (
+          { __typename: 'StringFieldValue' }
+          & Pick<StringFieldValue, 'text'>
+        ) | (
+          { __typename: 'BoolFieldValue' }
+          & Pick<BoolFieldValue, 'enabled'>
+        ) | { __typename: 'ReferenceId' }>> }
+      )> }
+    )> }
+  ) }
+);
+
+export type FindReportDefinitionQueryVariables = Exact<{
+  reportDefinitionId: Scalars['ID'];
+}>;
+
+
+export type FindReportDefinitionQuery = (
+  { __typename?: 'Query' }
+  & { findReportDefinition: (
+    { __typename?: 'ReportDefinition' }
+    & Pick<ReportDefinition, 'id' | 'name'>
+    & { structure?: Maybe<(
+      { __typename?: 'ReportDefinitionStructure' }
+      & { formulaAttribute?: Maybe<(
+        { __typename?: 'AttributeBucket' }
+        & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
+      )>, columns: Array<(
+        { __typename?: 'ReportColumnDefinition' }
+        & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
+      )> }
+    )> }
+  ) }
+);
+
+export type FindProjectDefinitionReportsQueryVariables = Exact<{
+  projectDefId: Scalars['ID'];
+}>;
+
+
+export type FindProjectDefinitionReportsQuery = (
+  { __typename?: 'Query' }
+  & { findReportDefinitions: Array<(
+    { __typename?: 'ReportDefinition' }
+    & Pick<ReportDefinition, 'id' | 'name'>
+    & { structure?: Maybe<(
+      { __typename?: 'ReportDefinitionStructure' }
+      & { formulaAttribute?: Maybe<(
+        { __typename?: 'AttributeBucket' }
+        & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
+      )>, columns: Array<(
+        { __typename?: 'ReportColumnDefinition' }
+        & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
+      )> }
+    )> }
+  )> }
 );
 
 
@@ -3622,3 +3794,185 @@ export function useFindProjectDefinitionIdLazyQuery(baseOptions?: Apollo.LazyQue
 export type FindProjectDefinitionIdQueryHookResult = ReturnType<typeof useFindProjectDefinitionIdQuery>;
 export type FindProjectDefinitionIdLazyQueryHookResult = ReturnType<typeof useFindProjectDefinitionIdLazyQuery>;
 export type FindProjectDefinitionIdQueryResult = Apollo.QueryResult<FindProjectDefinitionIdQuery, FindProjectDefinitionIdQueryVariables>;
+export const FindProjectReportDocument = gql`
+    query findProjectReport($projectId: ID!, $reportDefinitionId: ID!) {
+  findProjectReport(
+    projectId: $projectId
+    reportDefinitionId: $reportDefinitionId
+  ) {
+    creationDateUtc
+    stages {
+      label
+      summary {
+        __typename
+        ... on IntFieldValue {
+          integer
+        }
+        ... on DecimalFieldValue {
+          numeric
+        }
+        ... on StringFieldValue {
+          text
+        }
+        ... on BoolFieldValue {
+          enabled
+        }
+      }
+      rows {
+        nodeId
+        formulaId
+        orderIndex
+        datasheetId
+        elementId
+        childReferenceId
+        columns {
+          __typename
+          ... on IntFieldValue {
+            integer
+          }
+          ... on DecimalFieldValue {
+            numeric
+          }
+          ... on StringFieldValue {
+            text
+          }
+          ... on BoolFieldValue {
+            enabled
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindProjectReportQuery__
+ *
+ * To run a query within a React component, call `useFindProjectReportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectReportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectReportQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      reportDefinitionId: // value for 'reportDefinitionId'
+ *   },
+ * });
+ */
+export function useFindProjectReportQuery(baseOptions: Apollo.QueryHookOptions<FindProjectReportQuery, FindProjectReportQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectReportQuery, FindProjectReportQueryVariables>(FindProjectReportDocument, options);
+      }
+export function useFindProjectReportLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectReportQuery, FindProjectReportQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectReportQuery, FindProjectReportQueryVariables>(FindProjectReportDocument, options);
+        }
+export type FindProjectReportQueryHookResult = ReturnType<typeof useFindProjectReportQuery>;
+export type FindProjectReportLazyQueryHookResult = ReturnType<typeof useFindProjectReportLazyQuery>;
+export type FindProjectReportQueryResult = Apollo.QueryResult<FindProjectReportQuery, FindProjectReportQueryVariables>;
+export const FindReportDefinitionDocument = gql`
+    query findReportDefinition($reportDefinitionId: ID!) {
+  findReportDefinition(reportDefinitionId: $reportDefinitionId) {
+    id
+    name
+    structure {
+      formulaAttribute {
+        bucketName
+        attributeName
+      }
+      formulaAttribute {
+        bucketName
+        attributeName
+      }
+      columns {
+        name
+        isVisible
+        unitId
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindReportDefinitionQuery__
+ *
+ * To run a query within a React component, call `useFindReportDefinitionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindReportDefinitionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindReportDefinitionQuery({
+ *   variables: {
+ *      reportDefinitionId: // value for 'reportDefinitionId'
+ *   },
+ * });
+ */
+export function useFindReportDefinitionQuery(baseOptions: Apollo.QueryHookOptions<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>(FindReportDefinitionDocument, options);
+      }
+export function useFindReportDefinitionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>(FindReportDefinitionDocument, options);
+        }
+export type FindReportDefinitionQueryHookResult = ReturnType<typeof useFindReportDefinitionQuery>;
+export type FindReportDefinitionLazyQueryHookResult = ReturnType<typeof useFindReportDefinitionLazyQuery>;
+export type FindReportDefinitionQueryResult = Apollo.QueryResult<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>;
+export const FindProjectDefinitionReportsDocument = gql`
+    query findProjectDefinitionReports($projectDefId: ID!) {
+  findReportDefinitions(projectDefId: $projectDefId) {
+    id
+    name
+    structure {
+      formulaAttribute {
+        bucketName
+        attributeName
+      }
+      formulaAttribute {
+        bucketName
+        attributeName
+      }
+      columns {
+        name
+        isVisible
+        unitId
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindProjectDefinitionReportsQuery__
+ *
+ * To run a query within a React component, call `useFindProjectDefinitionReportsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectDefinitionReportsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindProjectDefinitionReportsQuery({
+ *   variables: {
+ *      projectDefId: // value for 'projectDefId'
+ *   },
+ * });
+ */
+export function useFindProjectDefinitionReportsQuery(baseOptions: Apollo.QueryHookOptions<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>(FindProjectDefinitionReportsDocument, options);
+      }
+export function useFindProjectDefinitionReportsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>(FindProjectDefinitionReportsDocument, options);
+        }
+export type FindProjectDefinitionReportsQueryHookResult = ReturnType<typeof useFindProjectDefinitionReportsQuery>;
+export type FindProjectDefinitionReportsLazyQueryHookResult = ReturnType<typeof useFindProjectDefinitionReportsLazyQuery>;
+export type FindProjectDefinitionReportsQueryResult = Apollo.QueryResult<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>;

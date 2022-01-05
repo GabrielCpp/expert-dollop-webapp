@@ -6,7 +6,7 @@ import { theme } from "./theme";
 import { Dashboard } from "./pages/dashboard";
 import { services } from "./services";
 import { ServiceContext } from "./shared/service-context";
-import { ThemeProvider } from "@material-ui/core";
+import { ThemeProvider } from "@mui/material";
 import { useHistory } from "react-router-dom";
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
 import { Login } from "./pages/login";

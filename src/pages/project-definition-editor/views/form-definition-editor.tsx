@@ -1,16 +1,14 @@
 import {
   Card,
-  CardContent,
   CardHeader,
   Collapse,
   Grid,
   IconButton,
-  makeStyles,
+  styled,
   Typography,
-} from "@material-ui/core";
-import { ExpandMore as ExpandMoreIcon } from "@material-ui/icons";
-import AddIcon from "@material-ui/icons/Add";
-import clsx from "clsx";
+} from "@mui/material";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
 import React, { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -34,7 +32,11 @@ import {
   PROJECT_DEFINITION_EDITOR_NODE_ADD,
   PROJECT_DEFINITION_EDITOR_NODE_EDIT,
 } from "../routes";
-import EditIcon from "@material-ui/icons/Edit";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  ExpandIconButton,
+  UnpadCardContent,
+} from "../../../components/custom-styles";
 
 interface FormProps {
   node: ProjectDefinitionTreeNode;
@@ -61,7 +63,6 @@ function getFieldValue(node: ProjectDefinitionNode): string | number | boolean {
 function FormField({ node }: FormProps): JSX.Element {
   const { dbTrans } = useDbTranslation(node.definition.projectDefId);
   const { routes } = useServices();
-  const classes = useStyles();
 
   if (
     node.definition.config.fieldDetails === null ||
@@ -96,8 +97,8 @@ function FormField({ node }: FormProps): JSX.Element {
     fieldType === "DecimalFieldConfig"
   ) {
     return (
-      <Grid container className={classes.grid}>
-        <Grid item className={classes.field}>
+      <FullWidthGrid>
+        <GridFieldItem>
           <Field
             validator={validator}
             path={node.definition.path}
@@ -108,18 +109,16 @@ function FormField({ node }: FormProps): JSX.Element {
             t={dbTrans}
             component={textField}
           />
-        </Grid>
-        <Grid item className={classes.editButton}>
-          {EditButton}
-        </Grid>
-      </Grid>
+        </GridFieldItem>
+        <GridEditButton>{EditButton}</GridEditButton>
+      </FullWidthGrid>
     );
   }
 
   if (fieldType === "BoolFieldConfig") {
     return (
-      <Grid container className={classes.grid}>
-        <Grid item className={classes.field}>
+      <FullWidthGrid>
+        <GridFieldItem>
           <Field
             validator={validator}
             path={node.definition.path}
@@ -130,11 +129,9 @@ function FormField({ node }: FormProps): JSX.Element {
             t={dbTrans}
             component={checkboxField}
           />
-        </Grid>
-        <Grid item className={classes.editButton}>
-          {EditButton}
-        </Grid>
-      </Grid>
+        </GridFieldItem>
+        <GridEditButton>{EditButton}</GridEditButton>
+      </FullWidthGrid>
     );
   }
 
@@ -142,8 +139,8 @@ function FormField({ node }: FormProps): JSX.Element {
     const choices = node.definition.config
       .fieldDetails as StaticChoiceFieldConfig;
     return (
-      <Grid container className={classes.grid}>
-        <Grid item className={classes.field}>
+      <FullWidthGrid>
+        <GridFieldItem>
           <Field
             options={choices.options}
             validator={validator}
@@ -155,62 +152,41 @@ function FormField({ node }: FormProps): JSX.Element {
             t={dbTrans}
             component={radioField}
           />
-        </Grid>
-        <Grid item className={classes.editButton}>
-          {EditButton}
-        </Grid>
-      </Grid>
+        </GridFieldItem>
+        <GridEditButton>{EditButton}</GridEditButton>
+      </FullWidthGrid>
     );
   }
 
   if (fieldType === "StaticNumberFieldConfig") {
     return (
-      <Grid container className={classes.grid}>
-        <Grid item className={classes.field}>
+      <FullWidthGrid>
+        <GridFieldItem>
           <label>{dbTrans(node.definition.name)}</label>{" "}
-        </Grid>
-        <Grid item className={classes.editButton}>
-          {EditButton}
-        </Grid>
-      </Grid>
+        </GridFieldItem>
+        <GridEditButton>{EditButton}</GridEditButton>
+      </FullWidthGrid>
     );
   }
 
   return <div key={node.definition.name}>{node.definition.name}</div>;
 }
 
-const useStyles = makeStyles((theme) => ({
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
-  },
-  cardContent: {
-    paddingTop: 0,
-  },
-  leftSideButton: {
-    marginLeft: "auto",
-  },
-  grid: {
-    width: "100%",
-  },
-  field: {
-    width: "90%",
-  },
-  editButton: {
-    width: "10%",
-  },
+const FullWidthGrid = styled(Grid)(() => ({
+  width: "100%",
+}));
+
+const GridFieldItem = styled(Grid)(() => ({
+  width: "90%",
+}));
+
+const GridEditButton = styled(Grid)(() => ({
+  width: "10%",
 }));
 
 function FormSection({ node }: FormProps): JSX.Element {
   const valueType = node.definition.config
     .fieldDetails as CollapsibleContainerFieldConfig;
-  const classes = useStyles();
   const [expanded, setExpanded] = useState(!valueType.isCollapsible);
   const { dbTrans } = useDbTranslation(node.definition.projectDefId);
   const handleExpandClick = () => {
@@ -218,16 +194,14 @@ function FormSection({ node }: FormProps): JSX.Element {
   };
 
   const action = valueType.isCollapsible ? (
-    <IconButton
-      className={clsx(classes.expand, {
-        [classes.expandOpen]: expanded,
-      })}
+    <ExpandIconButton
+      expanded={expanded}
       onClick={handleExpandClick}
       aria-expanded={expanded}
       aria-label="show more"
     >
       <ExpandMoreIcon />
-    </IconButton>
+    </ExpandIconButton>
   ) : undefined;
 
   return (
@@ -255,7 +229,7 @@ function FormSection({ node }: FormProps): JSX.Element {
         }
       />
       <Collapse in={expanded} timeout="auto">
-        <CardContent className={classes.cardContent}>
+        <UnpadCardContent>
           <Grid container direction="column">
             {node.children.map((child) => (
               <Grid item key={child.definition.name}>
@@ -263,7 +237,7 @@ function FormSection({ node }: FormProps): JSX.Element {
               </Grid>
             ))}
           </Grid>
-        </CardContent>
+        </UnpadCardContent>
       </Collapse>
     </Card>
   );

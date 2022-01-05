@@ -1,6 +1,6 @@
 import React from "react";
-import { Button } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
+import { Button } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { Link as RouterLink } from "react-router-dom";
 import { useServices } from "../../../services-def";
 import { ADD_PROJECT_VIEW } from "../routes";

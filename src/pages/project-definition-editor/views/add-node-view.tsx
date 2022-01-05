@@ -6,7 +6,7 @@ import {
   Grid,
   IconButton,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -44,8 +44,8 @@ import {
   validateForm,
 } from "../../../components/table-fields";
 import { useState } from "react";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 const NAME_VALIDATOR = {
   type: "string",
   minLength: 1,

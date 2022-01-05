@@ -10,14 +10,12 @@ import {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-  makeStyles,
-  Theme,
-} from "@material-ui/core";
-import ExpandLess from "@material-ui/icons/ExpandLess";
-import ExpandMore from "@material-ui/icons/ExpandMore";
+  styled,
+} from "@mui/material";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import React, { Fragment, useEffect, useState } from "react";
 import { NavLink as RouterLink } from "react-router-dom";
-
 import {
   FindProjectRootSectionContainersQuery,
   useFindProjectRootSectionContainersQuery,
@@ -27,24 +25,11 @@ import { MouseOverPopover } from "../../../components/mouse-over-popover";
 import { useDbTranslation } from "../../../components/translation";
 import { buildLinkToProjectPath } from "../routes";
 import { NodePicker } from "./node-picker";
+import { ListRoot, NestedListItem } from "../../../components/custom-styles";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: "100%",
-      backgroundColor: theme.palette.background.paper,
-    },
-    nested: {
-      paddingLeft: theme.spacing(4),
-    },
-    selectedListItem: {
-      fontWeight: "bold",
-    },
-    grid: {
-      width: "100%",
-    },
-  })
-);
+const boldListItem: React.CSSProperties = {
+  fontWeight: "bold",
+};
 
 interface SidePanelProps {
   projectDefId: string;
@@ -61,7 +46,6 @@ export function SidePanel({
   subSectionId,
   formId,
 }: SidePanelProps) {
-  const classes = useStyles();
   const [expanded, setExpanded] = React.useState<string | undefined>(undefined);
   const { data, loading, error } = useFindProjectRootSectionContainersQuery({
     skip: rootSectionId === undefined,
@@ -93,7 +77,7 @@ export function SidePanel({
   return (
     <Card>
       <CardContent style={{ padding: "0" }}>
-        <List component="nav" className={classes.root}>
+        <ListRoot>
           {subSections &&
             subSections.map((subSection, index) => (
               <Fragment key={subSection.definition.name}>
@@ -110,7 +94,7 @@ export function SidePanel({
                 {index < subSections.length - 1 && <Divider />}
               </Fragment>
             ))}
-        </List>
+        </ListRoot>
       </CardContent>
     </Card>
   );
@@ -214,7 +198,6 @@ function FormPicker({
   formId,
   secondLayerNode,
 }: FormPickerProps) {
-  const classes = useStyles();
   const [currentNodeId, setCurrentNodeId] = useState(
     secondLayerNode.nodes[0]?.node.id
   );
@@ -229,11 +212,7 @@ function FormPicker({
   }
 
   return (
-    <ListItem
-      button
-      className={classes.nested}
-      key={secondLayerNode.definition.id}
-    >
+    <NestedListItem key={secondLayerNode.definition.id}>
       {secondLayerNode.definition.isCollection && (
         <NodePicker
           nodes={secondLayerNode.nodes}
@@ -251,8 +230,9 @@ function FormPicker({
           <ListItemText
             {...props}
             primaryTypographyProps={{
-              className:
-                currentNodeId !== formId ? classes.selectedListItem : undefined,
+              style: {
+                ...(currentNodeId !== formId ? boldListItem : undefined),
+              },
             }}
             primary={
               currentNodeId === formId ? (
@@ -276,6 +256,6 @@ function FormPicker({
           />
         )}
       </MouseOverPopover>
-    </ListItem>
+    </NestedListItem>
   );
 }

@@ -13,7 +13,8 @@
       "IntFieldValue",
       "DecimalFieldValue",
       "StringFieldValue",
-      "BoolFieldValue"
+      "BoolFieldValue",
+      "ReferenceId"
     ]
   }
 }

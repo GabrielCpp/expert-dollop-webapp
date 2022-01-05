@@ -2,12 +2,11 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   Popover,
   Tab,
   Tabs,
   TextField,
-} from "@material-ui/core";
+} from "@mui/material";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   FindProjectRootSectionsQuery,
@@ -22,12 +21,11 @@ import {
   buildLinkToProjectCollection,
   buildLinkToProjectPath,
 } from "../routes";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
-import { ClassNameMap } from "@material-ui/styles";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { EventEmitter } from "fbemitter";
 import { useEffect } from "react";
 import { noop } from "lodash";
-import { Autocomplete } from "@material-ui/lab";
+import { Autocomplete } from "@mui/material";
 
 interface RootSectionBarProps {
   projectDefId: string;
@@ -224,7 +222,6 @@ export function RootSectionBar({
   rootSectionId,
 }: RootSectionBarProps) {
   const history = useHistory();
-  const classes = useStyles();
   const urls = useRef<Map<string, CollectionItem> | undefined>(undefined);
   const { dbTrans } = useDbTranslation(projectDefId);
   const { loading, data, error } = useFindProjectRootSectionsQuery({
@@ -297,7 +294,7 @@ export function RootSectionBar({
         {roots
           .filter((x) => x.state.isVisible === true)
           .map((def) =>
-            renderRootTab(dbTrans, rootSectionId, def, classes, urls.current!)
+            renderRootTab(dbTrans, rootSectionId, def, urls.current!)
           )}
       </Tabs>
       {Array.from(urls.current.values())
@@ -306,17 +303,11 @@ export function RootSectionBar({
     </>
   );
 }
-const useStyles = makeStyles({
-  tab: {
-    flexDirection: "row-reverse",
-  },
-});
 
 function renderRootTab(
   dbTrans: (k?: string | null) => string,
   rootSectionId: string,
   def: FindProjectRootSectionsQuery["findProjectRootSections"]["roots"][number],
-  classes: ClassNameMap<"tab">,
   collectionItems: Map<string, CollectionItem>
 ) {
   if (
@@ -333,7 +324,6 @@ function renderRootTab(
     if (node === undefined) {
       return (
         <Tab
-          classes={{ wrapper: classes.tab }}
           value={def.definition.id}
           key={def.definition.id}
           label={dbTrans(def.definition.config.translations.label)}
@@ -344,7 +334,6 @@ function renderRootTab(
 
     return (
       <Tab
-        classes={{ wrapper: classes.tab }}
         value={node.node.id}
         key={node.node.id}
         label={

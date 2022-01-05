@@ -1,5 +1,5 @@
-import { Button, Card, CardContent } from "@material-ui/core";
-import Grid from "@material-ui/core/Grid";
+import { Button, Card, CardContent } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { head } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { useTranslation } from "react-i18next";

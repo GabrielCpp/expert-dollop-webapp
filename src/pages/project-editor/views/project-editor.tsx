@@ -1,4 +1,4 @@
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import { Route, Switch, useParams } from "react-router-dom";
 
 import { API_PROJECT_DEFINITION_TRANSLATION } from "../../../api-routes";
