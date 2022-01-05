@@ -1,5 +1,4 @@
-import { Select } from "@mui/material";
-import React from "react";
+import { Select, SelectChangeEvent } from "@mui/material";
 
 interface NodePickerProps<T> {
   nodes: T[];
@@ -12,9 +11,7 @@ export function NodePicker<T extends { node: { id: string } }>({
   current,
   onChange,
 }: NodePickerProps<T>) {
-  const handleChange = (
-    event: React.ChangeEvent<{ name?: string; value: unknown }>
-  ) => {
+  const handleChange = (event: SelectChangeEvent<string>) => {
     onChange(event.target.value as string);
   };
 

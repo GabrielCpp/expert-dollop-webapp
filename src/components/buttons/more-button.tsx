@@ -32,7 +32,9 @@ export function MoreButton({ links, placement }: MoreButtonProps) {
     setOpen((prevOpen) => !prevOpen);
   };
 
-  const handleClose = (event: React.MouseEvent<EventTarget>) => {
+  const handleClose = (
+    event: React.MouseEvent<HTMLLIElement, MouseEvent> | MouseEvent | TouchEvent
+  ) => {
     if (
       anchorRef.current &&
       anchorRef.current.contains(event.target as HTMLElement)
@@ -44,7 +46,8 @@ export function MoreButton({ links, placement }: MoreButtonProps) {
   };
 
   const handleAction =
-    (action: () => void) => (event: React.MouseEvent<EventTarget>) => {
+    (action: () => void) =>
+    (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
       handleClose(event);
       action();
     };

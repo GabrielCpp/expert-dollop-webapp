@@ -84,7 +84,9 @@ interface MoreProps {
   highlight: boolean;
 }
 
-const ToolbarRoot = styled(Toolbar)<MoreProps>(({ theme, highlight }) => {
+const ToolbarRoot = styled(Toolbar, {
+  shouldForwardProp: (prop) => prop !== "highlight",
+})<MoreProps>(({ theme, highlight }) => {
   const styles: Record<string, string> = {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),

@@ -81,11 +81,11 @@ const StyledDrawer = styled(Drawer)(() => ({
 
 const MainContent = styled("main")(() => ({
   flexGrow: 1,
-  width: "calc(100vw - 200px)",
+  marginLeft: "30px",
 }));
 
 const MainSection = styled("div")(({ theme }) => ({
-  margin: theme.spacing(1),
+  margin: theme.spacing(2),
 }));
 
 export function Dashboard() {

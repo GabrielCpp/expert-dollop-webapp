@@ -6,23 +6,23 @@ interface ExpandIconButtonProps {
   expanded: boolean;
 }
 
-export const ExpandIconButton = styled(IconButton)<ExpandIconButtonProps>(
-  ({ expanded }) => {
-    const styles = {
-      transform: "rotate(0deg)",
-      marginLeft: "auto",
-      transition: theme.transitions.create("transform", {
-        duration: theme.transitions.duration.shortest,
-      }),
-    };
+export const ExpandIconButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== "expanded",
+})<ExpandIconButtonProps>(({ expanded }) => {
+  const styles = {
+    transform: "rotate(0deg)",
+    marginLeft: "auto",
+    transition: theme.transitions.create("transform", {
+      duration: theme.transitions.duration.shortest,
+    }),
+  };
 
-    if (expanded) {
-      styles.transform = "rotate(180deg)";
-    }
-
-    return styles;
+  if (expanded) {
+    styles.transform = "rotate(180deg)";
   }
-);
+
+  return styles;
+});
 
 export const UnpadCardContent = styled(CardContent)(() => ({
   paddingTop: 0,
@@ -42,7 +42,9 @@ interface ActionToolbarProps {
   hidden: boolean;
 }
 
-export const ActionToolbar = styled(Paper)<ActionToolbarProps>(({ hidden }) => {
+export const ActionToolbar = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== "hidden",
+})<ActionToolbarProps>(({ hidden }) => {
   const styles: Record<string, string> = {
     display: "flex",
     flexWrap: "wrap",
