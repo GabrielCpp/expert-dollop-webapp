@@ -228,7 +228,7 @@ function FormSection({ node }: FormProps): JSX.Element {
           </MouseOverPopover>
         }
       />
-      <Collapse in={expanded} timeout="auto">
+      <Collapse in={expanded} mountOnEnter={true} timeout="auto">
         <UnpadCardContent>
           <Grid container direction="column">
             {node.children.map((child) => (

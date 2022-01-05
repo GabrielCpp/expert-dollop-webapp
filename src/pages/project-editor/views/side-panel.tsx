@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   Collapse,
-  createStyles,
   Divider,
   IconButton,
   Link,
@@ -10,7 +9,6 @@ import {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-  styled,
 } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -165,7 +163,11 @@ function SubSectionPicker({
           )}
         </ListItemSecondaryAction>
       </ListItem>
-      <Collapse in={expanded === definition.id} timeout="auto">
+      <Collapse
+        in={expanded === definition.id}
+        mountOnEnter={true}
+        timeout="auto"
+      >
         <List component="div" disablePadding>
           {currentNode.children.map((secondLayerNode) => (
             <FormPicker

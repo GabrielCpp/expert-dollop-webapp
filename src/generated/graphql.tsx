@@ -470,6 +470,7 @@ export type ProjectDetails = {
   projectDefinition: FieldWrapper<ProjectDefinition>;
   datasheetId: FieldWrapper<Scalars['String']>;
   datasheet: FieldWrapper<Datasheet>;
+  reportDefinitions: Array<FieldWrapper<ReportDefinition>>;
 };
 
 export type ProjectDetailsInput = {
@@ -709,13 +710,13 @@ export type ReportDefinition = {
   id: FieldWrapper<Scalars['String']>;
   project_def_id: FieldWrapper<Scalars['String']>;
   name: FieldWrapper<Scalars['String']>;
-  structure?: Maybe<FieldWrapper<ReportDefinitionStructure>>;
+  structure: FieldWrapper<ReportDefinitionStructure>;
 };
 
 export type ReportDefinitionStructure = {
   __typename?: 'ReportDefinitionStructure';
-  formulaAttribute?: Maybe<FieldWrapper<AttributeBucket>>;
-  datasheetAttribute?: Maybe<FieldWrapper<AttributeBucket>>;
+  formulaAttribute: FieldWrapper<AttributeBucket>;
+  datasheetAttribute: FieldWrapper<AttributeBucket>;
   columns: Array<FieldWrapper<ReportColumnDefinition>>;
 };
 
@@ -1933,15 +1934,28 @@ export type FindProjectDefinitionIdQuery = (
   ) }
 );
 
-export type FindProjectReportQueryVariables = Exact<{
+export type FindProjectReportWithDefinitionQueryVariables = Exact<{
   projectId: Scalars['ID'];
   reportDefinitionId: Scalars['ID'];
 }>;
 
 
-export type FindProjectReportQuery = (
+export type FindProjectReportWithDefinitionQuery = (
   { __typename?: 'Query' }
-  & { findProjectReport: (
+  & { findReportDefinition: (
+    { __typename?: 'ReportDefinition' }
+    & Pick<ReportDefinition, 'id' | 'name'>
+    & { structure: (
+      { __typename?: 'ReportDefinitionStructure' }
+      & { formulaAttribute: (
+        { __typename?: 'AttributeBucket' }
+        & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
+      ), columns: Array<(
+        { __typename?: 'ReportColumnDefinition' }
+        & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
+      )> }
+    ) }
+  ), findProjectReport: (
     { __typename?: 'Report' }
     & Pick<Report, 'creationDateUtc'>
     & { stages: Array<(
@@ -1980,50 +1994,30 @@ export type FindProjectReportQuery = (
   ) }
 );
 
-export type FindReportDefinitionQueryVariables = Exact<{
-  reportDefinitionId: Scalars['ID'];
+export type FindReportDefinitionsFromProjectDetailsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
 }>;
 
 
-export type FindReportDefinitionQuery = (
+export type FindReportDefinitionsFromProjectDetailsQuery = (
   { __typename?: 'Query' }
-  & { findReportDefinition: (
-    { __typename?: 'ReportDefinition' }
-    & Pick<ReportDefinition, 'id' | 'name'>
-    & { structure?: Maybe<(
-      { __typename?: 'ReportDefinitionStructure' }
-      & { formulaAttribute?: Maybe<(
-        { __typename?: 'AttributeBucket' }
-        & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
-      )>, columns: Array<(
-        { __typename?: 'ReportColumnDefinition' }
-        & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
-      )> }
+  & { findProjectDetails: (
+    { __typename?: 'ProjectDetails' }
+    & { reportDefinitions: Array<(
+      { __typename?: 'ReportDefinition' }
+      & Pick<ReportDefinition, 'id' | 'name'>
+      & { structure: (
+        { __typename?: 'ReportDefinitionStructure' }
+        & { formulaAttribute: (
+          { __typename?: 'AttributeBucket' }
+          & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
+        ), columns: Array<(
+          { __typename?: 'ReportColumnDefinition' }
+          & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
+        )> }
+      ) }
     )> }
   ) }
-);
-
-export type FindProjectDefinitionReportsQueryVariables = Exact<{
-  projectDefId: Scalars['ID'];
-}>;
-
-
-export type FindProjectDefinitionReportsQuery = (
-  { __typename?: 'Query' }
-  & { findReportDefinitions: Array<(
-    { __typename?: 'ReportDefinition' }
-    & Pick<ReportDefinition, 'id' | 'name'>
-    & { structure?: Maybe<(
-      { __typename?: 'ReportDefinitionStructure' }
-      & { formulaAttribute?: Maybe<(
-        { __typename?: 'AttributeBucket' }
-        & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
-      )>, columns: Array<(
-        { __typename?: 'ReportColumnDefinition' }
-        & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
-      )> }
-    )> }
-  )> }
 );
 
 
@@ -3794,8 +3788,27 @@ export function useFindProjectDefinitionIdLazyQuery(baseOptions?: Apollo.LazyQue
 export type FindProjectDefinitionIdQueryHookResult = ReturnType<typeof useFindProjectDefinitionIdQuery>;
 export type FindProjectDefinitionIdLazyQueryHookResult = ReturnType<typeof useFindProjectDefinitionIdLazyQuery>;
 export type FindProjectDefinitionIdQueryResult = Apollo.QueryResult<FindProjectDefinitionIdQuery, FindProjectDefinitionIdQueryVariables>;
-export const FindProjectReportDocument = gql`
-    query findProjectReport($projectId: ID!, $reportDefinitionId: ID!) {
+export const FindProjectReportWithDefinitionDocument = gql`
+    query findProjectReportWithDefinition($projectId: ID!, $reportDefinitionId: ID!) {
+  findReportDefinition(reportDefinitionId: $reportDefinitionId) {
+    id
+    name
+    structure {
+      formulaAttribute {
+        bucketName
+        attributeName
+      }
+      formulaAttribute {
+        bucketName
+        attributeName
+      }
+      columns {
+        name
+        isVisible
+        unitId
+      }
+    }
+  }
   findProjectReport(
     projectId: $projectId
     reportDefinitionId: $reportDefinitionId
@@ -3847,51 +3860,53 @@ export const FindProjectReportDocument = gql`
     `;
 
 /**
- * __useFindProjectReportQuery__
+ * __useFindProjectReportWithDefinitionQuery__
  *
- * To run a query within a React component, call `useFindProjectReportQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindProjectReportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useFindProjectReportWithDefinitionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindProjectReportWithDefinitionQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useFindProjectReportQuery({
+ * const { data, loading, error } = useFindProjectReportWithDefinitionQuery({
  *   variables: {
  *      projectId: // value for 'projectId'
  *      reportDefinitionId: // value for 'reportDefinitionId'
  *   },
  * });
  */
-export function useFindProjectReportQuery(baseOptions: Apollo.QueryHookOptions<FindProjectReportQuery, FindProjectReportQueryVariables>) {
+export function useFindProjectReportWithDefinitionQuery(baseOptions: Apollo.QueryHookOptions<FindProjectReportWithDefinitionQuery, FindProjectReportWithDefinitionQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<FindProjectReportQuery, FindProjectReportQueryVariables>(FindProjectReportDocument, options);
+        return Apollo.useQuery<FindProjectReportWithDefinitionQuery, FindProjectReportWithDefinitionQueryVariables>(FindProjectReportWithDefinitionDocument, options);
       }
-export function useFindProjectReportLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectReportQuery, FindProjectReportQueryVariables>) {
+export function useFindProjectReportWithDefinitionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectReportWithDefinitionQuery, FindProjectReportWithDefinitionQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<FindProjectReportQuery, FindProjectReportQueryVariables>(FindProjectReportDocument, options);
+          return Apollo.useLazyQuery<FindProjectReportWithDefinitionQuery, FindProjectReportWithDefinitionQueryVariables>(FindProjectReportWithDefinitionDocument, options);
         }
-export type FindProjectReportQueryHookResult = ReturnType<typeof useFindProjectReportQuery>;
-export type FindProjectReportLazyQueryHookResult = ReturnType<typeof useFindProjectReportLazyQuery>;
-export type FindProjectReportQueryResult = Apollo.QueryResult<FindProjectReportQuery, FindProjectReportQueryVariables>;
-export const FindReportDefinitionDocument = gql`
-    query findReportDefinition($reportDefinitionId: ID!) {
-  findReportDefinition(reportDefinitionId: $reportDefinitionId) {
-    id
-    name
-    structure {
-      formulaAttribute {
-        bucketName
-        attributeName
-      }
-      formulaAttribute {
-        bucketName
-        attributeName
-      }
-      columns {
-        name
-        isVisible
-        unitId
+export type FindProjectReportWithDefinitionQueryHookResult = ReturnType<typeof useFindProjectReportWithDefinitionQuery>;
+export type FindProjectReportWithDefinitionLazyQueryHookResult = ReturnType<typeof useFindProjectReportWithDefinitionLazyQuery>;
+export type FindProjectReportWithDefinitionQueryResult = Apollo.QueryResult<FindProjectReportWithDefinitionQuery, FindProjectReportWithDefinitionQueryVariables>;
+export const FindReportDefinitionsFromProjectDetailsDocument = gql`
+    query findReportDefinitionsFromProjectDetails($projectId: ID!) {
+  findProjectDetails(id: $projectId) {
+    reportDefinitions {
+      id
+      name
+      structure {
+        formulaAttribute {
+          bucketName
+          attributeName
+        }
+        formulaAttribute {
+          bucketName
+          attributeName
+        }
+        columns {
+          name
+          isVisible
+          unitId
+        }
       }
     }
   }
@@ -3899,80 +3914,29 @@ export const FindReportDefinitionDocument = gql`
     `;
 
 /**
- * __useFindReportDefinitionQuery__
+ * __useFindReportDefinitionsFromProjectDetailsQuery__
  *
- * To run a query within a React component, call `useFindReportDefinitionQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindReportDefinitionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useFindReportDefinitionsFromProjectDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindReportDefinitionsFromProjectDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useFindReportDefinitionQuery({
+ * const { data, loading, error } = useFindReportDefinitionsFromProjectDetailsQuery({
  *   variables: {
- *      reportDefinitionId: // value for 'reportDefinitionId'
+ *      projectId: // value for 'projectId'
  *   },
  * });
  */
-export function useFindReportDefinitionQuery(baseOptions: Apollo.QueryHookOptions<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>) {
+export function useFindReportDefinitionsFromProjectDetailsQuery(baseOptions: Apollo.QueryHookOptions<FindReportDefinitionsFromProjectDetailsQuery, FindReportDefinitionsFromProjectDetailsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>(FindReportDefinitionDocument, options);
+        return Apollo.useQuery<FindReportDefinitionsFromProjectDetailsQuery, FindReportDefinitionsFromProjectDetailsQueryVariables>(FindReportDefinitionsFromProjectDetailsDocument, options);
       }
-export function useFindReportDefinitionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>) {
+export function useFindReportDefinitionsFromProjectDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindReportDefinitionsFromProjectDetailsQuery, FindReportDefinitionsFromProjectDetailsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>(FindReportDefinitionDocument, options);
+          return Apollo.useLazyQuery<FindReportDefinitionsFromProjectDetailsQuery, FindReportDefinitionsFromProjectDetailsQueryVariables>(FindReportDefinitionsFromProjectDetailsDocument, options);
         }
-export type FindReportDefinitionQueryHookResult = ReturnType<typeof useFindReportDefinitionQuery>;
-export type FindReportDefinitionLazyQueryHookResult = ReturnType<typeof useFindReportDefinitionLazyQuery>;
-export type FindReportDefinitionQueryResult = Apollo.QueryResult<FindReportDefinitionQuery, FindReportDefinitionQueryVariables>;
-export const FindProjectDefinitionReportsDocument = gql`
-    query findProjectDefinitionReports($projectDefId: ID!) {
-  findReportDefinitions(projectDefId: $projectDefId) {
-    id
-    name
-    structure {
-      formulaAttribute {
-        bucketName
-        attributeName
-      }
-      formulaAttribute {
-        bucketName
-        attributeName
-      }
-      columns {
-        name
-        isVisible
-        unitId
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useFindProjectDefinitionReportsQuery__
- *
- * To run a query within a React component, call `useFindProjectDefinitionReportsQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindProjectDefinitionReportsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useFindProjectDefinitionReportsQuery({
- *   variables: {
- *      projectDefId: // value for 'projectDefId'
- *   },
- * });
- */
-export function useFindProjectDefinitionReportsQuery(baseOptions: Apollo.QueryHookOptions<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>(FindProjectDefinitionReportsDocument, options);
-      }
-export function useFindProjectDefinitionReportsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>(FindProjectDefinitionReportsDocument, options);
-        }
-export type FindProjectDefinitionReportsQueryHookResult = ReturnType<typeof useFindProjectDefinitionReportsQuery>;
-export type FindProjectDefinitionReportsLazyQueryHookResult = ReturnType<typeof useFindProjectDefinitionReportsLazyQuery>;
-export type FindProjectDefinitionReportsQueryResult = Apollo.QueryResult<FindProjectDefinitionReportsQuery, FindProjectDefinitionReportsQueryVariables>;
+export type FindReportDefinitionsFromProjectDetailsQueryHookResult = ReturnType<typeof useFindReportDefinitionsFromProjectDetailsQuery>;
+export type FindReportDefinitionsFromProjectDetailsLazyQueryHookResult = ReturnType<typeof useFindReportDefinitionsFromProjectDetailsLazyQuery>;
+export type FindReportDefinitionsFromProjectDetailsQueryResult = Apollo.QueryResult<FindReportDefinitionsFromProjectDetailsQuery, FindReportDefinitionsFromProjectDetailsQueryVariables>;

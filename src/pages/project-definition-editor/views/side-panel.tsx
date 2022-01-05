@@ -138,6 +138,7 @@ export function SidePanel({
                 </ListItem>
                 <Collapse
                   in={expanded === subSection.definition.id}
+                  mountOnEnter={true}
                   timeout="auto"
                 >
                   <FormLinkList

@@ -10,20 +10,15 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import clsx from "clsx";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
-  BoolFieldValue,
   CollapsibleContainerFieldConfig,
-  DecimalFieldValue,
   FieldUpdateInput,
   FindProjectFormContentQuery,
-  IntFieldValue,
   StaticChoiceFieldConfig,
-  StringFieldValue,
   useAddProjectCollectionItemMutation,
   useFindProjectFormContentQuery,
   useUpdateFieldsMutation,
@@ -264,7 +259,7 @@ function FormSection({
           </MouseOverPopover>
         }
       />
-      <Collapse in={expanded} timeout="auto">
+      <Collapse in={expanded} mountOnEnter={true} timeout="auto">
         {currentNode && (
           <UnpadCardContent>
             <Grid container direction="column">

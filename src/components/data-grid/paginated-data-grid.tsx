@@ -1,7 +1,7 @@
 import { debounce, styled, TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import Paper from "@mui/material/Paper";
-import { createStyles, lighten } from "@mui/material/styles";
+import { lighten } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -12,7 +12,6 @@ import TableRow from "@mui/material/TableRow";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import clsx from "clsx";
 import { noop } from "lodash";
 import React, { useRef, useState } from "react";
 

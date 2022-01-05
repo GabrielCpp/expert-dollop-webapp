@@ -1,3 +1,9 @@
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import MenuIcon from "@mui/icons-material/Menu";
+import { CircularProgress, styled } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -10,15 +16,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import ApartmentIcon from "@mui/icons-material/Apartment";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import MenuIcon from "@mui/icons-material/Menu";
-import SearchIcon from "@mui/icons-material/Search";
-import InputBase from "@mui/material/InputBase";
-import Paper from "@mui/material/Paper";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import clsx from "clsx";
+import { useEffect, useState } from "react";
 import {
   Link as RouterLink,
   matchPath,
@@ -26,14 +24,10 @@ import {
   Switch,
   useHistory,
 } from "react-router-dom";
-
+import { ActionToolbar } from "../../components/custom-styles";
 import { LoadingFrame } from "../../components/loading-frame";
-import { alpha, CircularProgress, styled, Theme } from "@mui/material";
 import { useServices } from "../../services-def";
 import { NamedRoutes } from "../../shared/named-routes";
-import { useEffect, useState } from "react";
-import { theme } from "../../theme";
-import { ActionToolbar } from "../../components/custom-styles";
 
 function Copyright() {
   return (
