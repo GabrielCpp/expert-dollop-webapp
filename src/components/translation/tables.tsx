@@ -1,13 +1,16 @@
-import { Translation } from "../../generated";
 import { PrimaryIndex, TableRecord } from "../../shared/redux-db";
 import { ReduxDatabase } from "../../shared/redux-db/database";
 
 const TranslationTableName = "translation";
 
-type TranslationRecord = TableRecord;
+export interface LocalizedTranslation extends TableRecord {
+  ressourceId: string;
+  name: string;
+  value: string;
+}
 
-function buildTranslationPk(translation: TranslationRecord): string {
-  return `${translation.ressourceId}-${translation.locale}-${translation.name}`;
+function buildTranslationPk(translation: TableRecord): string {
+  return translation.name as string;
 }
 
 export function setupTables(reduxDb: ReduxDatabase) {
@@ -16,7 +19,7 @@ export function setupTables(reduxDb: ReduxDatabase) {
 
 export function addTranslations(
   reduxDb: ReduxDatabase,
-  translations: Translation[]
+  translations: LocalizedTranslation[]
 ): void {
   reduxDb.getTable(TranslationTableName).upsertMany(translations);
 }

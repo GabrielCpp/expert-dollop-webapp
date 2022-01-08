@@ -22,10 +22,13 @@ import {
   Collapse,
   Divider,
   Typography,
+  Grid,
 } from "@mui/material";
 import { Fragment, useState } from "react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import { isNumber, isString } from "lodash";
+import { TFunction } from "i18next";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -57,14 +60,6 @@ function createData(
   return { name, calories, fat, carbs, protein };
 }
 
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
-
 interface ReportParams {
   projectId: string;
   selectedPath: string;
@@ -72,7 +67,9 @@ interface ReportParams {
 }
 
 function getFieldValue(
-  value: Record<string, string | number | boolean> | undefined | null
+  value: Record<string, string | number | boolean> | undefined | null,
+  dbTrans: (key?: string | null | undefined) => string,
+  t: any
 ): string | number | boolean {
   const { text, numeric, enabled, integer } = {
     text: null,
@@ -88,12 +85,20 @@ function getFieldValue(
     throw new Error("Bad value");
   }
 
+  if (isString(realValue)) {
+    return dbTrans(realValue);
+  }
+
+  if (isNumber(realValue)) {
+    return t("intlNumber", { val: realValue, minimumFractionDigits: 2 });
+  }
+
   return realValue;
 }
 
 export function Report() {
   const { reportDefinitionId, projectId } = useParams<ReportParams>();
-  const { dbTrans } = useDbTranslation(projectId);
+  const { dbTrans, t } = useDbTranslation(projectId);
   const { data, error, loading } = useFindProjectReportWithDefinitionQuery({
     variables: {
       projectId,
@@ -117,13 +122,21 @@ export function Report() {
 
   return (
     <div>
-      <Typography variant="h3">{data.findReportDefinition.name}</Typography>
+      <Typography variant="h3">
+        {dbTrans(data.findReportDefinition.name)}
+      </Typography>
       <List>
         {stages.map((stage, index) => (
           <Fragment key={index}>
             <ListItem>
-              <ListItemText>{dbTrans(stage.label)}</ListItemText>
-              <ListItemText>{getFieldValue(stage.summary)}</ListItemText>
+              <ListItemText>
+                <Grid container>
+                  <Grid item md={11}>
+                    {dbTrans(stage.label)}
+                  </Grid>
+                  <Grid item>{getFieldValue(stage.summary, dbTrans, t)}</Grid>
+                </Grid>
+              </ListItemText>
               <ListItemSecondaryAction>
                 {expanded === index ? (
                   <IconButton size="small" onClick={handleChange(index)}>
@@ -162,7 +175,7 @@ interface ReportStageProps {
 }
 
 function ReportStage({ stage, columns, projectId }: ReportStageProps) {
-  const { dbTrans } = useDbTranslation(projectId);
+  const { dbTrans, t } = useDbTranslation(projectId);
 
   return (
     <TableContainer component={Paper}>
@@ -170,7 +183,9 @@ function ReportStage({ stage, columns, projectId }: ReportStageProps) {
         <TableHead>
           <TableRow>
             {columns.map((column, index) => (
-              <StyledTableCell key={index}>{column.name}</StyledTableCell>
+              <StyledTableCell key={index}>
+                {dbTrans(column.name)}
+              </StyledTableCell>
             ))}
           </TableRow>
         </TableHead>
@@ -179,7 +194,7 @@ function ReportStage({ stage, columns, projectId }: ReportStageProps) {
             <StyledTableRow key={rowIndex}>
               {row.columns.map((column, columnIndex) => (
                 <StyledTableCell key={columnIndex}>
-                  {getFieldValue(column)}
+                  {getFieldValue(column, dbTrans, t)}
                 </StyledTableCell>
               ))}
             </StyledTableRow>

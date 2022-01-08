@@ -30,7 +30,6 @@ const boldListItem: React.CSSProperties = {
 };
 
 interface SidePanelProps {
-  projectDefId: string;
   projectId: string;
   rootSectionId: string;
   subSectionId: string;
@@ -38,10 +37,8 @@ interface SidePanelProps {
 }
 
 export function SidePanel({
-  projectDefId,
   projectId,
   rootSectionId,
-  subSectionId,
   formId,
 }: SidePanelProps) {
   const [expanded, setExpanded] = React.useState<string | undefined>(undefined);
@@ -80,7 +77,6 @@ export function SidePanel({
             subSections.map((subSection, index) => (
               <Fragment key={subSection.definition.name}>
                 <SubSectionPicker
-                  projectDefId={projectDefId}
                   projectId={projectId}
                   rootSectionId={rootSectionId}
                   formId={formId}
@@ -99,7 +95,6 @@ export function SidePanel({
 }
 
 function SubSectionPicker({
-  projectDefId,
   projectId,
   rootSectionId,
   formId,
@@ -108,7 +103,6 @@ function SubSectionPicker({
   definition,
   nodes,
 }: {
-  projectDefId: string;
   projectId: string;
   rootSectionId: string;
   formId: string;
@@ -118,7 +112,7 @@ function SubSectionPicker({
   nodes: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"];
 }) {
   const [currentNodeId, setCurrentNodeId] = useState(nodes[0]?.node.id);
-  const { dbTrans } = useDbTranslation(projectDefId);
+  const { dbTrans } = useDbTranslation(projectId);
   const currentNode = nodes.find((x) => x.node.id === currentNodeId);
 
   const handleChange = (id: string) => () => {
@@ -172,7 +166,6 @@ function SubSectionPicker({
           {currentNode.children.map((secondLayerNode) => (
             <FormPicker
               key={secondLayerNode.definition.name}
-              projectDefId={projectDefId}
               projectId={projectId}
               rootSectionId={rootSectionId}
               formId={formId}
@@ -186,7 +179,6 @@ function SubSectionPicker({
 }
 
 interface FormPickerProps {
-  projectDefId: string;
   projectId: string;
   rootSectionId: string;
   formId: string;
@@ -194,7 +186,6 @@ interface FormPickerProps {
 }
 
 function FormPicker({
-  projectDefId,
   projectId,
   rootSectionId,
   formId,
@@ -203,7 +194,7 @@ function FormPicker({
   const [currentNodeId, setCurrentNodeId] = useState(
     secondLayerNode.nodes[0]?.node.id
   );
-  const { dbTrans } = useDbTranslation(projectDefId);
+  const { dbTrans } = useDbTranslation(projectId);
 
   const currentNode = secondLayerNode.nodes.find(
     (x) => x.node.id === currentNodeId

@@ -1,50 +1,87 @@
-import { AsyncRestCursor } from "../../shared/async-cursor";
-import { Translation } from "../../generated";
-import { addTranslations } from "./tables";
+import { addTranslations, LocalizedTranslation } from "./tables";
 import { useTranslation } from "react-i18next";
-import { useRef, useState } from "react";
 import { useServices } from "../../services-def";
+import { useRef, useState } from "react";
+
+interface FetchError extends Error {
+  status: number;
+}
+
+interface FetchOption {
+  skip?: boolean;
+}
+
+function useFetch<T>(
+  ressource: string,
+  { skip = false }: FetchOption
+): {
+  data: T | undefined;
+  error: Error | undefined;
+  loading: boolean;
+} {
+  const [data, setData] = useState<T | undefined>(undefined);
+  const [error, setError] = useState<Error | undefined>(undefined);
+  const hasStartFetching = useRef(false);
+
+  if (skip) {
+    return { data, error, loading: false };
+  }
+
+  if (hasStartFetching.current == false) {
+    fetch(ressource)
+      .then((response) => {
+        if (response.ok) {
+          return response
+            .json()
+            .then((body: T) => {
+              setData(body);
+            })
+            .catch((err) => {
+              setError(err);
+            });
+        }
+
+        const err: Partial<FetchError> = Error("fetch_failure");
+        err.status = response.status;
+
+        setError(err as Error);
+      })
+      .catch((err) => {
+        setError(err);
+      });
+
+    hasStartFetching.current = true;
+  }
+
+  return { data, error, loading: data === undefined && error === undefined };
+}
 
 interface TranlationScopeHook {
   isLoading: boolean;
   error: Error | undefined;
 }
 
-export function useTranlationScope(
-  routeName: string,
-  ressourceId: string,
-  skip: boolean = false,
-  limit: number = 50000
-): TranlationScopeHook {
-  const { reduxDb, axios, routes } = useServices();
+export function useTranlationScope(ressourceId: string): TranlationScopeHook {
+  const { reduxDb } = useServices();
   const { i18n } = useTranslation();
-  const isLoaded = useRef(false);
-  const [isLoading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | undefined>(undefined);
+  const { loading, data, error } = useFetch<Record<string, string>>(
+    `/api/translation/${ressourceId}/${i18n.language}/json_bundle`,
+    { skip: ressourceId === "" }
+  );
 
-  async function fetch(): Promise<void> {
-    const cursor = new AsyncRestCursor<Translation>(
-      axios,
-      limit,
-      (nextPageToken: string | undefined, limit: number) =>
-        routes.render(
-          routeName,
-          { ressourceId, locale: i18n.language },
-          { ...(nextPageToken && { nextPageToken }), limit }
-        )
-    );
+  if (data) {
+    const mappedTranslations: LocalizedTranslation[] = [];
 
-    while (await cursor.next()) {
-      addTranslations(reduxDb, cursor.data());
+    for (const [name, value] of Object.entries(data)) {
+      mappedTranslations.push({
+        name,
+        value,
+        ressourceId,
+      });
     }
 
-    setLoading(false);
+    addTranslations(reduxDb, mappedTranslations);
   }
 
-  if (isLoaded.current === false && !skip) {
-    isLoaded.current = true;
-    fetch().catch((error) => setError(error));
-  }
-
-  return { isLoading, error };
+  return { isLoading: loading, error };
 }

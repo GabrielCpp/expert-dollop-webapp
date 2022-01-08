@@ -1,7 +1,5 @@
 import { Grid } from "@mui/material";
 import { Route, Switch, useParams } from "react-router-dom";
-
-import { API_PROJECT_DEFINITION_TRANSLATION } from "../../../api-routes";
 import { useServices } from "../../../services-def";
 import { renderNamedRoute } from "../../../shared/named-routes";
 import { useLoaderEffect } from "../../../components/loading-frame";
@@ -26,10 +24,7 @@ export function EditorLayout() {
     selectedPath
   );
   const [rootSectionDefId, subSectionDefId, formDefId] = path || [];
-  const { isLoading, error } = useTranlationScope(
-    API_PROJECT_DEFINITION_TRANSLATION,
-    projectDefinitionId
-  );
+  const { isLoading, error } = useTranlationScope(projectDefinitionId);
 
   useLoaderEffect(error, isLoading || loading);
 

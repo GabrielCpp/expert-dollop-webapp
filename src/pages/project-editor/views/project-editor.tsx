@@ -1,7 +1,6 @@
 import { Grid } from "@mui/material";
 import { Route, Switch, useParams } from "react-router-dom";
 
-import { API_PROJECT_DEFINITION_TRANSLATION } from "../../../api-routes";
 import { useServices } from "../../../services-def";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 import { useLoaderEffect } from "../../../components/loading-frame";
@@ -23,24 +22,9 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
   const { projectId, selectedPath } = useParams<ProjectEditorParams>();
   const { loading, path } = useProjectPath(projectId, selectedPath);
   const [rootSectionId, subSectionId, formId] = path || [];
-  const {
-    data,
-    loading: queryLoading,
-    error: queryError,
-  } = useFindProjectDefinitionIdQuery({
-    variables: {
-      projectId,
-    },
-  });
+  const { isLoading, error } = useTranlationScope(projectId);
 
-  const projectDefId = data?.findProjectDetails.projectDefId || "";
-  const { isLoading, error } = useTranlationScope(
-    API_PROJECT_DEFINITION_TRANSLATION,
-    projectDefId,
-    data === undefined
-  );
-
-  useLoaderEffect(error || queryError, isLoading, loading, queryLoading);
+  useLoaderEffect(error, isLoading, loading);
 
   return (
     <Switch>
@@ -49,7 +33,6 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
           <Grid container spacing={1} wrap={"wrap"} direction="row">
             <Grid item xs={12}>
               <RootSectionBar
-                projectDefId={projectDefId}
                 projectId={projectId}
                 rootSectionId={rootSectionId}
               />
@@ -58,7 +41,6 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
             <Grid item style={{ minWidth: "4em" }}>
               {subSectionId && formId && (
                 <SidePanel
-                  projectDefId={projectDefId}
                   projectId={projectId}
                   rootSectionId={rootSectionId}
                   subSectionId={subSectionId}

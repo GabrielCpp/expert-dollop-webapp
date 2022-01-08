@@ -1,4 +1,5 @@
 {
+  "intlNumber": "{{val, number}}",
   "button": {
     "edit": "Éditer",
     "add": "Ajouter",

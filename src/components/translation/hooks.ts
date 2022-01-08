@@ -14,13 +14,10 @@ export function useDbTranslation(ressourceId: string): TranslationHook {
   const translation = reduxDb.getTable("translation");
 
   function trans(
-    key?: string | null,
+    key?: string | null | undefined,
     emptyPlaceholder: string = "project_definition_editor.empty_placeholder"
-  ) {
-    key = key || "";
-    const value = translation.findRecordSafe<Translation>(
-      `${ressourceId}-${i18n.language}-${key}`
-    )?.value;
+  ): string {
+    const value = translation.findRecordSafe<Translation>(key || "")?.value;
 
     if (isString(value)) {
       return value || t(emptyPlaceholder);
