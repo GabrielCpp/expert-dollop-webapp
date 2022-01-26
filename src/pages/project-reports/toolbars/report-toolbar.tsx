@@ -7,6 +7,7 @@ import * as React from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 
 import { useLoaderEffect } from "../../../components/loading-frame";
+import { useDbTranslation } from "../../../components/translation";
 import { useFindReportDefinitionsFromProjectDetailsQuery } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { PROJECT_REPORT } from "../routes";
@@ -61,6 +62,7 @@ interface ReportToolbarParams {
 
 export function ReportToolbar() {
   const { projectId, selectedPath } = useParams<ReportToolbarParams>();
+  const { dbTrans } = useDbTranslation(projectId);
   const { routes } = useServices();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { loading, data, error } =
@@ -122,7 +124,7 @@ export function ReportToolbar() {
                 selectedPath,
               })}
             >
-              {reportDefinition.name}
+              {dbTrans(reportDefinition.name)}
             </RouterLink>
           </MenuItem>
         ))}

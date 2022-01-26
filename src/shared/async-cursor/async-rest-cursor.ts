@@ -1,4 +1,3 @@
-import { AxiosInstance } from "axios";
 import { AsyncCursor } from "./cursor";
 
 export type BuildUrlFn = (
@@ -13,20 +12,20 @@ interface PaginatedResult<T> {
 }
 
 export class AsyncRestCursor<T> implements AsyncCursor<T[]> {
-  private readonly axios: AxiosInstance;
   private limit: number;
   private buildUrl: BuildUrlFn;
+  private fetch: (url: string) => Promise<PaginatedResult<T>>;
 
   private _data: T[] = [];
   private nextPageToken: string | undefined = undefined;
   private hasNext: boolean = true;
 
   public constructor(
-    axios: AxiosInstance,
+    fetch: (url: string) => Promise<PaginatedResult<T>>,
     limit: number,
     buildUrl: BuildUrlFn
   ) {
-    this.axios = axios;
+    this.fetch = fetch;
     this.limit = limit;
     this.buildUrl = buildUrl;
   }
@@ -37,10 +36,10 @@ export class AsyncRestCursor<T> implements AsyncCursor<T[]> {
       return false;
     }
 
-    const result = await this.axios.get(
+    const result = await this.fetch(
       this.buildUrl(this.nextPageToken, this.limit)
     );
-    const newData = result.data as PaginatedResult<T>;
+    const newData = result;
     const lastHasNext = this.hasNext;
 
     this.hasNext =

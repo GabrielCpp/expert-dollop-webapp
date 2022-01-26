@@ -10,7 +10,7 @@ interface TranslationHook {
 
 export function useDbTranslation(ressourceId: string): TranslationHook {
   const { reduxDb } = useServices();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const translation = reduxDb.getTable("translation");
 
   function trans(

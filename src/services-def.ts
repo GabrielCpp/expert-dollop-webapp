@@ -1,5 +1,4 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { AxiosInstance } from "axios";
 import { NamedRoutes } from "./shared/named-routes";
 import { ReduxDatabase } from "./shared/redux-db/database";
 import { JSONSchemaType, Schema, ValidateFunction } from "ajv";
@@ -23,9 +22,17 @@ export interface Auth0Context {
   getToken(): Promise<string | undefined>;
 }
 
+export interface ApiService {
+  loadTranslations(
+    ressourceId: string,
+    language: string,
+    force?: boolean
+  ): Promise<Record<string, string>>;
+}
+
 export interface Services {
   apollo: ApolloClient<NormalizedCacheObject>;
-  axios: AxiosInstance;
+  api: ApiService;
   routes: NamedRoutes;
   reduxDb: ReduxDatabase;
   ajv: AjvFactory;

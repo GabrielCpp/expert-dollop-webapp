@@ -30,30 +30,10 @@ export const FIND_PROJECT_REPORT_WITH_DEFINITION = gql`
     ) {
       creationDateUtc
       stages {
-        label
         summary {
-          __typename
-          ... on IntFieldValue {
-            integer
-          }
-          ... on DecimalFieldValue {
-            numeric
-          }
-          ... on StringFieldValue {
-            text
-          }
-          ... on BoolFieldValue {
-            enabled
-          }
-        }
-        rows {
-          nodeId
-          formulaId
-          orderIndex
-          datasheetId
-          elementId
-          childReferenceId
-          columns {
+          label
+          unit
+          value {
             __typename
             ... on IntFieldValue {
               integer
@@ -67,6 +47,49 @@ export const FIND_PROJECT_REPORT_WITH_DEFINITION = gql`
             ... on BoolFieldValue {
               enabled
             }
+          }
+        }
+        rows {
+          nodeId
+          formulaId
+          elementDefId
+          childReferenceId
+          columns {
+            unit
+            value {
+              __typename
+              ... on IntFieldValue {
+                integer
+              }
+              ... on DecimalFieldValue {
+                numeric
+              }
+              ... on StringFieldValue {
+                text
+              }
+              ... on BoolFieldValue {
+                enabled
+              }
+            }
+          }
+        }
+      }
+      summaries {
+        label
+        unit
+        value {
+          __typename
+          ... on IntFieldValue {
+            integer
+          }
+          ... on DecimalFieldValue {
+            numeric
+          }
+          ... on StringFieldValue {
+            text
+          }
+          ... on BoolFieldValue {
+            enabled
           }
         }
       }

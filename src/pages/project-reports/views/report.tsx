@@ -12,7 +12,10 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { useDbTranslation } from "../../../components/translation";
+import {
+  useDbTranslation,
+  useDynamicTranlation,
+} from "../../../components/translation";
 import {
   List,
   ListItemText,
@@ -28,7 +31,6 @@ import { Fragment, useState } from "react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { isNumber, isString } from "lodash";
-import { TFunction } from "i18next";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -50,27 +52,24 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number
-) {
-  return { name, calories, fat, carbs, protein };
-}
-
 interface ReportParams {
   projectId: string;
   selectedPath: string;
   reportDefinitionId: string;
 }
 
-function getFieldValue(
-  value: Record<string, string | number | boolean> | undefined | null,
-  dbTrans: (key?: string | null | undefined) => string,
-  t: any
-): string | number | boolean {
+interface ColumnValueProps {
+  projectId: string;
+  value: Record<string, string | number | boolean> | undefined | null;
+  unit?: string | null;
+}
+
+function ColumnValue({
+  projectId,
+  value,
+  unit,
+}: ColumnValueProps): JSX.Element {
+  const { dbTrans, t } = useDbTranslation(projectId);
   const { text, numeric, enabled, integer } = {
     text: null,
     numeric: null,
@@ -85,20 +84,25 @@ function getFieldValue(
     throw new Error("Bad value");
   }
 
+  let result: string = realValue;
+
   if (isString(realValue)) {
-    return dbTrans(realValue);
+    result = dbTrans(realValue);
+  } else if (isNumber(realValue)) {
+    result = t("intlNumber", { val: realValue, minimumFractionDigits: 2 });
   }
 
-  if (isNumber(realValue)) {
-    return t("intlNumber", { val: realValue, minimumFractionDigits: 2 });
-  }
-
-  return realValue;
+  return (
+    <span>
+      {result}
+      {unit && "\u00A0" + dbTrans(unit)}
+    </span>
+  );
 }
 
 export function Report() {
   const { reportDefinitionId, projectId } = useParams<ReportParams>();
-  const { dbTrans, t } = useDbTranslation(projectId);
+  const { dbTrans } = useDbTranslation(projectId);
   const { data, error, loading } = useFindProjectReportWithDefinitionQuery({
     variables: {
       projectId,
@@ -106,8 +110,10 @@ export function Report() {
     },
   });
   const [expanded, setExpanded] = useState<number | undefined>(undefined);
+  const { isLoading: reportLoading, error: translationError } =
+    useDynamicTranlation(projectId);
 
-  useLoaderEffect(error, loading);
+  useLoaderEffect(error || translationError, loading, reportLoading);
 
   const handleChange = (id: number) => () => {
     setExpanded(expanded === id ? undefined : id);
@@ -119,6 +125,7 @@ export function Report() {
 
   const columns = data.findReportDefinition.structure.columns;
   const stages = data.findProjectReport.stages;
+  const summaries = data.findProjectReport.summaries;
 
   return (
     <div>
@@ -132,9 +139,15 @@ export function Report() {
               <ListItemText>
                 <Grid container>
                   <Grid item md={11}>
-                    {dbTrans(stage.label)}
+                    {dbTrans(stage.summary.label)}
                   </Grid>
-                  <Grid item>{getFieldValue(stage.summary, dbTrans, t)}</Grid>
+                  <Grid item>
+                    <ColumnValue
+                      projectId={projectId}
+                      value={stage.summary.value}
+                      unit={stage.summary.unit}
+                    ></ColumnValue>
+                  </Grid>
                 </Grid>
               </ListItemText>
               <ListItemSecondaryAction>
@@ -164,6 +177,22 @@ export function Report() {
           </Fragment>
         ))}
       </List>
+      <Grid container>
+        {summaries.map((summary) => (
+          <Grid container spacing={2}>
+            <Grid item xs={1}>
+              <Typography align="right">{dbTrans(summary.label)}</Typography>
+            </Grid>
+            <Grid item xs={1}>
+              <ColumnValue
+                projectId={projectId}
+                value={summary.value}
+                unit={summary.unit}
+              />
+            </Grid>
+          </Grid>
+        ))}
+      </Grid>
     </div>
   );
 }
@@ -175,28 +204,36 @@ interface ReportStageProps {
 }
 
 function ReportStage({ stage, columns, projectId }: ReportStageProps) {
-  const { dbTrans, t } = useDbTranslation(projectId);
+  const { dbTrans } = useDbTranslation(projectId);
 
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
           <TableRow>
-            {columns.map((column, index) => (
-              <StyledTableCell key={index}>
-                {dbTrans(column.name)}
-              </StyledTableCell>
-            ))}
+            {columns
+              .filter((c) => c.isVisible)
+              .map((column, index) => (
+                <StyledTableCell key={index}>
+                  {dbTrans(column.name)}
+                </StyledTableCell>
+              ))}
           </TableRow>
         </TableHead>
         <TableBody>
           {stage.rows.map((row, rowIndex) => (
             <StyledTableRow key={rowIndex}>
-              {row.columns.map((column, columnIndex) => (
-                <StyledTableCell key={columnIndex}>
-                  {getFieldValue(column, dbTrans, t)}
-                </StyledTableCell>
-              ))}
+              {row.columns
+                .filter((_, i) => columns[i].isVisible === true)
+                .map((column, columnIndex) => (
+                  <StyledTableCell key={columnIndex}>
+                    <ColumnValue
+                      projectId={projectId}
+                      value={column.value}
+                      unit={column.unit}
+                    ></ColumnValue>
+                  </StyledTableCell>
+                ))}
             </StyledTableRow>
           ))}
         </TableBody>

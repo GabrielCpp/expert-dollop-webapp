@@ -1,71 +1,18 @@
 import { addTranslations, LocalizedTranslation } from "./tables";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../../services-def";
-import { useRef, useState } from "react";
+import { usePromise } from "../../shared/use-promise";
 
-interface FetchError extends Error {
-  status: number;
-}
-
-interface FetchOption {
-  skip?: boolean;
-}
-
-function useFetch<T>(
-  ressource: string,
-  { skip = false }: FetchOption
-): {
-  data: T | undefined;
-  error: Error | undefined;
-  loading: boolean;
-} {
-  const [data, setData] = useState<T | undefined>(undefined);
-  const [error, setError] = useState<Error | undefined>(undefined);
-  const hasStartFetching = useRef(false);
-
-  if (skip) {
-    return { data, error, loading: false };
-  }
-
-  if (hasStartFetching.current == false) {
-    fetch(ressource)
-      .then((response) => {
-        if (response.ok) {
-          return response
-            .json()
-            .then((body: T) => {
-              setData(body);
-            })
-            .catch((err) => {
-              setError(err);
-            });
-        }
-
-        const err: Partial<FetchError> = Error("fetch_failure");
-        err.status = response.status;
-
-        setError(err as Error);
-      })
-      .catch((err) => {
-        setError(err);
-      });
-
-    hasStartFetching.current = true;
-  }
-
-  return { data, error, loading: data === undefined && error === undefined };
-}
-
-interface TranlationScopeHook {
+interface TranlationHook {
   isLoading: boolean;
   error: Error | undefined;
 }
 
-export function useTranlationScope(ressourceId: string): TranlationScopeHook {
-  const { reduxDb } = useServices();
+export function useDynamicTranlation(ressourceId: string): TranlationHook {
+  const { reduxDb, api } = useServices();
   const { i18n } = useTranslation();
-  const { loading, data, error } = useFetch<Record<string, string>>(
-    `/api/translation/${ressourceId}/${i18n.language}/json_bundle`,
+  const { loading, data, error } = usePromise<Record<string, string>>(
+    () => api.loadTranslations(ressourceId, i18n.language),
     { skip: ressourceId === "" }
   );
 

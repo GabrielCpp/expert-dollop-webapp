@@ -4,13 +4,12 @@ import { Route, Switch, useParams } from "react-router-dom";
 import { useServices } from "../../../services-def";
 import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { useTranlationScope } from "../../../components/translation";
+import { useDynamicTranlation } from "../../../components/translation";
 import { useProjectPath } from "../hooks/project-path";
 import { PROJECT_EDITOR } from "../routes";
 import { FormEditor } from "./form-editor";
 import { RootSectionBar } from "./root-section-bar";
 import { SidePanel } from "./side-panel";
-import { useFindProjectDefinitionIdQuery } from "../../../generated";
 
 interface ProjectEditorParams extends Record<string, string> {
   projectId: string;
@@ -22,7 +21,7 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
   const { projectId, selectedPath } = useParams<ProjectEditorParams>();
   const { loading, path } = useProjectPath(projectId, selectedPath);
   const [rootSectionId, subSectionId, formId] = path || [];
-  const { isLoading, error } = useTranlationScope(projectId);
+  const { isLoading, error } = useDynamicTranlation(projectId);
 
   useLoaderEffect(error, isLoading, loading);
 

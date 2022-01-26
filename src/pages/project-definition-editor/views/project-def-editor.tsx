@@ -3,7 +3,7 @@ import { Route, Switch, useParams } from "react-router-dom";
 import { useServices } from "../../../services-def";
 import { renderNamedRoute } from "../../../shared/named-routes";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { useTranlationScope } from "../../../components/translation";
+import { useDynamicTranlation } from "../../../components/translation";
 import { useProjectDefPath } from "../hooks/project-def-path";
 import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 import { FormDefinitionEditor } from "./form-definition-editor";
@@ -24,7 +24,7 @@ export function EditorLayout() {
     selectedPath
   );
   const [rootSectionDefId, subSectionDefId, formDefId] = path || [];
-  const { isLoading, error } = useTranlationScope(projectDefinitionId);
+  const { isLoading, error } = useDynamicTranlation(projectDefinitionId);
 
   useLoaderEffect(error, isLoading || loading);
 

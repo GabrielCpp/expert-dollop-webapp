@@ -49,6 +49,13 @@ export type CollapsibleContainerFieldConfigInput = {
   isCollapsible: Scalars['Boolean'];
 };
 
+export type ComputedValue = {
+  __typename?: 'ComputedValue';
+  label: FieldWrapper<Scalars['String']>;
+  value: FieldWrapper<FieldValue>;
+  unit?: Maybe<FieldWrapper<Scalars['String']>>;
+};
+
 export type Datasheet = {
   __typename?: 'Datasheet';
   id: FieldWrapper<Scalars['ID']>;
@@ -695,10 +702,17 @@ export type Report = {
   __typename?: 'Report';
   stages: Array<FieldWrapper<ReportStage>>;
   creationDateUtc?: Maybe<FieldWrapper<Scalars['String']>>;
+  summaries: Array<FieldWrapper<ComputedValue>>;
 };
 
-export type ReportColumnDefinition = {
-  __typename?: 'ReportColumnDefinition';
+export type ReportColumn = {
+  __typename?: 'ReportColumn';
+  value: FieldWrapper<FieldValue>;
+  unit?: Maybe<FieldWrapper<Scalars['String']>>;
+};
+
+export type ReportComputation = {
+  __typename?: 'ReportComputation';
   name: FieldWrapper<Scalars['String']>;
   expression: FieldWrapper<Scalars['String']>;
   isVisible: FieldWrapper<Scalars['Boolean']>;
@@ -708,7 +722,7 @@ export type ReportColumnDefinition = {
 export type ReportDefinition = {
   __typename?: 'ReportDefinition';
   id: FieldWrapper<Scalars['String']>;
-  project_def_id: FieldWrapper<Scalars['String']>;
+  projectDefId: FieldWrapper<Scalars['String']>;
   name: FieldWrapper<Scalars['String']>;
   structure: FieldWrapper<ReportDefinitionStructure>;
 };
@@ -717,26 +731,21 @@ export type ReportDefinitionStructure = {
   __typename?: 'ReportDefinitionStructure';
   formulaAttribute: FieldWrapper<AttributeBucket>;
   datasheetAttribute: FieldWrapper<AttributeBucket>;
-  columns: Array<FieldWrapper<ReportColumnDefinition>>;
+  columns: Array<FieldWrapper<ReportComputation>>;
 };
 
 export type ReportRow = {
   __typename?: 'ReportRow';
-  projectId: FieldWrapper<Scalars['ID']>;
-  reportDefId: FieldWrapper<Scalars['ID']>;
-  nodeId: FieldWrapper<Scalars['ID']>;
-  formulaId: FieldWrapper<Scalars['ID']>;
-  orderIndex: FieldWrapper<Scalars['Int']>;
-  datasheetId: FieldWrapper<Scalars['String']>;
-  elementId: FieldWrapper<Scalars['String']>;
+  nodeId: FieldWrapper<Scalars['String']>;
+  formulaId: FieldWrapper<Scalars['String']>;
+  elementDefId: FieldWrapper<Scalars['String']>;
   childReferenceId: FieldWrapper<Scalars['String']>;
-  columns: Array<Maybe<FieldWrapper<FieldValue>>>;
+  columns: Array<FieldWrapper<ReportColumn>>;
 };
 
 export type ReportStage = {
   __typename?: 'ReportStage';
-  label?: Maybe<FieldWrapper<Scalars['String']>>;
-  summary?: Maybe<FieldWrapper<FieldValue>>;
+  summary: FieldWrapper<ComputedValue>;
   rows: Array<FieldWrapper<ReportRow>>;
 };
 
@@ -1951,8 +1960,8 @@ export type FindProjectReportWithDefinitionQuery = (
         { __typename?: 'AttributeBucket' }
         & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
       ), columns: Array<(
-        { __typename?: 'ReportColumnDefinition' }
-        & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
+        { __typename?: 'ReportComputation' }
+        & Pick<ReportComputation, 'name' | 'isVisible' | 'unitId'>
       )> }
     ) }
   ), findProjectReport: (
@@ -1960,23 +1969,10 @@ export type FindProjectReportWithDefinitionQuery = (
     & Pick<Report, 'creationDateUtc'>
     & { stages: Array<(
       { __typename?: 'ReportStage' }
-      & Pick<ReportStage, 'label'>
-      & { summary?: Maybe<(
-        { __typename: 'IntFieldValue' }
-        & Pick<IntFieldValue, 'integer'>
-      ) | (
-        { __typename: 'DecimalFieldValue' }
-        & Pick<DecimalFieldValue, 'numeric'>
-      ) | (
-        { __typename: 'StringFieldValue' }
-        & Pick<StringFieldValue, 'text'>
-      ) | (
-        { __typename: 'BoolFieldValue' }
-        & Pick<BoolFieldValue, 'enabled'>
-      ) | { __typename: 'ReferenceId' }>, rows: Array<(
-        { __typename?: 'ReportRow' }
-        & Pick<ReportRow, 'nodeId' | 'formulaId' | 'orderIndex' | 'datasheetId' | 'elementId' | 'childReferenceId'>
-        & { columns: Array<Maybe<(
+      & { summary: (
+        { __typename?: 'ComputedValue' }
+        & Pick<ComputedValue, 'label' | 'unit'>
+        & { value: (
           { __typename: 'IntFieldValue' }
           & Pick<IntFieldValue, 'integer'>
         ) | (
@@ -1988,8 +1984,44 @@ export type FindProjectReportWithDefinitionQuery = (
         ) | (
           { __typename: 'BoolFieldValue' }
           & Pick<BoolFieldValue, 'enabled'>
-        ) | { __typename: 'ReferenceId' }>> }
+        ) | { __typename: 'ReferenceId' } }
+      ), rows: Array<(
+        { __typename?: 'ReportRow' }
+        & Pick<ReportRow, 'nodeId' | 'formulaId' | 'elementDefId' | 'childReferenceId'>
+        & { columns: Array<(
+          { __typename?: 'ReportColumn' }
+          & Pick<ReportColumn, 'unit'>
+          & { value: (
+            { __typename: 'IntFieldValue' }
+            & Pick<IntFieldValue, 'integer'>
+          ) | (
+            { __typename: 'DecimalFieldValue' }
+            & Pick<DecimalFieldValue, 'numeric'>
+          ) | (
+            { __typename: 'StringFieldValue' }
+            & Pick<StringFieldValue, 'text'>
+          ) | (
+            { __typename: 'BoolFieldValue' }
+            & Pick<BoolFieldValue, 'enabled'>
+          ) | { __typename: 'ReferenceId' } }
+        )> }
       )> }
+    )>, summaries: Array<(
+      { __typename?: 'ComputedValue' }
+      & Pick<ComputedValue, 'label' | 'unit'>
+      & { value: (
+        { __typename: 'IntFieldValue' }
+        & Pick<IntFieldValue, 'integer'>
+      ) | (
+        { __typename: 'DecimalFieldValue' }
+        & Pick<DecimalFieldValue, 'numeric'>
+      ) | (
+        { __typename: 'StringFieldValue' }
+        & Pick<StringFieldValue, 'text'>
+      ) | (
+        { __typename: 'BoolFieldValue' }
+        & Pick<BoolFieldValue, 'enabled'>
+      ) | { __typename: 'ReferenceId' } }
     )> }
   ) }
 );
@@ -2012,8 +2044,8 @@ export type FindReportDefinitionsFromProjectDetailsQuery = (
           { __typename?: 'AttributeBucket' }
           & Pick<AttributeBucket, 'bucketName' | 'attributeName'>
         ), columns: Array<(
-          { __typename?: 'ReportColumnDefinition' }
-          & Pick<ReportColumnDefinition, 'name' | 'isVisible' | 'unitId'>
+          { __typename?: 'ReportComputation' }
+          & Pick<ReportComputation, 'name' | 'isVisible' | 'unitId'>
         )> }
       ) }
     )> }
@@ -3815,30 +3847,10 @@ export const FindProjectReportWithDefinitionDocument = gql`
   ) {
     creationDateUtc
     stages {
-      label
       summary {
-        __typename
-        ... on IntFieldValue {
-          integer
-        }
-        ... on DecimalFieldValue {
-          numeric
-        }
-        ... on StringFieldValue {
-          text
-        }
-        ... on BoolFieldValue {
-          enabled
-        }
-      }
-      rows {
-        nodeId
-        formulaId
-        orderIndex
-        datasheetId
-        elementId
-        childReferenceId
-        columns {
+        label
+        unit
+        value {
           __typename
           ... on IntFieldValue {
             integer
@@ -3852,6 +3864,49 @@ export const FindProjectReportWithDefinitionDocument = gql`
           ... on BoolFieldValue {
             enabled
           }
+        }
+      }
+      rows {
+        nodeId
+        formulaId
+        elementDefId
+        childReferenceId
+        columns {
+          unit
+          value {
+            __typename
+            ... on IntFieldValue {
+              integer
+            }
+            ... on DecimalFieldValue {
+              numeric
+            }
+            ... on StringFieldValue {
+              text
+            }
+            ... on BoolFieldValue {
+              enabled
+            }
+          }
+        }
+      }
+    }
+    summaries {
+      label
+      unit
+      value {
+        __typename
+        ... on IntFieldValue {
+          integer
+        }
+        ... on DecimalFieldValue {
+          numeric
+        }
+        ... on StringFieldValue {
+          text
+        }
+        ... on BoolFieldValue {
+          enabled
         }
       }
     }
