@@ -1,10 +1,11 @@
 import {
   ApolloClient,
   ApolloLink,
-  concat,
+  FetchResult,
   HttpLink,
   InMemoryCache,
   NormalizedCacheObject,
+  Observable,
 } from "@apollo/client";
 import { Services } from "../services-def";
 
@@ -13,26 +14,29 @@ export function createApolloClient(
 ): ApolloClient<NormalizedCacheObject> {
   const getUrl = window.location;
   const uri = getUrl.protocol + "//" + getUrl.host + "/graphql";
-
   const httpLink = new HttpLink({ uri });
   const authLink = new ApolloLink((operation, forward) => {
-    operation.setContext(async ({ headers }: { headers: any }) => {
-      const services = getServices();
-      let token: string | undefined = await services.auth0.getToken();
+    const services = getServices();
+    return new Observable<FetchResult>((observable) => {
+      let sub: ZenObservable.Subscription | null = null;
 
-      return {
-        headers: {
-          ...headers,
-          authorization: "Bearer" + token,
-        },
-      };
+      services.auth0.getToken().then((token) => {
+        operation.setContext({
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        sub = forward(operation).subscribe(observable);
+      });
+
+      return () => (sub ? sub.unsubscribe() : null);
     });
-    return forward(operation);
   });
 
   const apollo = new ApolloClient({
     cache: new InMemoryCache(),
-    link: concat(authLink, httpLink),
+    link: authLink.concat(httpLink),
   });
 
   return apollo;

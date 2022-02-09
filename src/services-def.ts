@@ -30,6 +30,11 @@ export interface ApiService {
   ): Promise<Record<string, string>>;
 }
 
+export interface HttpRequestService {
+  get(url: string): Promise<Response>;
+  post(url: string, body: BodyInit): Promise<Response>;
+}
+
 export interface Services {
   apollo: ApolloClient<NormalizedCacheObject>;
   api: ApiService;
@@ -39,6 +44,7 @@ export interface Services {
   loader: LoaderNotifier;
   auth0: Auth0Context;
   feeds: FeedMediator;
+  http: HttpRequestService;
 }
 
 let useAuth0Wrapper: () => Auth0ContextInterface<User> | undefined = useAuth0;

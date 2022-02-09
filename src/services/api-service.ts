@@ -1,7 +1,12 @@
-import { ApiService } from "../services-def";
+import { ApiService, Services, HttpRequestService } from "../services-def";
 
 export class HttpApi implements ApiService {
   private bundles = new Map<string, Record<string, string>>();
+  private getServices: () => Services;
+
+  public constructor(getServices: () => Services) {
+    this.getServices = getServices;
+  }
 
   public async loadTranslations(
     ressourceId: string,
@@ -15,7 +20,7 @@ export class HttpApi implements ApiService {
       return bundle;
     }
 
-    const response = await fetch(
+    const response = await this.http.get(
       `/api/translation/${ressourceId}/${language}/json_bundle`
     );
 
@@ -26,5 +31,9 @@ export class HttpApi implements ApiService {
     }
 
     throw Error("Fail to fetch translations");
+  }
+
+  private get http(): HttpRequestService {
+    return this.getServices().http;
   }
 }
