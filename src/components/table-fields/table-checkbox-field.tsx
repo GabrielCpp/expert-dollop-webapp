@@ -1,13 +1,10 @@
-import { Checkbox, FormControlLabel, Typography } from "@mui/material";
-import React from "react";
-
-import { MouseOverPopover, MouseOverPopoverProps } from "../mouse-over-popover";
+import { Checkbox, FormControlLabel, Typography, Tooltip } from "@mui/material";
 import { FieldChildren } from "./field";
 
 interface CheckboxFieldProps extends FieldChildren {
   t: (key: string) => string;
   label: string;
-  popover?: Omit<MouseOverPopoverProps, "children" | "name">;
+  title?: string;
 }
 
 export function checkboxField({
@@ -16,7 +13,7 @@ export function checkboxField({
   name,
   label,
   errors,
-  popover,
+  title,
   getType,
   onChange,
   t,
@@ -32,10 +29,10 @@ export function checkboxField({
         />
       }
       label={
-        popover !== undefined ? (
-          <MouseOverPopover {...popover} name={`${name}-popover`}>
-            {(props) => <Typography {...props}>{t(label)}</Typography>}
-          </MouseOverPopover>
+        title !== undefined ? (
+          <Tooltip title={title}>
+            <Typography>{t(label)}</Typography>
+          </Tooltip>
         ) : (
           t(label)
         )

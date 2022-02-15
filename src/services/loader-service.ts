@@ -1,49 +1,39 @@
-import { noop } from "lodash";
+import { EventEmitter } from "fbemitter";
+import { LoaderNotifier } from "../services-def";
 
-interface LoaderComponentState {
-  emitter: (isLoading: boolean, error?: Error) => void;
+interface ComponentLoadingState {
   isLoading: boolean;
   error?: Error;
 }
 
-export class LoaderService {
-  private triggerEffect: (isLoading: boolean, error?: Error) => void = noop;
-  private loadingEmitters = new Map<string, LoaderComponentState>();
-  private lastLoadingState = false;
+export class LoaderService implements LoaderNotifier {
+  private triggerEmitter = new EventEmitter();
+  private emitters = new Map<string, ComponentLoadingState>();
+  public lastLoadingState = false;
+  public lastErrorState?: Error;
 
-  setEffect(handler: (isLoading: boolean, error?: Error) => void) {
-    this.triggerEffect = handler;
+  public constructor() {
+    this.onLoading = this.onLoading.bind(this);
   }
 
-  getEmitter(id: string): (isLoading: boolean, error?: Error) => void {
-    let state = this.loadingEmitters.get(id);
+  addHandler(handler: (isLoading: boolean, error?: Error) => void): () => void {
+    const subscription = this.triggerEmitter.addListener("fire", handler);
+    return () => subscription.remove();
+  }
 
-    if (state === undefined) {
-      state = {
-        isLoading: true,
-        error: undefined,
-        emitter: (isLoading: boolean, error?: Error) => {
-          const self = this.loadingEmitters.get(id);
-
-          if (self !== undefined) {
-            self.isLoading = isLoading;
-            self.error = error;
-            this.notify();
-          }
-        },
-      };
-
-      this.loadingEmitters.set(id, state);
-    }
-
-    return state.emitter;
+  onLoading(id: string, isLoading: boolean, error?: Error): void {
+    this.emitters.set(id, {
+      isLoading,
+      error,
+    });
+    this.notify();
   }
 
   notify(): void {
     let isLoading: boolean = false;
     let error: Error | undefined = undefined;
 
-    for (const state of this.loadingEmitters.values()) {
+    for (const state of this.emitters.values()) {
       isLoading = isLoading || state.isLoading;
       if (state.error !== undefined) {
         error = state.error;
@@ -52,12 +42,17 @@ export class LoaderService {
     }
 
     if (isLoading !== this.lastLoadingState || error) {
+      this.lastErrorState = error;
       this.lastLoadingState = isLoading;
-      this.triggerEffect(isLoading, error);
+      setTimeout(() => {
+        if (isLoading === this.lastLoadingState) {
+          this.triggerEmitter.emit("fire", isLoading, error);
+        }
+      }, 100);
     }
   }
 
   deleteEmitter(id: string): void {
-    this.loadingEmitters.delete(id);
+    this.emitters.delete(id);
   }
 }

@@ -5,6 +5,7 @@ import {
   Grid,
   IconButton,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
@@ -21,10 +22,9 @@ import {
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { MouseOverPopover } from "../../../components/mouse-over-popover";
 import { Field, radioField, textField } from "../../../components/table-fields";
 import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
-import { useDbTranslation } from "../../../components/translation";
+import { useDbTranslation } from "../hooks/db-trans";
 import { EditButton } from "../components/edit-button";
 import {
   buildAddNodeParams,
@@ -216,16 +216,13 @@ function FormSection({ node }: FormProps): JSX.Element {
         }
         action={action}
         title={
-          <MouseOverPopover
-            name={node.definition.name}
-            text={dbTrans(node.definition.config.translations.helpTextName)}
+          <Tooltip
+            title={dbTrans(node.definition.config.translations.helpTextName)}
           >
-            {(props) => (
-              <Typography {...props} variant="h5" component="h5" gutterBottom>
-                {dbTrans(node.definition.config.translations.label)}
-              </Typography>
-            )}
-          </MouseOverPopover>
+            <Typography variant="h5" component="h5" gutterBottom>
+              {dbTrans(node.definition.config.translations.label)}
+            </Typography>
+          </Tooltip>
         }
       />
       <Collapse in={expanded} mountOnEnter={true} timeout="auto">
@@ -269,16 +266,11 @@ export function FormDefinitionEditor({
   return (
     <>
       {formNode && (
-        <MouseOverPopover
-          name={formNode.name}
-          text={dbTrans(formNode.config.translations.helpTextName)}
-        >
-          {(props) => (
-            <Typography {...props} variant="h4" component="h4" gutterBottom>
-              {dbTrans(formNode.config.translations.label)}
-            </Typography>
-          )}
-        </MouseOverPopover>
+        <Tooltip title={dbTrans(formNode.config.translations.helpTextName)}>
+          <Typography variant="h4" component="h4" gutterBottom>
+            {dbTrans(formNode.config.translations.label)}
+          </Typography>
+        </Tooltip>
       )}
       <form>
         <Grid container direction="column" spacing={1}>

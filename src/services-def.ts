@@ -11,8 +11,10 @@ export interface AjvFactory {
 }
 
 export interface LoaderNotifier {
-  setEffect(handler: (isLoading: boolean, error?: Error) => void): void;
-  getEmitter(id: string): (isLoading: boolean, error?: Error) => void;
+  lastLoadingState: boolean;
+  lastErrorState?: Error;
+  addHandler(handler: (isLoading: boolean, error?: Error) => void): () => void;
+  onLoading(id: string, isLoading: boolean, error?: Error): void;
   notify(): void;
   deleteEmitter(id: string): void;
 }

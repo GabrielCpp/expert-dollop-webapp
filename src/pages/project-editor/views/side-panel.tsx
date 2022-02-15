@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
+  Tooltip,
 } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -19,7 +20,6 @@ import {
   useFindProjectRootSectionContainersQuery,
 } from "../../../generated/graphql";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { MouseOverPopover } from "../../../components/mouse-over-popover";
 import { useDbTranslation } from "../../../components/translation";
 import { buildLinkToProjectPath } from "../routes";
 import { NodePicker } from "./node-picker";
@@ -133,17 +133,11 @@ function SubSectionPicker({
             onChange={setCurrentNodeId}
           />
         )}
-        <MouseOverPopover
-          name={`${definition.name}-popover`}
-          text={dbTrans(definition.config.translations.helpTextName)}
-        >
-          {(props) => (
-            <ListItemText
-              {...props}
-              primary={dbTrans(definition.config.translations.label)}
-            />
-          )}
-        </MouseOverPopover>
+        <Tooltip title={dbTrans(definition.config.translations.helpTextName)}>
+          <ListItemText
+            primary={dbTrans(definition.config.translations.label)}
+          />
+        </Tooltip>
 
         <ListItemSecondaryAction>
           {expanded === definition.id ? (
@@ -213,42 +207,36 @@ function FormPicker({
           onChange={setCurrentNodeId}
         />
       )}
-      <MouseOverPopover
-        name={`${secondLayerNode.definition.name}-popover`}
-        text={dbTrans(
+      <Tooltip
+        title={dbTrans(
           secondLayerNode.definition.config.translations.helpTextName
         )}
       >
-        {(props) => (
-          <ListItemText
-            {...props}
-            primaryTypographyProps={{
-              style: {
-                ...(currentNodeId !== formId ? boldListItem : undefined),
-              },
-            }}
-            primary={
-              currentNodeId === formId ? (
-                dbTrans(secondLayerNode.definition.config.translations.label)
-              ) : (
-                <Link
-                  component={RouterLink}
-                  to={buildLinkToProjectPath(
-                    projectId,
-                    rootSectionId,
-                    secondLayerNode.nodes[0].node.id,
-                    secondLayerNode.nodes[0].node.id
-                  )}
-                >
-                  {dbTrans(
-                    secondLayerNode.definition.config.translations.label
-                  )}
-                </Link>
-              )
-            }
-          />
-        )}
-      </MouseOverPopover>
+        <ListItemText
+          primaryTypographyProps={{
+            style: {
+              ...(currentNodeId !== formId ? {} : boldListItem),
+            },
+          }}
+          primary={
+            currentNodeId === formId ? (
+              dbTrans(secondLayerNode.definition.config.translations.label)
+            ) : (
+              <Link
+                component={RouterLink}
+                to={buildLinkToProjectPath(
+                  projectId,
+                  rootSectionId,
+                  secondLayerNode.nodes[0].node.id,
+                  secondLayerNode.nodes[0].node.id
+                )}
+              >
+                {dbTrans(secondLayerNode.definition.config.translations.label)}
+              </Link>
+            )
+          }
+        />
+      </Tooltip>
     </NestedListItem>
   );
 }

@@ -4,6 +4,15 @@ import orange from "@mui/material/colors/orange";
 import green from "@mui/material/colors/green";
 
 export const theme: Theme = createTheme({
+  components: {
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          fontSize: "1em",
+        },
+      },
+    },
+  },
   mixins: {
     toolbar: {
       minHeight: 36,

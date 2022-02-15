@@ -1,15 +1,12 @@
-import { InputAdornment, TextField, Typography } from "@mui/material";
-import React from "react";
+import { InputAdornment, TextField, Typography, Tooltip } from "@mui/material";
 import { Namespace, TFunction } from "react-i18next";
-
-import { MouseOverPopover, MouseOverPopoverProps } from "../mouse-over-popover";
 import { FieldChildren } from "./field";
 
 interface TextFieldProps extends FieldChildren {
   t: (key: string) => string;
   label: string;
-  endAdornmentLabel?: string;
-  popover?: Omit<MouseOverPopoverProps, "children" | "name">;
+  title?: string;
+  unit?: string;
   translationProvider?: TFunction<Namespace>;
 }
 
@@ -19,10 +16,10 @@ export function textField({
   name,
   label,
   errors,
-  endAdornmentLabel,
-  popover,
+  title,
   getType,
   onChange,
+  unit,
   t,
 }: TextFieldProps) {
   return (
@@ -31,10 +28,10 @@ export function textField({
       InputLabelProps={{ style: { pointerEvents: "auto" }, shrink: true }}
       type={getType() === "string" ? "text" : "number"}
       label={
-        popover !== undefined ? (
-          <MouseOverPopover {...popover} name={`${name}-popover`}>
-            {(props) => <Typography {...props}>{t(label)}</Typography>}
-          </MouseOverPopover>
+        title !== undefined ? (
+          <Tooltip title={title}>
+            <Typography>{t(label)}</Typography>
+          </Tooltip>
         ) : (
           t(label)
         )
@@ -52,8 +49,8 @@ export function textField({
         ))}
       error={errors?.length > 0}
       InputProps={{
-        endAdornment: endAdornmentLabel && (
-          <InputAdornment position="end">{t(endAdornmentLabel)}</InputAdornment>
+        endAdornment: unit && (
+          <InputAdornment position="end">{t(unit)}</InputAdornment>
         ),
       }}
     />

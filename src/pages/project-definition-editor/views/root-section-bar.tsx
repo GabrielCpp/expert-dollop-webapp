@@ -8,7 +8,7 @@ import { useFindProjectDefinitionRootSectionsQuery } from "../../../generated/gr
 import { useServices } from "../../../services-def";
 import { MoreButton } from "../../../components/buttons";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { useDbTranslation } from "../../../components/translation";
+import { useDbTranslation } from "../hooks/db-trans";
 import {
   buildAddNodeParams,
   buildEditNodeParams,

@@ -37,7 +37,7 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
               />
             </Grid>
 
-            <Grid item style={{ minWidth: "4em" }}>
+            <Grid item md={4} style={{ minWidth: "4em" }}>
               {subSectionId && formId && (
                 <SidePanel
                   projectId={projectId}

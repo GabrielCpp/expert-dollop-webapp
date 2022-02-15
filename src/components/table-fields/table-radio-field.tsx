@@ -4,24 +4,22 @@ import {
   Radio,
   RadioGroup,
   Typography,
+  Tooltip,
 } from "@mui/material";
-import React from "react";
 import { Namespace, TFunction } from "react-i18next";
-
-import { MouseOverPopover, MouseOverPopoverProps } from "../mouse-over-popover";
 import { FieldChildren } from "./field";
 
 export interface TableRadioFieldOption {
   id: string;
   label: string;
-  popover?: MouseOverPopoverProps;
+  helpText?: string;
 }
 
 interface RadiodProps extends FieldChildren {
   t: (key: string) => string;
   label: string;
   options: TableRadioFieldOption[];
-  popover?: Omit<MouseOverPopoverProps, "children" | "name">;
+  title?: string;
   translationProvider?: TFunction<Namespace>;
 }
 
@@ -31,7 +29,7 @@ export function radioField({
   name,
   label,
   errors,
-  popover,
+  title,
   getType,
   onChange,
   t,
@@ -53,14 +51,12 @@ export function radioField({
             value={option.id}
             control={<Radio />}
             label={
-              option.popover === undefined ? (
+              option.helpText === undefined ? (
                 <Typography>{t(option.label)}</Typography>
               ) : (
-                <MouseOverPopover {...option.popover} name={`${name}-popover`}>
-                  {(props) => (
-                    <Typography {...props}>{t(option.label)}</Typography>
-                  )}
-                </MouseOverPopover>
+                <Tooltip title={option.helpText}>
+                  <Typography>{t(option.label)}</Typography>
+                </Tooltip>
               )
             }
           />

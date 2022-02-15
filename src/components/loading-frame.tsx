@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useServices } from "../services-def";
 import { useId } from "../shared/redux-db";
 
@@ -14,15 +14,17 @@ export function LoadingFrame({
   const { loader } = useServices();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  function onLoading(newIsLoading: boolean, error?: Error): void {
+  useLayoutEffect(() => {
+    return loader.addHandler(onLoading);
+  });
+
+  function onLoading(_: boolean, error?: Error): void {
     if (error) {
       console.error(error);
     }
 
-    setIsLoading(newIsLoading);
+    setIsLoading(() => loader.lastLoadingState);
   }
-
-  loader.setEffect(onLoading);
 
   return (
     <>
@@ -34,27 +36,43 @@ export function LoadingFrame({
   );
 }
 
-export function useLoader() {
+export function HiddenWhileLoading({
+  children,
+}: {
+  children: React.ReactChild;
+}): JSX.Element | null {
   const { loader } = useServices();
-  const componentId = useId();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    return () => loader.deleteEmitter(componentId);
-  }, [componentId, loader]);
+  useLayoutEffect(() => {
+    return loader.addHandler(onLoading);
+  });
 
-  return {
-    onLoading: loader.getEmitter(componentId),
-  };
+  function onLoading(_: boolean, error?: Error): void {
+    if (error) {
+      console.error(error);
+    }
+
+    setIsLoading(() => loader.lastLoadingState);
+  }
+
+  if (isLoading) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
 
 export function useLoaderEffect(
   error: Error | undefined,
   ...loading: boolean[]
 ) {
-  const { onLoading } = useLoader();
+  const id = useId();
+  const { loader } = useServices();
   const isLoading = loading.some((x) => x === true);
 
   useEffect(() => {
-    onLoading(isLoading, error);
-  }, [error, isLoading, onLoading]);
+    loader.onLoading(id, isLoading, error);
+    return () => loader.deleteEmitter(id);
+  }, [error, isLoading, loader, id]);
 }

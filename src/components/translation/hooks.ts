@@ -8,15 +8,15 @@ interface TranslationHook {
   t: TFunction<"translation">;
 }
 
-export function useDbTranslation(ressourceId: string): TranslationHook {
+export function useDbTranslation(
+  ressourceId: string,
+  emptyPlaceholder: string = ""
+): TranslationHook {
   const { reduxDb } = useServices();
   const { t } = useTranslation();
   const translation = reduxDb.getTable("translation");
 
-  function trans(
-    key?: string | null | undefined,
-    emptyPlaceholder: string = "project_definition_editor.empty_placeholder"
-  ): string {
+  function trans(key?: string | null | undefined): string {
     const value = translation.findRecordSafe<Translation>(key || "")?.value;
 
     if (isString(value)) {

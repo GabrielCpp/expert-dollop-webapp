@@ -581,7 +581,6 @@ export function EditContainerView({ returnUrl }: RouteViewCompoenentProps) {
     }
 
     const form = hydrateForm<AddContainerFormBody>(reduxDb)(path);
-    console.log(form);
   }
 
   const { data, loading, error } = useFindProjectDefinitionNodeQuery({

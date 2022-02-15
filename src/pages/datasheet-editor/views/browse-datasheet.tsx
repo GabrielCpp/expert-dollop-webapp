@@ -7,8 +7,6 @@ import {
   FindDatasheetsDocument,
   FindDatasheetsQuery,
   FindDatasheetsQueryVariables,
-  FindProjectDefintionsDocument,
-  FindProjectDefintionsQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import {

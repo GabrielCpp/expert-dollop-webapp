@@ -24,8 +24,7 @@ import {
 } from "../../../generated/graphql";
 import { useServices } from "../../../services-def";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { MouseOverPopover } from "../../../components/mouse-over-popover";
-import { useDbTranslation } from "../../../components/translation";
+import { useDbTranslation } from "../hooks/db-trans";
 import {
   buildAddNodeParams,
   buildEditNodeParams,
@@ -88,35 +87,31 @@ export function SidePanel({
             subSections.map((subSection) => (
               <Fragment key={subSection.definition.name}>
                 <ListItem>
-                  <MouseOverPopover
-                    name={`${subSection.definition.name}-popover`}
-                    text={dbTrans(
+                  <Tooltip
+                    title={dbTrans(
                       subSection.definition.config.translations.helpTextName
                     )}
                   >
-                    {(props) => (
-                      <ListItemText
-                        {...props}
-                        primary={
-                          <Link
-                            component={RouterLink}
-                            to={routes.render(
-                              PROJECT_DEFINITION_EDITOR_NODE_EDIT,
-                              buildEditNodeParams(
-                                projectDefinitionId,
-                                subSection.definition.path,
-                                subSection.definition.id
-                              )
-                            )}
-                          >
-                            {dbTrans(
-                              subSection.definition.config.translations.label
-                            )}
-                          </Link>
-                        }
-                      />
-                    )}
-                  </MouseOverPopover>
+                    <ListItemText
+                      primary={
+                        <Link
+                          component={RouterLink}
+                          to={routes.render(
+                            PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+                            buildEditNodeParams(
+                              projectDefinitionId,
+                              subSection.definition.path,
+                              subSection.definition.id
+                            )
+                          )}
+                        >
+                          {dbTrans(
+                            subSection.definition.config.translations.label
+                          )}
+                        </Link>
+                      }
+                    />
+                  </Tooltip>
 
                   <ListItemSecondaryAction>
                     {expanded === subSection.definition.id ? (
@@ -200,46 +195,38 @@ function FormLinkList({
       {subSection.children.map((formNode) => (
         <Fragment key={formNode.definition.name}>
           <NestedListItem>
-            <MouseOverPopover
-              name={`${subSection.definition.name}-popover`}
-              text={dbTrans(
+            <Tooltip
+              title={dbTrans(
                 formNode.definition.config.translations.helpTextName
               )}
             >
-              {(props) => (
-                <>
-                  <ListItemText
-                    {...props}
-                    primaryTypographyProps={{
-                      style: {
-                        ...(formNode.definition.id !== formId
-                          ? boldListItem
-                          : undefined),
-                      },
-                    }}
-                    primary={
-                      formNode.definition.id === formId ? (
-                        dbTrans(formNode.definition.config.translations.label)
-                      ) : (
-                        <Link
-                          component={RouterLink}
-                          to={buildLinkFor(
-                            projectDefinitionId,
-                            rootSectionId as string,
-                            subSection.definition.id,
-                            formNode.definition.id
-                          )}
-                        >
-                          {dbTrans(
-                            formNode.definition.config.translations.label
-                          )}
-                        </Link>
-                      )
-                    }
-                  />
-                </>
-              )}
-            </MouseOverPopover>
+              <ListItemText
+                primaryTypographyProps={{
+                  style: {
+                    ...(formNode.definition.id !== formId
+                      ? boldListItem
+                      : undefined),
+                  },
+                }}
+                primary={
+                  formNode.definition.id === formId ? (
+                    dbTrans(formNode.definition.config.translations.label)
+                  ) : (
+                    <Link
+                      component={RouterLink}
+                      to={buildLinkFor(
+                        projectDefinitionId,
+                        rootSectionId as string,
+                        subSection.definition.id,
+                        formNode.definition.id
+                      )}
+                    >
+                      {dbTrans(formNode.definition.config.translations.label)}
+                    </Link>
+                  )
+                }
+              />
+            </Tooltip>
             <ListItemSecondaryAction>
               <Tooltip
                 title={t("button.edit") as string}

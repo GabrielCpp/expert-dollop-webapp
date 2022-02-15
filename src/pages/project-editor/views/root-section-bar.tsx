@@ -7,7 +7,7 @@ import {
   Tabs,
   TextField,
 } from "@mui/material";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   FindProjectRootSectionsQuery,
   useAddProjectCollectionItemMutation,
@@ -15,7 +15,10 @@ import {
   useFindProjectRootSectionsQuery,
 } from "../../../generated/graphql";
 import { useDbTranslation } from "../../../components/translation";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  HiddenWhileLoading,
+  useLoaderEffect,
+} from "../../../components/loading-frame";
 import { useHistory } from "react-router-dom";
 import {
   buildLinkToProjectCollection,
@@ -232,26 +235,6 @@ export function RootSectionBar({
     useAddProjectCollectionItemMutation();
   const [cloneProjectCollectionMutation] = useCloneProjectCollectionMutation();
 
-  useLayoutEffect(() => {
-    if (data !== undefined) {
-      urls.current = buildUrlMap({
-        cloneProjectCollectionMutation,
-        addProjectCollectionItemMutation,
-        projectId,
-        roots: data.findProjectRootSections.roots,
-        historyPush: history.push.bind(history),
-        rootSectionId,
-      });
-    }
-  }, [
-    addProjectCollectionItemMutation,
-    cloneProjectCollectionMutation,
-    data,
-    history,
-    projectId,
-    rootSectionId,
-  ]);
-
   useLoaderEffect(error, loading);
 
   const onChange = (_: React.ChangeEvent<{}>, id: string) => {
@@ -265,36 +248,35 @@ export function RootSectionBar({
     return null;
   }
 
-  if (urls.current === undefined) {
-    urls.current = buildUrlMap({
-      cloneProjectCollectionMutation,
-      addProjectCollectionItemMutation,
-      projectId,
-      roots: data.findProjectRootSections.roots,
-      historyPush: history.push.bind(history),
-      rootSectionId,
-    });
-  }
-
   const roots = data.findProjectRootSections.roots;
+  urls.current = buildUrlMap({
+    cloneProjectCollectionMutation,
+    addProjectCollectionItemMutation,
+    projectId,
+    roots: roots,
+    historyPush: history.push.bind(history),
+    rootSectionId,
+  });
 
   return (
     <>
-      <Tabs
-        value={rootSectionId}
-        onChange={onChange}
-        variant="scrollable"
-        scrollButtons="auto"
-        style={{
-          maxWidth: "calc(100vw - 200px)",
-        }}
-      >
-        {roots
-          .filter((x) => x.state.isVisible === true)
-          .map((def) =>
-            renderRootTab(dbTrans, rootSectionId, def, urls.current!)
-          )}
-      </Tabs>
+      <HiddenWhileLoading>
+        <Tabs
+          value={rootSectionId}
+          onChange={onChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          style={{
+            maxWidth: "calc(100vw - 200px)",
+          }}
+        >
+          {roots
+            .filter((x) => x.state.isVisible === true)
+            .map((def) =>
+              renderRootTab(dbTrans, rootSectionId, def, urls.current!)
+            )}
+        </Tabs>
+      </HiddenWhileLoading>
       {Array.from(urls.current.values())
         .filter((x) => x.component !== undefined)
         .map((x) => x.component)}
@@ -325,6 +307,7 @@ function renderRootTab(
           value={def.definition.id}
           key={def.definition.id}
           label={dbTrans(def.definition.config.translations.label)}
+          iconPosition="end"
           icon={<ArrowDropDownIcon onClick={item?.handleClick} />}
         />
       );
@@ -337,6 +320,7 @@ function renderRootTab(
         label={
           node.node.label || dbTrans(def.definition.config.translations.label)
         }
+        iconPosition="end"
         icon={<ArrowDropDownIcon onClick={item?.handleClick} />}
       />
     );

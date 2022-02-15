@@ -9,6 +9,7 @@ import {
   IconButton,
   styled,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -16,15 +17,16 @@ import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
   CollapsibleContainerFieldConfig,
+  DecimalFieldConfig,
   FieldUpdateInput,
   FindProjectFormContentQuery,
+  IntFieldConfig,
   StaticChoiceFieldConfig,
   useAddProjectCollectionItemMutation,
   useFindProjectFormContentQuery,
   useUpdateFieldsMutation,
 } from "../../../generated";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { MouseOverPopover } from "../../../components/mouse-over-popover";
 import {
   buildFormMapById,
   Field,
@@ -42,6 +44,10 @@ import {
   ExpandIconButton,
   UnpadCardContent,
 } from "../../../components/custom-styles";
+
+const FieldRow = styled(Grid)(() => ({
+  marginBottom: "0.5em",
+}));
 
 function getFieldValue(
   value: Record<string, string | number | boolean> | undefined | null
@@ -80,6 +86,15 @@ function FormField({
     fieldType === "IntFieldConfig" ||
     fieldType === "DecimalFieldConfig"
   ) {
+    let unit: string | undefined;
+    if (fieldType === "IntFieldConfig") {
+      const config = definition.config.fieldDetails as IntFieldConfig;
+      unit = config.unit;
+    } else if (fieldType === "DecimalFieldConfig") {
+      const config = definition.config.fieldDetails as DecimalFieldConfig;
+      unit = config.unit;
+    }
+
     return (
       <Field
         validator={validator}
@@ -87,9 +102,11 @@ function FormField({
         name={definition.name}
         defaultValue={value}
         id={node.id}
-        label={definition.name}
+        label={definition.config.translations.label}
+        title={definition.config.translations.helpTextName}
         t={dbTrans}
         component={textField}
+        unit={unit}
       />
     );
   }
@@ -102,7 +119,8 @@ function FormField({
         name={definition.name}
         defaultValue={value}
         id={node.id}
-        label={definition.name}
+        label={definition.config.translations.label}
+        title={definition.config.translations.helpTextName}
         t={dbTrans}
         component={checkboxField}
       />
@@ -119,7 +137,8 @@ function FormField({
         name={definition.name}
         defaultValue={value}
         id={node.id}
-        label={definition.name}
+        label={definition.config.translations.label}
+        title={definition.config.translations.helpTextName}
         t={dbTrans}
         component={radioField}
       />
@@ -247,16 +266,13 @@ function FormSection({
       <CardHeader
         action={action}
         title={
-          <MouseOverPopover
-            name={node.definition.name}
-            text={dbTrans(node.definition.config.translations.helpTextName)}
+          <Tooltip
+            title={dbTrans(node.definition.config.translations.helpTextName)}
           >
-            {(props) => (
-              <Typography {...props} variant="h5" component="h5" gutterBottom>
-                {dbTrans(node.definition.config.translations.label)}
-              </Typography>
-            )}
-          </MouseOverPopover>
+            <Typography variant="h5" component="h5" gutterBottom>
+              {dbTrans(node.definition.config.translations.label)}
+            </Typography>
+          </Tooltip>
         }
       />
       <Collapse in={expanded} mountOnEnter={true} timeout="auto">
@@ -264,9 +280,9 @@ function FormSection({
           <UnpadCardContent>
             <Grid container direction="column">
               {currentNode.children.map((x) => (
-                <Grid key={x.definition.name}>
+                <FieldRow key={x.definition.name}>
                   <FormFieldCard node={x} />
-                </Grid>
+                </FieldRow>
               ))}
             </Grid>
           </UnpadCardContent>
@@ -365,16 +381,3 @@ export function FormEditor({
     </>
   );
 }
-
-/*
-      {formNode && (
-        <MouseOverPopover
-          name={formNode.name}
-          text={dbTrans(formNode.name)}
-        >
-          <Typography variant="h4" component="h4" gutterBottom>
-            {dbTrans(formNode.definition.name)}
-          </Typography>
-        </MouseOverPopover>
-      )}
-*/

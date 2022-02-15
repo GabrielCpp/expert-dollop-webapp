@@ -4,24 +4,22 @@ import {
   MenuItem,
   Select,
   Typography,
+  Tooltip,
 } from "@mui/material";
-import React from "react";
 import { Namespace, TFunction } from "react-i18next";
-
-import { MouseOverPopover, MouseOverPopoverProps } from "../mouse-over-popover";
 import { FieldChildren } from "./field";
 
 export interface TableSelectFieldOption {
   id: string;
   label: string;
-  popover?: MouseOverPopoverProps;
+  title?: string;
 }
 
 interface SelectProps extends FieldChildren {
   t: (key: string) => string;
   label: string;
   options: TableSelectFieldOption[];
-  popover?: Omit<MouseOverPopoverProps, "children" | "name">;
+  title?: string;
   translationProvider?: TFunction<Namespace>;
 }
 
@@ -31,7 +29,7 @@ export function selectField({
   name,
   label,
   errors,
-  popover,
+  title,
   getType,
   onChange,
   t,
@@ -43,14 +41,12 @@ export function selectField({
       <Select name={name} value={value} onChange={onChange} id={id}>
         {options.map((option) => (
           <MenuItem key={option.id} value={option.id}>
-            {option.popover === undefined ? (
+            {option.title === undefined ? (
               <Typography>{t(option.label)}</Typography>
             ) : (
-              <MouseOverPopover {...option.popover} name={`${name}-popover`}>
-                {(props) => (
-                  <Typography {...props}>{t(option.label)}</Typography>
-                )}
-              </MouseOverPopover>
+              <Tooltip title={option.title}>
+                <Typography>{t(option.label)}</Typography>
+              </Tooltip>
             )}
           </MenuItem>
         ))}
