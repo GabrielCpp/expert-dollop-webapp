@@ -23,3 +23,15 @@ export function addTranslations(
 ): void {
   reduxDb.getTable(TranslationTableName).upsertMany(translations);
 }
+
+export function getAllRessourceId(reduxDb: ReduxDatabase): string[] {
+  const ressourceIds = new Set<string>();
+  reduxDb
+    .getTable(TranslationTableName)
+    .where((record: LocalizedTranslation) => {
+      ressourceIds.add(record.ressourceId);
+      return false;
+    });
+
+  return Array.from(ressourceIds.keys());
+}

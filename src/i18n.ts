@@ -9,8 +9,7 @@ i18n
     backend: {
       loadPath: "/{{ns}}.{{lng}}.json",
     },
-    lng: "en",
-    fallbackLng: "en",
+    fallbackLng: "en_US",
     interpolation: {
       escapeValue: false,
     },

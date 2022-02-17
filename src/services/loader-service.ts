@@ -55,4 +55,13 @@ export class LoaderService implements LoaderNotifier {
   deleteEmitter(id: string): void {
     this.emitters.delete(id);
   }
+
+  uncover(): void {
+    this.triggerEmitter.emit("uncover");
+  }
+
+  addUncoverHandler(handler: () => void): () => void {
+    const subscription = this.triggerEmitter.addListener("uncover", handler);
+    return () => subscription.remove();
+  }
 }

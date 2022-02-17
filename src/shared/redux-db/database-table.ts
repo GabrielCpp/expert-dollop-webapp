@@ -39,23 +39,10 @@ export class DatabaseTable {
     return this._table.buildPk(record);
   }
 
-  public findRecord<T extends TableRecord>(primaryKey: PrimaryKey): T {
-    return this._table.getRecord(primaryKey).value as T;
-  }
-
-  public findRecordSafe<T extends TableRecord>(
+  public findRecord<T extends TableRecord>(
     primaryKey: PrimaryKey
   ): T | undefined {
-    try {
-      return this._table.getRecord(primaryKey).value as T;
-    } catch (e) {
-      const error = e as Error;
-      if (error.name !== "primary_key_missing") {
-        throw e;
-      }
-    }
-
-    return undefined;
+    return this._table.getRecord(primaryKey)?.value as T | undefined;
   }
 
   public watchRecord(primaryKey: string, events: WatchEvent): Unsubscribe {

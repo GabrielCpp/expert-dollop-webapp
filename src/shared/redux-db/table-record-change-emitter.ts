@@ -13,6 +13,7 @@ import {
 export type Unsubscribe = () => void;
 
 export interface WatchEvent {
+  defaultRecord?: TableRecord;
   onUpdate?: OnRecordUpdate;
   onInsert?: OnRecordInsert;
   onRemove?: OnRecordRemove;

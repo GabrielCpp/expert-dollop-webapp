@@ -1,12 +1,13 @@
 import { useRef, useState } from "react";
 
-interface UsePromiseOption {
+interface UsePromiseOption<T> {
   skip?: boolean;
+  onComplete?: (result: T) => void;
 }
 
 export function usePromise<T>(
   query_data: () => Promise<T>,
-  { skip = false }: UsePromiseOption
+  { skip = false, onComplete }: UsePromiseOption<T>
 ): {
   data: T | undefined;
   error: Error | undefined;
@@ -23,6 +24,10 @@ export function usePromise<T>(
   if (hasStartFetching.current === false) {
     query_data()
       .then((body: T) => {
+        if (onComplete) {
+          onComplete(body);
+        }
+
         setData(body);
       })
       .catch((err) => {

@@ -84,7 +84,7 @@ function ColumnValue({
     throw new Error("Bad value");
   }
 
-  let result: string = realValue;
+  let result: string | JSX.Element = realValue;
 
   if (isString(realValue)) {
     result = dbTrans(realValue);

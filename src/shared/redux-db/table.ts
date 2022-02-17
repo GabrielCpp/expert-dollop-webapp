@@ -133,19 +133,23 @@ export class Table {
   }
 
   public watchRecord(primaryKey: string, events: WatchEvent): Unsubscribe {
-    const recordDetails = this.getRecord(primaryKey);
+    let recordDetails = this.getRecord(primaryKey);
+
+    if (recordDetails === undefined) {
+      if (events.defaultRecord) {
+        recordDetails = new TableRecordDetails(events.defaultRecord);
+        this.primaryIndex.records.set(primaryKey, recordDetails);
+      } else {
+        const error = new Error(`No such key ${primaryKey}`);
+        error.name = "primary_key_missing";
+        throw error;
+      }
+    }
+
     return recordDetails.watchEvents(events);
   }
 
-  public getRecord(primaryKey: PrimaryKey): TableRecordDetails {
-    const recordDetails = this.primaryIndex.records.get(primaryKey);
-
-    if (recordDetails === undefined) {
-      const error = new Error(`No such key ${primaryKey}`);
-      error.name = "primary_key_missing";
-      throw error;
-    }
-
-    return recordDetails;
+  public getRecord(primaryKey: PrimaryKey): TableRecordDetails | undefined {
+    return this.primaryIndex.records.get(primaryKey);
   }
 }

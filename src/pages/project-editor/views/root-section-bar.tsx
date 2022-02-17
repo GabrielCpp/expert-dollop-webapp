@@ -285,7 +285,7 @@ export function RootSectionBar({
 }
 
 function renderRootTab(
-  dbTrans: (k?: string | null) => string,
+  dbTrans: (key?: string | null | undefined) => JSX.Element,
   rootSectionId: string,
   def: FindProjectRootSectionsQuery["findProjectRootSections"]["roots"][number],
   collectionItems: Map<string, CollectionItem>

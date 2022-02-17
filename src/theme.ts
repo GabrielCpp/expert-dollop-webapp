@@ -15,8 +15,7 @@ export const theme: Theme = createTheme({
   },
   mixins: {
     toolbar: {
-      minHeight: 36,
-      maxHeight: 50,
+      maxHeight: "4em",
     },
   },
   palette: {

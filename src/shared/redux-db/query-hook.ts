@@ -71,7 +71,7 @@ export function useTableRecord<T>(
 
   if (unsubscribe.current === noop) {
     const table = reduxDb.getTable(tableName);
-    const record = table.findRecordSafe(primaryKey);
+    const record = table.findRecord(primaryKey);
 
     if (defaultValue !== undefined && record === undefined) {
       table.upsertMany([defaultValue as Record<string, unknown>]);

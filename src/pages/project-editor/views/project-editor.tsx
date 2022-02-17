@@ -22,8 +22,11 @@ export function ProjectEditor(_: RouteViewCompoenentProps) {
   const { loading, path } = useProjectPath(projectId, selectedPath);
   const [rootSectionId, subSectionId, formId] = path || [];
   const { isLoading, error } = useDynamicTranlation(projectId);
+  const overallLoading = useLoaderEffect(error, isLoading, loading);
 
-  useLoaderEffect(error, isLoading, loading);
+  if (overallLoading) {
+    return null;
+  }
 
   return (
     <Switch>
