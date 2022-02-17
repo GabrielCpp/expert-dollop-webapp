@@ -8,10 +8,8 @@ export {
   useTableQuery,
   useTableRecord,
   useId,
-  useTableExistingRecord,
   buildPk,
   useTableLifetime,
-  useTableWeakQuery,
 } from "./query-hook";
 
 export type { Query } from "./query";

@@ -53,7 +53,7 @@ export function HiddenWhileLoading({
   children: React.ReactChild;
 }): JSX.Element | null {
   const { loader } = useServices();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(loader.lastLoadingState);
 
   useLayoutEffect(() => {
     function onLoading(_: boolean, error?: Error): void {
