@@ -30,7 +30,7 @@ export function checkboxField({
       }
       label={
         title !== undefined ? (
-          <Tooltip title={title}>
+          <Tooltip title={t(title)}>
             <Typography>{t(label)}</Typography>
           </Tooltip>
         ) : (

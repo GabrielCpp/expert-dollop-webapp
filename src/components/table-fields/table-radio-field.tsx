@@ -54,7 +54,7 @@ export function radioField({
               option.helpText === undefined ? (
                 <Typography>{t(option.label)}</Typography>
               ) : (
-                <Tooltip title={option.helpText}>
+                <Tooltip title={t(option.helpText)}>
                   <Typography>{t(option.label)}</Typography>
                 </Tooltip>
               )

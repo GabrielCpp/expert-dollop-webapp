@@ -44,7 +44,7 @@ export function selectField({
             {option.title === undefined ? (
               <Typography>{t(option.label)}</Typography>
             ) : (
-              <Tooltip title={option.title}>
+              <Tooltip title={t(option.title)}>
                 <Typography>{t(option.label)}</Typography>
               </Tooltip>
             )}
