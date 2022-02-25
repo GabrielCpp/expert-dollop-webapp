@@ -1,14 +1,18 @@
 import { last } from "lodash";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLayoutEffect, useRef } from "react";
 import { useServices } from "../../services-def";
-import { TableRecord, useId } from "../../shared/redux-db";
+import { ReduxDatabase, TableRecord, useId } from "../../shared/redux-db";
 import { WatchEvent } from "../../shared/redux-db/table-record-change-emitter";
 import {
   buildFormFieldRecordPk,
   createFormFieldRecord,
+  FormFieldError,
+  FormFieldRecord,
   FormFieldTableName,
+  queryChildrenOfWithErrors,
   upsertFormFieldRecord,
+  validateForm,
 } from "./form-field-record";
 
 interface UseFormHook {
@@ -54,7 +58,16 @@ export function useForm(name?: string, parentPath: string[] = []): UseFormHook {
   };
 }
 
-export function useFormHiddenValue(name: string, path: string[], value: any) {
+interface UseFormHiddenValue {
+  formId: string;
+  formPath: string[];
+}
+
+export function useFormHiddenValue(
+  name: string,
+  path: string[],
+  value: any
+): UseFormHiddenValue {
   const { reduxDb } = useServices();
   const formId = useId(name);
   const formPath = useRef<string[] | undefined>(undefined);
@@ -88,11 +101,16 @@ export function useFormHiddenValue(name: string, path: string[], value: any) {
   };
 }
 
+interface UseFormFieldValueRef {
+  value: unknown;
+  id: string;
+}
+
 export function useFormFieldValueRef(
   name: string,
   path: string[],
-  defaultValue: any
-) {
+  defaultValue: unknown
+): UseFormFieldValueRef {
   const { reduxDb } = useServices();
   const id = useId();
   const [value, setValue] = useState(defaultValue);
@@ -128,4 +146,46 @@ export function Form({ name, path, children }: FormProps): JSX.Element {
   const props = useForm(name, path);
 
   return children(props);
+}
+
+export function useFormError(...rootPath: string[]): FormFieldError[][] {
+  const { reduxDb } = useServices();
+  const [errors, setErrors] = useState<FormFieldError[][]>([]);
+  const rootPathMemoised = useRef(rootPath);
+
+  useEffect(() => {
+    function onChange(records: FormFieldRecord[]) {
+      setErrors(records.map((x) => x.errors));
+    }
+
+    const [, unsubcribe] = reduxDb.watchQuery(
+      queryChildrenOfWithErrors(rootPathMemoised.current),
+      onChange
+    );
+
+    return unsubcribe;
+  }, [reduxDb, rootPathMemoised]);
+
+  return errors;
+}
+
+export function useSaveForm<T>(
+  mutate: (p: { variables: T }) => Promise<unknown>,
+  makeForm: (reduxDb: ReduxDatabase, formPath: string[]) => T,
+  formPath: string[]
+): { save: () => void } {
+  const { reduxDb, ajv } = useServices();
+  const makeFormMemoised = useRef(makeForm);
+  const formPathMemoised = useRef(formPath);
+  const save = useCallback(async () => {
+    if (validateForm(reduxDb, ajv)(formPathMemoised.current) === false) {
+      return;
+    }
+
+    await mutate({
+      variables: makeFormMemoised.current(reduxDb, formPathMemoised.current),
+    });
+  }, [reduxDb, ajv, mutate, makeFormMemoised, formPathMemoised]);
+
+  return { save };
 }

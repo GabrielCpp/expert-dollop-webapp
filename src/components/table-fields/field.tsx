@@ -42,22 +42,12 @@ export function Field({
 }: FieldProps) {
   const { ajv, reduxDb } = useServices();
   const fieldId = useId(id);
-  const fieldDetailsRef = useRef<FormFieldRecord | undefined>(undefined);
-  if (fieldDetailsRef.current === undefined) {
-    fieldDetailsRef.current = createFormFieldRecord(
-      validator,
-      path,
-      name,
-      defaultValue,
-      fieldId
-    );
-
-    reduxDb.getTable(FormFieldTableName).upsertMany([fieldDetailsRef.current]);
-  }
-
+  const fieldDetailsRef = useRef<FormFieldRecord>(
+    createFormFieldRecord(validator, path, name, defaultValue, fieldId)
+  );
   const fieldDetails = fieldDetailsRef.current as FormFieldRecord;
   const primaryKey = buildFormFieldRecordPk(fieldDetails);
-  const [item, updateItem, updateLocalItem] = useTableRecord<FormFieldRecord>(
+  const [item, updateItem] = useTableRecord<FormFieldRecord>(
     FormFieldTableName,
     primaryKey,
     fieldDetails
@@ -91,25 +81,16 @@ export function Field({
   }
 
   function onChange(e: any) {
-    const value = cast(e);
+    const value = e.target.value === "" ? e.target.value : cast(e);
     const validate = ajv.forSchema(fieldDetails.jsonSchemaValidator);
     validate(value);
 
-    if (validate.errors) {
-      updateLocalItem({
-        ...fieldDetails,
-        ...item,
-        value,
-        errors: validate.errors,
-      });
-    } else {
-      updateItem({
-        ...fieldDetails,
-        ...item,
-        value,
-        errors: [],
-      });
-    }
+    updateItem({
+      ...fieldDetails,
+      ...item,
+      value,
+      errors: validate.errors,
+    });
   }
 
   if (item === undefined) {

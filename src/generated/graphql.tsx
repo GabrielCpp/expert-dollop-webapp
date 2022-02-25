@@ -300,8 +300,9 @@ export type Mutation = {
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
+  deleteProjectCollection: FieldWrapper<ProjectNode>;
   cloneProjectCollection: Array<Maybe<FieldWrapper<ProjectNode>>>;
-  addProjectCollectionItem: Array<Maybe<FieldWrapper<ProjectNode>>>;
+  addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   createProject: FieldWrapper<ProjectDetails>;
   createDatasheet: FieldWrapper<Datasheet>;
 };
@@ -332,6 +333,12 @@ export type MutationUpdateProjectFieldArgs = {
 export type MutationUpdateProjectFieldsArgs = {
   projectId: Scalars['ID'];
   updates: Array<FieldUpdateInput>;
+};
+
+
+export type MutationDeleteProjectCollectionArgs = {
+  projectId: Scalars['ID'];
+  collectionNodeId: Scalars['ID'];
 };
 
 
@@ -510,6 +517,13 @@ export type ProjectNodeCollectionTargetInput = {
   collectionTypeId: Scalars['String'];
 };
 
+export type ProjectNodeMeta = {
+  __typename?: 'ProjectNodeMeta';
+  definition: FieldWrapper<ProjectDefinitionNode>;
+  state: FieldWrapper<ProjectNodeMetaState>;
+  typeId: FieldWrapper<Scalars['ID']>;
+};
+
 export type ProjectNodeMetaState = {
   __typename?: 'ProjectNodeMetaState';
   isVisible?: Maybe<FieldWrapper<Scalars['Boolean']>>;
@@ -551,6 +565,7 @@ export type Query = {
   findProjectDefintions: FieldWrapper<ProjectDefinitionConnection>;
   findProjectRootSections: FieldWrapper<ProjectNodeTree>;
   findProjectRootSectionContainers: FieldWrapper<ProjectNodeTree>;
+  findProjectNodeMetaDefinition: FieldWrapper<ProjectNodeMeta>;
   findProjectFormContent: FieldWrapper<ProjectNodeTree>;
   findProjects: FieldWrapper<ProjectConnection>;
   findProjectDetails: FieldWrapper<ProjectDetails>;
@@ -649,6 +664,12 @@ export type QueryFindProjectRootSectionsArgs = {
 export type QueryFindProjectRootSectionContainersArgs = {
   projectId: Scalars['ID'];
   rootSectionId: Scalars['ID'];
+};
+
+
+export type QueryFindProjectNodeMetaDefinitionArgs = {
+  projectId: Scalars['ID'];
+  nodeId: Scalars['ID'];
 };
 
 
@@ -1533,7 +1554,7 @@ export type AddProjectCollectionItemMutationVariables = Exact<{
 
 export type AddProjectCollectionItemMutation = (
   { __typename?: 'Mutation' }
-  & { addProjectCollectionItem: Array<Maybe<(
+  & { addProjectCollectionItem: Array<(
     { __typename?: 'ProjectNode' }
     & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path' | 'label'>
     & { value?: Maybe<(
@@ -1549,7 +1570,7 @@ export type AddProjectCollectionItemMutation = (
       { __typename: 'BoolFieldValue' }
       & Pick<BoolFieldValue, 'enabled'>
     ) | { __typename: 'ReferenceId' }> }
-  )>> }
+  )> }
 );
 
 export type CloneProjectCollectionMutationVariables = Exact<{
@@ -1577,6 +1598,20 @@ export type CloneProjectCollectionMutation = (
       & Pick<BoolFieldValue, 'enabled'>
     ) | { __typename: 'ReferenceId' }> }
   )>> }
+);
+
+export type DeleteProjectCollectionMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  collectionNodeId: Scalars['ID'];
+}>;
+
+
+export type DeleteProjectCollectionMutation = (
+  { __typename?: 'Mutation' }
+  & { deleteProjectCollection: (
+    { __typename?: 'ProjectNode' }
+    & Pick<ProjectNode, 'id' | 'path'>
+  ) }
 );
 
 export type FindProjectsQueryVariables = Exact<{
@@ -1810,7 +1845,46 @@ export type FindProjectFormContentQueryVariables = Exact<{
 
 export type FindProjectFormContentQuery = (
   { __typename?: 'Query' }
-  & { findProjectFormContent: (
+  & { findProjectNodeMetaDefinition: (
+    { __typename?: 'ProjectNodeMeta' }
+    & Pick<ProjectNodeMeta, 'typeId'>
+    & { definition: (
+      { __typename?: 'ProjectDefinitionNode' }
+      & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+      & { config: (
+        { __typename?: 'NodeConfig' }
+        & Pick<NodeConfig, 'valueValidator'>
+        & { fieldDetails?: Maybe<(
+          { __typename: 'IntFieldConfig' }
+          & Pick<IntFieldConfig, 'unit'>
+        ) | (
+          { __typename: 'DecimalFieldConfig' }
+          & Pick<DecimalFieldConfig, 'unit' | 'precision'>
+        ) | (
+          { __typename: 'StringFieldConfig' }
+          & Pick<StringFieldConfig, 'transforms'>
+        ) | (
+          { __typename: 'BoolFieldConfig' }
+          & Pick<BoolFieldConfig, 'isCheckbox'>
+        ) | (
+          { __typename: 'StaticChoiceFieldConfig' }
+          & { options: Array<(
+            { __typename?: 'StaticChoiceOption' }
+            & Pick<StaticChoiceOption, 'id' | 'label' | 'helpText'>
+          )> }
+        ) | (
+          { __typename: 'CollapsibleContainerFieldConfig' }
+          & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
+        ) | { __typename: 'StaticNumberFieldConfig' }>, translations: (
+          { __typename?: 'TranslationConfig' }
+          & Pick<TranslationConfig, 'helpTextName' | 'label'>
+        ) }
+      ) }
+    ), state: (
+      { __typename?: 'ProjectNodeMetaState' }
+      & Pick<ProjectNodeMetaState, 'isVisible'>
+    ) }
+  ), findProjectFormContent: (
     { __typename?: 'ProjectNodeTree' }
     & { roots: Array<(
       { __typename?: 'ProjectNodeTreeTypeNode' }
@@ -3271,6 +3345,44 @@ export function useCloneProjectCollectionMutation(baseOptions?: Apollo.MutationH
 export type CloneProjectCollectionMutationHookResult = ReturnType<typeof useCloneProjectCollectionMutation>;
 export type CloneProjectCollectionMutationResult = Apollo.MutationResult<CloneProjectCollectionMutation>;
 export type CloneProjectCollectionMutationOptions = Apollo.BaseMutationOptions<CloneProjectCollectionMutation, CloneProjectCollectionMutationVariables>;
+export const DeleteProjectCollectionDocument = gql`
+    mutation deleteProjectCollection($projectId: ID!, $collectionNodeId: ID!) {
+  deleteProjectCollection(
+    projectId: $projectId
+    collectionNodeId: $collectionNodeId
+  ) {
+    id
+    path
+  }
+}
+    `;
+export type DeleteProjectCollectionMutationFn = Apollo.MutationFunction<DeleteProjectCollectionMutation, DeleteProjectCollectionMutationVariables>;
+
+/**
+ * __useDeleteProjectCollectionMutation__
+ *
+ * To run a mutation, you first call `useDeleteProjectCollectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteProjectCollectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteProjectCollectionMutation, { data, loading, error }] = useDeleteProjectCollectionMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      collectionNodeId: // value for 'collectionNodeId'
+ *   },
+ * });
+ */
+export function useDeleteProjectCollectionMutation(baseOptions?: Apollo.MutationHookOptions<DeleteProjectCollectionMutation, DeleteProjectCollectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteProjectCollectionMutation, DeleteProjectCollectionMutationVariables>(DeleteProjectCollectionDocument, options);
+      }
+export type DeleteProjectCollectionMutationHookResult = ReturnType<typeof useDeleteProjectCollectionMutation>;
+export type DeleteProjectCollectionMutationResult = Apollo.MutationResult<DeleteProjectCollectionMutation>;
+export type DeleteProjectCollectionMutationOptions = Apollo.BaseMutationOptions<DeleteProjectCollectionMutation, DeleteProjectCollectionMutationVariables>;
 export const FindProjectsDocument = gql`
     query findProjects($query: String!, $first: Int!, $after: String) {
   findProjects(query: $query, first: $first, after: $after) {
@@ -3610,6 +3722,54 @@ export type FindProjectRootSectionContainersLazyQueryHookResult = ReturnType<typ
 export type FindProjectRootSectionContainersQueryResult = Apollo.QueryResult<FindProjectRootSectionContainersQuery, FindProjectRootSectionContainersQueryVariables>;
 export const FindProjectFormContentDocument = gql`
     query findProjectFormContent($projectId: ID!, $formId: ID!) {
+  findProjectNodeMetaDefinition(projectId: $projectId, nodeId: $formId) {
+    typeId
+    definition {
+      id
+      projectDefId
+      name
+      isCollection
+      instanciateByDefault
+      orderIndex
+      config {
+        fieldDetails {
+          __typename
+          ... on IntFieldConfig {
+            unit
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+          }
+          ... on StringFieldConfig {
+            transforms
+          }
+          ... on BoolFieldConfig {
+            isCheckbox
+          }
+          ... on StaticChoiceFieldConfig {
+            options {
+              id
+              label
+              helpText
+            }
+          }
+          ... on CollapsibleContainerFieldConfig {
+            isCollapsible
+          }
+        }
+        valueValidator
+        translations {
+          helpTextName
+          label
+        }
+      }
+      path
+    }
+    state {
+      isVisible
+    }
+  }
   findProjectFormContent(projectId: $projectId, formId: $formId) {
     roots {
       definition {

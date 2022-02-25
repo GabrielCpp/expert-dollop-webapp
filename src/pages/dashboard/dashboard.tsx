@@ -240,7 +240,7 @@ export function Dashboard() {
 
                 return (
                   <Route key={route.name} path={route.path} exact={route.exact}>
-                    <Component returnUrl={"/"} />
+                    <Component />
                   </Route>
                 );
               })}
@@ -293,7 +293,7 @@ function RouterToolbar({ routes }: { routes: NamedRoutes }) {
 
             return (
               <Route key={route.name} path={route.path} exact={route.exact}>
-                <Component returnUrl={"/"} />
+                <Component />
               </Route>
             );
           })}

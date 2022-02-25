@@ -8,7 +8,6 @@ import {
   ProjectDefinition,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 import {
   HeadCell,
   PaginatedDataGrid,
@@ -18,11 +17,7 @@ import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 
 type Result = Pick<ProjectDefinition, "id" | "name" | "defaultDatasheetId">;
 
-interface ProjectDefinitionHomeProps extends RouteViewCompoenentProps {}
-
-export function ProjectDefinitionHome({
-  returnUrl,
-}: ProjectDefinitionHomeProps) {
+export function ProjectDefinitionHome() {
   const { apollo, routes } = useServices();
   const { t } = useTranslation();
 

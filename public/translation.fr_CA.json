@@ -8,6 +8,11 @@
     "cancel": "Annuler",
     "save": "Sauvegarder"
   },
+  "form": {
+    "saved": "Les changements ont été sauvegardés.",
+    "section_added": "Section ajoutée",
+    "section_deleted": "Section supprimée"
+  },
   "language": {
     "french": "Français",
     "english": "Anglais"

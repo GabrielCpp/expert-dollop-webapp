@@ -1,35 +1,35 @@
-import { Card, CardContent, Grid, Button } from "@mui/material";
+import { Button, Card, CardContent, Grid } from "@mui/material";
 import { head } from "lodash";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import {
-  useForm,
-  validateForm,
-  hydrateForm,
   Field,
+  hydrateForm,
+  selectField,
   STRING_VALIDATOR,
   textField,
-  selectField,
+  useForm,
+  validateForm,
 } from "../../../components/table-fields";
 import {
+  CreateDatasheetDocument,
   CreateDatasheetMutation,
   CreateDatasheetMutationVariables,
-  CreateDatasheetDocument,
   useFindDatasheetDefinitionsQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 
 interface AddDatasheetForm {
   name: string;
   datasheetDefinitionId: string;
 }
 
-export function AddDatasheet({ returnUrl }: RouteViewCompoenentProps) {
+export function AddDatasheet() {
   const { reduxDb, ajv, apollo } = useServices();
   const { formPath: path } = useForm();
   const { t } = useTranslation();
+  const history = useHistory();
   const { data, loading, error } = useFindDatasheetDefinitionsQuery({
     variables: {
       query: "",
@@ -108,9 +108,7 @@ export function AddDatasheet({ returnUrl }: RouteViewCompoenentProps) {
               alignItems="flex-start"
             >
               <Button onClick={onSubmit}>Add</Button>
-              <Button component={Link} to={returnUrl}>
-                Cancel
-              </Button>
+              <Button onClick={history.goBack}>Cancel</Button>
             </Grid>
           </Grid>
         </form>

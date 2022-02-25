@@ -255,6 +255,54 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
 
 export const FIND_PROJECT_FORM_CONTENT = gql`
   query findProjectFormContent($projectId: ID!, $formId: ID!) {
+    findProjectNodeMetaDefinition(projectId: $projectId, nodeId: $formId) {
+      typeId
+      definition {
+        id
+        projectDefId
+        name
+        isCollection
+        instanciateByDefault
+        orderIndex
+        config {
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+            }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+            }
+            ... on StringFieldConfig {
+              transforms
+            }
+            ... on BoolFieldConfig {
+              isCheckbox
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+          }
+          valueValidator
+          translations {
+            helpTextName
+            label
+          }
+        }
+        path
+      }
+      state {
+        isVisible
+      }
+    }
     findProjectFormContent(projectId: $projectId, formId: $formId) {
       roots {
         definition {

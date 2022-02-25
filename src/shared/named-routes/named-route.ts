@@ -7,15 +7,11 @@ export interface RouteService {
   routes: NamedRoutes;
 }
 
-export interface RouteViewCompoenentProps {
-  returnUrl: string;
-}
-
 export interface NamedRoute {
   name: string;
   path: string;
   exact?: boolean;
-  component?: (props: RouteViewCompoenentProps) => JSX.Element | null;
+  component?: (props: { returnUrl?: string }) => JSX.Element | null;
   tags: string[];
 }
 

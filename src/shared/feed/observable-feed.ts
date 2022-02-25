@@ -5,7 +5,7 @@ import { useServices } from "../service-context";
 
 export interface FeedEvent {
   type: string;
-  payload: unknown;
+  payload: Record<string, unknown>;
 }
 
 export interface FeedMediator {

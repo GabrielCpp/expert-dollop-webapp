@@ -77,6 +77,21 @@ export function queryChildrenOf(path: string[]): Query {
     }).query;
 }
 
+export function queryChildrenOfWithErrors(path: string[]): Query {
+  return QueryBuilder.fromTable(FormFieldTableName)
+    .where(
+      ops(
+        "and",
+        ops("arrayStartWith", recordParam("fieldPath"), queryParam("path")),
+        ops("gt", ops("len", recordParam("errors")), queryParam("zero"))
+      )
+    )
+    .bindParameters({
+      path,
+      zero: 0,
+    }).query;
+}
+
 export function upsertFormFieldRecord(
   database: ReduxDatabase,
   records: FormFieldRecord[]

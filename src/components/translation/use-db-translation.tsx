@@ -51,6 +51,11 @@ export function DbI18n({
       name: i18n || t(emptyPlaceholder),
       value: i18n || t(emptyPlaceholder),
     };
+    setValue(
+      () =>
+        reduxDb.getTable("translation").findRecord<Translation>(i18n || "")
+          ?.value
+    );
     return reduxDb.getTable("translation").watchRecord(i18n || "", {
       defaultRecord: defaultRecord,
       onInsert: (record: TableRecord) => setValue(record.value as string),

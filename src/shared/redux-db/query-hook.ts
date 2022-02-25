@@ -41,7 +41,8 @@ export function useTableRecord<T>(
 ): [T, UpdateTableRecord<T>, UpdateTableRecord<T>] {
   const { reduxDb } = useServices<ReduxDbService>();
   const [state, setLocalState] = useState<T | undefined>(
-    () => reduxDb.getTable(tableName).findRecord(primaryKey) as T
+    () =>
+      (reduxDb.getTable(tableName).findRecord(primaryKey) as T) || defaultValue
   );
 
   useLayoutEffect(() => {
@@ -53,16 +54,12 @@ export function useTableRecord<T>(
         sideEffect(after as T);
         setLocalState(after as T);
       },
-      onRemove: (_) => {
-        setLocalState(undefined);
-      },
     });
   }, [reduxDb, primaryKey, defaultValue, sideEffect, tableName]);
 
   const publishState = useCallback(
     (value: T) => {
       reduxDb.getTable(tableName).upsertMany([value as TableRecord]);
-      setLocalState(value);
     },
     [reduxDb, tableName]
   );

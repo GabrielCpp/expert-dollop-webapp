@@ -1,13 +1,11 @@
 import { Grid } from "@mui/material";
 import { Route, Switch, useParams } from "react-router-dom";
-
-import { useServices } from "../../../services-def";
-import { RouteViewCompoenentProps } from "../../../shared/named-routes";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { useDynamicTranlation } from "../../../components/translation";
+import { useServices } from "../../../services-def";
+import { FormEditor } from "../components/form-editor";
 import { useProjectPath } from "../hooks/project-path";
 import { PROJECT_EDITOR } from "../routes";
-import { FormEditor } from "./form-editor";
 import { RootSectionBar } from "./root-section-bar";
 import { SidePanel } from "./side-panel";
 
@@ -16,7 +14,7 @@ interface ProjectEditorParams extends Record<string, string> {
   selectedPath: string;
 }
 
-export function ProjectEditor(_: RouteViewCompoenentProps) {
+export function ProjectEditor() {
   const { routes } = useServices();
   const { projectId, selectedPath } = useParams<ProjectEditorParams>();
   const { loading, path } = useProjectPath(projectId, selectedPath);

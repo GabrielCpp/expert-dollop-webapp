@@ -8,6 +8,11 @@
     "cancel": "Cancel",
     "save": "save"
   },
+  "form": {
+    "saved": "Changes were saved.",
+    "section_added": "Section added",
+    "section_deleted": "Section deleted"
+  },
   "field_validation": {
     "name": {
       "pattern": "Must only contain lower case letter a to z, numbers or underscore",

@@ -1,3 +1,5 @@
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Button,
   Card,
@@ -7,10 +9,27 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-
+import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  BOOLEAN_VALIDATOR,
+  checkboxField,
+  Field,
+  FieldArray,
+  FixedTabDisplay,
+  hydrateForm,
+  INT_VALIDATOR,
+  selectField,
+  STRING_VALIDATOR,
+  textField,
+  useForm,
+  useFormFieldValueRef,
+  useFormHiddenValue,
+  validateForm,
+} from "../../../components/table-fields";
 import {
   AddProjectDefinitionNodeDocument,
   CollapsibleContainerFieldConfig,
@@ -24,28 +43,8 @@ import {
   useFindProjectDefinitionNodeQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { RouteViewCompoenentProps } from "../../../shared/named-routes";
-import { useLoaderEffect } from "../../../components/loading-frame";
 import { splitPath } from "../../project-editor/routes";
-import {
-  BOOLEAN_VALIDATOR,
-  checkboxField,
-  Field,
-  FieldArray,
-  FixedTabDisplay,
-  hydrateForm,
-  INT_VALIDATOR,
-  selectField,
-  STRING_VALIDATOR,
-  textField,
-  useForm,
-  useFormHiddenValue,
-  useFormFieldValueRef,
-  validateForm,
-} from "../../../components/table-fields";
-import { useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
+
 const NAME_VALIDATOR = {
   type: "string",
   minLength: 1,
@@ -275,7 +274,7 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
   );
 }
 
-export interface AddContainerFormProps extends RouteViewCompoenentProps {
+export interface AddContainerFormProps {
   configType: FieldDetailsType;
 }
 
@@ -363,7 +362,6 @@ interface ContainerFormProps {
   level: NodeLevel;
   role: "edit" | "add";
   onSubmit: () => Promise<void>;
-  returnUrl: string;
   node: ProjectDefinitionNode;
 }
 
@@ -372,11 +370,11 @@ function ContainerForm({
   onSubmit,
   level,
   role,
-  returnUrl,
   node,
 }: ContainerFormProps) {
   const { t } = useTranslation();
   const labels = containerFormLabels[role][level];
+  const history = useHistory();
 
   return (
     <Card>
@@ -459,9 +457,7 @@ function ContainerForm({
               <Button variant="contained" color="primary" onClick={onSubmit}>
                 {t(role === "add" ? "button.add" : "button.save")}
               </Button>
-              <Button component={Link} to={returnUrl}>
-                {t("button.cancel")}
-              </Button>
+              <Button onClick={history.goBack}>{t("button.cancel")}</Button>
             </Grid>
           </Grid>
         </form>
@@ -470,14 +466,13 @@ function ContainerForm({
   );
 }
 
-export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
+export function AddContainerView() {
   const { formPath: path } = useForm();
   const { reduxDb, ajv, apollo } = useServices();
   const { projectDefinitionId, selectedPath } =
     useParams<AddContainerFormParams>();
   const nodePath = splitPath(selectedPath);
   const level = levelMapping[nodePath.length];
-  const history = useHistory();
 
   function getFieldDetails(): FieldDetailsType | null {
     return null;
@@ -524,8 +519,6 @@ export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
         },
       },
     });
-
-    history.push(returnUrl);
   }
 
   const node: ProjectDefinitionNode = {
@@ -555,20 +548,19 @@ export function AddContainerView({ returnUrl }: RouteViewCompoenentProps) {
       path={path}
       level={level}
       onSubmit={onSubmit}
-      returnUrl={returnUrl}
       node={node}
       role="add"
     />
   );
 }
 
-interface EditContainerFormParams extends RouteViewCompoenentProps {
+interface EditContainerFormParams {
   projectDefinitionId: string;
   selectedPath: string;
   nodeId: string;
 }
 
-export function EditContainerView({ returnUrl }: RouteViewCompoenentProps) {
+export function EditContainerView() {
   const { formPath: path } = useForm();
   const { reduxDb, ajv } = useServices();
   const { projectDefinitionId, selectedPath, nodeId } =
@@ -606,7 +598,6 @@ export function EditContainerView({ returnUrl }: RouteViewCompoenentProps) {
       path={path}
       level={level}
       onSubmit={onSubmit}
-      returnUrl={returnUrl}
       node={node}
       role="edit"
     />

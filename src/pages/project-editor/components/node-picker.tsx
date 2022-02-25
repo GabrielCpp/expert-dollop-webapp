@@ -1,8 +1,9 @@
 import { Select, SelectChangeEvent } from "@mui/material";
+import { useLayoutEffect, useState } from "react";
 
 interface NodePickerProps<T> {
   nodes: T[];
-  current: string;
+  current?: string;
   onChange: (current: string) => void;
 }
 
@@ -28,4 +29,19 @@ export function NodePicker<T extends { node: { id: string } }>({
       ))}
     </Select>
   );
+}
+
+export function useNodePickerState(id?: string): {
+  currentNodeId?: string;
+  setCurrentNodeId: (id?: string) => void;
+} {
+  const [currentNodeId, setCurrentNodeId] = useState(id);
+
+  useLayoutEffect(() => {
+    if (id !== undefined) {
+      setCurrentNodeId(id);
+    }
+  }, [id]);
+
+  return { currentNodeId, setCurrentNodeId };
 }

@@ -22,7 +22,7 @@ import {
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { useDbTranslation } from "../../../components/translation";
 import { buildLinkToProjectPath } from "../routes";
-import { NodePicker } from "./node-picker";
+import { NodePicker } from "../components/node-picker";
 import { ListRoot, NestedListItem } from "../../../components/custom-styles";
 
 const boldListItem: React.CSSProperties = {

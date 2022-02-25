@@ -1,17 +1,8 @@
-import { Button, Card, CardContent } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Button, Card, CardContent, Grid } from "@mui/material";
 import { head } from "lodash";
-import { v4 as uuidv4 } from "uuid";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import {
-  useFindProjectDefintionsQuery,
-  CreateProjectDocument,
-  CreateProjectMutation,
-  CreateProjectMutationVariables,
-} from "../../../generated";
-import { useServices } from "../../../services-def";
-import { RouteViewCompoenentProps } from "../../../shared/named-routes";
+import { useHistory } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import {
   Field,
@@ -22,16 +13,24 @@ import {
   useForm,
   validateForm,
 } from "../../../components/table-fields";
+import {
+  CreateProjectDocument,
+  CreateProjectMutation,
+  CreateProjectMutationVariables,
+  useFindProjectDefintionsQuery,
+} from "../../../generated";
+import { useServices } from "../../../services-def";
 
 interface AddProjectViewForm {
   name: string;
   projectDefId: string;
 }
 
-export function AddProjectView({ returnUrl }: RouteViewCompoenentProps) {
+export function AddProjectView() {
   const { reduxDb, ajv, apollo } = useServices();
   const { formPath: path } = useForm();
   const { t } = useTranslation();
+  const history = useHistory();
   const { data, loading, error } = useFindProjectDefintionsQuery({
     variables: {
       query: "",
@@ -113,9 +112,7 @@ export function AddProjectView({ returnUrl }: RouteViewCompoenentProps) {
               alignItems="flex-start"
             >
               <Button onClick={onSubmit}>Add</Button>
-              <Button component={Link} to={returnUrl}>
-                Cancel
-              </Button>
+              <Button onClick={history.goBack}>Cancel</Button>
             </Grid>
           </Grid>
         </form>

@@ -88,6 +88,7 @@ export const operators: Record<string, Operator> = {
   head: head as Operator,
   isEqual: isEqual,
   arrayStartWith: arrayStartWith as Operator,
+  len: (...p: unknown[]) => (p[0] as unknown[])?.length || 0,
 };
 
 function buildPredicate(
@@ -219,15 +220,28 @@ export class QueryExecutor {
         deletions: TableRecord[],
         updates: [TableRecord, TableRecord][]
       ) => {
-        const hasInsertion = insertions.some((record) => predicate(record));
-        const hasDeletion = deletions.some((record) =>
+        const resultInsertions = insertions.filter((record) =>
+          predicate(record)
+        );
+        const resultDeletions = deletions.filter((record) =>
           layer.resultset.has(buildPk(record))
         );
-        const hasUpdate = updates.some(([_, record]) =>
-          layer.resultset.has(buildPk(record))
+        const newResults = updates.filter(([_, record]) => predicate(record));
+        const lostResults = updates.filter(
+          ([before, after]) => predicate(before) && !predicate(after)
         );
 
-        if (hasInsertion || hasDeletion || hasUpdate) {
+        resultInsertions.forEach((r) => layer.resultset.add(buildPk(r)));
+        newResults.forEach(([_, r]) => layer.resultset.add(buildPk(r)));
+        resultDeletions.forEach((r) => layer.resultset.delete(buildPk(r)));
+        lostResults.forEach(([_, r]) => layer.resultset.delete(buildPk(r)));
+
+        if (
+          resultInsertions.length > 0 ||
+          resultDeletions.length > 0 ||
+          newResults.length > 0 ||
+          lostResults.length > 0
+        ) {
           const records = this.execute();
           this.queryChangeEmitter.triggerQueryResult(records);
         }

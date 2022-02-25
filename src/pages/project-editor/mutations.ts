@@ -104,3 +104,15 @@ export const CLONE_PROJECT_COLLECTION_ITEM = gql`
     }
   }
 `;
+
+export const DELETE_PROJECT_COLLECTION = gql`
+  mutation deleteProjectCollection($projectId: ID!, $collectionNodeId: ID!) {
+    deleteProjectCollection(
+      projectId: $projectId
+      collectionNodeId: $collectionNodeId
+    ) {
+      id
+      path
+    }
+  }
+`;
