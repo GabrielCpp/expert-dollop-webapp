@@ -1,34 +1,35 @@
 import {
   PaginatedDataGrid,
   PaginatedDataGridProps,
-  SearchResult,
-  SearchResultSet,
+  ResultSet,
 } from "./paginated-data-grid";
 
 export interface InMemoryDataGridProps<Data>
   extends Omit<PaginatedDataGridProps<Data>, "fetch"> {
   rows: Data[];
   searchRow: (query: string, x: Data) => boolean;
-  buildRow: (x: Data) => SearchResult<Data>;
 }
 
 export function InMemoryDataGrid<Data>(props: InMemoryDataGridProps<Data>) {
-  const { rows, searchRow, buildRow } = props;
+  const { rows, searchRow } = props;
 
   function fetch(
     query: string,
     limit: number,
     nextPageToken?: string
-  ): Promise<SearchResultSet<Data>> {
+  ): Promise<ResultSet<Data>> {
     const startOffset = Number(nextPageToken || 0);
     const queries = rows.filter((x) => searchRow(query, x) || query === "");
 
-    const results = queries
+    const edges = queries
       .slice(startOffset, startOffset + limit)
-      .map((x) => buildRow(x));
+      .map((node, index) => ({
+        node,
+        cursor: String(index),
+      }));
 
     return Promise.resolve({
-      results,
+      edges,
       pageInfo: {
         endCursor: String(startOffset + limit),
         hasNextPage: startOffset + limit < 1000,

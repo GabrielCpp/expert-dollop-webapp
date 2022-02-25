@@ -1,6 +1,5 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import ApartmentIcon from "@mui/icons-material/Apartment";
-import AssignmentIcon from "@mui/icons-material/Assignment";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -210,12 +209,6 @@ export function Dashboard() {
               <ApartmentIcon />
             </ListItemIcon>
             <ListItemText primary={"Projects"} />
-          </ListItem>
-          <ListItem button component={RouterLink} to="/datasheet_template">
-            <ListItemIcon>
-              <AssignmentIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Datasheet Template"} />
           </ListItem>
           <ListItem button component={RouterLink} to="/datasheets">
             <ListItemIcon>

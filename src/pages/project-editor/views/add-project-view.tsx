@@ -70,7 +70,7 @@ export function AddProjectView() {
     return null;
   }
 
-  const options = data.findProjectDefintions.edges.map((x) => ({
+  const options = data.results.edges.map((x) => ({
     id: x.node.id,
     label: x.node.name,
   }));

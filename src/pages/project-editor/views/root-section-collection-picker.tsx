@@ -1,10 +1,6 @@
 import { Typography } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
-import {
-  HeadCell,
-  InMemoryDataGrid,
-  SearchResult,
-} from "../../../components/data-grid";
+import { HeadCell, InMemoryDataGrid } from "../../../components/data-grid";
 import { useFindProjectRootSectionsQuery } from "../../../generated";
 import { buildLinkToProjectPath } from "../routes";
 
@@ -18,6 +14,26 @@ interface RootSectionCollectionPickerParams {
   rootTypeId: string;
 }
 
+const headCells: HeadCell<CollectionItem>[] = [
+  {
+    id: "label",
+    numeric: false,
+    disablePadding: true,
+    label: "label",
+    render: RootSectionLink,
+  },
+];
+
+function RootSectionLink({ data }: { data: CollectionItem }) {
+  const { projectId } = useParams<RootSectionCollectionPickerParams>();
+
+  return (
+    <Typography>
+      <Link to={buildLinkToProjectPath(projectId, data.id)}>{data.label}</Link>
+    </Typography>
+  );
+}
+
 export default function RootSectionCollectionPicker() {
   const { projectId, rootTypeId } =
     useParams<RootSectionCollectionPickerParams>();
@@ -26,29 +42,6 @@ export default function RootSectionCollectionPicker() {
       projectId: projectId,
     },
   });
-
-  const headCells: HeadCell<CollectionItem>[] = [
-    {
-      id: "label",
-      numeric: false,
-      disablePadding: true,
-      label: "Label",
-    },
-  ];
-
-  function buildRow(x: CollectionItem): SearchResult<CollectionItem> {
-    return {
-      columns: {
-        id: () => null,
-        label: () => (
-          <Typography>
-            <Link to={buildLinkToProjectPath(projectId, x.id)}>{x.label}</Link>
-          </Typography>
-        ),
-      },
-      rowKey: x.id,
-    };
-  }
 
   if (data === undefined) {
     return null;
@@ -68,7 +61,6 @@ export default function RootSectionCollectionPicker() {
       <InMemoryDataGrid<CollectionItem>
         rows={rows}
         headers={headCells}
-        buildRow={buildRow}
         searchRow={(query, x) => x.label?.includes(query) || false}
       />
     </div>

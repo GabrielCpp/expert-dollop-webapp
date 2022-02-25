@@ -1,68 +1,47 @@
-import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import {
-  HeadCell,
-  PaginatedDataGrid,
-  SearchResultSet,
-} from "../../../components/data-grid";
-import { FindProjectsQuery, FindProjectsDocument } from "../../../generated";
+import { HeadCell, PaginatedDataGrid } from "../../../components/data-grid";
+import { apolloClientFetch } from "../../../components/data-grid/paginated-data-grid";
+import { FindProjectsDocument } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { PROJECT_EDITOR } from "../routes";
 
 interface ProjectDefinitionItem {
+  id: string;
   name: string;
 }
 
+const headers: HeadCell<ProjectDefinitionItem>[] = [
+  {
+    disablePadding: false,
+    id: "name",
+    label: "name",
+    numeric: false,
+    render: ProjectLink,
+  },
+];
+
+function ProjectLink({ data }: { data: ProjectDefinitionItem }) {
+  const { routes } = useServices();
+  return (
+    <Link
+      to={routes.render(PROJECT_EDITOR, {
+        projectId: data.id,
+        selectedPath: "~",
+      })}
+    >
+      {data.name}
+    </Link>
+  );
+}
+
 export function ProjectSearchHome() {
-  const { apollo, routes } = useServices();
-  const { t } = useTranslation();
-
-  const headers: HeadCell<ProjectDefinitionItem>[] = [
-    {
-      disablePadding: false,
-      id: "name",
-      label: t("name"),
-      numeric: false,
-    },
-  ];
-
-  function fetch(
-    query: string,
-    first: number,
-    nextPageToken?: string
-  ): Promise<SearchResultSet<ProjectDefinitionItem>> {
-    return apollo
-      .query<FindProjectsQuery>({
-        query: FindProjectsDocument,
-        variables: {
-          query,
-          first,
-          after: nextPageToken,
-        },
-      })
-      .then((result) => ({
-        pageInfo: {
-          endCursor: result.data.findProjects.pageInfo.endCursor,
-          hasNextPage: result.data.findProjects.pageInfo.hasNextPage,
-          totalCount: result.data.findProjects.pageInfo.totalCount,
-        },
-        results: result.data.findProjects.edges.map((item) => ({
-          columns: {
-            name: () => (
-              <Link
-                to={routes.render(PROJECT_EDITOR, {
-                  projectId: item.node.id,
-                  selectedPath: "~",
-                })}
-              >
-                {item.node.name}
-              </Link>
-            ),
-          },
-          rowKey: item.node.id,
-        })),
-      }));
-  }
+  const { apollo } = useServices();
+  const fetch = useMemo(
+    () =>
+      apolloClientFetch<ProjectDefinitionItem>(apollo, FindProjectsDocument),
+    [apollo]
+  );
 
   return <PaginatedDataGrid fetch={fetch} headers={headers} />;
 }

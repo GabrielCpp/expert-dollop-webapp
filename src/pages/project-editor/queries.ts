@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 export const FIND_PROJECTS = gql`
   query findProjects($query: String!, $first: Int!, $after: String) {
-    findProjects(query: $query, first: $first, after: $after) {
+    results: findProjects(query: $query, first: $first, after: $after) {
       edges {
         node {
           id

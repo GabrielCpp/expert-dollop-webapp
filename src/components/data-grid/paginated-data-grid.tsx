@@ -14,17 +14,25 @@ import Typography from "@mui/material/Typography";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { noop } from "lodash";
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ApolloClient,
+  DocumentNode,
+  NormalizedCacheObject,
+} from "@apollo/client";
 
 export interface HeadCell<Data> {
   disablePadding: boolean;
-  id: keyof Data;
+  id: string;
   label: string;
   numeric: boolean;
+  render: (props: { data: Data }) => JSX.Element;
 }
 
 export function createHeadCell<Data>(
-  id: keyof Data,
+  id: string,
   label: string,
+  render: (props: { data: Data }) => JSX.Element,
   numeric: boolean = false,
   disablePadding: boolean = false
 ): HeadCell<Data> {
@@ -33,6 +41,7 @@ export function createHeadCell<Data>(
     label,
     numeric,
     disablePadding,
+    render,
   };
 }
 
@@ -45,6 +54,7 @@ interface EnhancedTableProps<Data> {
 }
 
 function EnhancedTableHead<Data>(props: EnhancedTableProps<Data>) {
+  const { t } = useTranslation();
   const {
     displayActionColumn,
     onSelectAllClick,
@@ -70,7 +80,7 @@ function EnhancedTableHead<Data>(props: EnhancedTableProps<Data>) {
             align={headCell.numeric ? "right" : "left"}
             padding={headCell.disablePadding ? "none" : "normal"}
           >
-            {headCell.label}
+            {t(headCell.label)}
           </TableCell>
         ))}
         {displayActionColumn && <TableCell />}
@@ -148,37 +158,53 @@ const TableWithMinWidth = styled(Table)(() => ({
   minWidth: 750,
 }));
 
+export function apolloClientFetch<Data>(
+  apollo: ApolloClient<NormalizedCacheObject>,
+  document: DocumentNode
+) {
+  return (
+    query: string,
+    first: number,
+    nextPageToken?: string
+  ): Promise<ResultSet<Data>> => {
+    return apollo
+      .query<{ results: ResultSet<Data> }>({
+        query: document,
+        variables: {
+          query,
+          first,
+          after: nextPageToken,
+        },
+      })
+      .then((resultset) => resultset.data.results);
+  };
+}
+
 export interface PageInfo {
   hasNextPage: boolean;
   endCursor: string | undefined;
   totalCount: number;
 }
 
-export type NamedColumnComponent<Data> = Record<
-  keyof Data,
-  () => JSX.Element | null
->;
-
-export interface SearchResult<Data> {
-  columns: NamedColumnComponent<Data>;
-  rowKey: string;
-  actionComponent?: () => JSX.Element;
+export interface Edge<Data> {
+  node: Data;
+  cursor: string;
 }
 
-export interface SearchResultSet<Data> {
-  results: SearchResult<Data>[];
+export interface ResultSet<Data> {
+  edges: Edge<Data>[];
   pageInfo: PageInfo;
 }
 
 export interface PaginatedDataGridProps<Data> {
-  headers: HeadCell<Data>[];
   fetch: (
     query: string,
     limit: number,
     nextPageToken?: string
-  ) => Promise<SearchResultSet<Data>>;
+  ) => Promise<ResultSet<Data>>;
+
+  headers: HeadCell<Data>[];
   globalActions?: (props: { selected: string[] }) => JSX.Element | null;
-  displayActionColumn?: boolean;
   defaultRowsPerPage?: number;
   rowsPerPageOptions?: number[];
 }
@@ -187,7 +213,6 @@ export function PaginatedDataGrid<Data>({
   headers,
   fetch,
   globalActions = undefined,
-  displayActionColumn = false,
   defaultRowsPerPage = 100,
   rowsPerPageOptions = [5, 10, 25, 100],
 }: PaginatedDataGridProps<Data>) {
@@ -205,7 +230,7 @@ export function PaginatedDataGrid<Data>({
     totalCount: 0,
   });
   const lastCursors = useRef<(string | undefined)[]>([]);
-  const [rows, setResults] = useState<SearchResult<Data>[]>([]);
+  const [rows, setResults] = useState<Edge<Data>[]>([]);
 
   function fetchResults(
     query: string,
@@ -215,7 +240,7 @@ export function PaginatedDataGrid<Data>({
     return fetch(query, limit, nextPageToken).then((resultset) => {
       pageInfo.current = resultset.pageInfo;
       lastCursors.current.push(nextPageToken);
-      setResults(resultset.results);
+      setResults(resultset.edges);
     });
   }
 
@@ -237,7 +262,7 @@ export function PaginatedDataGrid<Data>({
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.rowKey);
+      const newSelecteds = rows.map((n) => n.cursor);
       setSelected(newSelecteds);
     } else {
       setSelected([]);
@@ -306,7 +331,7 @@ export function PaginatedDataGrid<Data>({
             aria-label="enhanced table"
           >
             <EnhancedTableHead
-              displayActionColumn={displayActionColumn}
+              displayActionColumn={false}
               numSelected={selected.length}
               onSelectAllClick={handleSelectAllClick}
               rowCount={rows.length}
@@ -314,9 +339,8 @@ export function PaginatedDataGrid<Data>({
             />
             <TableBody>
               {rows.map((row, index) => {
-                const isItemSelected = isSelected(row.rowKey);
+                const isItemSelected = isSelected(row.cursor);
                 const labelId = `enhanced-table-checkbox-${index}`;
-                const ActionComponent = row.actionComponent;
 
                 return (
                   <TableRow
@@ -324,12 +348,12 @@ export function PaginatedDataGrid<Data>({
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.rowKey}
+                    key={row.cursor}
                     selected={isItemSelected}
                   >
                     <TableCell
                       padding="checkbox"
-                      onClick={(event) => handleClick(event, row.rowKey)}
+                      onClick={(event) => handleClick(event, row.cursor)}
                     >
                       <Checkbox
                         checked={isItemSelected}
@@ -337,9 +361,8 @@ export function PaginatedDataGrid<Data>({
                       />
                     </TableCell>
 
-                    {headers.map(({ id }) => {
-                      const Component: () => JSX.Element | null =
-                        row.columns[id];
+                    {headers.map(({ id, render }) => {
+                      const Component = render;
 
                       return (
                         <TableCell
@@ -348,16 +371,10 @@ export function PaginatedDataGrid<Data>({
                           padding="none"
                           key={String(id)}
                         >
-                          <Component />
+                          <Component data={row.node} />
                         </TableCell>
                       );
                     })}
-
-                    {displayActionColumn && (
-                      <TableCell align={"right"}>
-                        {ActionComponent && <ActionComponent />}
-                      </TableCell>
-                    )}
                   </TableRow>
                 );
               })}

@@ -1,13 +1,13 @@
 import { gql } from "@apollo/client";
 
-export const FIND_PROJECT_DEFINITION_FORMULAS_WITH_TOTAL_COUNT = gql`
+export const FIND_PROJECT_DEFINITION_FORMULAS = gql`
   query findProjectDefinitionFormulas(
     $projectDefId: ID!
     $query: String!
     $first: Int!
     $after: String
   ) {
-    findProjectDefinitionFormulas(
+    results: findProjectDefinitionFormulas(
       projectDefId: $projectDefId
       query: $query
       first: $first
@@ -517,7 +517,11 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
 
 export const FIND_PROJECT_DEFINTIONS = gql`
   query findProjectDefintions($query: String!, $first: Int!, $after: String) {
-    findProjectDefintions(query: $query, first: $first, after: $after) {
+    results: findProjectDefintions(
+      query: $query
+      first: $first
+      after: $after
+    ) {
       edges {
         node {
           id

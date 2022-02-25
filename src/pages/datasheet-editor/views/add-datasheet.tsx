@@ -1,12 +1,9 @@
 import { Button, Card, CardContent, Grid } from "@mui/material";
-import { head } from "lodash";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { useLoaderEffect } from "../../../components/loading-frame";
 import {
   Field,
   hydrateForm,
-  selectField,
   STRING_VALIDATOR,
   textField,
   useForm,
@@ -16,7 +13,6 @@ import {
   CreateDatasheetDocument,
   CreateDatasheetMutation,
   CreateDatasheetMutationVariables,
-  useFindDatasheetDefinitionsQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 
@@ -30,13 +26,6 @@ export function AddDatasheet() {
   const { formPath: path } = useForm();
   const { t } = useTranslation();
   const history = useHistory();
-  const { data, loading, error } = useFindDatasheetDefinitionsQuery({
-    variables: {
-      query: "",
-      first: 500,
-    },
-  });
-  useLoaderEffect(error, loading);
 
   async function onSubmit() {
     if (validateForm(reduxDb, ajv)(path) === false) {
@@ -62,14 +51,6 @@ export function AddDatasheet() {
       return;
     }
   }
-  if (data === undefined) {
-    return null;
-  }
-
-  const options = data.findDatasheetDefinitions.edges.map((x) => ({
-    id: x.node.id,
-    label: x.node.name,
-  }));
 
   return (
     <Card>
@@ -88,16 +69,6 @@ export function AddDatasheet() {
               name="name"
               component={textField}
               label="name"
-              t={t}
-            />
-            <Field
-              validator={STRING_VALIDATOR}
-              path={path}
-              defaultValue={head(options)?.id}
-              name="datasheetDefinitionId"
-              component={selectField}
-              label="datasheet_type"
-              options={options}
               t={t}
             />
 
