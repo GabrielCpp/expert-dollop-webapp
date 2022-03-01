@@ -222,7 +222,7 @@ export function Dashboard() {
         <ToolbarSpacer />
         <RouterToolbar routes={routes} />
         <MainSection>
-          <LoadingFrame loaderComponent={<CircularProgress />}>
+          <LoadingFrame loaderComponent={<CircularProgress color="inherit" />}>
             <Switch>
               {routes.allHavingTag("main-content").map((route) => {
                 const Component = route.component;

@@ -17,8 +17,6 @@ export interface LoaderNotifier {
   onLoading(id: string, isLoading: boolean, error?: Error): void;
   notify(): void;
   deleteEmitter(id: string): void;
-  uncover(): void;
-  addUncoverHandler(h: () => void): () => void;
 }
 
 export interface Auth0Context {

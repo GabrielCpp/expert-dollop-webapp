@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import {
-  AlertContainer,
   scrollTop,
   useNotification,
 } from "../../../components/snackbar-display";
@@ -18,7 +17,7 @@ import {
   useFindProjectFormContentQuery,
   useUpdateFieldsMutation,
 } from "../../../generated";
-import { ReduxDatabase, useId } from "../../../shared/redux-db";
+import { ReduxDatabase } from "../../../shared/redux-db";
 import { FormSection } from "../components/form-section";
 import { convertToFieldValue } from "../field-helper";
 
@@ -44,14 +43,15 @@ interface FormEditorProps {
   rootSectionId: string;
   formId: string;
   projectId: string;
+  snackbarId: string;
 }
 
 export function FormEditor({
   projectId,
   rootSectionId,
   formId,
+  snackbarId,
 }: FormEditorProps) {
-  const snackbarId = useId();
   const formErrors = useFormError(rootSectionId);
   const { dbTrans } = useDbTranslation(projectId);
   const { t } = useTranslation();
@@ -95,7 +95,7 @@ export function FormEditor({
           {dbTrans(formDefinition.config.translations.label)}
         </Typography>
       </Tooltip>
-      <AlertContainer id={snackbarId}></AlertContainer>
+
       <Grid container direction="column" spacing={1}>
         {formContent.map((node) => (
           <Grid item key={node.definition.name}>

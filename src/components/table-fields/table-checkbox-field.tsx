@@ -19,24 +19,35 @@ export function checkboxField({
   t,
 }: CheckboxFieldProps) {
   return (
-    <FormControlLabel
-      control={
-        <Checkbox
-          checked={Boolean(value)}
-          onChange={onChange}
-          name={name}
-          color="primary"
-        />
-      }
-      label={
-        title !== undefined ? (
-          <Tooltip title={t(title)}>
-            <Typography>{t(label)}</Typography>
-          </Tooltip>
-        ) : (
-          t(label)
-        )
-      }
-    />
+    <>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={Boolean(value)}
+            onChange={onChange}
+            name={name}
+            color="primary"
+          />
+        }
+        label={
+          title !== undefined ? (
+            <Tooltip title={t(title)}>
+              <Typography>{t(label)}</Typography>
+            </Tooltip>
+          ) : (
+            t(label)
+          )
+        }
+      />
+      {errors?.length > 0 &&
+        errors
+          ?.filter((e) => e.message !== undefined)
+          .map((e, index) => (
+            <span key={index}>
+              {t(e.message as string)}
+              <br />
+            </span>
+          ))}
+    </>
   );
 }

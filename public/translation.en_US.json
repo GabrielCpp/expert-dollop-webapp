@@ -6,7 +6,12 @@
     "more": "More",
     "delete": "Delete",
     "cancel": "Cancel",
-    "save": "save"
+    "save": "Save",
+    "clone": "Clone",
+    "view_all": "View all"
+  },
+  "tooltip": {
+    "go": "Go"
   },
   "form": {
     "saved": "Changes were saved.",
@@ -22,6 +27,12 @@
   "language": {
     "french": "French",
     "english": "English"
+  },
+  "project_editor": {
+    "unamed": "<unammed>",
+    "root_section_node_picker": {
+      "selection_required": "Select a section"
+    }
   },
   "project_definition_editor": {
     "empty_placeholder": "<empty>",

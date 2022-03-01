@@ -6,7 +6,12 @@
     "more": "Plus de choix",
     "delete": "Supprimer",
     "cancel": "Annuler",
-    "save": "Sauvegarder"
+    "save": "Sauvegarder",
+    "clone": "Dupliquer",
+    "view_all": "Voir tout"
+  },
+  "tooltip": {
+    "go": "Accèder"
   },
   "form": {
     "saved": "Les changements ont été sauvegardés.",
@@ -16,6 +21,12 @@
   "language": {
     "french": "Français",
     "english": "Anglais"
+  },
+  "project_editor": {
+    "unamed": "<sans nom>",
+    "root_section_node_picker": {
+      "selection_required": "Selectionner une section"
+    }
   },
   "project_definition_editor": {
     "empty_placeholder": "<vide>",

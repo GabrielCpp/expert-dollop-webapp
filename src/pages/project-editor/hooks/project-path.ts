@@ -78,6 +78,7 @@ export function useProjectPath(projectId: string, selectedPath: string) {
   const [path, setPath] = useState<(string | undefined)[]>([]);
 
   useEffect(() => {
+    setPath([]);
     buildPathCache(apollo, projectId, rootSectionId, subSectionId, formId).then(
       (path) => {
         setPath(path);
@@ -85,5 +86,5 @@ export function useProjectPath(projectId: string, selectedPath: string) {
     );
   }, [projectId, rootSectionId, subSectionId, formId, apollo]);
 
-  return { loading: path === undefined, path };
+  return { loading: path.length === 0, path };
 }

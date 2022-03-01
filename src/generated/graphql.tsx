@@ -301,7 +301,7 @@ export type Mutation = {
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
   deleteProjectCollection: FieldWrapper<ProjectNode>;
-  cloneProjectCollection: Array<Maybe<FieldWrapper<ProjectNode>>>;
+  cloneProjectCollection: Array<FieldWrapper<ProjectNode>>;
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   createProject: FieldWrapper<ProjectDetails>;
   createDatasheet: FieldWrapper<Datasheet>;
@@ -1493,7 +1493,7 @@ export type CloneProjectCollectionMutationVariables = Exact<{
 
 export type CloneProjectCollectionMutation = (
   { __typename?: 'Mutation' }
-  & { cloneProjectCollection: Array<Maybe<(
+  & { cloneProjectCollection: Array<(
     { __typename?: 'ProjectNode' }
     & Pick<ProjectNode, 'id' | 'projectId' | 'typePath' | 'typeId' | 'path' | 'label'>
     & { value?: Maybe<(
@@ -1509,7 +1509,7 @@ export type CloneProjectCollectionMutation = (
       { __typename: 'BoolFieldValue' }
       & Pick<BoolFieldValue, 'enabled'>
     ) | { __typename: 'ReferenceId' }> }
-  )>> }
+  )> }
 );
 
 export type DeleteProjectCollectionMutationVariables = Exact<{

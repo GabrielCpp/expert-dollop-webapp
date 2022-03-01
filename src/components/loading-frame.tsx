@@ -1,9 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import { Backdrop } from "@mui/material";
+import React, { useCallback, useEffect, useState } from "react";
 import { useServices } from "../services-def";
 import { useId } from "../shared/redux-db";
 
@@ -17,7 +13,7 @@ export function LoadingFrame({
   loaderComponent,
 }: LoadingSpinnerProps) {
   const { loader } = useServices();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(loader.lastLoadingState);
 
   useEffect(() => {
     function onLoading(_: boolean, error?: Error): void {
@@ -31,57 +27,19 @@ export function LoadingFrame({
     return loader.addHandler(onLoading);
   }, [loader]);
 
-  useEffect(() => {
-    if (isLoading === false) {
-      loader.uncover();
-    }
-  }, [loader, isLoading]);
-
   return (
     <>
-      <span style={{ display: isLoading ? "inline" : "none" }}>
-        {loaderComponent}
-      </span>
-      <div style={{ display: isLoading ? "none" : "block" }}>{children}</div>
+      {
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={isLoading}
+        >
+          {loaderComponent}
+        </Backdrop>
+      }
+      {children}
     </>
   );
-}
-
-export function HiddenWhileLoading({
-  children,
-}: {
-  children: React.ReactChild;
-}): JSX.Element | null {
-  const { loader } = useServices();
-  const [isLoading, setIsLoading] = useState<boolean>(loader.lastLoadingState);
-
-  useLayoutEffect(() => {
-    function onLoading(_: boolean, error?: Error): void {
-      if (error) {
-        console.error(error);
-      }
-
-      if (loader.lastLoadingState) {
-        setIsLoading(() => loader.lastLoadingState);
-      }
-    }
-
-    const unsubscribeLoading = loader.addHandler(onLoading);
-    const unsubscribeUncover = loader.addUncoverHandler(() =>
-      setIsLoading(false)
-    );
-
-    return () => {
-      unsubscribeLoading();
-      unsubscribeUncover();
-    };
-  }, [loader]);
-
-  if (isLoading) {
-    return null;
-  }
-
-  return <>{children}</>;
 }
 
 export function useLoaderEffect(

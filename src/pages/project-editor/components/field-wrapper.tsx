@@ -76,7 +76,7 @@ export function FieldWrapper({
         validator={validator}
         path={node.path}
         name={definition.name}
-        defaultValue={value}
+        defaultValue={Boolean(value)}
         id={node.id}
         label={definition.config.translations.label}
         title={definition.config.translations.helpTextName}
