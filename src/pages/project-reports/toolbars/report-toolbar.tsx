@@ -4,6 +4,7 @@ import Menu, { MenuProps } from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { alpha, styled } from "@mui/material/styles";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Link as RouterLink, useParams } from "react-router-dom";
 
 import { useLoaderEffect } from "../../../components/loading-frame";
@@ -61,6 +62,7 @@ interface ReportToolbarParams {
 }
 
 export function ReportToolbar() {
+  const { t } = useTranslation();
   const { projectId, selectedPath } = useParams<ReportToolbarParams>();
   const { dbTrans } = useDbTranslation(projectId);
   const { routes } = useServices();
@@ -100,12 +102,11 @@ export function ReportToolbar() {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        Options
+        {t("project_reports.view_reports")}
       </Button>
       <StyledMenu
-        id="demo-customized-menu"
         MenuListProps={{
-          "aria-labelledby": "demo-customized-button",
+          "aria-labelledby": "reports",
         }}
         anchorEl={anchorEl}
         open={open}
