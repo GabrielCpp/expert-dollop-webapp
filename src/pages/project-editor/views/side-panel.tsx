@@ -39,9 +39,12 @@ interface SidePanelProps {
 export function SidePanel({
   projectId,
   rootSectionId,
+  subSectionId,
   formId,
 }: SidePanelProps) {
-  const [expanded, setExpanded] = React.useState<string | undefined>(undefined);
+  const [expanded, setExpanded] = React.useState<string | undefined>(
+    subSectionId
+  );
   const { data, loading, error } = useFindProjectRootSectionContainersQuery({
     skip: rootSectionId === undefined,
     variables: {
@@ -56,7 +59,7 @@ export function SidePanel({
 
   useEffect(() => {
     if (subSections !== undefined && subSections.length > 0) {
-      setExpanded(subSections[0].definition.id);
+      setExpanded(subSectionId);
     } else {
       setExpanded(undefined);
     }
@@ -140,19 +143,19 @@ function SubSectionPicker({
         </Tooltip>
 
         <ListItemSecondaryAction>
-          {expanded === definition.id ? (
-            <IconButton size="small" onClick={handleChange(definition.id)}>
+          {expanded === currentNodeId ? (
+            <IconButton size="small" onClick={handleChange(currentNodeId)}>
               <ExpandLess />
             </IconButton>
           ) : (
-            <IconButton size="small" onClick={handleChange(definition.id)}>
+            <IconButton size="small" onClick={handleChange(currentNodeId)}>
               <ExpandMore />
             </IconButton>
           )}
         </ListItemSecondaryAction>
       </ListItem>
       <Collapse
-        in={expanded === definition.id}
+        in={expanded === currentNodeId}
         mountOnEnter={true}
         timeout="auto"
       >
@@ -161,6 +164,7 @@ function SubSectionPicker({
             <FormPicker
               key={secondLayerNode.definition.name}
               projectId={projectId}
+              parentSubSectionId={currentNodeId}
               rootSectionId={rootSectionId}
               formId={formId}
               secondLayerNode={secondLayerNode}
@@ -175,6 +179,7 @@ function SubSectionPicker({
 interface FormPickerProps {
   projectId: string;
   rootSectionId: string;
+  parentSubSectionId: string;
   formId: string;
   secondLayerNode: FindProjectRootSectionContainersQuery["findProjectRootSectionContainers"]["roots"][number]["nodes"][number]["children"][number];
 }
@@ -182,6 +187,7 @@ interface FormPickerProps {
 function FormPicker({
   projectId,
   rootSectionId,
+  parentSubSectionId,
   formId,
   secondLayerNode,
 }: FormPickerProps) {
@@ -215,7 +221,7 @@ function FormPicker({
         <ListItemText
           primaryTypographyProps={{
             style: {
-              ...(currentNodeId !== formId ? {} : boldListItem),
+              ...(currentNodeId === formId ? boldListItem : {}),
             },
           }}
           primary={
@@ -227,7 +233,7 @@ function FormPicker({
                 to={buildLinkToProjectPath(
                   projectId,
                   rootSectionId,
-                  secondLayerNode.nodes[0].node.id,
+                  parentSubSectionId,
                   secondLayerNode.nodes[0].node.id
                 )}
               >

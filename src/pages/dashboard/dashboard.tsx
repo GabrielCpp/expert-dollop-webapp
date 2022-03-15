@@ -111,8 +111,8 @@ interface Locale {
 }
 
 const locales: Locale[] = [
-  { label: "EN", id: "en_US" },
-  { label: "FR", id: "fr_CA" },
+  { label: "EN", id: "en" },
+  { label: "FR", id: "fr" },
 ];
 
 export function Dashboard() {

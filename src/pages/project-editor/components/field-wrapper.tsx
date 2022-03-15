@@ -108,7 +108,7 @@ export function FieldWrapper({
 
   const staticNumberConfig = definition.config
     .fieldDetails as StaticNumberFieldConfig;
-  console.log(staticNumberConfig);
+
   return (
     <Tooltip title={dbTrans(definition.config.translations.helpTextName)}>
       <div key={definition.name}>
