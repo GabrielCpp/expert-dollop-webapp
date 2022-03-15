@@ -342,7 +342,7 @@
             "deprecationReason": null
           },
           {
-            "name": "datasheetDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "args": [],
             "type": {
@@ -493,208 +493,6 @@
       },
       {
         "kind": "OBJECT",
-        "name": "DatasheetDefinition",
-        "description": null,
-        "fields": [
-          {
-            "name": "id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "name",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "properties",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "DatasheetDefinitionPropertySchemaDict",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "elementsDefinition",
-            "description": null,
-            "args": [
-              {
-                "name": "first",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "after",
-                "description": null,
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "OBJECT",
-              "name": "DatasheetDefinitionElementConnection",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "DatasheetDefinitionConnection",
-        "description": null,
-        "fields": [
-          {
-            "name": "edges",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "DatasheetDefinitionEdge",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "pageInfo",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "PageInfo",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "DatasheetDefinitionEdge",
-        "description": null,
-        "fields": [
-          {
-            "name": "node",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "DatasheetDefinition",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "cursor",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
         "name": "DatasheetDefinitionElement",
         "description": null,
         "fields": [
@@ -747,7 +545,7 @@
             "deprecationReason": null
           },
           {
-            "name": "datasheetDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "args": [],
             "type": {
@@ -763,12 +561,12 @@
             "deprecationReason": null
           },
           {
-            "name": "datasheetDefinition",
+            "name": "projectDefinition",
             "description": null,
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "DatasheetDefinition",
+              "name": "ProjectDefinition",
               "ofType": null
             },
             "isDeprecated": false,
@@ -1409,7 +1207,7 @@
             "deprecationReason": null
           },
           {
-            "name": "datasheetDefinitionId",
+            "name": "projectDefinitionId",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -2012,7 +1810,7 @@
             "deprecationReason": null
           },
           {
-            "name": "projectDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "args": [],
             "type": {
@@ -3103,7 +2901,7 @@
             "deprecationReason": null
           },
           {
-            "name": "datasheetDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "args": [],
             "type": {
@@ -3119,7 +2917,7 @@
             "deprecationReason": null
           },
           {
-            "name": "datasheetDefinition",
+            "name": "projectDefinition",
             "description": null,
             "args": [],
             "type": {
@@ -3127,7 +2925,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "DatasheetDefinition",
+                "name": "ProjectDefinition",
                 "ofType": null
               }
             },
@@ -3139,7 +2937,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -3172,7 +2970,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -3221,7 +3019,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -3261,6 +3059,71 @@
                 "name": "ProjectDefinitionNodeTree",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "properties",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "DatasheetDefinitionPropertySchemaDict",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "elementsDefinition",
+            "description": null,
+            "args": [
+              {
+                "name": "first",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "after",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "DatasheetDefinitionElementConnection",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -3387,7 +3250,7 @@
             "deprecationReason": null
           },
           {
-            "name": "projectDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "args": [],
             "type": {
@@ -3587,22 +3450,6 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "ID",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "projectDefId",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
                 "ofType": null
               }
             },
@@ -3867,7 +3714,7 @@
             "deprecationReason": null
           },
           {
-            "name": "projectDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "args": [],
             "type": {
@@ -3999,7 +3846,7 @@
             "deprecationReason": null
           },
           {
-            "name": "projectDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -4611,105 +4458,11 @@
             "deprecationReason": null
           },
           {
-            "name": "findDatasheetDefinitions",
-            "description": null,
-            "args": [
-              {
-                "name": "query",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "first",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "after",
-                "description": null,
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "DatasheetDefinitionConnection",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "findDatasheetDefinition",
-            "description": null,
-            "args": [
-              {
-                "name": "datasheetDefinitionId",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "DatasheetDefinition",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "findDatasheetDefinitionElements",
             "description": null,
             "args": [
               {
-                "name": "datasheetDefinitionId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -4770,7 +4523,7 @@
             "description": null,
             "args": [
               {
-                "name": "datasheetDefinitionId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -4880,7 +4633,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -4913,7 +4666,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -4962,7 +4715,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -5011,7 +4764,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -5444,7 +5197,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -5521,7 +5274,7 @@
             "description": null,
             "args": [
               {
-                "name": "projectDefId",
+                "name": "projectDefinitionId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -5875,7 +5628,7 @@
             "deprecationReason": null
           },
           {
-            "name": "projectDefId",
+            "name": "projectDefinitionId",
             "description": null,
             "args": [],
             "type": {

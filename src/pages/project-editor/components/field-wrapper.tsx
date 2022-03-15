@@ -1,3 +1,4 @@
+import { Tooltip } from "@mui/material";
 import { Field, radioField, textField } from "../../../components/table-fields";
 import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
 import { useDbTranslation } from "../../../components/translation";
@@ -6,6 +7,7 @@ import {
   FindProjectFormContentQuery,
   IntFieldConfig,
   StaticChoiceFieldConfig,
+  StaticNumberFieldConfig,
 } from "../../../generated";
 
 function getFieldValue(
@@ -35,7 +37,7 @@ export function FieldWrapper({
   definition: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["definition"];
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["nodes"][number]["node"];
 }): JSX.Element {
-  const { dbTrans } = useDbTranslation(definition.projectDefId);
+  const { dbTrans, t } = useDbTranslation(definition.projectDefinitionId);
   const { __typename: fieldType } = definition.config.fieldDetails || {};
   const value = getFieldValue(node.value);
   const validator = JSON.parse(definition.config.valueValidator);
@@ -104,5 +106,20 @@ export function FieldWrapper({
     );
   }
 
-  return <div key={definition.name}>{definition.name}</div>;
+  const staticNumberConfig = definition.config
+    .fieldDetails as StaticNumberFieldConfig;
+  console.log(staticNumberConfig);
+  return (
+    <Tooltip title={dbTrans(definition.config.translations.helpTextName)}>
+      <div key={definition.name}>
+        {dbTrans(definition.config.translations.label)}
+        &nbsp;
+        <strong>
+          {t("intlNumber", { val: value, minimumFractionDigits: 3 })}
+        </strong>
+        &nbsp;
+        {dbTrans(staticNumberConfig.unit)}
+      </div>
+    </Tooltip>
+  );
 }

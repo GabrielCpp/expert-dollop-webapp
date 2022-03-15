@@ -58,7 +58,7 @@ export function FormSection({
 }: FormSectionProps): JSX.Element {
   const collapsibleConfig = node.definition.config
     .fieldDetails as CollapsibleContainerFieldConfig;
-  const { dbTrans } = useDbTranslation(node.definition.projectDefId);
+  const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
   const { success, catchError } = useNotification(snackbarId);
   const [expanded, setExpanded] = useState(!collapsibleConfig.isCollapsible);
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(

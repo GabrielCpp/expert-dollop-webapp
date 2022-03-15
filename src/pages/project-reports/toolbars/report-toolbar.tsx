@@ -102,7 +102,7 @@ export function ReportToolbar() {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        {t("project_reports.view_reports")}
+        {t("project_reports.view")}
       </Button>
       <StyledMenu
         MenuListProps={{

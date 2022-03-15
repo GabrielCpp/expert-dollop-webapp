@@ -489,7 +489,7 @@ export function AddContainerView() {
       const { data } = await apollo.query<FindProjectDefinitionNodeQuery>({
         query: FindProjectDefinitionNodeDocument,
         variables: {
-          projectDefId: projectDefinitionId,
+          projectDefinitionId: projectDefinitionId,
           nodeId: nodePath[nodePath.length - 1],
         },
       });
@@ -505,7 +505,7 @@ export function AddContainerView() {
       variables: {
         node: {
           id: uuidv4(),
-          projectDefId: projectDefinitionId,
+          projectDefinitionId: projectDefinitionId,
           name: form.name,
           isCollection: form.isCollection,
           instanciateByDefault: form.instanciateByDefault,
@@ -524,7 +524,7 @@ export function AddContainerView() {
   const node: ProjectDefinitionNode = {
     id: uuidv4(),
     isCollection: false,
-    projectDefId: projectDefinitionId,
+    projectDefinitionId: projectDefinitionId,
     name: "",
     instanciateByDefault: true,
     orderIndex: 0,
@@ -577,7 +577,7 @@ export function EditContainerView() {
 
   const { data, loading, error } = useFindProjectDefinitionNodeQuery({
     variables: {
-      projectDefId: projectDefinitionId,
+      projectDefinitionId: projectDefinitionId,
       nodeId,
     },
   });

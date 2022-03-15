@@ -61,7 +61,7 @@ function getFieldValue(node: ProjectDefinitionNode): string | number | boolean {
 }
 
 function FormField({ node }: FormProps): JSX.Element {
-  const { dbTrans } = useDbTranslation(node.definition.projectDefId);
+  const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
   const { routes } = useServices();
 
   if (
@@ -81,7 +81,7 @@ function FormField({ node }: FormProps): JSX.Element {
       to={routes.render(
         PROJECT_DEFINITION_EDITOR_NODE_EDIT,
         buildEditNodeParams(
-          node.definition.projectDefId,
+          node.definition.projectDefinitionId,
           node.definition.path,
           node.definition.id
         )
@@ -188,7 +188,7 @@ function FormSection({ node }: FormProps): JSX.Element {
   const valueType = node.definition.config
     .fieldDetails as CollapsibleContainerFieldConfig;
   const [expanded, setExpanded] = useState(!valueType.isCollapsible);
-  const { dbTrans } = useDbTranslation(node.definition.projectDefId);
+  const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -209,7 +209,7 @@ function FormSection({ node }: FormProps): JSX.Element {
       <CardHeader
         avatar={
           <EditButton
-            projectDefId={node.definition.projectDefId}
+            projectDefinitionId={node.definition.projectDefinitionId}
             path={node.definition.path}
             id={node.definition.id}
           />

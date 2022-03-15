@@ -13,7 +13,7 @@ export const FIND_DATASHEETS = gql`
           id
           name
           isStaged
-          datasheetDefId
+          projectDefinitionId
           fromDatasheetId
         }
         cursor

@@ -1,5 +1,5 @@
 {
-  "intlNumber": "{{val, number}}",
+  "intlNumber": "{{val, number(minimumFractionDigits: 2)}}",
   "button": {
     "edit": "Éditer",
     "add": "Ajouter",
@@ -47,5 +47,8 @@
         "set_visibility_option": "Inverser la visibilité"
       }
     }
+  },
+  "project_reports": {
+    "view": "Résultats"
   }
 }

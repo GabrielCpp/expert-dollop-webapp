@@ -14,7 +14,7 @@ import { splitPath } from "../routes";
 
 async function buildPathCache(
   apollo: ApolloClient<NormalizedCacheObject>,
-  projectDefId: string,
+  projectDefinitionId: string,
   rootSectionDefId: string | undefined,
   subSectionDefId: string | undefined,
   formDefId: string | undefined
@@ -26,7 +26,7 @@ async function buildPathCache(
     >({
       query: FindProjectDefinitionRootSectionsDocument,
       variables: {
-        id: projectDefId,
+        id: projectDefinitionId,
       },
     });
   }
@@ -38,7 +38,7 @@ async function buildPathCache(
     >({
       query: FindProjectDefinitionRootSectionContainersDocument,
       variables: {
-        id: projectDefId,
+        id: projectDefinitionId,
         rootSectionId: rootSectionDefId,
       },
     });
@@ -72,7 +72,10 @@ async function buildPathCache(
   return [rootSectionDefId, subSectionDefId, formDefId];
 }
 
-export function useProjectDefPath(projectDefId: string, selectedPath: string) {
+export function useProjectDefPath(
+  projectDefinitionId: string,
+  selectedPath: string
+) {
   const { apollo } = useServices();
   const [rootSectionDefId, subSectionDefId, formDefId] =
     splitPath(selectedPath);
@@ -83,7 +86,7 @@ export function useProjectDefPath(projectDefId: string, selectedPath: string) {
     loading.current = true;
     buildPathCache(
       apollo,
-      projectDefId,
+      projectDefinitionId,
       rootSectionDefId,
       subSectionDefId,
       formDefId
@@ -96,7 +99,13 @@ export function useProjectDefPath(projectDefId: string, selectedPath: string) {
         loading.current = false;
         setPath([]);
       });
-  }, [projectDefId, rootSectionDefId, subSectionDefId, formDefId, apollo]);
+  }, [
+    projectDefinitionId,
+    rootSectionDefId,
+    subSectionDefId,
+    formDefId,
+    apollo,
+  ]);
 
   return { loading: loading.current, path };
 }

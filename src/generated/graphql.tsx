@@ -61,7 +61,7 @@ export type Datasheet = {
   id: FieldWrapper<Scalars['ID']>;
   name: FieldWrapper<Scalars['String']>;
   isStaged: FieldWrapper<Scalars['Boolean']>;
-  datasheetDefId: FieldWrapper<Scalars['String']>;
+  projectDefinitionId: FieldWrapper<Scalars['String']>;
   fromDatasheetId?: Maybe<FieldWrapper<Scalars['String']>>;
   elements: FieldWrapper<DatasheetElementConnection>;
 };
@@ -78,39 +78,13 @@ export type DatasheetConnection = {
   pageInfo: FieldWrapper<PageInfo>;
 };
 
-export type DatasheetDefinition = {
-  __typename?: 'DatasheetDefinition';
-  id: FieldWrapper<Scalars['ID']>;
-  name: FieldWrapper<Scalars['String']>;
-  properties: Array<FieldWrapper<DatasheetDefinitionPropertySchemaDict>>;
-  elementsDefinition?: Maybe<FieldWrapper<DatasheetDefinitionElementConnection>>;
-};
-
-
-export type DatasheetDefinitionElementsDefinitionArgs = {
-  first: Scalars['Int'];
-  after?: Maybe<Scalars['String']>;
-};
-
-export type DatasheetDefinitionConnection = {
-  __typename?: 'DatasheetDefinitionConnection';
-  edges: Array<FieldWrapper<DatasheetDefinitionEdge>>;
-  pageInfo: FieldWrapper<PageInfo>;
-};
-
-export type DatasheetDefinitionEdge = {
-  __typename?: 'DatasheetDefinitionEdge';
-  node: FieldWrapper<DatasheetDefinition>;
-  cursor: FieldWrapper<Scalars['String']>;
-};
-
 export type DatasheetDefinitionElement = {
   __typename?: 'DatasheetDefinitionElement';
   id: FieldWrapper<Scalars['ID']>;
   unitId: FieldWrapper<Scalars['String']>;
   isCollection: FieldWrapper<Scalars['Boolean']>;
-  datasheetDefId: FieldWrapper<Scalars['String']>;
-  datasheetDefinition?: Maybe<FieldWrapper<DatasheetDefinition>>;
+  projectDefinitionId: FieldWrapper<Scalars['String']>;
+  projectDefinition?: Maybe<FieldWrapper<ProjectDefinition>>;
   orderIndex: FieldWrapper<Scalars['Int']>;
   name: FieldWrapper<Scalars['String']>;
   defaultProperties: Array<FieldWrapper<DatasheetDefinitionElementPropertyDict>>;
@@ -184,7 +158,7 @@ export type DatasheetElementEdge = {
 
 export type DatasheetInput = {
   name: Scalars['String'];
-  datasheetDefinitionId: Scalars['String'];
+  projectDefinitionId: Scalars['String'];
   fromDatasheetId?: Maybe<Scalars['String']>;
 };
 
@@ -256,7 +230,7 @@ export enum FieldValueType {
 export type Formula = {
   __typename?: 'Formula';
   id: FieldWrapper<Scalars['ID']>;
-  projectDefId: FieldWrapper<Scalars['String']>;
+  projectDefinitionId: FieldWrapper<Scalars['String']>;
   attachedToTypeId: FieldWrapper<Scalars['String']>;
   name: FieldWrapper<Scalars['String']>;
   expression: FieldWrapper<Scalars['String']>;
@@ -401,28 +375,36 @@ export type ProjectDefinition = {
   name: FieldWrapper<Scalars['String']>;
   defaultDatasheetId: FieldWrapper<Scalars['String']>;
   defaultDatasheet: FieldWrapper<Datasheet>;
-  datasheetDefId: FieldWrapper<Scalars['String']>;
-  datasheetDefinition: FieldWrapper<DatasheetDefinition>;
+  projectDefinitionId: FieldWrapper<Scalars['String']>;
+  projectDefinition: FieldWrapper<ProjectDefinition>;
   rootSections: FieldWrapper<ProjectDefinitionNodeTree>;
   rootSectionContainers: FieldWrapper<ProjectDefinitionNodeTree>;
   formContent: FieldWrapper<ProjectDefinitionNodeTree>;
+  properties: Array<FieldWrapper<DatasheetDefinitionPropertySchemaDict>>;
+  elementsDefinition?: Maybe<FieldWrapper<DatasheetDefinitionElementConnection>>;
 };
 
 
 export type ProjectDefinitionRootSectionsArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
 };
 
 
 export type ProjectDefinitionRootSectionContainersArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   rootSectionId: Scalars['ID'];
 };
 
 
 export type ProjectDefinitionFormContentArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   formId: Scalars['ID'];
+};
+
+
+export type ProjectDefinitionElementsDefinitionArgs = {
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
 };
 
 export type ProjectDefinitionConnection = {
@@ -440,7 +422,7 @@ export type ProjectDefinitionEdge = {
 export type ProjectDefinitionNode = {
   __typename?: 'ProjectDefinitionNode';
   id: FieldWrapper<Scalars['ID']>;
-  projectDefId: FieldWrapper<Scalars['String']>;
+  projectDefinitionId: FieldWrapper<Scalars['String']>;
   name: FieldWrapper<Scalars['String']>;
   isCollection: FieldWrapper<Scalars['Boolean']>;
   instanciateByDefault: FieldWrapper<Scalars['Boolean']>;
@@ -454,7 +436,6 @@ export type ProjectDefinitionNode = {
 
 export type ProjectDefinitionNodeInput = {
   id: Scalars['ID'];
-  projectDefId: Scalars['String'];
   name: Scalars['String'];
   isCollection: Scalars['Boolean'];
   instanciateByDefault: Scalars['Boolean'];
@@ -480,7 +461,7 @@ export type ProjectDetails = {
   id: FieldWrapper<Scalars['ID']>;
   name: FieldWrapper<Scalars['String']>;
   isStaged?: Maybe<FieldWrapper<Scalars['Boolean']>>;
-  projectDefId: FieldWrapper<Scalars['String']>;
+  projectDefinitionId: FieldWrapper<Scalars['String']>;
   projectDefinition: FieldWrapper<ProjectDefinition>;
   datasheetId: FieldWrapper<Scalars['String']>;
   datasheet: FieldWrapper<Datasheet>;
@@ -490,7 +471,7 @@ export type ProjectDetails = {
 export type ProjectDetailsInput = {
   id: Scalars['ID'];
   name: Scalars['String'];
-  projectDefId: Scalars['String'];
+  projectDefinitionId: Scalars['String'];
   datasheetId: Scalars['String'];
 };
 
@@ -552,8 +533,6 @@ export type Query = {
   __typename?: 'Query';
   findDatasheet: FieldWrapper<Datasheet>;
   findDatasheets: FieldWrapper<DatasheetConnection>;
-  findDatasheetDefinitions: FieldWrapper<DatasheetDefinitionConnection>;
-  findDatasheetDefinition: FieldWrapper<DatasheetDefinition>;
   findDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
   queryDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
   findProjectDefinition: FieldWrapper<ProjectDefinition>;
@@ -588,27 +567,15 @@ export type QueryFindDatasheetsArgs = {
 };
 
 
-export type QueryFindDatasheetDefinitionsArgs = {
-  query: Scalars['String'];
-  first: Scalars['Int'];
-  after?: Maybe<Scalars['String']>;
-};
-
-
-export type QueryFindDatasheetDefinitionArgs = {
-  datasheetDefinitionId: Scalars['ID'];
-};
-
-
 export type QueryFindDatasheetDefinitionElementsArgs = {
-  datasheetDefinitionId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
 };
 
 
 export type QueryQueryDatasheetDefinitionElementsArgs = {
-  datasheetDefinitionId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   query: Scalars['String'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
@@ -621,24 +588,24 @@ export type QueryFindProjectDefinitionArgs = {
 
 
 export type QueryFindProjectDefinitionRootSectionsArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
 };
 
 
 export type QueryFindProjectDefinitionRootSectionContainersArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   rootSectionId: Scalars['ID'];
 };
 
 
 export type QueryFindProjectDefinitionFormContentArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   formId: Scalars['ID'];
 };
 
 
 export type QueryFindProjectDefinitionNodeArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   id: Scalars['ID'];
 };
 
@@ -692,7 +659,7 @@ export type QueryFindProjectDetailsArgs = {
 
 
 export type QueryFindProjectDefinitionFormulasArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   query: Scalars['String'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
@@ -700,7 +667,7 @@ export type QueryFindProjectDefinitionFormulasArgs = {
 
 
 export type QueryFindReportDefinitionsArgs = {
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
 };
 
 
@@ -743,7 +710,7 @@ export type ReportComputation = {
 export type ReportDefinition = {
   __typename?: 'ReportDefinition';
   id: FieldWrapper<Scalars['String']>;
-  projectDefId: FieldWrapper<Scalars['String']>;
+  projectDefinitionId: FieldWrapper<Scalars['String']>;
   name: FieldWrapper<Scalars['String']>;
   structure: FieldWrapper<ReportDefinitionStructure>;
 };
@@ -897,7 +864,7 @@ export type CreateDatasheetMutation = (
   { __typename?: 'Mutation' }
   & { createDatasheet: (
     { __typename?: 'Datasheet' }
-    & Pick<Datasheet, 'id' | 'name' | 'isStaged' | 'datasheetDefId' | 'fromDatasheetId'>
+    & Pick<Datasheet, 'id' | 'name' | 'isStaged' | 'projectDefinitionId' | 'fromDatasheetId'>
   ) }
 );
 
@@ -920,7 +887,7 @@ export type FindDatasheetsQuery = (
       & Pick<DatasheetEdge, 'cursor'>
       & { node: (
         { __typename?: 'Datasheet' }
-        & Pick<Datasheet, 'id' | 'name' | 'isStaged' | 'datasheetDefId' | 'fromDatasheetId'>
+        & Pick<Datasheet, 'id' | 'name' | 'isStaged' | 'projectDefinitionId' | 'fromDatasheetId'>
       ) }
     )> }
   ) }
@@ -935,7 +902,7 @@ export type AddProjectDefinitionNodeMutation = (
   { __typename?: 'Mutation' }
   & { addProjectDefinitionNode: (
     { __typename?: 'ProjectDefinitionNode' }
-    & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+    & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
     & { config: (
       { __typename?: 'NodeConfig' }
       & Pick<NodeConfig, 'valueValidator'>
@@ -966,7 +933,7 @@ export type AddProjectDefinitionNodeMutation = (
 );
 
 export type FindProjectDefinitionFormulasQueryVariables = Exact<{
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   query: Scalars['String'];
   first: Scalars['Int'];
   after?: Maybe<Scalars['String']>;
@@ -1003,7 +970,7 @@ export type FindProjectDefinitionRootSectionsQuery = (
       { __typename?: 'ProjectDefinitionTreeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
@@ -1067,7 +1034,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
       { __typename?: 'ProjectDefinitionTreeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
@@ -1116,7 +1083,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = (
         { __typename?: 'ProjectDefinitionTreeNode' }
         & { definition: (
           { __typename?: 'ProjectDefinitionNode' }
-          & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+          & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
           & { config: (
             { __typename?: 'NodeConfig' }
             & Pick<NodeConfig, 'valueValidator'>
@@ -1177,7 +1144,7 @@ export type FindProjectDefinitionFormContentQuery = (
   { __typename?: 'Query' }
   & { findProjectDefinitionNode: (
     { __typename?: 'ProjectDefinitionNode' }
-    & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+    & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
     & { config: (
       { __typename?: 'NodeConfig' }
       & Pick<NodeConfig, 'valueValidator'>
@@ -1223,7 +1190,7 @@ export type FindProjectDefinitionFormContentQuery = (
       { __typename?: 'ProjectDefinitionTreeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
@@ -1279,7 +1246,7 @@ export type FindProjectDefinitionFormContentQuery = (
         { __typename?: 'ProjectDefinitionTreeNode' }
         & { definition: (
           { __typename?: 'ProjectDefinitionNode' }
-          & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+          & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
           & { config: (
             { __typename?: 'NodeConfig' }
             & Pick<NodeConfig, 'valueValidator'>
@@ -1338,7 +1305,7 @@ export type FindProjectDefinitionFormContentQuery = (
 );
 
 export type FindProjectDefinitionNodeQueryVariables = Exact<{
-  projectDefId: Scalars['ID'];
+  projectDefinitionId: Scalars['ID'];
   nodeId: Scalars['ID'];
 }>;
 
@@ -1347,7 +1314,7 @@ export type FindProjectDefinitionNodeQuery = (
   { __typename?: 'Query' }
   & { findProjectDefinitionNode: (
     { __typename?: 'ProjectDefinitionNode' }
-    & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+    & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
     & { config: (
       { __typename?: 'NodeConfig' }
       & Pick<NodeConfig, 'valueValidator'>
@@ -1427,7 +1394,7 @@ export type CreateProjectMutation = (
   { __typename?: 'Mutation' }
   & { createProject: (
     { __typename?: 'ProjectDetails' }
-    & Pick<ProjectDetails, 'id' | 'name' | 'isStaged' | 'projectDefId' | 'datasheetId'>
+    & Pick<ProjectDetails, 'id' | 'name' | 'isStaged' | 'projectDefinitionId' | 'datasheetId'>
   ) }
 );
 
@@ -1542,7 +1509,7 @@ export type FindProjectsQuery = (
       & Pick<ProjectEdge, 'cursor'>
       & { node: (
         { __typename?: 'ProjectDetails' }
-        & Pick<ProjectDetails, 'id' | 'name' | 'isStaged' | 'projectDefId' | 'datasheetId'>
+        & Pick<ProjectDetails, 'id' | 'name' | 'isStaged' | 'projectDefinitionId' | 'datasheetId'>
       ) }
     )>, pageInfo: (
       { __typename?: 'PageInfo' }
@@ -1564,7 +1531,7 @@ export type FindProjectRootSectionsQuery = (
       { __typename?: 'ProjectNodeTreeTypeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
@@ -1635,7 +1602,7 @@ export type FindProjectRootSectionContainersQuery = (
       { __typename?: 'ProjectNodeTreeTypeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
@@ -1690,7 +1657,7 @@ export type FindProjectRootSectionContainersQuery = (
           { __typename?: 'ProjectNodeTreeTypeNode' }
           & { definition: (
             { __typename?: 'ProjectDefinitionNode' }
-            & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+            & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
             & { config: (
               { __typename?: 'NodeConfig' }
               & Pick<NodeConfig, 'valueValidator'>
@@ -1762,7 +1729,7 @@ export type FindProjectFormContentQuery = (
     & Pick<ProjectNodeMeta, 'typeId'>
     & { definition: (
       { __typename?: 'ProjectDefinitionNode' }
-      & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
+      & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex' | 'path'>
       & { config: (
         { __typename?: 'NodeConfig' }
         & Pick<NodeConfig, 'valueValidator'>
@@ -1787,7 +1754,10 @@ export type FindProjectFormContentQuery = (
         ) | (
           { __typename: 'CollapsibleContainerFieldConfig' }
           & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-        ) | { __typename: 'StaticNumberFieldConfig' }>, translations: (
+        ) | (
+          { __typename: 'StaticNumberFieldConfig' }
+          & Pick<StaticNumberFieldConfig, 'unit' | 'precision'>
+        )>, translations: (
           { __typename?: 'TranslationConfig' }
           & Pick<TranslationConfig, 'helpTextName' | 'label'>
         ) }
@@ -1802,7 +1772,7 @@ export type FindProjectFormContentQuery = (
       { __typename?: 'ProjectNodeTreeTypeNode' }
       & { definition: (
         { __typename?: 'ProjectDefinitionNode' }
-        & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+        & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
         & { config: (
           { __typename?: 'NodeConfig' }
           & Pick<NodeConfig, 'valueValidator'>
@@ -1830,7 +1800,10 @@ export type FindProjectFormContentQuery = (
           ) | (
             { __typename: 'CollapsibleContainerFieldConfig' }
             & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-          ) | { __typename: 'StaticNumberFieldConfig' }> }
+          ) | (
+            { __typename: 'StaticNumberFieldConfig' }
+            & Pick<StaticNumberFieldConfig, 'unit' | 'precision'>
+          )> }
         ) }
       ), state: (
         { __typename?: 'ProjectNodeMetaState' }
@@ -1857,7 +1830,7 @@ export type FindProjectFormContentQuery = (
           { __typename?: 'ProjectNodeTreeTypeNode' }
           & { definition: (
             { __typename?: 'ProjectDefinitionNode' }
-            & Pick<ProjectDefinitionNode, 'id' | 'projectDefId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
+            & Pick<ProjectDefinitionNode, 'id' | 'projectDefinitionId' | 'name' | 'isCollection' | 'instanciateByDefault' | 'orderIndex'>
             & { config: (
               { __typename?: 'NodeConfig' }
               & Pick<NodeConfig, 'valueValidator'>
@@ -1885,7 +1858,10 @@ export type FindProjectFormContentQuery = (
               ) | (
                 { __typename: 'CollapsibleContainerFieldConfig' }
                 & Pick<CollapsibleContainerFieldConfig, 'isCollapsible'>
-              ) | { __typename: 'StaticNumberFieldConfig' }> }
+              ) | (
+                { __typename: 'StaticNumberFieldConfig' }
+                & Pick<StaticNumberFieldConfig, 'unit' | 'precision'>
+              )> }
             ) }
           ), state: (
             { __typename?: 'ProjectNodeMetaState' }
@@ -1925,7 +1901,7 @@ export type FindProjectDefinitionIdQuery = (
   { __typename?: 'Query' }
   & { findProjectDetails: (
     { __typename?: 'ProjectDetails' }
-    & Pick<ProjectDetails, 'projectDefId'>
+    & Pick<ProjectDetails, 'projectDefinitionId'>
   ) }
 );
 
@@ -2045,7 +2021,7 @@ export const CreateDatasheetDocument = gql`
     id
     name
     isStaged
-    datasheetDefId
+    projectDefinitionId
     fromDatasheetId
   }
 }
@@ -2089,7 +2065,7 @@ export const FindDatasheetsDocument = gql`
         id
         name
         isStaged
-        datasheetDefId
+        projectDefinitionId
         fromDatasheetId
       }
       cursor
@@ -2131,7 +2107,7 @@ export const AddProjectDefinitionNodeDocument = gql`
     mutation addProjectDefinitionNode($node: ProjectDefinitionNodeInput!) {
   addProjectDefinitionNode(node: $node) {
     id
-    projectDefId
+    projectDefinitionId
     name
     isCollection
     instanciateByDefault
@@ -2195,9 +2171,9 @@ export type AddProjectDefinitionNodeMutationHookResult = ReturnType<typeof useAd
 export type AddProjectDefinitionNodeMutationResult = Apollo.MutationResult<AddProjectDefinitionNodeMutation>;
 export type AddProjectDefinitionNodeMutationOptions = Apollo.BaseMutationOptions<AddProjectDefinitionNodeMutation, AddProjectDefinitionNodeMutationVariables>;
 export const FindProjectDefinitionFormulasDocument = gql`
-    query findProjectDefinitionFormulas($projectDefId: ID!, $query: String!, $first: Int!, $after: String) {
+    query findProjectDefinitionFormulas($projectDefinitionId: ID!, $query: String!, $first: Int!, $after: String) {
   results: findProjectDefinitionFormulas(
-    projectDefId: $projectDefId
+    projectDefinitionId: $projectDefinitionId
     query: $query
     first: $first
     after: $after
@@ -2230,7 +2206,7 @@ export const FindProjectDefinitionFormulasDocument = gql`
  * @example
  * const { data, loading, error } = useFindProjectDefinitionFormulasQuery({
  *   variables: {
- *      projectDefId: // value for 'projectDefId'
+ *      projectDefinitionId: // value for 'projectDefinitionId'
  *      query: // value for 'query'
  *      first: // value for 'first'
  *      after: // value for 'after'
@@ -2250,11 +2226,11 @@ export type FindProjectDefinitionFormulasLazyQueryHookResult = ReturnType<typeof
 export type FindProjectDefinitionFormulasQueryResult = Apollo.QueryResult<FindProjectDefinitionFormulasQuery, FindProjectDefinitionFormulasQueryVariables>;
 export const FindProjectDefinitionRootSectionsDocument = gql`
     query findProjectDefinitionRootSections($id: ID!) {
-  findProjectDefinitionRootSections(projectDefId: $id) {
+  findProjectDefinitionRootSections(projectDefinitionId: $id) {
     roots {
       definition {
         id
-        projectDefId
+        projectDefinitionId
         name
         isCollection
         instanciateByDefault
@@ -2349,13 +2325,13 @@ export type FindProjectDefinitionRootSectionsQueryResult = Apollo.QueryResult<Fi
 export const FindProjectDefinitionRootSectionContainersDocument = gql`
     query findProjectDefinitionRootSectionContainers($id: ID!, $rootSectionId: ID!) {
   findProjectDefinitionRootSectionContainers(
-    projectDefId: $id
+    projectDefinitionId: $id
     rootSectionId: $rootSectionId
   ) {
     roots {
       definition {
         id
-        projectDefId
+        projectDefinitionId
         name
         isCollection
         instanciateByDefault
@@ -2418,7 +2394,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
       children {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -2514,9 +2490,9 @@ export type FindProjectDefinitionRootSectionContainersLazyQueryHookResult = Retu
 export type FindProjectDefinitionRootSectionContainersQueryResult = Apollo.QueryResult<FindProjectDefinitionRootSectionContainersQuery, FindProjectDefinitionRootSectionContainersQueryVariables>;
 export const FindProjectDefinitionFormContentDocument = gql`
     query findProjectDefinitionFormContent($id: ID!, $formId: ID!) {
-  findProjectDefinitionNode(projectDefId: $id, id: $formId) {
+  findProjectDefinitionNode(projectDefinitionId: $id, id: $formId) {
     id
-    projectDefId
+    projectDefinitionId
     name
     isCollection
     instanciateByDefault
@@ -2569,11 +2545,11 @@ export const FindProjectDefinitionFormContentDocument = gql`
       }
     }
   }
-  findProjectDefinitionFormContent(projectDefId: $id, formId: $formId) {
+  findProjectDefinitionFormContent(projectDefinitionId: $id, formId: $formId) {
     roots {
       definition {
         id
-        projectDefId
+        projectDefinitionId
         name
         isCollection
         instanciateByDefault
@@ -2644,7 +2620,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
       children {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -2747,10 +2723,13 @@ export type FindProjectDefinitionFormContentQueryHookResult = ReturnType<typeof 
 export type FindProjectDefinitionFormContentLazyQueryHookResult = ReturnType<typeof useFindProjectDefinitionFormContentLazyQuery>;
 export type FindProjectDefinitionFormContentQueryResult = Apollo.QueryResult<FindProjectDefinitionFormContentQuery, FindProjectDefinitionFormContentQueryVariables>;
 export const FindProjectDefinitionNodeDocument = gql`
-    query findProjectDefinitionNode($projectDefId: ID!, $nodeId: ID!) {
-  findProjectDefinitionNode(projectDefId: $projectDefId, id: $nodeId) {
+    query findProjectDefinitionNode($projectDefinitionId: ID!, $nodeId: ID!) {
+  findProjectDefinitionNode(
+    projectDefinitionId: $projectDefinitionId
+    id: $nodeId
+  ) {
     id
-    projectDefId
+    projectDefinitionId
     name
     isCollection
     instanciateByDefault
@@ -2826,7 +2805,7 @@ export const FindProjectDefinitionNodeDocument = gql`
  * @example
  * const { data, loading, error } = useFindProjectDefinitionNodeQuery({
  *   variables: {
- *      projectDefId: // value for 'projectDefId'
+ *      projectDefinitionId: // value for 'projectDefinitionId'
  *      nodeId: // value for 'nodeId'
  *   },
  * });
@@ -2897,7 +2876,7 @@ export const CreateProjectDocument = gql`
     id
     name
     isStaged
-    projectDefId
+    projectDefinitionId
     datasheetId
   }
 }
@@ -3142,7 +3121,7 @@ export const FindProjectsDocument = gql`
         id
         name
         isStaged
-        projectDefId
+        projectDefinitionId
         datasheetId
       }
       cursor
@@ -3191,7 +3170,7 @@ export const FindProjectRootSectionsDocument = gql`
     roots {
       definition {
         id
-        projectDefId
+        projectDefinitionId
         name
         isCollection
         instanciateByDefault
@@ -3300,7 +3279,7 @@ export const FindProjectRootSectionContainersDocument = gql`
     roots {
       definition {
         id
-        projectDefId
+        projectDefinitionId
         name
         isCollection
         instanciateByDefault
@@ -3369,7 +3348,7 @@ export const FindProjectRootSectionContainersDocument = gql`
         children {
           definition {
             id
-            projectDefId
+            projectDefinitionId
             name
             isCollection
             instanciateByDefault
@@ -3477,7 +3456,7 @@ export const FindProjectFormContentDocument = gql`
     typeId
     definition {
       id
-      projectDefId
+      projectDefinitionId
       name
       isCollection
       instanciateByDefault
@@ -3508,6 +3487,10 @@ export const FindProjectFormContentDocument = gql`
           ... on CollapsibleContainerFieldConfig {
             isCollapsible
           }
+          ... on StaticNumberFieldConfig {
+            unit
+            precision
+          }
         }
         valueValidator
         translations {
@@ -3525,7 +3508,7 @@ export const FindProjectFormContentDocument = gql`
     roots {
       definition {
         id
-        projectDefId
+        projectDefinitionId
         name
         isCollection
         instanciateByDefault
@@ -3559,6 +3542,10 @@ export const FindProjectFormContentDocument = gql`
             }
             ... on CollapsibleContainerFieldConfig {
               isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              unit
+              precision
             }
           }
           valueValidator
@@ -3594,7 +3581,7 @@ export const FindProjectFormContentDocument = gql`
         children {
           definition {
             id
-            projectDefId
+            projectDefinitionId
             name
             isCollection
             instanciateByDefault
@@ -3628,6 +3615,10 @@ export const FindProjectFormContentDocument = gql`
                 }
                 ... on CollapsibleContainerFieldConfig {
                   isCollapsible
+                }
+                ... on StaticNumberFieldConfig {
+                  unit
+                  precision
                 }
               }
               valueValidator
@@ -3699,7 +3690,7 @@ export type FindProjectFormContentQueryResult = Apollo.QueryResult<FindProjectFo
 export const FindProjectDefinitionIdDocument = gql`
     query findProjectDefinitionId($projectId: ID!) {
   findProjectDetails(id: $projectId) {
-    projectDefId
+    projectDefinitionId
   }
 }
     `;

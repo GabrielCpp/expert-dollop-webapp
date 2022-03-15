@@ -22,18 +22,12 @@ languageDetector.addDetector({
     );
 
     if (lng && lng.length === 5) {
-      lng = lng.replace("-", "_");
-
-      if (!["en_US", "fr_CA"].includes(lng)) {
-        lng = "en_US";
+      if (!["en-US", "fr-CA"].includes(lng)) {
+        lng = "en-US";
       }
     } else if (lng && lng.length === 2) {
-      if (lng === "fr") {
-        lng = "fr_CA";
-      } else if (lng === "en") {
-        lng = "en_US";
-      } else {
-        lng = "en_US";
+      if (!["en", "fr"].includes(lng)) {
+        lng = "en";
       }
     }
 
@@ -53,9 +47,9 @@ i18n
     backend: {
       loadPath: "/{{ns}}.{{lng}}.json",
     },
-    fallbackLng: "en_US",
+    fallbackLng: "en",
     interpolation: {
-      escapeValue: false,
+      escapeValue: true,
     },
     detection: {
       order: ["map-to-known-lng"],

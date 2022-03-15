@@ -23,7 +23,7 @@ import { useServices } from "../../../services-def";
 
 interface AddProjectViewForm {
   name: string;
-  projectDefId: string;
+  projectDefinitionId: string;
 }
 
 export function AddProjectView() {
@@ -56,7 +56,7 @@ export function AddProjectView() {
           datasheetId: uuidv4(),
           id: uuidv4(),
           name: form.name,
-          projectDefId: form.projectDefId,
+          projectDefinitionId: form.projectDefinitionId,
         },
       },
     });
@@ -98,7 +98,7 @@ export function AddProjectView() {
               validator={STRING_VALIDATOR}
               path={path}
               defaultValue={head(options)?.id}
-              name="projectDefId"
+              name="projectDefinitionId"
               component={selectField}
               label="project_type"
               options={options}

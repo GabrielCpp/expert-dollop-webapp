@@ -9,12 +9,12 @@ import {
 } from "../routes";
 
 export interface EditButtonProps {
-  projectDefId: string;
+  projectDefinitionId: string;
   path: string[];
   id: string;
 }
 
-export function EditButton({ projectDefId, path, id }: EditButtonProps) {
+export function EditButton({ projectDefinitionId, path, id }: EditButtonProps) {
   const { routes } = useServices();
   return (
     <IconButton
@@ -23,7 +23,7 @@ export function EditButton({ projectDefId, path, id }: EditButtonProps) {
       component={RouterLink}
       to={routes.render(
         PROJECT_DEFINITION_EDITOR_NODE_EDIT,
-        buildEditNodeParams(projectDefId, path, id)
+        buildEditNodeParams(projectDefinitionId, path, id)
       )}
     >
       <EditIcon />

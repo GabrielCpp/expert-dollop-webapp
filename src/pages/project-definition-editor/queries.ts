@@ -2,13 +2,13 @@ import { gql } from "@apollo/client";
 
 export const FIND_PROJECT_DEFINITION_FORMULAS = gql`
   query findProjectDefinitionFormulas(
-    $projectDefId: ID!
+    $projectDefinitionId: ID!
     $query: String!
     $first: Int!
     $after: String
   ) {
     results: findProjectDefinitionFormulas(
-      projectDefId: $projectDefId
+      projectDefinitionId: $projectDefinitionId
       query: $query
       first: $first
       after: $after
@@ -31,11 +31,11 @@ export const FIND_PROJECT_DEFINITION_FORMULAS = gql`
 
 export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
   query findProjectDefinitionRootSections($id: ID!) {
-    findProjectDefinitionRootSections(projectDefId: $id) {
+    findProjectDefinitionRootSections(projectDefinitionId: $id) {
       roots {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -106,13 +106,13 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
     $rootSectionId: ID!
   ) {
     findProjectDefinitionRootSectionContainers(
-      projectDefId: $id
+      projectDefinitionId: $id
       rootSectionId: $rootSectionId
     ) {
       roots {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -175,7 +175,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
         children {
           definition {
             id
-            projectDefId
+            projectDefinitionId
             name
             isCollection
             instanciateByDefault
@@ -243,9 +243,9 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
 
 export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
   query findProjectDefinitionFormContent($id: ID!, $formId: ID!) {
-    findProjectDefinitionNode(projectDefId: $id, id: $formId) {
+    findProjectDefinitionNode(projectDefinitionId: $id, id: $formId) {
       id
-      projectDefId
+      projectDefinitionId
       name
       isCollection
       instanciateByDefault
@@ -298,11 +298,14 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
         }
       }
     }
-    findProjectDefinitionFormContent(projectDefId: $id, formId: $formId) {
+    findProjectDefinitionFormContent(
+      projectDefinitionId: $id
+      formId: $formId
+    ) {
       roots {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -373,7 +376,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
         children {
           definition {
             id
-            projectDefId
+            projectDefinitionId
             name
             isCollection
             instanciateByDefault
@@ -448,10 +451,13 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
 `;
 
 export const FIND_PROJECT_DEFINITION_NODE = gql`
-  query findProjectDefinitionNode($projectDefId: ID!, $nodeId: ID!) {
-    findProjectDefinitionNode(projectDefId: $projectDefId, id: $nodeId) {
+  query findProjectDefinitionNode($projectDefinitionId: ID!, $nodeId: ID!) {
+    findProjectDefinitionNode(
+      projectDefinitionId: $projectDefinitionId
+      id: $nodeId
+    ) {
       id
-      projectDefId
+      projectDefinitionId
       name
       isCollection
       instanciateByDefault

@@ -18,7 +18,7 @@ import { useServices } from "../../../services-def";
 
 interface AddDatasheetForm {
   name: string;
-  datasheetDefinitionId: string;
+  projectDefinitionId: string;
 }
 
 export function AddDatasheet() {
@@ -42,7 +42,7 @@ export function AddDatasheet() {
       variables: {
         datasheet: {
           name: form.name,
-          datasheetDefinitionId: form.datasheetDefinitionId,
+          projectDefinitionId: form.projectDefinitionId,
         },
       },
     });

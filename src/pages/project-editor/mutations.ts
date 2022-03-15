@@ -6,7 +6,7 @@ export const CREATE_PROJECT = gql`
       id
       name
       isStaged
-      projectDefId
+      projectDefinitionId
       datasheetId
     }
   }

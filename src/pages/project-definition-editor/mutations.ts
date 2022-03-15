@@ -4,7 +4,7 @@ export const ADD_PROJECT_DEFINITION_NODE = gql`
   mutation addProjectDefinitionNode($node: ProjectDefinitionNodeInput!) {
     addProjectDefinitionNode(node: $node) {
       id
-      projectDefId
+      projectDefinitionId
       name
       isCollection
       instanciateByDefault

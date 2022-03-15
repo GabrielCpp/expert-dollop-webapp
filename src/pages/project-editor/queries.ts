@@ -8,7 +8,7 @@ export const FIND_PROJECTS = gql`
           id
           name
           isStaged
-          projectDefId
+          projectDefinitionId
           datasheetId
         }
         cursor
@@ -28,7 +28,7 @@ export const FIND_PROJECT_ROOT_SECTIONS = gql`
       roots {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -110,7 +110,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
       roots {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -179,7 +179,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
           children {
             definition {
               id
-              projectDefId
+              projectDefinitionId
               name
               isCollection
               instanciateByDefault
@@ -259,7 +259,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
       typeId
       definition {
         id
-        projectDefId
+        projectDefinitionId
         name
         isCollection
         instanciateByDefault
@@ -290,6 +290,10 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
             ... on CollapsibleContainerFieldConfig {
               isCollapsible
             }
+            ... on StaticNumberFieldConfig {
+              unit
+              precision
+            }
           }
           valueValidator
           translations {
@@ -307,7 +311,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
       roots {
         definition {
           id
-          projectDefId
+          projectDefinitionId
           name
           isCollection
           instanciateByDefault
@@ -341,6 +345,10 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
               }
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
+              }
+              ... on StaticNumberFieldConfig {
+                unit
+                precision
               }
             }
             valueValidator
@@ -376,7 +384,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
           children {
             definition {
               id
-              projectDefId
+              projectDefinitionId
               name
               isCollection
               instanciateByDefault
@@ -410,6 +418,10 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
                   }
                   ... on CollapsibleContainerFieldConfig {
                     isCollapsible
+                  }
+                  ... on StaticNumberFieldConfig {
+                    unit
+                    precision
                   }
                 }
                 valueValidator
@@ -453,7 +465,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
 export const FIND_PROJECT_DEFINITION_ID = gql`
   query findProjectDefinitionId($projectId: ID!) {
     findProjectDetails(id: $projectId) {
-      projectDefId
+      projectDefinitionId
     }
   }
 `;

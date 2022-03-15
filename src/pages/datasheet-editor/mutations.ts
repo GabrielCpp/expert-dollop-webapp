@@ -6,7 +6,7 @@ export const CREATE_DATASHEET = gql`
       id
       name
       isStaged
-      datasheetDefId
+      projectDefinitionId
       fromDatasheetId
     }
   }

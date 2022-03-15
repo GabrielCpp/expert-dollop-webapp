@@ -95,7 +95,12 @@ function ColumnValue({
   return (
     <span>
       {result}
-      {unit && "\u00A0" + dbTrans(unit)}
+      {unit && (
+        <>
+          {"\u00A0"}
+          {dbTrans(unit)}
+        </>
+      )}
     </span>
   );
 }
@@ -178,8 +183,8 @@ export function Report() {
         ))}
       </List>
       <Grid container>
-        {summaries.map((summary) => (
-          <Grid container spacing={2}>
+        {summaries.map((summary, index) => (
+          <Grid container spacing={2} key={index}>
             <Grid item xs={1}>
               <Typography align="right">{dbTrans(summary.label)}</Typography>
             </Grid>
