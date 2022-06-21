@@ -66,6 +66,7 @@
     }
   },
   "project_reports": {
-    "view": "Results"
+    "view": "Results",
+    "command_order": "Orders"
   }
 }

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { HeadCell, PaginatedDataGrid } from "../../../components/data-grid";
 import { apolloClientFetch } from "../../../components/data-grid/paginated-data-grid";
+import { useLoadingNotifier } from "../../../components/loading-frame";
 import { FindProjectsDocument } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { PROJECT_EDITOR } from "../routes";
@@ -37,10 +38,15 @@ function ProjectLink({ data }: { data: ProjectDefinitionItem }) {
 
 export function ProjectSearchHome() {
   const { apollo } = useServices();
+  const { onError } = useLoadingNotifier();
   const fetch = useMemo(
     () =>
-      apolloClientFetch<ProjectDefinitionItem>(apollo, FindProjectsDocument),
-    [apollo]
+      apolloClientFetch<ProjectDefinitionItem>(
+        apollo,
+        FindProjectsDocument,
+        onError
+      ),
+    [apollo, onError]
   );
 
   return <PaginatedDataGrid fetch={fetch} headers={headers} />;

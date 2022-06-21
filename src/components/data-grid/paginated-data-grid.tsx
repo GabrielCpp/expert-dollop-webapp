@@ -160,7 +160,8 @@ const TableWithMinWidth = styled(Table)(() => ({
 
 export function apolloClientFetch<Data>(
   apollo: ApolloClient<NormalizedCacheObject>,
-  document: DocumentNode
+  document: DocumentNode,
+  onError: (error?: Error) => void
 ) {
   return (
     query: string,
@@ -176,7 +177,18 @@ export function apolloClientFetch<Data>(
           after: nextPageToken,
         },
       })
-      .then((resultset) => resultset.data.results);
+      .then((resultset) => resultset.data.results)
+      .catch((error) => {
+        onError(error);
+        return {
+          edges: [],
+          pageInfo: {
+            totalCount: 0,
+            endCursor: "",
+            hasNextPage: false,
+          },
+        };
+      });
   };
 }
 

@@ -116,7 +116,7 @@ const locales: Locale[] = [
 ];
 
 export function Dashboard() {
-  const { routes } = useServices();
+  const { routes, loader } = useServices();
   const [locale, setLocale] = useLocaleSelector();
 
   return (
@@ -222,7 +222,10 @@ export function Dashboard() {
         <ToolbarSpacer />
         <RouterToolbar routes={routes} />
         <MainSection>
-          <LoadingFrame loaderComponent={<CircularProgress color="inherit" />}>
+          <LoadingFrame
+            loaderComponent={<CircularProgress color="inherit" />}
+            loader={loader}
+          >
             <Switch>
               {routes.allHavingTag("main-content").map((route) => {
                 const Component = route.component;

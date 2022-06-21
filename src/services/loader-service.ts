@@ -29,6 +29,14 @@ export class LoaderService implements LoaderNotifier {
     this.notify();
   }
 
+  onError(error?: Error): void {
+    this.emitters.set("global", {
+      isLoading: false,
+      error,
+    });
+    this.notify();
+  }
+
   notify(): void {
     let isLoading: boolean = false;
     let error: Error | undefined = undefined;

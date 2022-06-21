@@ -11,7 +11,7 @@ import { useLoaderEffect } from "../../../components/loading-frame";
 import { useDbTranslation } from "../../../components/translation";
 import { useFindReportDefinitionsFromProjectDetailsQuery } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { PROJECT_REPORT } from "../routes";
+import { PROJECT_REPORT, VIEW_COMMAND_ORDERS } from "../routes";
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -93,8 +93,6 @@ export function ReportToolbar() {
   return (
     <div>
       <Button
-        id="demo-customized-button"
-        aria-controls={open ? "demo-customized-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         variant="contained"
@@ -130,6 +128,13 @@ export function ReportToolbar() {
           </MenuItem>
         ))}
       </StyledMenu>
+      <Button
+        variant="contained"
+        component={RouterLink}
+        to={routes.render(VIEW_COMMAND_ORDERS, { projectId, selectedPath })}
+      >
+        {t("project_reports.command_order")}
+      </Button>
     </div>
   );
 }

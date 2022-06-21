@@ -15,6 +15,7 @@ export interface LoaderNotifier {
   lastErrorState?: Error;
   addHandler(handler: (isLoading: boolean, error?: Error) => void): () => void;
   onLoading(id: string, isLoading: boolean, error?: Error): void;
+  onError(error?: Error): void;
   notify(): void;
   deleteEmitter(id: string): void;
 }

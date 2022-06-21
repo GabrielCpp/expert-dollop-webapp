@@ -49,6 +49,7 @@
     }
   },
   "project_reports": {
-    "view": "Résultats"
+    "view": "Résultats",
+    "command_order": "Commandes"
   }
 }
