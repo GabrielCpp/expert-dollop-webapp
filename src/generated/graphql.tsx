@@ -182,6 +182,20 @@ export type DecimalFieldValueInput = {
   numeric: Scalars['Float'];
 };
 
+export type DistributableItem = {
+  __typename?: 'DistributableItem';
+  projectId: FieldWrapper<Scalars['String']>;
+  reportDefinitionId: FieldWrapper<Scalars['String']>;
+  nodeId: FieldWrapper<Scalars['String']>;
+  formulaId: FieldWrapper<Scalars['String']>;
+  suppliedItem: FieldWrapper<SuppliedItem>;
+  distribution_ids: Array<FieldWrapper<Scalars['String']>>;
+  summary: FieldWrapper<ComputedValue>;
+  columns: Array<FieldWrapper<ComputedValue>>;
+  obsolete: FieldWrapper<Scalars['Boolean']>;
+  creationDateUtc: FieldWrapper<Scalars['String']>;
+};
+
 export enum FieldDetailsType {
   INT_FIELD_CONFIG = 'INT_FIELD_CONFIG',
   DECIMAL_FIELD_CONFIG = 'DECIMAL_FIELD_CONFIG',
@@ -279,6 +293,7 @@ export type Mutation = {
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   createProject: FieldWrapper<ProjectDetails>;
   createDatasheet: FieldWrapper<Datasheet>;
+  createSingleUserOrganisation: FieldWrapper<User>;
 };
 
 
@@ -335,6 +350,16 @@ export type MutationCreateProjectArgs = {
 
 export type MutationCreateDatasheetArgs = {
   datasheet?: Maybe<DatasheetInput>;
+};
+
+
+export type MutationCreateSingleUserOrganisationArgs = {
+  singleUserOrganisation: NewSingleUserOrganisationInput;
+};
+
+export type NewSingleUserOrganisationInput = {
+  organisationName: Scalars['String'];
+  email: Scalars['String'];
 };
 
 export type NodeConfig = {
@@ -531,6 +556,7 @@ export type ProjectNodeTreeTypeNode = {
 
 export type Query = {
   __typename?: 'Query';
+  currentUser?: Maybe<FieldWrapper<User>>;
   findDatasheet: FieldWrapper<Datasheet>;
   findDatasheets: FieldWrapper<DatasheetConnection>;
   findDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
@@ -552,6 +578,8 @@ export type Query = {
   findReportDefinitions: Array<FieldWrapper<ReportDefinition>>;
   findReportDefinition: FieldWrapper<ReportDefinition>;
   findProjectReport: FieldWrapper<Report>;
+  findDistributables: Array<FieldWrapper<ReportDefinition>>;
+  findDistributableItems: Array<FieldWrapper<DistributableItem>>;
 };
 
 
@@ -681,6 +709,17 @@ export type QueryFindProjectReportArgs = {
   reportDefinitionId: Scalars['ID'];
 };
 
+
+export type QueryFindDistributablesArgs = {
+  projectId: Scalars['ID'];
+};
+
+
+export type QueryFindDistributableItemsArgs = {
+  projectId: Scalars['ID'];
+  reportDefinitionId: Scalars['ID'];
+};
+
 export type ReferenceId = {
   __typename?: 'ReferenceId';
   uuid: FieldWrapper<Scalars['String']>;
@@ -792,6 +831,14 @@ export type StringFieldValueInput = {
   text: Scalars['String'];
 };
 
+export type SuppliedItem = {
+  __typename?: 'SuppliedItem';
+  datasheetId: FieldWrapper<Scalars['String']>;
+  elementDefId: FieldWrapper<Scalars['String']>;
+  childReferenceId: FieldWrapper<Scalars['String']>;
+  organisationId: FieldWrapper<Scalars['String']>;
+};
+
 export type Translation = {
   __typename?: 'Translation';
   id: FieldWrapper<Scalars['ID']>;
@@ -854,6 +901,28 @@ export type TriggerParam = {
   name: FieldWrapper<Scalars['String']>;
   value: FieldWrapper<Scalars['String']>;
 };
+
+export type User = {
+  __typename?: 'User';
+  oauthId: FieldWrapper<Scalars['ID']>;
+  id: FieldWrapper<Scalars['String']>;
+  email: FieldWrapper<Scalars['String']>;
+  permissions: Array<FieldWrapper<Scalars['String']>>;
+  organisationId: FieldWrapper<Scalars['String']>;
+};
+
+export type CreateSingleUserOrganisationMutationVariables = Exact<{
+  singleUserOrganisation: NewSingleUserOrganisationInput;
+}>;
+
+
+export type CreateSingleUserOrganisationMutation = (
+  { __typename?: 'Mutation' }
+  & { createSingleUserOrganisation: (
+    { __typename?: 'User' }
+    & Pick<User, 'oauthId' | 'id' | 'email' | 'permissions' | 'organisationId'>
+  ) }
+);
 
 export type CreateDatasheetMutationVariables = Exact<{
   datasheet: DatasheetInput;
@@ -2014,7 +2083,55 @@ export type FindReportDefinitionsFromProjectDetailsQuery = (
   ) }
 );
 
+export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
+
+export type CurrentUserQuery = (
+  { __typename?: 'Query' }
+  & { currentUser?: Maybe<(
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'permissions' | 'email' | 'oauthId' | 'organisationId'>
+  )> }
+);
+
+
+export const CreateSingleUserOrganisationDocument = gql`
+    mutation createSingleUserOrganisation($singleUserOrganisation: NewSingleUserOrganisationInput!) {
+  createSingleUserOrganisation(singleUserOrganisation: $singleUserOrganisation) {
+    oauthId
+    id
+    email
+    permissions
+    organisationId
+  }
+}
+    `;
+export type CreateSingleUserOrganisationMutationFn = Apollo.MutationFunction<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>;
+
+/**
+ * __useCreateSingleUserOrganisationMutation__
+ *
+ * To run a mutation, you first call `useCreateSingleUserOrganisationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSingleUserOrganisationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSingleUserOrganisationMutation, { data, loading, error }] = useCreateSingleUserOrganisationMutation({
+ *   variables: {
+ *      singleUserOrganisation: // value for 'singleUserOrganisation'
+ *   },
+ * });
+ */
+export function useCreateSingleUserOrganisationMutation(baseOptions?: Apollo.MutationHookOptions<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>(CreateSingleUserOrganisationDocument, options);
+      }
+export type CreateSingleUserOrganisationMutationHookResult = ReturnType<typeof useCreateSingleUserOrganisationMutation>;
+export type CreateSingleUserOrganisationMutationResult = Apollo.MutationResult<CreateSingleUserOrganisationMutation>;
+export type CreateSingleUserOrganisationMutationOptions = Apollo.BaseMutationOptions<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>;
 export const CreateDatasheetDocument = gql`
     mutation createDatasheet($datasheet: DatasheetInput!) {
   createDatasheet(datasheet: $datasheet) {
@@ -3897,3 +4014,41 @@ export function useFindReportDefinitionsFromProjectDetailsLazyQuery(baseOptions?
 export type FindReportDefinitionsFromProjectDetailsQueryHookResult = ReturnType<typeof useFindReportDefinitionsFromProjectDetailsQuery>;
 export type FindReportDefinitionsFromProjectDetailsLazyQueryHookResult = ReturnType<typeof useFindReportDefinitionsFromProjectDetailsLazyQuery>;
 export type FindReportDefinitionsFromProjectDetailsQueryResult = Apollo.QueryResult<FindReportDefinitionsFromProjectDetailsQuery, FindReportDefinitionsFromProjectDetailsQueryVariables>;
+export const CurrentUserDocument = gql`
+    query currentUser {
+  currentUser {
+    id
+    permissions
+    email
+    oauthId
+    organisationId
+  }
+}
+    `;
+
+/**
+ * __useCurrentUserQuery__
+ *
+ * To run a query within a React component, call `useCurrentUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCurrentUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCurrentUserQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCurrentUserQuery(baseOptions?: Apollo.QueryHookOptions<CurrentUserQuery, CurrentUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, options);
+      }
+export function useCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CurrentUserQuery, CurrentUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, options);
+        }
+export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
+export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
+export type CurrentUserQueryResult = Apollo.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;

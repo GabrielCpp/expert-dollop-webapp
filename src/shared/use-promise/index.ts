@@ -7,7 +7,7 @@ interface UsePromiseOption<T> {
 
 export function usePromise<T>(
   query_data: () => Promise<T>,
-  { skip = false, onComplete }: UsePromiseOption<T>
+  { skip = false, onComplete }: UsePromiseOption<T> = {}
 ): {
   data: T | undefined;
   error: Error | undefined;

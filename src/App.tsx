@@ -1,16 +1,23 @@
 import { ApolloProvider } from "@apollo/client";
-import React, { Suspense } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { AppState, Auth0Provider } from "@auth0/auth0-react";
+import { ThemeProvider } from "@mui/material";
+import { Suspense } from "react";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+} from "react-router-dom";
 
-import { theme } from "./theme";
+import { GlobalLoading } from "./components/global-loading";
+import { LoginRedirect } from "./pages/account";
 import { Dashboard } from "./pages/dashboard";
 import { services } from "./services";
+import { isNonExistentUser } from "./services-def";
 import { ServiceContext } from "./shared/service-context";
-import { ThemeProvider } from "@mui/material";
-import { useHistory } from "react-router-dom";
-import { AppState, Auth0Provider } from "@auth0/auth0-react";
-import { Login } from "./pages/login";
-import { GlobalLoading } from "./components/global-loading";
+import { usePromise } from "./shared/use-promise";
+import { theme } from "./theme";
 
 const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
   const history = useHistory();
@@ -40,6 +47,24 @@ const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
   );
 };
 
+function UserRedirection() {
+  const {
+    data: user,
+    error,
+    loading,
+  } = usePromise(() => services.auth0.loadUser());
+
+  if (loading || error || user === undefined) {
+    return <GlobalLoading />;
+  }
+
+  if (isNonExistentUser(user)) {
+    return <Redirect to="/registration" />;
+  }
+
+  return <Redirect to="/app" />;
+}
+
 function App() {
   return (
     <Suspense fallback={<GlobalLoading />}>
@@ -50,7 +75,10 @@ function App() {
               <ApolloProvider client={services.apollo}>
                 <Switch>
                   <Route path={"/login"}>
-                    <Login />
+                    <LoginRedirect />
+                  </Route>
+                  <Route path="/" exact={true}>
+                    <UserRedirection />
                   </Route>
                   <Route>
                     <Dashboard />

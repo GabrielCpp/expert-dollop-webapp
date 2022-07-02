@@ -127,7 +127,7 @@ export function RootSectionBar({
 }: RootSectionBarProps) {
   const history = useHistory();
   const { dbTrans } = useDbTranslation(rootSectionId);
-  const { success, catchError, clear } = useNotification(snackbarId);
+  const { success, catchError } = useNotification(snackbarId);
   const { loading, data, error, refetch } = useFindProjectRootSectionsQuery({
     variables: {
       projectId,
@@ -221,15 +221,18 @@ export function RootSectionBar({
     history,
     cloneRootSectionMutation,
     addRootSectionMutation,
-    refetch,
+    deleteRootSectionMutation,
   ]);
 
-  const onChange = useCallback((_: React.ChangeEvent<{}>, id: string) => {
-    const url = urls?.get(id);
-    if (url) {
-      history.push(url.url);
-    }
-  }, []);
+  const onChange = useCallback(
+    (_: React.ChangeEvent<{}>, id: string) => {
+      const url = urls?.get(id);
+      if (url) {
+        history.push(url.url);
+      }
+    },
+    [history, urls]
+  );
 
   if (data === undefined) {
     return null;

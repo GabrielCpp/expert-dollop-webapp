@@ -4,10 +4,10 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   Autocomplete,
-  TextField,
   CircularProgress,
   Grid,
   styled,
+  TextField,
 } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -21,19 +21,30 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { compact } from "lodash";
 import { useEffect, useState } from "react";
 import {
   Link as RouterLink,
   matchPath,
-  Route,
   Switch,
   useHistory,
 } from "react-router-dom";
+
 import { ActionToolbar } from "../../components/custom-styles";
+import { GlobalLoading } from "../../components/global-loading";
 import { LoadingFrame } from "../../components/loading-frame";
 import { useLocaleSelector } from "../../components/translation/use-translation-scope";
+import { User } from "../../generated";
 import { useServices } from "../../services-def";
-import { NamedRoutes } from "../../shared/named-routes";
+import {
+  MatchingRoutes,
+  NamedRoutes,
+  renderNamedRoute,
+} from "../../shared/named-routes";
+import { usePromise } from "../../shared/use-promise";
+import { DATASHEET_INDEX } from "../datasheet-editor/routes";
+import { PROJECT_DEFINITION_INDEX } from "../project-definition-editor/routes";
+import { PROJECT_INDEX } from "../project-editor/routes";
 
 function Copyright() {
   return (
@@ -96,9 +107,11 @@ const StyledDrawer = styled(Drawer)(() => ({
   width: 200,
 }));
 
-const MainContent = styled("main")(() => ({
+const MainContent = styled("main", {
+  shouldForwardProp: (prop) => prop !== "hasDrawer",
+})(({ hasDrawer }: { hasDrawer: boolean }) => ({
   flexGrow: 1,
-  marginLeft: "30px",
+  ...(hasDrawer ? { marginLeft: "30px" } : {}),
 }));
 
 const MainSection = styled("div")(({ theme }) => ({
@@ -116,8 +129,57 @@ const locales: Locale[] = [
 ];
 
 export function Dashboard() {
-  const { routes, loader } = useServices();
+  const { routes, loader, auth0 } = useServices();
   const [locale, setLocale] = useLocaleSelector();
+  const { data: user, error, loading } = usePromise(() => auth0.loadUser());
+
+  if (loading || error || user === undefined) {
+    return <GlobalLoading />;
+  }
+
+  const drawerListItems = compact([
+    routes.isAccessible(PROJECT_DEFINITION_INDEX, user.permissions) && (
+      <ListItem
+        button
+        component={RouterLink}
+        to={routes.render(PROJECT_DEFINITION_INDEX)}
+        key={PROJECT_DEFINITION_INDEX}
+      >
+        <ListItemIcon>
+          <AccountTreeIcon />
+        </ListItemIcon>
+        <ListItemText primary={"Project Templates"} />
+      </ListItem>
+    ),
+
+    routes.isAccessible(PROJECT_INDEX, user.permissions) && (
+      <ListItem
+        button
+        component={RouterLink}
+        to={routes.render(PROJECT_INDEX)}
+        key={PROJECT_INDEX}
+      >
+        <ListItemIcon>
+          <ApartmentIcon />
+        </ListItemIcon>
+        <ListItemText primary={"Projects"} />
+      </ListItem>
+    ),
+
+    routes.isAccessible(DATASHEET_INDEX, user.permissions) && (
+      <ListItem
+        button
+        component={RouterLink}
+        to={routes.render(DATASHEET_INDEX)}
+        key={DATASHEET_INDEX}
+      >
+        <ListItemIcon>
+          <ListAltIcon />
+        </ListItemIcon>
+        <ListItemText primary={"Datasheet"} />
+      </ListItem>
+    ),
+  ]);
 
   return (
     <DashboardRoot>
@@ -191,56 +253,23 @@ export function Dashboard() {
         </FlexToolbar>
       </AppBarWithDrawer>
 
-      <StyledDrawer variant="permanent">
+      {drawerListItems.length > 0 && (
+        <StyledDrawer variant="permanent">
+          <ToolbarSpacer />
+          <List>{drawerListItems}</List>
+        </StyledDrawer>
+      )}
+
+      <MainContent hasDrawer={drawerListItems.length > 0}>
         <ToolbarSpacer />
-        <List>
-          <ListItem
-            button
-            component={RouterLink}
-            to="/project_definition_editor"
-          >
-            <ListItemIcon>
-              <AccountTreeIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Project Templates"} />
-          </ListItem>
-          <ListItem button component={RouterLink} to="/project">
-            <ListItemIcon>
-              <ApartmentIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Projects"} />
-          </ListItem>
-          <ListItem button component={RouterLink} to="/datasheets">
-            <ListItemIcon>
-              <ListAltIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Datasheet"} />
-          </ListItem>
-        </List>
-      </StyledDrawer>
-      <MainContent>
-        <ToolbarSpacer />
-        <RouterToolbar routes={routes} />
+
+        <RouterToolbar routes={routes} user={user} />
         <MainSection>
           <LoadingFrame
             loaderComponent={<CircularProgress color="inherit" />}
             loader={loader}
           >
-            <Switch>
-              {routes.allHavingTag("main-content").map((route) => {
-                const Component = route.component;
-
-                if (Component === undefined) {
-                  return null;
-                }
-
-                return (
-                  <Route key={route.name} path={route.path} exact={route.exact}>
-                    <Component />
-                  </Route>
-                );
-              })}
-            </Switch>
+            <MatchingRoutes tag="main-content" firstMatch={true} />
           </LoadingFrame>
         </MainSection>
         <Box pt={4}>
@@ -251,9 +280,9 @@ export function Dashboard() {
   );
 }
 
-function RouterToolbar({ routes }: { routes: NamedRoutes }) {
+function RouterToolbar({ routes, user }: { routes: NamedRoutes; user: User }) {
   const history = useHistory();
-  const toolbarWidgets = routes.allHavingTag("main-toolbar");
+  const toolbarWidgets = routes.allHavingTag("main-toolbar", user.permissions);
   const [haveMatchingToolbarwidget, setHaveMatchingWidgets] = useState(false);
 
   useEffect(() => {
@@ -280,19 +309,9 @@ function RouterToolbar({ routes }: { routes: NamedRoutes }) {
     <ActionToolbar elevation={0} hidden={!haveMatchingToolbarwidget}>
       <FlexToolbar>
         <Switch>
-          {toolbarWidgets.map((route) => {
-            const Component = route.component;
-
-            if (Component === undefined) {
-              return null;
-            }
-
-            return (
-              <Route key={route.name} path={route.path} exact={route.exact}>
-                <Component />
-              </Route>
-            );
-          })}
+          {toolbarWidgets.map((matchingComponent) =>
+            renderNamedRoute(routes, matchingComponent)
+          )}
         </Switch>
       </FlexToolbar>
     </ActionToolbar>

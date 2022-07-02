@@ -1,19 +1,45 @@
-import { Route } from "react-router-dom";
-import { NamedRoutes } from "./named-route";
+import { Route, Switch } from "react-router-dom";
+
+import { useServices } from "../../services-def";
+import { ComponentRouteMatching, NamedRoutes } from "./named-route";
+
+interface MatchingRoutesProps {
+  tag: string;
+  firstMatch?: boolean;
+}
+
+export function MatchingRoutes({
+  tag,
+  firstMatch = false,
+}: MatchingRoutesProps) {
+  const { routes, auth0 } = useServices();
+
+  const matchs = routes
+    .allHavingTag(tag, auth0.user.permissions)
+    .map((matchingComponent) => renderNamedRoute(routes, matchingComponent));
+
+  if (firstMatch) {
+    return <Switch>{matchs}</Switch>;
+  }
+
+  return <>{matchs}</>;
+}
 
 export function renderNamedRoute(
   routes: NamedRoutes,
-  routeName: string,
-  backRouteName: string,
+  matchingComponent: ComponentRouteMatching,
+  backRouteName?: string,
   params?: Record<string, string>
 ) {
-  const route = routes.getRouteByName(routeName);
-  const Component = route.component;
+  const Component = matchingComponent.component;
+  const route = routes.getRouteByName(matchingComponent.name);
 
   return (
-    <Route path={route.path} key={routeName} exact={route.exact}>
+    <Route path={route.path} key={route.name} exact={matchingComponent.exact}>
       {Component && (
-        <Component returnUrl={routes.render(backRouteName, params)} />
+        <Component
+          returnUrl={backRouteName && routes.render(backRouteName, params)}
+        />
       )}
     </Route>
   );

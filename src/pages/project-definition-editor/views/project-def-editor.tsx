@@ -16,7 +16,7 @@ interface EditorLayoutParams extends Record<string, string> {
 }
 
 export function EditorLayout() {
-  const { routes } = useServices();
+  const { routes, auth0 } = useServices();
   const params = useParams<EditorLayoutParams>();
   const { projectDefinitionId, selectedPath } = params;
   const { loading, path } = useProjectDefPath(
@@ -31,11 +31,11 @@ export function EditorLayout() {
   return (
     <Switch>
       {routes
-        .allHavingTag("project-definition-view")
-        .map((route) =>
+        .allHavingTag("project-definition-view", auth0.user.permissions)
+        .map((matchingComponent) =>
           renderNamedRoute(
             routes,
-            route.name,
+            matchingComponent,
             PROJECT_DEFINITION_EDITOR_MAIN,
             params
           )

@@ -1,6 +1,7 @@
 import { last } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useLayoutEffect, useRef } from "react";
+
 import { useServices } from "../../services-def";
 import { ReduxDatabase, TableRecord, useId } from "../../shared/redux-db";
 import { WatchEvent } from "../../shared/redux-db/table-record-change-emitter";
@@ -174,18 +175,22 @@ export function useSaveForm<T>(
   makeForm: (reduxDb: ReduxDatabase, formPath: string[]) => T,
   formPath: string[]
 ): { save: () => void } {
-  const { reduxDb, ajv } = useServices();
+  const { reduxDb, ajv, loader } = useServices();
   const makeFormMemoised = useRef(makeForm);
   const formPathMemoised = useRef(formPath);
   const save = useCallback(async () => {
-    if (validateForm(reduxDb, ajv)(formPathMemoised.current) === false) {
-      return;
-    }
+    try {
+      if (validateForm(reduxDb, ajv)(formPathMemoised.current) === false) {
+        return;
+      }
 
-    await mutate({
-      variables: makeFormMemoised.current(reduxDb, formPathMemoised.current),
-    });
-  }, [reduxDb, ajv, mutate, makeFormMemoised, formPathMemoised]);
+      await mutate({
+        variables: makeFormMemoised.current(reduxDb, formPathMemoised.current),
+      });
+    } catch (e) {
+      loader.onError(e as Error);
+    }
+  }, [reduxDb, ajv, mutate, makeFormMemoised, formPathMemoised, loader]);
 
   return { save };
 }

@@ -1,6 +1,4 @@
-import { uniq } from "lodash";
 import { useLocation } from "react-router-dom";
-
 import { buildRelativeUrl } from "../async-cursor";
 
 export interface RouteService {
@@ -10,21 +8,47 @@ export interface RouteService {
 export interface NamedRoute {
   name: string;
   path: string;
+  requiredPermissions?: string[];
+}
+
+export interface ComponentMatching {
   exact?: boolean;
   component?: (props: { returnUrl?: string }) => JSX.Element | null;
   tags: string[];
+  requiredPermissions?: string[];
 }
 
+export interface NamedRouteDefinition extends NamedRoute {
+  components: ComponentMatching[];
+}
+
+export type ComponentRouteMatching = ComponentMatching & NamedRoute;
 export type NamedRouteRecord = Record<string, unknown>;
 
 export class NamedRoutes {
-  private _routes = new Map<string, NamedRoute>();
+  private _routes = new Map<string, NamedRouteDefinition>();
 
-  public constructor(routes: NamedRoute[]) {
+  public static arePermissionsSatisfied(
+    userPermissions: string[],
+    routeRequiredPermissions?: string[]
+  ): boolean {
+    if (
+      routeRequiredPermissions === undefined ||
+      routeRequiredPermissions.length === 0
+    ) {
+      return true;
+    }
+
+    return routeRequiredPermissions.every((permission) =>
+      userPermissions.includes(permission)
+    );
+  }
+
+  public constructor(routes: NamedRouteDefinition[]) {
     routes.forEach((route) => this._routes.set(route.name, route));
   }
 
-  public getRouteByName(name: string): NamedRoute {
+  public getRouteByName(name: string): NamedRouteDefinition {
     const route = this._routes.get(name);
 
     if (route === undefined) {
@@ -32,38 +56,6 @@ export class NamedRoutes {
     }
 
     return route;
-  }
-
-  public allPrefixed(prefix: string): NamedRoute[] {
-    const routes: NamedRoute[] = [];
-
-    for (const [name, route] of this._routes.entries()) {
-      if (name.startsWith(prefix)) {
-        routes.push(route);
-      }
-    }
-
-    return routes;
-  }
-
-  public allHavingTag(prefix: string): NamedRoute[] {
-    const routes: NamedRoute[] = [];
-
-    for (const route of this._routes.values()) {
-      if (route.tags.includes(prefix)) {
-        routes.push(route);
-      }
-    }
-
-    return routes;
-  }
-
-  public tag(name: string, tags: string[]): void {
-    const route = this._routes.get(name);
-
-    if (route !== undefined) {
-      route.tags = uniq([...route.tags, ...tags]);
-    }
   }
 
   public getUrl(name: string): string {
@@ -74,6 +66,46 @@ export class NamedRoutes {
     }
 
     return route.path;
+  }
+
+  public isAccessible(routeName: string, userPermissions: string[]): boolean {
+    const route = this.getRouteByName(routeName);
+
+    return NamedRoutes.arePermissionsSatisfied(
+      userPermissions,
+      route.requiredPermissions
+    );
+  }
+
+  public allHavingTag(
+    tag: string,
+    userPermissions: string[]
+  ): ComponentRouteMatching[] {
+    const routes: ComponentRouteMatching[] = [];
+
+    for (const route of this._routes.values()) {
+      const isUserAllowedToSeeRoute = NamedRoutes.arePermissionsSatisfied(
+        userPermissions,
+        route.requiredPermissions
+      );
+
+      for (const componentMatcher of route.components) {
+        const hasTag = componentMatcher.tags.includes(tag);
+        const isComponentAccessible = NamedRoutes.arePermissionsSatisfied(
+          userPermissions,
+          componentMatcher.requiredPermissions
+        );
+
+        if (hasTag && isUserAllowedToSeeRoute && isComponentAccessible) {
+          routes.push({
+            ...route,
+            ...componentMatcher,
+          });
+        }
+      }
+    }
+
+    return routes;
   }
 
   public render(
@@ -90,15 +122,15 @@ export class NamedRoutes {
     return buildRelativeUrl(url, queries);
   }
 
-  public get routes(): NamedRoute[] {
+  public get all(): NamedRouteDefinition[] {
     return Array.from(this._routes.values());
   }
 
-  public add(route: NamedRoute) {
+  public add(route: NamedRouteDefinition) {
     this._routes.set(route.name, route);
   }
 
-  public addAll(routes: NamedRoute[]) {
+  public addAll(routes: NamedRouteDefinition[]) {
     routes.forEach((route) => this._routes.set(route.name, route));
   }
 

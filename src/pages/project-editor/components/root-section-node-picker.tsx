@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import { EventEmitter } from "fbemitter";
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useDbTranslation } from "../../../components/translation";
 import {
   FindProjectRootSectionsQuery,

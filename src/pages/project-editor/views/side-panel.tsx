@@ -63,7 +63,7 @@ export function SidePanel({
     } else {
       setExpanded(undefined);
     }
-  }, [subSections]);
+  }, [subSections, subSectionId]);
 
   if (
     subSections &&
