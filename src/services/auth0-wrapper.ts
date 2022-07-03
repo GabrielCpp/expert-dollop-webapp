@@ -1,12 +1,9 @@
 import { Auth0ContextInterface } from "@auth0/auth0-react";
-import { CurrentUserDocument, CurrentUserQuery, User } from "../generated";
-import { Auth0Context, createNonExistentUser, Services } from "../services-def";
+import { User } from "../generated";
+import { Auth0Context } from "../services-def";
 
 export class Auth0Wrapper implements Auth0Context {
   private auth0: Auth0ContextInterface<User> | undefined = undefined;
-  public user: User = createNonExistentUser();
-
-  public constructor(private getServices: () => Services) {}
 
   setContext(auth0: Auth0ContextInterface<User>): void {
     this.auth0 = auth0;
@@ -35,21 +32,5 @@ export class Auth0Wrapper implements Auth0Context {
     }
 
     return token;
-  }
-
-  public async loadUser(): Promise<User> {
-    const { apollo } = this.getServices();
-    const result = await apollo.query<CurrentUserQuery>({
-      query: CurrentUserDocument,
-      fetchPolicy: "no-cache",
-    });
-
-    this.user = createNonExistentUser();
-
-    if (result.data.currentUser) {
-      this.user = result.data.currentUser || createNonExistentUser();
-    }
-
-    return this.user;
   }
 }

@@ -1,4 +1,5 @@
 import { Route, Switch } from "react-router-dom";
+import { useUser } from "../../hooks/use-user";
 
 import { useServices } from "../../services-def";
 import { ComponentRouteMatching, NamedRoutes } from "./named-route";
@@ -6,17 +7,22 @@ import { ComponentRouteMatching, NamedRoutes } from "./named-route";
 interface MatchingRoutesProps {
   tag: string;
   firstMatch?: boolean;
+  completeAction: () => Promise<unknown>;
 }
 
 export function MatchingRoutes({
   tag,
   firstMatch = false,
+  completeAction,
 }: MatchingRoutesProps) {
-  const { routes, auth0 } = useServices();
+  const { routes } = useServices();
+  const user = useUser();
 
   const matchs = routes
-    .allHavingTag(tag, auth0.user.permissions)
-    .map((matchingComponent) => renderNamedRoute(routes, matchingComponent));
+    .allHavingTag(tag, user.permissions)
+    .map((matchingComponent) =>
+      renderNamedRoute(routes, matchingComponent, completeAction)
+    );
 
   if (firstMatch) {
     return <Switch>{matchs}</Switch>;
@@ -28,19 +34,14 @@ export function MatchingRoutes({
 export function renderNamedRoute(
   routes: NamedRoutes,
   matchingComponent: ComponentRouteMatching,
-  backRouteName?: string,
-  params?: Record<string, string>
+  completeAction?: () => Promise<unknown>
 ) {
   const Component = matchingComponent.component;
   const route = routes.getRouteByName(matchingComponent.name);
 
   return (
     <Route path={route.path} key={route.name} exact={matchingComponent.exact}>
-      {Component && (
-        <Component
-          returnUrl={backRouteName && routes.render(backRouteName, params)}
-        />
-      )}
+      {Component && <Component completeAction={completeAction} />}
     </Route>
   );
 }

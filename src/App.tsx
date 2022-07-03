@@ -1,6 +1,6 @@
 import { ApolloProvider } from "@apollo/client";
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
-import { ThemeProvider } from "@mui/material";
+import { CircularProgress, ThemeProvider } from "@mui/material";
 import { Suspense } from "react";
 import {
   BrowserRouter as Router,
@@ -11,12 +11,12 @@ import {
 } from "react-router-dom";
 
 import { GlobalLoading } from "./components/global-loading";
+import { LoadingFrame } from "./components/loading-frame";
+import { useCurrentUserQuery } from "./generated";
 import { LoginRedirect } from "./pages/account";
 import { Dashboard } from "./pages/dashboard";
 import { services } from "./services";
-import { isNonExistentUser } from "./services-def";
 import { ServiceContext } from "./shared/service-context";
-import { usePromise } from "./shared/use-promise";
 import { theme } from "./theme";
 
 const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
@@ -48,17 +48,13 @@ const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
 };
 
 function UserRedirection() {
-  const {
-    data: user,
-    error,
-    loading,
-  } = usePromise(() => services.auth0.loadUser());
+  const { data: user, error, loading } = useCurrentUserQuery();
 
   if (loading || error || user === undefined) {
     return <GlobalLoading />;
   }
 
-  if (isNonExistentUser(user)) {
+  if (user === null) {
     return <Redirect to="/registration" />;
   }
 
@@ -73,17 +69,22 @@ function App() {
           <Auth0ProviderWithHistory>
             <ServiceContext.Provider value={services}>
               <ApolloProvider client={services.apollo}>
-                <Switch>
-                  <Route path={"/login"}>
-                    <LoginRedirect />
-                  </Route>
-                  <Route path="/" exact={true}>
-                    <UserRedirection />
-                  </Route>
-                  <Route>
-                    <Dashboard />
-                  </Route>
-                </Switch>
+                <LoadingFrame
+                  loaderComponent={<CircularProgress color="inherit" />}
+                  loader={services.loader}
+                >
+                  <Switch>
+                    <Route path={"/login"}>
+                      <LoginRedirect />
+                    </Route>
+                    <Route path="/" exact={true}>
+                      <UserRedirection />
+                    </Route>
+                    <Route>
+                      <Dashboard />
+                    </Route>
+                  </Switch>
+                </LoadingFrame>
               </ApolloProvider>
             </ServiceContext.Provider>
           </Auth0ProviderWithHistory>

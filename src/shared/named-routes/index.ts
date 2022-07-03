@@ -4,5 +4,7 @@ export type {
   NamedRouteRecord,
   ComponentRouteMatching,
 } from "./named-route";
-export { NamedRoutes, useUrlQueryParams } from "./named-route";
+export { NamedRoutes } from "./named-route";
 export { renderNamedRoute, MatchingRoutes } from "./route-component-view";
+export { useComponentMatcher } from "./hooks/use-component-matcher";
+export { useUrlQueryParams } from "./hooks/use-url-query-params";

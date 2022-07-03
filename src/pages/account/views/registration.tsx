@@ -29,14 +29,24 @@ function buildForm(
   return { singleUserOrganisation };
 }
 
-export function Registration() {
+interface RegistrationProps {
+  completeAction?: () => Promise<unknown>;
+}
+
+export function Registration({
+  completeAction,
+}: RegistrationProps): JSX.Element {
   const { t } = useTranslation();
-  const { routes } = useServices();
+  const { routes, loader } = useServices();
   const history = useHistory();
   const { formPath } = useForm("registration");
   const [createUser, { loading, error }] =
     useCreateSingleUserOrganisationMutation({
-      onCompleted: () => {
+      onCompleted: async () => {
+        if (completeAction) {
+          await loader.waitOnPromise(completeAction());
+        }
+
         history.push(routes.render(PROJECT_INDEX));
       },
     });

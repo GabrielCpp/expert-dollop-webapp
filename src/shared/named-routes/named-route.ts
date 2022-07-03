@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { buildRelativeUrl } from "../async-cursor";
 
 export interface RouteService {
@@ -13,7 +12,9 @@ export interface NamedRoute {
 
 export interface ComponentMatching {
   exact?: boolean;
-  component?: (props: { returnUrl?: string }) => JSX.Element | null;
+  component: (props: {
+    completeAction?: () => Promise<unknown>;
+  }) => JSX.Element | null;
   tags: string[];
   requiredPermissions?: string[];
 }
@@ -137,15 +138,4 @@ export class NamedRoutes {
   public remove(name: string) {
     this._routes.delete(name);
   }
-}
-
-export function useUrlQueryParams<T extends Record<string, string>>(): T {
-  const location = useLocation();
-  const result: Record<string, string> = {};
-
-  for (const [key, value] of new URLSearchParams(location.search).entries()) {
-    result[key] = value;
-  }
-
-  return result as T;
 }

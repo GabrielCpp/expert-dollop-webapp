@@ -2,11 +2,12 @@ import { NamedRouteDefinition } from "../../shared/named-routes";
 import { Registration } from "./views/registration";
 import { AuthTokenView } from "./views/token-view";
 
-export const VIEW_AUTH_TOKEN = "VIEW_AUTH_TOKEN";
+export const ACCOUNT_AUTH_TOKEN = "ACCOUNT_AUTH_TOKEN";
+export const ACCOUNT_REGISTRATION = "ACCOUNT_REGISTRATION";
 
 export const routes: NamedRouteDefinition[] = [
   {
-    name: VIEW_AUTH_TOKEN,
+    name: ACCOUNT_AUTH_TOKEN,
     path: "/token",
     components: [
       {
@@ -14,6 +15,13 @@ export const routes: NamedRouteDefinition[] = [
         tags: ["main-content"],
         exact: true,
       },
+    ],
+  },
+
+  {
+    name: ACCOUNT_REGISTRATION,
+    path: "/registration",
+    components: [
       {
         component: Registration,
         tags: ["main-content"],

@@ -66,7 +66,9 @@ export const routes: NamedRouteDefinition[] = [
   {
     name: PROJECT_DEFINITION_EDITOR_FORMULA_EDIT,
     path: "/project_definitions/:projectDefinitionId/:selectedPath/formulas/:formulaId",
-    components: [{ tags: ["project-definition-view"], exact: true }],
+    components: [
+      { tags: ["project-definition-view"], exact: true, component: () => null },
+    ],
   },
   {
     name: "add_formulas_toobar",

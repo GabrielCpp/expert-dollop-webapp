@@ -1,5 +1,6 @@
 import { EventEmitter } from "fbemitter";
 import { LoaderNotifier } from "../services-def";
+import { v4 as uuid4 } from "uuid";
 
 interface ComponentLoadingState {
   isLoading: boolean;
@@ -14,6 +15,17 @@ export class LoaderService implements LoaderNotifier {
 
   public constructor() {
     this.onLoading = this.onLoading.bind(this);
+  }
+
+  waitOnPromise<T extends unknown>(p: Promise<T>): Promise<void | T> {
+    const id = uuid4();
+    this.onLoading(id, true);
+    return p
+      .then((r: T) => {
+        this.onLoading(id, false);
+        return r;
+      })
+      .catch((error) => this.onLoading(id, false, error));
   }
 
   addHandler(handler: (isLoading: boolean, error?: Error) => void): () => void {

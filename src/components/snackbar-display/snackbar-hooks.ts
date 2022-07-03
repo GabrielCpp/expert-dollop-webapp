@@ -1,44 +1,37 @@
 import { useCallback } from "react";
 import { useServices } from "../../services-def";
 import { useId } from "../../shared/redux-db";
-
-export const SUCESS_FEED = "SUCESS";
-export const FAILURE_FEED = "FAILURE";
-export const CLEAR_ALERTS = "CLEAR_ALERTS";
+import { clearNotifications, setNotification } from "./table";
 
 export function useNotification(feedName: string) {
   const id = useId();
-  const { feeds, loader } = useServices();
+  const { reduxDb, loader } = useServices();
   const success = useCallback(
     (message?: string) => {
-      feeds.fire(feedName, {
-        type: SUCESS_FEED,
-        payload: {
-          message,
-        },
+      setNotification(reduxDb, {
+        type: "success",
+        feedId: feedName,
+        message,
       });
     },
-    [feedName, feeds]
+    [feedName, reduxDb]
   );
 
   const failure = useCallback(
     (message?: string) => {
-      feeds.fire(feedName, {
-        type: FAILURE_FEED,
-        payload: {
-          message,
-        },
+      setNotification(reduxDb, {
+        type: "failure",
+        feedId: feedName,
+        message,
       });
     },
-    [feedName, feeds]
+
+    [feedName, reduxDb]
   );
 
   const clear = useCallback(() => {
-    feeds.fire(feedName, {
-      type: CLEAR_ALERTS,
-      payload: {},
-    });
-  }, [feedName, feeds]);
+    clearNotifications(reduxDb, feedName);
+  }, [feedName, reduxDb]);
 
   const catchError = useCallback(
     (error?: Error) => {

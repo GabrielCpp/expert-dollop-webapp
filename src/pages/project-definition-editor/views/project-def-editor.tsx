@@ -9,6 +9,7 @@ import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 import { FormDefinitionEditor } from "./form-definition-editor";
 import { RootSectionBar } from "./root-section-bar";
 import { SidePanel } from "./side-panel";
+import { useUser } from "../../../hooks/use-user";
 
 interface EditorLayoutParams extends Record<string, string> {
   projectDefinitionId: string;
@@ -16,7 +17,7 @@ interface EditorLayoutParams extends Record<string, string> {
 }
 
 export function EditorLayout() {
-  const { routes, auth0 } = useServices();
+  const { routes } = useServices();
   const params = useParams<EditorLayoutParams>();
   const { projectDefinitionId, selectedPath } = params;
   const { loading, path } = useProjectDefPath(
@@ -25,20 +26,16 @@ export function EditorLayout() {
   );
   const [rootSectionDefId, subSectionDefId, formDefId] = path || [];
   const { isLoading, error } = useDynamicTranlation(projectDefinitionId);
+  const user = useUser();
 
   useLoaderEffect(error, isLoading || loading);
 
   return (
     <Switch>
       {routes
-        .allHavingTag("project-definition-view", auth0.user.permissions)
+        .allHavingTag("project-definition-view", user.permissions)
         .map((matchingComponent) =>
-          renderNamedRoute(
-            routes,
-            matchingComponent,
-            PROJECT_DEFINITION_EDITOR_MAIN,
-            params
-          )
+          renderNamedRoute(routes, matchingComponent)
         )}
       <Route path={routes.getUrl(PROJECT_DEFINITION_EDITOR_MAIN)} exact={true}>
         <Grid container spacing={1} wrap={"wrap"}>

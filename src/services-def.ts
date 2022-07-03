@@ -4,8 +4,6 @@ import { ReduxDatabase } from "./shared/redux-db/database";
 import { JSONSchemaType, Schema, ValidateFunction } from "ajv";
 import { useServices as useServicesGlobal } from "./shared/service-context";
 import { Auth0ContextInterface, useAuth0 } from "@auth0/auth0-react";
-import { FeedMediator } from "./shared/feed";
-import { isEqual } from "lodash";
 import { User } from "./generated";
 
 export interface AjvFactory {
@@ -20,13 +18,12 @@ export interface LoaderNotifier {
   onError(error?: Error): void;
   notify(): void;
   deleteEmitter(id: string): void;
+  waitOnPromise<T>(p: Promise<T>): Promise<void | T>;
 }
 
 export interface Auth0Context {
-  user: User;
   setContext(auht0: Auth0ContextInterface<User> | undefined): void;
   getToken(): Promise<string | undefined>;
-  loadUser(): Promise<User>;
 }
 
 export interface ApiService {
@@ -50,7 +47,6 @@ export interface Services {
   ajv: AjvFactory;
   loader: LoaderNotifier;
   auth0: Auth0Context;
-  feeds: FeedMediator;
   http: HttpRequestService;
 }
 
@@ -58,22 +54,6 @@ let useAuth0Wrapper: () => Auth0ContextInterface<User> | undefined = useAuth0;
 
 if (process.env.REACT_APP_AUTH0_DEV_TOKEN) {
   useAuth0Wrapper = () => undefined;
-}
-
-const NonExistentUser: User = {
-  email: "",
-  id: "",
-  oauthId: "",
-  organisationId: "",
-  permissions: [],
-};
-
-export function createNonExistentUser(): User {
-  return { ...NonExistentUser };
-}
-
-export function isNonExistentUser(user: User) {
-  return isEqual(user, NonExistentUser);
 }
 
 export const useServices: () => Services = () => {

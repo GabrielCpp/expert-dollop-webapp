@@ -2,13 +2,7 @@ import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import MenuIcon from "@mui/icons-material/Menu";
-import {
-  Autocomplete,
-  CircularProgress,
-  Grid,
-  styled,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, Grid, styled, TextField } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -22,26 +16,15 @@ import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { compact } from "lodash";
-import { useEffect, useState } from "react";
-import {
-  Link as RouterLink,
-  matchPath,
-  Switch,
-  useHistory,
-} from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 import { ActionToolbar } from "../../components/custom-styles";
 import { GlobalLoading } from "../../components/global-loading";
-import { LoadingFrame } from "../../components/loading-frame";
 import { useLocaleSelector } from "../../components/translation/use-translation-scope";
-import { User } from "../../generated";
+import { useCurrentUserQuery } from "../../generated";
+import { NonExistentUser, useUser } from "../../hooks/use-user";
 import { useServices } from "../../services-def";
-import {
-  MatchingRoutes,
-  NamedRoutes,
-  renderNamedRoute,
-} from "../../shared/named-routes";
-import { usePromise } from "../../shared/use-promise";
+import { MatchingRoutes, useComponentMatcher } from "../../shared/named-routes";
 import { DATASHEET_INDEX } from "../datasheet-editor/routes";
 import { PROJECT_DEFINITION_INDEX } from "../project-definition-editor/routes";
 import { PROJECT_INDEX } from "../project-editor/routes";
@@ -129,16 +112,17 @@ const locales: Locale[] = [
 ];
 
 export function Dashboard() {
-  const { routes, loader, auth0 } = useServices();
+  const { routes } = useServices();
   const [locale, setLocale] = useLocaleSelector();
-  const { data: user, error, loading } = usePromise(() => auth0.loadUser());
+  const { data: user, error, loading, refetch } = useCurrentUserQuery();
+  const currentUser = user?.currentUser || NonExistentUser;
 
   if (loading || error || user === undefined) {
     return <GlobalLoading />;
   }
 
   const drawerListItems = compact([
-    routes.isAccessible(PROJECT_DEFINITION_INDEX, user.permissions) && (
+    routes.isAccessible(PROJECT_DEFINITION_INDEX, currentUser.permissions) && (
       <ListItem
         button
         component={RouterLink}
@@ -152,7 +136,7 @@ export function Dashboard() {
       </ListItem>
     ),
 
-    routes.isAccessible(PROJECT_INDEX, user.permissions) && (
+    routes.isAccessible(PROJECT_INDEX, currentUser.permissions) && (
       <ListItem
         button
         component={RouterLink}
@@ -166,7 +150,7 @@ export function Dashboard() {
       </ListItem>
     ),
 
-    routes.isAccessible(DATASHEET_INDEX, user.permissions) && (
+    routes.isAccessible(DATASHEET_INDEX, currentUser.permissions) && (
       <ListItem
         button
         component={RouterLink}
@@ -263,14 +247,13 @@ export function Dashboard() {
       <MainContent hasDrawer={drawerListItems.length > 0}>
         <ToolbarSpacer />
 
-        <RouterToolbar routes={routes} user={user} />
+        <RouterToolbar />
         <MainSection>
-          <LoadingFrame
-            loaderComponent={<CircularProgress color="inherit" />}
-            loader={loader}
-          >
-            <MatchingRoutes tag="main-content" firstMatch={true} />
-          </LoadingFrame>
+          <MatchingRoutes
+            tag="main-content"
+            firstMatch={true}
+            completeAction={refetch}
+          />
         </MainSection>
         <Box pt={4}>
           <Copyright />
@@ -280,39 +263,20 @@ export function Dashboard() {
   );
 }
 
-function RouterToolbar({ routes, user }: { routes: NamedRoutes; user: User }) {
-  const history = useHistory();
-  const toolbarWidgets = routes.allHavingTag("main-toolbar", user.permissions);
-  const [haveMatchingToolbarwidget, setHaveMatchingWidgets] = useState(false);
-
-  useEffect(() => {
-    const toogleToolbarItems = () => {
-      setHaveMatchingWidgets(
-        toolbarWidgets.some(
-          (route) =>
-            matchPath(window.location.pathname, {
-              path: route.path,
-              exact: route.exact,
-              strict: true,
-            }) !== null
-        )
-      );
-    };
-
-    const unlisten = history.listen(toogleToolbarItems);
-    toogleToolbarItems();
-
-    return unlisten;
-  });
+function RouterToolbar() {
+  const user = useUser();
+  const { hasMatch, matchingComponents } = useComponentMatcher(
+    "main-toolbar",
+    user.permissions
+  );
 
   return (
-    <ActionToolbar elevation={0} hidden={!haveMatchingToolbarwidget}>
+    <ActionToolbar elevation={0} hidden={!hasMatch}>
       <FlexToolbar>
-        <Switch>
-          {toolbarWidgets.map((matchingComponent) =>
-            renderNamedRoute(routes, matchingComponent)
-          )}
-        </Switch>
+        {matchingComponents.map((m, index) => {
+          const Component = m.component;
+          return <Component key={index} />;
+        })}
       </FlexToolbar>
     </ActionToolbar>
   );
