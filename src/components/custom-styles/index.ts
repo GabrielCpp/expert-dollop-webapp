@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { CardContent, IconButton, List, ListItem, Paper } from "@mui/material";
+import { CardContent, Grid, IconButton, List, ListItem } from "@mui/material";
 import { theme } from "../../theme";
 
 interface ExpandIconButtonProps {
@@ -38,26 +38,13 @@ export const NestedListItem = styled(ListItem)(() => ({
   paddingLeft: theme.spacing(4),
 }));
 
-interface ActionToolbarProps {
-  hidden: boolean;
-}
 
-export const ActionToolbar = styled(Paper, {
-  shouldForwardProp: (prop) => prop !== "hidden",
-})<ActionToolbarProps>(({ hidden }) => {
-  const styles: Record<string, string> = {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    width: "100%",
-    height: theme.spacing(6),
-    borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-    borderRadius: "0",
-  };
-
-  if (hidden) {
-    styles.display = "none";
-  }
-
-  return styles;
-});
+export const ActionToolbar = styled(Grid)(() => ({
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  width: "100%",
+  height: theme.spacing(6),
+  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+  borderRadius: "0"
+}));

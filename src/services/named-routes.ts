@@ -4,6 +4,7 @@ import { routes as projectEditorRoutes } from "../pages/project-editor";
 import { routes as datasheetRoutes } from "../pages/datasheet-editor";
 import { routes as reportRoutes } from "../pages/project-reports";
 import { routes as authRoutes } from "../pages/account";
+import { routes as commandOrdersRoutes } from "../pages/command-order";
 
 export function createNamedRouteService() {
   return new NamedRoutes([
@@ -12,5 +13,6 @@ export function createNamedRouteService() {
     ...datasheetRoutes,
     ...reportRoutes,
     ...authRoutes,
+    ...commandOrdersRoutes
   ]);
 }

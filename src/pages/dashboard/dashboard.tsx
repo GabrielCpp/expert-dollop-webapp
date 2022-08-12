@@ -16,7 +16,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { compact } from "lodash";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, Route } from "react-router-dom";
 
 import { ActionToolbar } from "../../components/custom-styles";
 import { GlobalLoading } from "../../components/global-loading";
@@ -270,14 +270,22 @@ function RouterToolbar() {
     user.permissions
   );
 
+  if (!hasMatch) {
+    return null;
+  }
+
   return (
-    <ActionToolbar elevation={0} hidden={!hasMatch}>
-      <FlexToolbar>
-        {matchingComponents.map((m, index) => {
-          const Component = m.component;
-          return <Component key={index} />;
-        })}
-      </FlexToolbar>
+    <ActionToolbar container columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
+      {matchingComponents.map((m) => {
+        const Component = m.component;
+        return (
+          <Grid item key={m.name}>
+            <Route path={m.path}>
+              <Component />
+            </Route>
+          </Grid>
+        );
+      })}
     </ActionToolbar>
   );
 }

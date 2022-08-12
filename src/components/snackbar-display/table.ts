@@ -1,6 +1,5 @@
 import {
   ops,
-  PrimaryIndex,
   Query,
   queryParam,
   recordParam,
