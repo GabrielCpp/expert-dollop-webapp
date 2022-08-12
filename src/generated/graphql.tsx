@@ -293,7 +293,7 @@ export type Mutation = {
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   createProject: FieldWrapper<ProjectDetails>;
   createDatasheet: FieldWrapper<Datasheet>;
-  createSingleUserOrganisation: FieldWrapper<User>;
+  createSingleUserOrganization: FieldWrapper<User>;
 };
 
 
@@ -353,12 +353,12 @@ export type MutationCreateDatasheetArgs = {
 };
 
 
-export type MutationCreateSingleUserOrganisationArgs = {
-  singleUserOrganisation: NewSingleUserOrganisationInput;
+export type MutationCreateSingleUserOrganizationArgs = {
+  singleUserOrganization: NewSingleUserOrganizationInput;
 };
 
-export type NewSingleUserOrganisationInput = {
-  organisationName: Scalars['String'];
+export type NewSingleUserOrganizationInput = {
+  organizationName: Scalars['String'];
   email: Scalars['String'];
 };
 
@@ -727,15 +727,10 @@ export type ReferenceId = {
 
 export type Report = {
   __typename?: 'Report';
+  datasheetId: FieldWrapper<Scalars['String']>;
   stages: Array<FieldWrapper<ReportStage>>;
   creationDateUtc?: Maybe<FieldWrapper<Scalars['String']>>;
   summaries: Array<FieldWrapper<ComputedValue>>;
-};
-
-export type ReportColumn = {
-  __typename?: 'ReportColumn';
-  value: FieldWrapper<FieldValue>;
-  unit?: Maybe<FieldWrapper<Scalars['String']>>;
 };
 
 export type ReportComputation = {
@@ -767,7 +762,7 @@ export type ReportRow = {
   formulaId: FieldWrapper<Scalars['String']>;
   elementDefId: FieldWrapper<Scalars['String']>;
   childReferenceId: FieldWrapper<Scalars['String']>;
-  columns: Array<FieldWrapper<ReportColumn>>;
+  columns: Array<FieldWrapper<ComputedValue>>;
 };
 
 export type ReportStage = {
@@ -836,7 +831,7 @@ export type SuppliedItem = {
   datasheetId: FieldWrapper<Scalars['String']>;
   elementDefId: FieldWrapper<Scalars['String']>;
   childReferenceId: FieldWrapper<Scalars['String']>;
-  organisationId: FieldWrapper<Scalars['String']>;
+  organizationId: FieldWrapper<Scalars['String']>;
 };
 
 export type Translation = {
@@ -908,19 +903,19 @@ export type User = {
   id: FieldWrapper<Scalars['String']>;
   email: FieldWrapper<Scalars['String']>;
   permissions: Array<FieldWrapper<Scalars['String']>>;
-  organisationId: FieldWrapper<Scalars['String']>;
+  organizationId: FieldWrapper<Scalars['String']>;
 };
 
-export type CreateSingleUserOrganisationMutationVariables = Exact<{
-  singleUserOrganisation: NewSingleUserOrganisationInput;
+export type CreateSingleUserOrganizationMutationVariables = Exact<{
+  singleUserOrganization: NewSingleUserOrganizationInput;
 }>;
 
 
-export type CreateSingleUserOrganisationMutation = (
+export type CreateSingleUserOrganizationMutation = (
   { __typename?: 'Mutation' }
-  & { createSingleUserOrganisation: (
+  & { createSingleUserOrganization: (
     { __typename?: 'User' }
-    & Pick<User, 'oauthId' | 'id' | 'email' | 'permissions' | 'organisationId'>
+    & Pick<User, 'oauthId' | 'id' | 'email' | 'permissions' | 'organizationId'>
   ) }
 );
 
@@ -2020,8 +2015,8 @@ export type FindProjectReportWithDefinitionQuery = (
         { __typename?: 'ReportRow' }
         & Pick<ReportRow, 'nodeId' | 'formulaId' | 'elementDefId' | 'childReferenceId'>
         & { columns: Array<(
-          { __typename?: 'ReportColumn' }
-          & Pick<ReportColumn, 'unit'>
+          { __typename?: 'ComputedValue' }
+          & Pick<ComputedValue, 'unit'>
           & { value: (
             { __typename: 'IntFieldValue' }
             & Pick<IntFieldValue, 'integer'>
@@ -2090,48 +2085,48 @@ export type CurrentUserQuery = (
   { __typename?: 'Query' }
   & { currentUser?: Maybe<(
     { __typename?: 'User' }
-    & Pick<User, 'id' | 'permissions' | 'email' | 'oauthId' | 'organisationId'>
+    & Pick<User, 'id' | 'permissions' | 'email' | 'oauthId' | 'organizationId'>
   )> }
 );
 
 
-export const CreateSingleUserOrganisationDocument = gql`
-    mutation createSingleUserOrganisation($singleUserOrganisation: NewSingleUserOrganisationInput!) {
-  createSingleUserOrganisation(singleUserOrganisation: $singleUserOrganisation) {
+export const CreateSingleUserOrganizationDocument = gql`
+    mutation createSingleUserOrganization($singleUserOrganization: NewSingleUserOrganizationInput!) {
+  createSingleUserOrganization(singleUserOrganization: $singleUserOrganization) {
     oauthId
     id
     email
     permissions
-    organisationId
+    organizationId
   }
 }
     `;
-export type CreateSingleUserOrganisationMutationFn = Apollo.MutationFunction<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>;
+export type CreateSingleUserOrganizationMutationFn = Apollo.MutationFunction<CreateSingleUserOrganizationMutation, CreateSingleUserOrganizationMutationVariables>;
 
 /**
- * __useCreateSingleUserOrganisationMutation__
+ * __useCreateSingleUserOrganizationMutation__
  *
- * To run a mutation, you first call `useCreateSingleUserOrganisationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateSingleUserOrganisationMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateSingleUserOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSingleUserOrganizationMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createSingleUserOrganisationMutation, { data, loading, error }] = useCreateSingleUserOrganisationMutation({
+ * const [createSingleUserOrganizationMutation, { data, loading, error }] = useCreateSingleUserOrganizationMutation({
  *   variables: {
- *      singleUserOrganisation: // value for 'singleUserOrganisation'
+ *      singleUserOrganization: // value for 'singleUserOrganization'
  *   },
  * });
  */
-export function useCreateSingleUserOrganisationMutation(baseOptions?: Apollo.MutationHookOptions<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>) {
+export function useCreateSingleUserOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<CreateSingleUserOrganizationMutation, CreateSingleUserOrganizationMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>(CreateSingleUserOrganisationDocument, options);
+        return Apollo.useMutation<CreateSingleUserOrganizationMutation, CreateSingleUserOrganizationMutationVariables>(CreateSingleUserOrganizationDocument, options);
       }
-export type CreateSingleUserOrganisationMutationHookResult = ReturnType<typeof useCreateSingleUserOrganisationMutation>;
-export type CreateSingleUserOrganisationMutationResult = Apollo.MutationResult<CreateSingleUserOrganisationMutation>;
-export type CreateSingleUserOrganisationMutationOptions = Apollo.BaseMutationOptions<CreateSingleUserOrganisationMutation, CreateSingleUserOrganisationMutationVariables>;
+export type CreateSingleUserOrganizationMutationHookResult = ReturnType<typeof useCreateSingleUserOrganizationMutation>;
+export type CreateSingleUserOrganizationMutationResult = Apollo.MutationResult<CreateSingleUserOrganizationMutation>;
+export type CreateSingleUserOrganizationMutationOptions = Apollo.BaseMutationOptions<CreateSingleUserOrganizationMutation, CreateSingleUserOrganizationMutationVariables>;
 export const CreateDatasheetDocument = gql`
     mutation createDatasheet($datasheet: DatasheetInput!) {
   createDatasheet(datasheet: $datasheet) {
@@ -4021,7 +4016,7 @@ export const CurrentUserDocument = gql`
     permissions
     email
     oauthId
-    organisationId
+    organizationId
   }
 }
     `;

@@ -1,17 +1,17 @@
 import { gql } from "@apollo/client";
 
 export const CREATE_SINGLE_USER_ORGANISATION = gql`
-  mutation createSingleUserOrganisation(
-    $singleUserOrganisation: NewSingleUserOrganisationInput!
+  mutation createSingleUserOrganization(
+    $singleUserOrganization: NewSingleUserOrganizationInput!
   ) {
-    createSingleUserOrganisation(
-      singleUserOrganisation: $singleUserOrganisation
+    createSingleUserOrganization(
+      singleUserOrganization: $singleUserOrganization
     ) {
       oauthId
       id
       email
       permissions
-      organisationId
+      organizationId
     }
   }
 `;

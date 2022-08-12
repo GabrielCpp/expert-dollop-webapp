@@ -7,7 +7,7 @@ export const CURRENT_USER_QUERY = gql`
       permissions
       email
       oauthId
-      organisationId
+      organizationId
     }
   }
 `;

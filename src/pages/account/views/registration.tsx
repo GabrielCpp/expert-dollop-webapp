@@ -13,8 +13,8 @@ import {
 } from "../../../components/table-fields";
 import {
   Exact,
-  NewSingleUserOrganisationInput,
-  useCreateSingleUserOrganisationMutation,
+  NewSingleUserOrganizationInput,
+  useCreateSingleUserOrganizationMutation,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { ReduxDatabase } from "../../../shared/redux-db";
@@ -23,10 +23,10 @@ import { PROJECT_INDEX } from "../../project-editor/routes";
 function buildForm(
   reduxDb: ReduxDatabase,
   formPath: string[]
-): Exact<{ singleUserOrganisation: NewSingleUserOrganisationInput }> {
-  const singleUserOrganisation =
-    hydrateForm<NewSingleUserOrganisationInput>(reduxDb)(formPath);
-  return { singleUserOrganisation };
+): Exact<{ singleUserOrganization: NewSingleUserOrganizationInput }> {
+  const singleUserOrganization =
+    hydrateForm<NewSingleUserOrganizationInput>(reduxDb)(formPath);
+  return { singleUserOrganization };
 }
 
 interface RegistrationProps {
@@ -41,7 +41,7 @@ export function Registration({
   const history = useHistory();
   const { formPath } = useForm("registration");
   const [createUser, { loading, error }] =
-    useCreateSingleUserOrganisationMutation({
+    useCreateSingleUserOrganizationMutation({
       onCompleted: async () => {
         if (completeAction) {
           await loader.waitOnPromise(completeAction());
@@ -68,12 +68,12 @@ export function Registration({
       >
         <Grid item lg={6} xl={6} md={6}>
           <fieldset>
-            <legend>Organisation</legend>
+            <legend>Organization</legend>
             <Field
               validator={STRING_VALIDATOR}
               path={formPath}
               defaultValue={""}
-              name="organisationName"
+              name="organizationName"
               component={textField}
               label="form.name"
               t={t}

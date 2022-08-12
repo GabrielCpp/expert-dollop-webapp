@@ -1,5 +1,6 @@
 import {
   ops,
+  PrimaryIndex,
   Query,
   queryParam,
   recordParam,
@@ -21,6 +22,10 @@ export interface SnackbarRecord extends TableRecord {
   feedId: string;
   type: NotificationKind;
   message: string;
+}
+
+export function setupSnackbarTable(database: ReduxDatabase) {
+  database.addTable(SnackbarTableName);
 }
 
 export function setNotification(
@@ -46,10 +51,10 @@ export function clearNotifications(database: ReduxDatabase, feedId: string) {
 export function queryFeedNotification(feedId: string): Query {
   return {
     fromTable: SnackbarTableName,
-    where: ops("arrayStartWith", recordParam("fieldPath"), queryParam("path")),
+    where: ops("arrayStartWith", recordParam("feedId"), queryParam("feedId")),
     joins: [],
     sort: [],
-    parameters: {},
+    parameters: {feedId},
     projections: [],
   };
 }

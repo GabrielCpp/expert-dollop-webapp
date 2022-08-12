@@ -4,7 +4,7 @@ export const NonExistentUser: User = Object.freeze({
   email: "",
   id: "",
   oauthId: "",
-  organisationId: "",
+  organizationId: "",
   permissions: [],
 });
 

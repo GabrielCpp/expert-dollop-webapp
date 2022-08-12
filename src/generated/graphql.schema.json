@@ -2762,18 +2762,18 @@
             "deprecationReason": null
           },
           {
-            "name": "createSingleUserOrganisation",
+            "name": "createSingleUserOrganization",
             "description": null,
             "args": [
               {
-                "name": "singleUserOrganisation",
+                "name": "singleUserOrganization",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "NewSingleUserOrganisationInput",
+                    "name": "NewSingleUserOrganizationInput",
                     "ofType": null
                   }
                 },
@@ -2802,12 +2802,12 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "NewSingleUserOrganisationInput",
+        "name": "NewSingleUserOrganizationInput",
         "description": null,
         "fields": null,
         "inputFields": [
           {
-            "name": "organisationName",
+            "name": "organizationName",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -5804,6 +5804,22 @@
         "description": null,
         "fields": [
           {
+            "name": "datasheetId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "stages",
             "description": null,
             "args": [],
@@ -5859,45 +5875,6 @@
                   }
                 }
               }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "ReportColumn",
-        "description": null,
-        "fields": [
-          {
-            "name": "value",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "UNION",
-                "name": "FieldValue",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "unit",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -6205,7 +6182,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "ReportColumn",
+                    "name": "ComputedValue",
                     "ofType": null
                   }
                 }
@@ -6787,7 +6764,7 @@
             "deprecationReason": null
           },
           {
-            "name": "organisationId",
+            "name": "organizationId",
             "description": null,
             "args": [],
             "type": {
@@ -7457,7 +7434,7 @@
             "deprecationReason": null
           },
           {
-            "name": "organisationId",
+            "name": "organizationId",
             "description": null,
             "args": [],
             "type": {
