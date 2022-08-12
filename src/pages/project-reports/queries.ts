@@ -5,31 +5,18 @@ export const FIND_PROJECT_REPORT_WITH_DEFINITION = gql`
     $projectId: ID!
     $reportDefinitionId: ID!
   ) {
-    findReportDefinition(reportDefinitionId: $reportDefinitionId) {
-      id
-      name
-      structure {
-        formulaAttribute {
-          bucketName
-          attributeName
-        }
-        formulaAttribute {
-          bucketName
-          attributeName
-        }
-        columns {
-          name
-          isVisible
-          unitId
-        }
-      }
-    }
     findProjectReport(
       projectId: $projectId
       reportDefinitionId: $reportDefinitionId
     ) {
       creationDateUtc
+      name
       stages {
+        columns {
+          label
+          isVisible
+          unit
+        }
         summary {
           label
           unit

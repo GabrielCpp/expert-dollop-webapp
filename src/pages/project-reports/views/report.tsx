@@ -31,6 +31,7 @@ import { Fragment, useState } from "react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { isNumber, isString } from "lodash";
+import { t } from "i18next";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -128,14 +129,13 @@ export function Report() {
     return null;
   }
 
-  const columns = data.findReportDefinition.structure.columns;
   const stages = data.findProjectReport.stages;
   const summaries = data.findProjectReport.summaries;
 
   return (
     <div>
       <Typography variant="h3">
-        {dbTrans(data.findReportDefinition.name)}
+        {dbTrans(data.findProjectReport.name)}
       </Typography>
       <List>
         {stages.map((stage, index) => (
@@ -172,11 +172,7 @@ export function Report() {
               mountOnEnter={true}
               timeout="auto"
             >
-              <ReportStage
-                projectId={projectId}
-                stage={stage}
-                columns={columns}
-              />
+              <ReportStage projectId={projectId} stage={stage} />
             </Collapse>
             <Divider />
           </Fragment>
@@ -205,22 +201,25 @@ export function Report() {
 interface ReportStageProps {
   projectId: string;
   stage: FindProjectReportWithDefinitionQuery["findProjectReport"]["stages"][number];
-  columns: FindProjectReportWithDefinitionQuery["findReportDefinition"]["structure"]["columns"];
 }
 
-function ReportStage({ stage, columns, projectId }: ReportStageProps) {
+function ReportStage({ stage, projectId }: ReportStageProps) {
   const { dbTrans } = useDbTranslation(projectId);
+
+  if (stage.rows.length === 0) {
+    return <div>{t("project_report.empty_stage")}</div>;
+  }
 
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
           <TableRow>
-            {columns
+            {stage.columns
               .filter((c) => c.isVisible)
               .map((column, index) => (
                 <StyledTableCell key={index}>
-                  {dbTrans(column.name)}
+                  {dbTrans(column.label)}
                 </StyledTableCell>
               ))}
           </TableRow>
@@ -229,7 +228,7 @@ function ReportStage({ stage, columns, projectId }: ReportStageProps) {
           {stage.rows.map((row, rowIndex) => (
             <StyledTableRow key={rowIndex}>
               {row.columns
-                .filter((_, i) => columns[i].isVisible === true)
+                .filter((_, i) => stage.columns[i].isVisible === true)
                 .map((column, columnIndex) => (
                   <StyledTableCell key={columnIndex}>
                     <ColumnValue
