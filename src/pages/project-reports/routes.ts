@@ -10,19 +10,19 @@ export const VIEW_COMMAND_ORDERS = "VIEW_COMMAND_ORDERS";
 export const routes: NamedRouteDefinition[] = [
   {
     name: PROJECT_REPORT_TOOLBAR,
-    path: "/project/:projectId/:selectedPath",
+    path: "/projects/:projectId/:selectedPath",
     components: [
       { component: ReportToolbar, exact: false, tags: ["main-toolbar"] },
     ],
   },
   {
     name: PROJECT_REPORT,
-    path: "/project/:projectId/:selectedPath/report/:reportDefinitionId",
+    path: "/projects/:projectId/:selectedPath/report/:reportDefinitionId",
     components: [{ component: Report, exact: false, tags: ["main-content"] }],
   },
   {
     name: VIEW_COMMAND_ORDERS,
-    path: "/project/:projectId/:selectedPath/orders",
+    path: "/projects/:projectId/:selectedPath/orders",
     components: [
       { component: OrderView, exact: false, tags: ["main-content"] },
     ],
