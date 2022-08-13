@@ -11,17 +11,18 @@ import {
 import { Services } from "../services-def";
 import { onError } from "@apollo/client/link/error";
 import { RetryLink } from "@apollo/client/link/retry";
+import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
 
-export function createApolloClient(
+export async function createApolloClient(
   getServices: () => Services
-): ApolloClient<NormalizedCacheObject> {
+): Promise<ApolloClient<NormalizedCacheObject>> {
   const getUrl = window.location;
   const uri = getUrl.protocol + "//" + getUrl.host + "/graphql";
   const httpLink = new HttpLink({ uri });
   const authLink = new ApolloLink((operation, forward) => {
     const services = getServices();
     return new Observable<FetchResult>((observable) => {
-      let sub: ZenObservable.Subscription | null = null;
+      let sub: ReturnType<ReturnType<typeof forward>['subscribe']> | null = null;
 
       services.auth0.getToken().then((token) => {
         operation.setContext({
@@ -63,8 +64,17 @@ export function createApolloClient(
     },
   });
 
+  const cache = new InMemoryCache()
+
+  await persistCache({
+    cache,
+    storage: new LocalStorageWrapper(window.localStorage),
+    maxSize: false,
+    debug: true
+  });
+
   const apollo = new ApolloClient({
-    cache: new InMemoryCache(),
+    cache,
     link: from([errorLink, retryLink, authLink, httpLink]),
   });
 

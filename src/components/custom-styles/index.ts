@@ -1,5 +1,4 @@
-import styled from "@emotion/styled";
-import { CardContent, Grid, IconButton, List, ListItem } from "@mui/material";
+import { CardContent, Grid, IconButton, List, ListItem, styled } from "@mui/material";
 import { theme } from "../../theme";
 
 interface ExpandIconButtonProps {

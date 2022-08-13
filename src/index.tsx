@@ -5,8 +5,16 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { createServices } from "./services";
 
-ReactDOM.render(<App />, document.getElementById("root"));
+createServices()
+  .then((services) => {
+    ReactDOM.render(
+      <App services={services} />,
+      document.getElementById("root")
+    );
+  })
+  .catch(console.error);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

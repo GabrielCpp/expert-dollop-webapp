@@ -1,20 +1,20 @@
 {
   "possibleTypes": {
     "FieldDetailsUnion": [
-      "IntFieldConfig",
-      "DecimalFieldConfig",
-      "StringFieldConfig",
       "BoolFieldConfig",
-      "StaticChoiceFieldConfig",
       "CollapsibleContainerFieldConfig",
-      "StaticNumberFieldConfig"
+      "DecimalFieldConfig",
+      "IntFieldConfig",
+      "StaticChoiceFieldConfig",
+      "StaticNumberFieldConfig",
+      "StringFieldConfig"
     ],
     "FieldValue": [
-      "IntFieldValue",
-      "DecimalFieldValue",
-      "StringFieldValue",
       "BoolFieldValue",
-      "ReferenceId"
+      "DecimalFieldValue",
+      "IntFieldValue",
+      "ReferenceId",
+      "StringFieldValue"
     ]
   }
 }

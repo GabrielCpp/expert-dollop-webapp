@@ -15,7 +15,7 @@ import { LoadingFrame } from "./components/loading-frame";
 import { useCurrentUserQuery } from "./generated";
 import { LoginRedirect } from "./pages/account";
 import { Dashboard } from "./pages/dashboard";
-import { services } from "./services";
+import { Services } from "./services-def";
 import { ServiceContext } from "./shared/service-context";
 import { theme } from "./theme";
 
@@ -26,7 +26,7 @@ const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
   const audience = process.env.REACT_APP_AUTH0_AUDIENCE as string;
   const redirectUri = process.env.REACT_APP_AUTH0_REDIRECT_URI as string;
 
-  const onRedirectCallback = (appState: AppState) => {
+  const onRedirectCallback = (appState?: AppState) => {
     history.push(appState?.returnTo || window.location.pathname);
   };
 
@@ -61,7 +61,11 @@ function UserRedirection() {
   return <Redirect to="/app" />;
 }
 
-function App() {
+interface AppProps {
+  services: Services;
+}
+
+function App({ services }: AppProps) {
   return (
     <Suspense fallback={<GlobalLoading />}>
       <ThemeProvider theme={theme}>

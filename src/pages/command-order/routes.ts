@@ -15,7 +15,7 @@ export const routes: NamedRouteDefinition[] = [
   },
   {
     name: VIEW_COMMAND_ORDERS,
-    path: "/projects/:projectId/:selectedPath/orders",
+    path: "/projects/:projectId/:selectedPath/distributable/:reportDefinitionId",
     components: [
       { component: OrderView, exact: false, tags: ["main-content"] },
     ],

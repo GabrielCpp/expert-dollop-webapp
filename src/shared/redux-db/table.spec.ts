@@ -1,6 +1,8 @@
 import { TableTransaction } from "./table-transaction";
 import { Table } from "./table";
 import { TableRecord } from "./table-record";
+import { Transaction } from "./transaction";
+
 
 interface RecordModel extends TableRecord {
   id: string;
@@ -11,7 +13,8 @@ interface RecordModel extends TableRecord {
 describe("Table test", () => {
   let table: Table;
   let initialData: TableRecord[];
-  let eventAccumulator: TableTransaction;
+  let transaction: Transaction;
+  let eventAccumulator: TableTransaction
 
   beforeEach(() => {
     initialData = [
@@ -21,7 +24,8 @@ describe("Table test", () => {
     ];
 
     table = new Table(initialData);
-    eventAccumulator = new TableTransaction(table.tableEventEmitter);
+    transaction = new Transaction()
+    eventAccumulator = new TableTransaction(transaction, table.tableEventEmitter);
   });
 
   test("Given table should primary keys be the id", () => {
