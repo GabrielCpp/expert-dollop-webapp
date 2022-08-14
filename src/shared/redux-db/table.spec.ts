@@ -3,7 +3,6 @@ import { Table } from "./table";
 import { TableRecord } from "./table-record";
 import { Transaction } from "./transaction";
 
-
 interface RecordModel extends TableRecord {
   id: string;
   description: string;
@@ -14,7 +13,7 @@ describe("Table test", () => {
   let table: Table;
   let initialData: TableRecord[];
   let transaction: Transaction;
-  let eventAccumulator: TableTransaction
+  let eventAccumulator: TableTransaction;
 
   beforeEach(() => {
     initialData = [
@@ -24,8 +23,11 @@ describe("Table test", () => {
     ];
 
     table = new Table(initialData);
-    transaction = new Transaction()
-    eventAccumulator = new TableTransaction(transaction, table.tableEventEmitter);
+    transaction = new Transaction();
+    eventAccumulator = new TableTransaction(
+      transaction,
+      table.tableEventEmitter
+    );
   });
 
   test("Given table should primary keys be the id", () => {

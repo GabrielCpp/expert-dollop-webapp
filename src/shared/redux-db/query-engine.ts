@@ -117,8 +117,10 @@ function buildPredicate(
       return operator(...args);
     } else if (prefix === ":") {
       if (!parameters.hasOwnProperty(identifier)) {
-        const avaiableParams = JSON.stringify(Object.keys(parameters))
-        throw new Error(`No parameter named '${identifier}', only ${avaiableParams}`);
+        const avaiableParams = JSON.stringify(Object.keys(parameters));
+        throw new Error(
+          `No parameter named '${identifier}', only ${avaiableParams}`
+        );
       }
 
       return parameters[identifier];

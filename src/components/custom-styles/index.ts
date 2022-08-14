@@ -1,4 +1,11 @@
-import { CardContent, Grid, IconButton, List, ListItem, styled } from "@mui/material";
+import {
+  CardContent,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  styled,
+} from "@mui/material";
 import { theme } from "../../theme";
 
 interface ExpandIconButtonProps {
@@ -37,7 +44,6 @@ export const NestedListItem = styled(ListItem)(() => ({
   paddingLeft: theme.spacing(4),
 }));
 
-
 export const ActionToolbar = styled(Grid)(() => ({
   display: "flex",
   flexWrap: "wrap",
@@ -45,5 +51,5 @@ export const ActionToolbar = styled(Grid)(() => ({
   width: "100%",
   height: theme.spacing(6),
   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-  borderRadius: "0"
+  borderRadius: "0",
 }));

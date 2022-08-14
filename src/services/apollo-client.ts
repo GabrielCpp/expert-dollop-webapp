@@ -11,7 +11,7 @@ import {
 import { Services } from "../services-def";
 import { onError } from "@apollo/client/link/error";
 import { RetryLink } from "@apollo/client/link/retry";
-import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
+import { persistCache, LocalStorageWrapper } from "apollo3-cache-persist";
 
 export async function createApolloClient(
   getServices: () => Services
@@ -22,7 +22,8 @@ export async function createApolloClient(
   const authLink = new ApolloLink((operation, forward) => {
     const services = getServices();
     return new Observable<FetchResult>((observable) => {
-      let sub: ReturnType<ReturnType<typeof forward>['subscribe']> | null = null;
+      let sub: ReturnType<ReturnType<typeof forward>["subscribe"]> | null =
+        null;
 
       services.auth0.getToken().then((token) => {
         operation.setContext({
@@ -64,13 +65,13 @@ export async function createApolloClient(
     },
   });
 
-  const cache = new InMemoryCache()
+  const cache = new InMemoryCache();
 
   await persistCache({
     cache,
     storage: new LocalStorageWrapper(window.localStorage),
     maxSize: false,
-    debug: true
+    debug: true,
   });
 
   const apollo = new ApolloClient({

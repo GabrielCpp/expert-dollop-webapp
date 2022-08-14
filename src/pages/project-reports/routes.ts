@@ -18,5 +18,4 @@ export const routes: NamedRouteDefinition[] = [
     path: "/projects/:projectId/:selectedPath/report/:reportDefinitionId",
     components: [{ component: Report, exact: false, tags: ["main-content"] }],
   },
-
 ];

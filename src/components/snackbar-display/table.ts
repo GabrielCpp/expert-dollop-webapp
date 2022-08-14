@@ -53,7 +53,7 @@ export function queryFeedNotification(feedId: string): Query {
     where: ops("arrayStartWith", recordParam("feedId"), queryParam("feedId")),
     joins: [],
     sort: [],
-    parameters: {feedId},
+    parameters: { feedId },
     projections: [],
   };
 }

@@ -7,6 +7,6 @@ export function createReduxDb(): ReduxDatabase {
   const db = new ReduxDatabase();
   addFormFieldRecordTable(db);
   setupTranslationTables(db);
-  setupSnackbarTable(db)
+  setupSnackbarTable(db);
   return db;
 }

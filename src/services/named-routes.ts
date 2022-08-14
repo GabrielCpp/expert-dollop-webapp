@@ -13,6 +13,6 @@ export function createNamedRouteService() {
     ...datasheetRoutes,
     ...reportRoutes,
     ...authRoutes,
-    ...commandOrdersRoutes
+    ...commandOrdersRoutes,
   ]);
 }
