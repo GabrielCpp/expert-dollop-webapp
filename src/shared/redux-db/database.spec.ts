@@ -37,7 +37,7 @@ describe("Database", () => {
     const expectedResult = { id: "2", description: "I must do B" };
     const [records] = database.watchQuery(
       QueryBuilder.fromTable("todo")
-        .where(ops("$eq", ops("$number", recordParam("id")), queryParam("id")))
+        .where(ops("eq", ops("number", recordParam("id")), queryParam("id")))
         .bindParameters({
           id: 2,
         }).query,

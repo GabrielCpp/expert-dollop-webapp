@@ -48,6 +48,19 @@ steps:
     env:
       - "DOCKER_BUILDKIT=1"
 
+  # Test
+  - name: "gcr.io/cloud-builders/docker"
+    id: test
+    entrypoint: "bash"
+    args:
+      - -ceux
+      - |
+        source /workspace/build_vars
+        docker pull $$BUILD_CI_IMAGE
+        docker build --target=test -t $$BUILD_CI_TEST_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $$BUILD_CI_IMAGE .
+        docker run $$BUILD_CI_TEST_IMAGE
+    env:
+      - "DOCKER_BUILDKIT=1"
   # Build
   - name: "gcr.io/cloud-builders/docker"
     id: build

@@ -14,7 +14,7 @@ RUN yarn build
 
 # ------------------------------------------------ test ------------------------------------------------
 FROM base as test 
-ENTRYPOINT [ "npm", "test" ]
+ENTRYPOINT [ "bash" "-c", "CI=true npm test" ]
 
 # ------------------------------------------------ release ------------------------------------------------
 FROM nginx:1.23.0-alpine as release
