@@ -77,3 +77,6 @@ steps:
         docker pull $$BUILD_IMAGE:$$BUILD_TAG
         docker tag $$BUILD_IMAGE:$$BUILD_TAG $$BUILD_IMAGE:latest
         docker image push $$BUILD_IMAGE:latest
+logsBucket: $_LOGS_BUCKET_NAME
+options:
+  logging: GCS_ONLY
