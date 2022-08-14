@@ -24,3 +24,6 @@ steps:
         gsutil cp build/ gs://$$_WEBAPP_BUCKET_NAME
         gsutil iam ch allUsers:objectViewer gs://$$_WEBAPP_BUCKET_NAME
         gsutil web set -m index.html -e 404.html gs://$$_WEBAPP_BUCKET_NAME
+logsBucket: $_LOGS_BUCKET_NAME
+options:
+  logging: GCS_ONLY
