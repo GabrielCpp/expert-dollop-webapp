@@ -5,12 +5,19 @@ COPY package.json package.json
 COPY yarn.lock yarn.lock 
 RUN yarn install 
 
-COPY tsconfig.json /app/tsconfig.json
-COPY public /app/public
-COPY src /app/src
-
+# ------------------------------------------------ build ------------------------------------------------
 FROM base as build
+COPY tsconfig.json ./tsconfig.json
+COPY public ./public
+COPY src ./src
 RUN yarn build
 
+# ------------------------------------------------ test ------------------------------------------------
+FROM base as test 
+ENTRYPOINT [ "npm", "test" ]
+
+# ------------------------------------------------ release ------------------------------------------------
 FROM nginx:1.23.0-alpine as release
 COPY --from=build /app/build /usr/share/nginx/html
+COPY ./configs/default /etc/nginx/sites-available/default 
+ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]

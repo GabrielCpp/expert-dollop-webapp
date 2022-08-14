@@ -65,7 +65,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "g:s": "graphql-codegen --config codegen.yml",
-    "prettify": "yarn prettier --write src"
+    "prettify": "yarn prettier --write src",
+    "docker:build": "docker build --target release -t expert-dollup-webapp-release .",
+    "docker:shell": "npm run docker:build && docker run --entrypoint bash -it expert-dollup-webapp-release",
+    "docker:start": "npm run docker:build && docker run expert-dollup-webapp-release"
   },
   "eslintConfig": {
     "extends": [

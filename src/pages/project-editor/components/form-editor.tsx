@@ -57,6 +57,10 @@ export function FormEditor({
   const { t } = useTranslation();
   const { success, catchError, clear } = useNotification(snackbarId);
   const { loading, data, error, refetch } = useFindProjectFormContentQuery({
+    defaultOptions: {
+      fetchPolicy: "cache-and-network",
+      errorPolicy: "ignore",
+    },
     variables: {
       projectId,
       formId,
