@@ -28,52 +28,52 @@ steps:
 
         env | grep "^BUILD_" > /workspace/build_vars
 
-# Build cache
-- name: 'gcr.io/cloud-builders/docker'
-  id: build_cache
-  entrypoint: 'bash'
-  args: 
-  - -ceux
-  - |
-    source /workspace/build_vars
+  # Build cache
+  - name: "gcr.io/cloud-builders/docker"
+    id: build_cache
+    entrypoint: "bash"
+    args:
+      - -ceux
+      - |
+        source /workspace/build_vars
 
-    if [ "$$BUILD_CACHE_TAGS" == "[]" ]; then
-      docker build --target=build -t $$BUILD_CI_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 .
-    else 
-      docker pull $$BUILD_CI_IMAGE
-      docker build --target=build -t $$BUILD_CI_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $$BUILD_CI_IMAGE . 
-    fi
+        if [ "$$BUILD_CACHE_TAGS" == "[]" ]; then
+          docker build --target=build -t $$BUILD_CI_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 .
+        else 
+          docker pull $$BUILD_CI_IMAGE
+          docker build --target=build -t $$BUILD_CI_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $$BUILD_CI_IMAGE . 
+        fi
 
-    docker image push $$BUILD_CI_IMAGE
-  env:
-  - 'DOCKER_BUILDKIT=1'
+        docker image push $$BUILD_CI_IMAGE
+    env:
+      - "DOCKER_BUILDKIT=1"
 
-# Build
-- name: 'gcr.io/cloud-builders/docker'
-  id: build
-  waitFor: [ 'test' ]
-  entrypoint: 'bash'
-  args: 
-  - -ceux
-  - |
-    source /workspace/build_vars
-    docker pull -q $$BUILD_CI_IMAGE
-    docker build --target=release -t $$BUILD_IMAGE:$$BUILD_TAG --cache-from $$BUILD_CI_IMAGE . 
-    docker push $$BUILD_IMAGE:$$BUILD_TAG
-  env:
-  - 'DOCKER_BUILDKIT=1'
+  # Build
+  - name: "gcr.io/cloud-builders/docker"
+    id: build
+    waitFor: ["test"]
+    entrypoint: "bash"
+    args:
+      - -ceux
+      - |
+        source /workspace/build_vars
+        docker pull -q $$BUILD_CI_IMAGE
+        docker build --target=release -t $$BUILD_IMAGE:$$BUILD_TAG --cache-from $$BUILD_CI_IMAGE . 
+        docker push $$BUILD_IMAGE:$$BUILD_TAG
+    env:
+      - "DOCKER_BUILDKIT=1"
 
-# Deploy
-- name: gcr.io/cloud-builders/docker
-  id: deploy
-  waitFor: [ 'build' ]
-  entrypoint: bash
-  args:
-  - -ceux
-  - |
-    source /workspace/build_vars
-    if [ "$$BUILD_BRANCH_NAME" != "main" ]; then exit 0; fi
+  # Deploy
+  - name: gcr.io/cloud-builders/docker
+    id: deploy
+    waitFor: ["build"]
+    entrypoint: bash
+    args:
+      - -ceux
+      - |
+        source /workspace/build_vars
+        if [ "$$BUILD_BRANCH_NAME" != "main" ]; then exit 0; fi
 
-    docker pull $$BUILD_IMAGE:$$BUILD_TAG
-    docker tag $$BUILD_IMAGE:$$BUILD_TAG $$BUILD_IMAGE:latest
-    docker image push $$BUILD_IMAGE:latest
+        docker pull $$BUILD_IMAGE:$$BUILD_TAG
+        docker tag $$BUILD_IMAGE:$$BUILD_TAG $$BUILD_IMAGE:latest
+        docker image push $$BUILD_IMAGE:latest
