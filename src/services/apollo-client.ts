@@ -26,11 +26,13 @@ export async function createApolloClient(
         null;
 
       services.auth0.getToken().then((token) => {
-        operation.setContext({
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        if(token !== undefined && token !== '') {
+          operation.setContext({
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        }
 
         sub = forward(operation).subscribe(observable);
       });
