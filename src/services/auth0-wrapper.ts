@@ -17,7 +17,7 @@ export class Auth0Wrapper implements Auth0Context {
     }
 
     if (this.auth0 === undefined) {
-      throw new Error("Auth0Wrapper uninitialized");
+      return token
     }
 
     try {
