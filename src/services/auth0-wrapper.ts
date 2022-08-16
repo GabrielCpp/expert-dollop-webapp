@@ -17,6 +17,7 @@ export class Auth0Wrapper implements Auth0Context {
     }
 
     if (this.auth0 === undefined) {
+      console.error(`Auth0 wrapper uninitiazed`)
       return token
     }
 
@@ -26,8 +27,11 @@ export class Auth0Wrapper implements Auth0Context {
       });
     } catch (e: unknown) {
       const error = e as Error;
-      if (error.message === "Consent required") {
+      if (["Login required", "Consent required"].includes(error.message)) {
         this.auth0.loginWithRedirect();
+      }
+      else {
+        console.error(`name: '${error.name}'`, e)
       }
     }
 

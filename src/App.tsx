@@ -1,10 +1,9 @@
 import { ApolloProvider } from "@apollo/client";
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
 import { CircularProgress, ThemeProvider } from "@mui/material";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
-  Redirect,
   Route,
   Switch,
   useHistory,
@@ -12,53 +11,33 @@ import {
 
 import { GlobalLoading } from "./components/global-loading";
 import { LoadingFrame } from "./components/loading-frame";
-import { useCurrentUserQuery } from "./generated";
-import { LoginRedirect } from "./pages/account";
+import { CurrentUserDocument, CurrentUserQueryResult } from "./generated";
+import { LoginRedirect, LogoutRedirect } from "./pages/account";
+import {
+  AuthentificationCheck,
+  RouteGuard,
+} from "./pages/account/views/route-guard";
+
 import { Dashboard } from "./pages/dashboard";
 import { Services } from "./services-def";
 import { ServiceContext } from "./shared/service-context";
 import { theme } from "./theme";
 
-const Auth0ProviderWithHistory = ({ children }: { children: any }) => {
-  const history = useHistory();
-  const domain = process.env.REACT_APP_AUTH0_DOMAIN as string;
-  const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID as string;
-  const audience = process.env.REACT_APP_AUTH0_AUDIENCE as string;
-  const redirectUri = process.env.REACT_APP_AUTH0_REDIRECT_URI as string;
+const checkAuthenticated: AuthentificationCheck = (s) =>
+  s.auth0
+    .getToken()
+    .then((token) => token === undefined || token === null || token === "");
 
-  const onRedirectCallback = (appState?: AppState) => {
-    history.push(appState?.returnTo || window.location.pathname);
-  };
+const checkRegistered: AuthentificationCheck = (s) =>
+  s.apollo.query({ query: CurrentUserDocument }).then((result) => {
+    const user = result.data?.currentUser;
+    return user === null || user === undefined;
+  });
 
-  if (process.env.REACT_APP_AUTH0_DEV_TOKEN) {
-    return children;
-  }
-
-  return (
-    <Auth0Provider
-      domain={domain}
-      clientId={clientId}
-      redirectUri={redirectUri}
-      onRedirectCallback={onRedirectCallback}
-    >
-      {children}
-    </Auth0Provider>
-  );
-};
-
-function UserRedirection() {
-  const { data: user, error, loading } = useCurrentUserQuery();
-
-  if (loading || error || user === undefined) {
-    return <GlobalLoading />;
-  }
-
-  if (user === null) {
-    return <Redirect to="/registration" />;
-  }
-
-  return <Redirect to="/app" />;
-}
+const ensures: [string, AuthentificationCheck][] = [
+  ["/login", checkAuthenticated],
+  ["/registration", checkRegistered],
+];
 
 interface AppProps {
   services: Services;
@@ -69,7 +48,12 @@ function App({ services }: AppProps) {
     <Suspense fallback={<GlobalLoading />}>
       <ThemeProvider theme={theme}>
         <Router>
-          <Auth0ProviderWithHistory>
+          <Auth0Provider
+            domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
+            clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
+            redirectUri={process.env.REACT_APP_AUTH0_REDIRECT_URI as string}
+            audience={process.env.REACT_APP_AUTH0_AUDIENCE as string}
+          >
             <ServiceContext.Provider value={services}>
               <ApolloProvider client={services.apollo}>
                 <LoadingFrame
@@ -80,17 +64,19 @@ function App({ services }: AppProps) {
                     <Route path={"/login"}>
                       <LoginRedirect />
                     </Route>
-                    <Route path="/" exact={true}>
-                      <UserRedirection />
+                    <Route path={"/logout"}>
+                      <LogoutRedirect />
                     </Route>
                     <Route>
-                      <Dashboard />
+                      <RouteGuard checks={ensures} loader={<GlobalLoading />}>
+                        <Dashboard />
+                      </RouteGuard>
                     </Route>
                   </Switch>
                 </LoadingFrame>
               </ApolloProvider>
             </ServiceContext.Provider>
-          </Auth0ProviderWithHistory>
+          </Auth0Provider>
         </Router>
       </ThemeProvider>
     </Suspense>
