@@ -1,23 +1,18 @@
 import { ApolloProvider } from "@apollo/client";
-import { AppState, Auth0Provider } from "@auth0/auth0-react";
+import { Auth0Provider } from "@auth0/auth0-react";
 import { CircularProgress, ThemeProvider } from "@mui/material";
-import { Suspense, useEffect, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  useHistory,
-} from "react-router-dom";
-
+import { Suspense } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { GlobalLoading } from "./components/global-loading";
 import { LoadingFrame } from "./components/loading-frame";
-import { CurrentUserDocument, CurrentUserQueryResult } from "./generated";
-import { LoginRedirect, LogoutRedirect } from "./pages/account";
+import { CurrentUserDocument } from "./generated";
 import {
   AuthentificationCheck,
+  AuthTokenView,
+  LoginRedirect,
+  LogoutRedirect,
   RouteGuard,
-} from "./pages/account/views/route-guard";
-
+} from "./pages/account";
 import { Dashboard } from "./pages/dashboard";
 import { Services } from "./services-def";
 import { ServiceContext } from "./shared/service-context";
@@ -66,6 +61,9 @@ function App({ services }: AppProps) {
                     </Route>
                     <Route path={"/logout"}>
                       <LogoutRedirect />
+                    </Route>
+                    <Route path={"/token"}>
+                      <AuthTokenView />
                     </Route>
                     <Route>
                       <RouteGuard checks={ensures} loader={<GlobalLoading />}>
