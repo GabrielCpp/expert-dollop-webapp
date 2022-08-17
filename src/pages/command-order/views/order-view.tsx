@@ -4,20 +4,10 @@ import {
   Collapse,
   Grid,
   IconButton,
-  List,
-  ListItemButton,
-  ListItemText,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
 } from "@mui/material";
 import { groupBy, head, orderBy, values } from "lodash";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { useDynamicTranlation } from "../../../components/translation";

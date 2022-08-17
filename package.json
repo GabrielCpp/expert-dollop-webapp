@@ -25,8 +25,8 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-i18next": "^11.8.4",
-    "react-mde": "^11.0.6",
     "react-router-dom": "^5.2.0",
+    "react-use": "^17.4.0",
     "showdown": "^1.9.1",
     "uuid": "^8.3.2",
     "web-vitals": "^0.2.4"

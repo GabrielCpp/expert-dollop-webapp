@@ -17,12 +17,10 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { compact } from "lodash";
 import { Link as RouterLink, Route } from "react-router-dom";
-
+import { useObservable } from "react-use";
 import { ActionToolbar } from "../../components/custom-styles";
 import { GlobalLoading } from "../../components/global-loading";
 import { useLocaleSelector } from "../../components/translation/use-translation-scope";
-import { useCurrentUserQuery } from "../../generated";
-import { NonExistentUser, useUser } from "../../hooks/use-user";
 import { useServices } from "../../services-def";
 import { MatchingRoutes, useComponentMatcher } from "../../shared/named-routes";
 import { DATASHEET_INDEX } from "../datasheet-editor/routes";
@@ -112,14 +110,12 @@ const locales: Locale[] = [
 ];
 
 export function Dashboard() {
-  const { routes } = useServices();
+  const { routes, auth0 } = useServices();
   const [locale, setLocale] = useLocaleSelector();
-  const { data: user, error, loading, refetch } = useCurrentUserQuery();
-  const currentUser = user?.currentUser || NonExistentUser;
-
-  if (loading || error || user === undefined) {
-    return <GlobalLoading />;
-  }
+  const currentUser = useObservable(
+    auth0.observeCurrentUser(),
+    auth0.currentUser
+  );
 
   const drawerListItems = compact([
     routes.isAccessible(PROJECT_DEFINITION_INDEX, currentUser.permissions) && (
@@ -249,11 +245,7 @@ export function Dashboard() {
 
         <RouterToolbar />
         <MainSection>
-          <MatchingRoutes
-            tag="main-content"
-            firstMatch={true}
-            completeAction={refetch}
-          />
+          <MatchingRoutes tag="main-content" firstMatch={true} />
         </MainSection>
         <Box pt={4}>
           <Copyright />
@@ -264,7 +256,8 @@ export function Dashboard() {
 }
 
 function RouterToolbar() {
-  const user = useUser();
+  const { auth0 } = useServices();
+  const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
   const { hasMatch, matchingComponents } = useComponentMatcher(
     "main-toolbar",
     user.permissions

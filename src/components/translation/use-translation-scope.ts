@@ -5,7 +5,7 @@ import {
 } from "./tables";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../../services-def";
-import { usePromise } from "../../shared/use-promise";
+import { useAsync } from "react-use";
 import i18next from "i18next";
 import { useState } from "react";
 import { zip } from "lodash";
@@ -52,15 +52,17 @@ function addBundles(
 export function useDynamicTranlation(ressourceId: string): TranlationHook {
   const { reduxDb, api } = useServices();
   const { i18n } = useTranslation();
-  const { loading, error } = usePromise<Record<string, string>>(
-    () => api.loadTranslations(ressourceId, i18n.language),
-    { skip: ressourceId === "", onComplete }
+  const { loading, error } = useAsync(
+    async () => {
+      if(ressourceId !== "") {
+        const data = await api.loadTranslations(ressourceId, i18n.language)
+        const mappedTranslations = mapTranslationBundle(ressourceId, data);
+        addTranslations(reduxDb, mappedTranslations);
+      }
+    },
+    [api, ressourceId, mapTranslationBundle, addTranslations]
   );
 
-  function onComplete(data: Record<string, string>) {
-    const mappedTranslations = mapTranslationBundle(ressourceId, data);
-    addTranslations(reduxDb, mappedTranslations);
-  }
 
   return { isLoading: loading, error };
 }

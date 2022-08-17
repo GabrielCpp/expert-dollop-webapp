@@ -7,32 +7,46 @@ import { GlobalLoading } from "./components/global-loading";
 import { LoadingFrame } from "./components/loading-frame";
 import { CurrentUserDocument } from "./generated";
 import {
-  AuthentificationCheck,
+  RouteCheck,
   AuthTokenView,
   LoginRedirect,
   LogoutRedirect,
   RouteGuard,
+  RedirectChecks,
 } from "./pages/account";
 import { Dashboard } from "./pages/dashboard";
 import { Services } from "./services-def";
+import { getSearchParams } from "./shared/named-routes";
 import { ServiceContext } from "./shared/service-context";
 import { theme } from "./theme";
 
-const checkAuthenticated: AuthentificationCheck = (s) =>
+const checkAuthenticated: RouteCheck = (s) =>
   s.auth0
     .getToken()
     .then((token) => token === undefined || token === null || token === "");
 
-const checkRegistered: AuthentificationCheck = (s) =>
-  s.apollo.query({ query: CurrentUserDocument }).then((result) => {
-    const user = result.data?.currentUser;
-    return user === null || user === undefined;
-  });
+const checkRegistered: RouteCheck = async (s) => s.auth0.currentUser.id === "";
 
-const ensures: [string, AuthentificationCheck][] = [
+const checkError: RouteCheck = async (s) => {
+  const params = getSearchParams(window.location.search);
+  const errorMessage = params["error"];
+  if (![null, undefined, ""].includes(errorMessage)) {
+    s.loader.onError(new Error(decodeURIComponent(errorMessage)));
+    return true;
+  }
+
+  return false;
+};
+
+const ensures: RedirectChecks = [
+  [false, checkError],
   ["/login", checkAuthenticated],
   ["/registration", checkRegistered],
 ];
+
+function ApplicationError({ error }: { error: Error }) {
+  return <h1>Something went wrong.</h1>;
+}
 
 interface AppProps {
   services: Services;
@@ -52,6 +66,7 @@ function App({ services }: AppProps) {
             <ServiceContext.Provider value={services}>
               <ApolloProvider client={services.apollo}>
                 <LoadingFrame
+                  errorComponent={ApplicationError}
                   loaderComponent={<CircularProgress color="inherit" />}
                   loader={services.loader}
                 >

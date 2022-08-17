@@ -1,25 +1,25 @@
-import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Services, useServices } from "../../../services-def";
+import { useAsync } from "react-use";
 
-export type AuthentificationCheck = (s: Services) => Promise<boolean>;
+export type RouteCheck = (s: Services) => Promise<boolean>;
+export type RedirectChecks = [string | false, RouteCheck][];
 
 const bindyChecks =
-  (
-    history: ReturnType<typeof useHistory>,
-    s: Services,
-    setDone: (v: boolean) => void
-  ) =>
-  async (checks: [string, AuthentificationCheck][]) => {
+  (history: ReturnType<typeof useHistory>, s: Services) =>
+  async (checks: RedirectChecks) => {
     for (const [url, check] of checks) {
-      if ((await check(s)) && url !== window.location.pathname) {
-        console.log("Redirect to ", url, " from ", window.location.href);
-        history.push(url);
+      const succeed = await check(s);
+
+      if (succeed) {
+        if (url !== window.location.pathname && url !== false) {
+          console.log("Redirect to ", url, " from ", window.location.href);
+          history.push(url);
+        }
+
         break;
       }
     }
-
-    setDone(true);
   };
 
 export function RouteGuard({
@@ -29,17 +29,21 @@ export function RouteGuard({
 }: {
   children: JSX.Element;
   loader: JSX.Element;
-  checks: [string, AuthentificationCheck][];
+  checks: RedirectChecks;
 }): JSX.Element {
   const s = useServices();
   const history = useHistory();
-  const [done, setDone] = useState<boolean>(false);
+  const state = useAsync(
+    () => bindyChecks(history, s)(checks),
+    [history, s, checks]
+  );
 
-  useEffect(() => {
-    bindyChecks(history, s, setDone)(checks);
-  });
+  if (state.error) {
+    s.loader.onError(state.error);
+    return loader;
+  }
 
-  if (done === false) {
+  if (state.loading === true) {
     return loader;
   }
 

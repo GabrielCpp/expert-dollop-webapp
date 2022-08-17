@@ -69,12 +69,15 @@ export async function createApolloClient(
 
   const cache = new InMemoryCache();
 
-  await persistCache({
-    cache,
-    storage: new LocalStorageWrapper(window.localStorage),
-    maxSize: false,
-    debug: true,
-  });
+  if(false) {
+    await persistCache({
+      cache,
+      storage: new LocalStorageWrapper(window.localStorage),
+      maxSize: false,
+      debug: true,
+    });
+  }
+
 
   const apollo = new ApolloClient({
     cache,

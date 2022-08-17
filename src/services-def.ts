@@ -24,6 +24,8 @@ export interface LoaderNotifier {
 export interface Auth0Context {
   setContext(auht0: Auth0ContextInterface<User> | undefined): void;
   getToken(): Promise<string | undefined>;
+  observeCurrentUser(): { subscribe: (listener: (value: User) => void) => { unsubscribe: () => void } }
+  currentUser: User
 }
 
 export interface ApiService {

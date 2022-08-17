@@ -9,15 +9,16 @@ import { HttpApi } from "./api-service";
 import { HttpFetchService } from "./http-service";
 
 export async function createServices(): Promise<Services> {
+  const getServices = () => services
   const services: Services = {
-    auth0: new Auth0Wrapper(),
-    apollo: await createApolloClient(() => services),
-    api: new HttpApi(() => services),
+    auth0: new Auth0Wrapper(getServices),
+    apollo: await createApolloClient(getServices),
+    api: new HttpApi(getServices),
     routes: createNamedRouteService(),
     reduxDb: createReduxDb(),
     ajv: new AjvWithError(),
     loader: new LoaderService(),
-    http: new HttpFetchService(() => services),
+    http: new HttpFetchService(getServices),
   };
 
   return services;

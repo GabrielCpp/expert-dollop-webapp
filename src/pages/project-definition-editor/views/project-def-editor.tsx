@@ -9,7 +9,7 @@ import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 import { FormDefinitionEditor } from "./form-definition-editor";
 import { RootSectionBar } from "./root-section-bar";
 import { SidePanel } from "./side-panel";
-import { useUser } from "../../../hooks/use-user";
+import { useObservable } from "react-use";
 
 interface EditorLayoutParams extends Record<string, string> {
   projectDefinitionId: string;
@@ -17,7 +17,7 @@ interface EditorLayoutParams extends Record<string, string> {
 }
 
 export function EditorLayout() {
-  const { routes } = useServices();
+  const { routes, auth0 } = useServices();
   const params = useParams<EditorLayoutParams>();
   const { projectDefinitionId, selectedPath } = params;
   const { loading, path } = useProjectDefPath(
@@ -26,7 +26,7 @@ export function EditorLayout() {
   );
   const [rootSectionDefId, subSectionDefId, formDefId] = path || [];
   const { isLoading, error } = useDynamicTranlation(projectDefinitionId);
-  const user = useUser();
+  const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
 
   useLoaderEffect(error, isLoading || loading);
 

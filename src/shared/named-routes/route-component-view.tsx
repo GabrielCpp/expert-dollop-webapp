@@ -1,13 +1,12 @@
 import { Route, Switch } from "react-router-dom";
-import { useUser } from "../../hooks/use-user";
-
 import { useServices } from "../../services-def";
 import { ComponentRouteMatching, NamedRoutes } from "./named-route";
+import { useObservable } from "react-use";
 
 interface MatchingRoutesProps {
   tag: string;
   firstMatch?: boolean;
-  completeAction: () => Promise<unknown>;
+  completeAction?: () => Promise<unknown>;
 }
 
 export function MatchingRoutes({
@@ -15,8 +14,8 @@ export function MatchingRoutes({
   firstMatch = false,
   completeAction,
 }: MatchingRoutesProps) {
-  const { routes } = useServices();
-  const user = useUser();
+  const { routes, auth0 } = useServices();
+  const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
 
   const matchs = routes
     .allHavingTag(tag, user.permissions)

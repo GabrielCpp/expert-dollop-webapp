@@ -1,11 +1,12 @@
 import { Backdrop } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { LoaderNotifier, useServices } from "../services-def";
 import { useId } from "../shared/redux-db";
 
 interface LoadingSpinnerProps {
   children: JSX.Element | JSX.Element[];
   loaderComponent: JSX.Element;
+  errorComponent: (p: { error: Error }) => JSX.Element;
   loader: LoaderNotifier;
 }
 
@@ -54,8 +55,8 @@ export class LoadingFrame extends React.Component<
 
   render() {
     if (this.state.lastError) {
-      // You can render any custom fallback UI
-      return <h1>Something went wrong.</h1>;
+      const ErrorComponent = this.props.errorComponent;
+      return <ErrorComponent error={this.state.lastError}></ErrorComponent>;
     }
     return (
       <>
@@ -71,48 +72,6 @@ export class LoadingFrame extends React.Component<
       </>
     );
   }
-}
-
-export function LoadingFrame2({
-  children,
-  loaderComponent,
-}: LoadingSpinnerProps) {
-  const { loader } = useServices();
-  const [isLoading, setIsLoading] = useState<boolean>(loader.lastLoadingState);
-  const [lastError, setError] = useState<Error | undefined>(undefined);
-
-  useEffect(() => {
-    function onLoading(_: boolean, error?: Error): void {
-      if (error) {
-        console.error(error);
-        setError(error);
-      } else {
-        setError(undefined);
-      }
-
-      setIsLoading(() => loader.lastLoadingState);
-    }
-
-    return loader.addHandler(onLoading);
-  }, [loader]);
-
-  if (lastError) {
-    return <div>{lastError.name}</div>;
-  }
-
-  return (
-    <>
-      {
-        <Backdrop
-          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          open={isLoading}
-        >
-          {loaderComponent}
-        </Backdrop>
-      }
-      {children}
-    </>
-  );
 }
 
 export function useLoaderEffect(

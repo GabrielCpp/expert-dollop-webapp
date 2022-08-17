@@ -7,4 +7,4 @@ export type {
 export { NamedRoutes } from "./named-route";
 export { renderNamedRoute, MatchingRoutes } from "./route-component-view";
 export { useComponentMatcher } from "./hooks/use-component-matcher";
-export { useUrlQueryParams } from "./hooks/use-url-query-params";
+export { useUrlQueryParams, getSearchParams } from "./hooks/use-url-query-params";
