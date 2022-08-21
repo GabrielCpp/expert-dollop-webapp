@@ -1,5 +1,5 @@
 import { NamedRouteDefinition } from "../../shared/named-routes";
-import { AddContainerView, EditContainerView } from "./views/add-node-view";
+import { AddContainerView, EditContainerView } from "./views/node-form";
 import { EditorLayout } from "./views/project-def-editor";
 import { ProjectDefinitionHome } from "./views/home";
 import { EditFormulas } from "./toolbars/edit-formulas";

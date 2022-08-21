@@ -29,7 +29,7 @@ export function checkboxField({
             onChange={onChange}
             name={name}
             color="primary"
-            sx={{ padding: theme.spacing(0.5) }}
+            sx={{ paddingTop: theme.spacing(0.5) }}
           />
         }
         label={

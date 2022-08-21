@@ -14,7 +14,7 @@ export function EditFormulas() {
       component={RouterLink}
       to={routes.render(PROJECT_DEFINITION_EDITOR_FORMULAS_EDIT, params)}
     >
-      {t("project_definition_editor.edit_formulas")}
+      {t("definition_editor.edit_formulas.button_edit")}
     </Button>
   );
 }

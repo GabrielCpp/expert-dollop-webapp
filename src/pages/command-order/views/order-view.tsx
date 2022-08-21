@@ -15,7 +15,7 @@ import {
   FindDistributableItemsQuery,
   useFindDistributableItemsQuery,
 } from "../../../generated";
-import { useDbTranslation } from "../../project-definition-editor/hooks/db-trans";
+import { useDbTranslation } from "../../definition-editor/hooks/db-trans";
 
 interface OrderViewParams {
   projectId: string;

@@ -34,35 +34,48 @@
       "selection_required": "Select a section"
     }
   },
-  "project_definition_editor": {
-    "empty_placeholder": "<empty>",
-    "add_new_sub_section": "Add new sub section",
-    "add_new_form": "Add new form",
-    "add_new_section": "Add new section",
-    "edit_formulas": "Edit formulas",
-    "add_node_form": {
-      "add_root_section": "Add root section",
-      "edit_root_section": "Edit root section",
-      "add_sub_section": "Add sub section",
-      "edit_sub_section": "Edit sub section",
-      "add_form": "Add form",
-      "edit_form": "Edit form",
-      "add_section": "Add section",
-      "edit_section": "Edit section",
-      "add_field": "Add field",
-      "edit_field": "Edit field",
-      "is_collection": "Is a collection",
-      "name": "Name",
-      "instanciate_by_default": "Instanciate by default",
-      "order": "Order",
-      "label": "Label",
-      "help_text": "Help text",
+  "definition_editor": {
+    "shared": {
+      "empty_placeholder": "<empty>"
+    },
+    "edit_formulas": {
+      "button_edit": "Edit formulas"
+    },
+    "side_panel": {
+      "add_new_form": "Add new form",
+      "add_new_sub_section": "Add new sub section"
+    },
+    "form_editor": {
+      "add_new_section": "Add new section"
+    },
+    "node_form": {
       "is_collapsible": "Is collapsible",
       "triggers": {
         "action": "Action",
         "change_name_option": "On Change",
         "set_visibility_option": "Toggle visibility"
-      }
+      },
+
+      "field_name": "Name",
+      "field_is_collection": "Is a collection",
+      "field_instanciate_by_default": "Instanciate by default",
+      "field_order": "Order",
+      "tab_french": "French",
+      "tab_english": "English",
+      "title_root_section_add": "Add root section",
+      "title_root_section_edit": "Edit root section",
+      "title_sub_section_add": "Add sub section",
+      "title_sub_section_edit": "Edit sub section",
+      "title_form_add": "Add form",
+      "title_form_edit": "Edit form",
+      "title_section_add": "Add section",
+      "title_section_edit": "Edit section",
+      "title_field_add": "Add field",
+      "title_field_edit": "Edit field",
+      "field_type": "Field's type",
+      "field_is_checkbox": "Present as a checkbox",
+      "field_label": "Label",
+      "field_help_text": "Help text"
     }
   },
   "project_reports": {

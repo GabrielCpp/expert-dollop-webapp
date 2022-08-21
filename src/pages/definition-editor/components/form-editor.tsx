@@ -31,7 +31,7 @@ import {
   checkboxField,
 } from "../../../components/table-fields";
 import { useDbTranslation } from "../hooks/db-trans";
-import { EditButton } from "../components/edit-button";
+import { EditButton } from "./edit-button";
 import {
   buildAddNodeParams,
   buildEditNodeParams,
@@ -293,7 +293,7 @@ export function FormDefinitionEditor({
                   }
                   title={
                     <Typography variant="h5" component="h5" gutterBottom>
-                      {t("project_definition_editor.add_new_section")}
+                      {t("definition_editor.form_editor.add_new_section")}
                     </Typography>
                   }
                 />

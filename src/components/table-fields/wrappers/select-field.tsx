@@ -32,9 +32,17 @@ export function selectField({
   options,
 }: SelectProps) {
   return (
-    <FormControl>
-      <InputLabel shrink>{t(label)}</InputLabel>
-      <Select name={name} value={value} onChange={onChange} id={id}>
+    <FormControl error={errors.length > 0} fullWidth>
+      <InputLabel shrink id={id}>
+        {t(label)}
+      </InputLabel>
+      <Select
+        value={value}
+        onChange={onChange}
+        label={t(label)}
+        labelId={id}
+        id={id}
+      >
         {options.map((option) => (
           <MenuItem key={option.id} value={option.id}>
             {option.title === undefined ? (

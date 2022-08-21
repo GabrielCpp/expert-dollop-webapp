@@ -24,7 +24,7 @@ import { useServices } from "../../services-def";
 import { MatchingRoutes, useComponentMatcher } from "../../shared/named-routes";
 import { theme } from "../../theme";
 import { DATASHEET_INDEX } from "../datasheet-editor/routes";
-import { PROJECT_DEFINITION_INDEX } from "../project-definition-editor/routes";
+import { PROJECT_DEFINITION_INDEX } from "../definition-editor/routes";
 import { PROJECT_INDEX } from "../project-editor/routes";
 
 const drawerWidth = 220;

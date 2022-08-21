@@ -1,14 +1,13 @@
 import { ErrorObject, JSONSchemaType, Schema } from "ajv";
-import { isEqual, map, omit, set, sortBy, startsWith, tail } from "lodash";
+import { isEqual, set, sortBy, startsWith, tail } from "lodash";
 import { AjvFactory } from "../../services-def";
-
 import {
   ops,
   Query,
   QueryBuilder,
   queryParam,
   recordParam,
-  TableRecord,
+  TableRecord
 } from "../../shared/redux-db";
 import { ReduxDatabase } from "../../shared/redux-db/database";
 
@@ -25,7 +24,6 @@ export interface FieldChildren {
   t: Translator;
 }
 
-
 export interface FormFieldRecord extends TableRecord {
   path: string[];
   name: string;
@@ -35,6 +33,10 @@ export interface FormFieldRecord extends TableRecord {
   jsonSchemaValidator: Schema | JSONSchemaType<any>;
   fullPath: string[]
   metadata?: unknown
+}
+
+export function setupFormTables(database: ReduxDatabase): void {
+  database.addTable(FormFieldTableName);
 }
 
 export function createFormFieldRecord(
@@ -139,50 +141,6 @@ export function deleteChildFormFieldRecords(
   table.removeMany(records);
 }
 
-export const EMAIL_VALIDATOR = {
-  type: "string",
-  "format": "email"
-};
-
-export const STRING_VALIDATOR = {
-  type: "string",
-  minLength: 1,
-  pattern: "[^\\s]+",
-};
-export const BOOLEAN_VALIDATOR = { type: "boolean" };
-export const INT_VALIDATOR = { type: "integer" };
-
-export function setupFormTables(database: ReduxDatabase): void {
-  database.addTable(FormFieldTableName);
-}
-
-export function buildFieldByNameMap(
-  records: FormFieldRecord[]
-): Map<string, FormFieldRecord> {
-  const fieldMap = new Map<string, FormFieldRecord>();
-
-  for (const record of records) {
-    fieldMap.set(record.name, record);
-  }
-
-  return fieldMap;
-}
-
-interface IndexedRecord extends Record<string, unknown> {
-  index: number;
-}
-
-export function indexRecords<T>(
-  objectArray: Record<string, IndexedRecord>
-): T[] {
-  const tuples: [number, unknown][] = map(objectArray, (x) => [
-    x.index,
-    omit(x, "index"),
-  ]);
-  const sortedArray = sortBy(tuples, (x) => x[0]).map((x) => x[1]);
-  return sortedArray as T[];
-}
-
 export function buildFormMapById(
   database: ReduxDatabase,
   rootPath: string[]
@@ -197,27 +155,43 @@ export function buildFormMapById(
   return fields;
 }
 
-export const hydrateForm = <T>(database: ReduxDatabase, rootPath: string[], usename = true): T => {
+export const hydrateForm = <T>(database: ReduxDatabase, rootPath: string[]): T => {
     function getPathLength(x: [string[], unknown]): number {
       return x[0].length;
     }
+    function getOrdinal(metadata?: unknown): number[] {
+      const withOrdinal = metadata as { ordinal: number} | undefined
+
+      if(withOrdinal?.ordinal === undefined) {
+        return []
+      }
+
+      return [withOrdinal.ordinal]
+    }
+
+    function makeAssignationPath(record: FormFieldRecord): Array<string | number> {
+      return [
+        ...tail(record.path).map(id => idToName.get(id) as string),
+        ...getOrdinal(record.metadata),
+        record.name
+      ]
+    }
 
     const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-    const valuePaths: Array<[string[], unknown]> = sortBy(
-      records.map((record) => [
-        [
-          ...tail(record.path),
-          usename ? record.name : record.id,
-        ],
-        record.value,
-      ]),
+    const idToName = new Map<string, string>(records.map(record => [record.id, record.name]))
+
+    const targetValues: [Array<string | number>, unknown][] = records.map((record) => [
+      makeAssignationPath(record),
+      record.value,
+    ])
+    const valuePaths = sortBy(
+      targetValues,
       getPathLength
-    );
+    ) as [Array<string | number>, unknown][];
 
     const result = {};
-
     for (const [path, value] of valuePaths) {
-      set(result, path.join("."), value);
+      set(result, path, value);
     }
 
     return result as T;

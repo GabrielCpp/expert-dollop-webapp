@@ -146,7 +146,7 @@ export function SidePanel({
             ))}
           <ListItem>
             <ListItemText>
-              {t("project_definition_editor.add_new_sub_section")}
+              {t("definition_editor.side_panel.add_new_sub_section")}
             </ListItemText>
             <ListItemSecondaryAction>
               <Tooltip
@@ -252,7 +252,7 @@ function FormLinkList({
       ))}
       <NestedListItem>
         <ListItemText>
-          {t("project_definition_editor.add_new_form")}
+          {t("definition_editor.side_panel.add_new_form")}
         </ListItemText>
         <ListItemSecondaryAction>
           <Tooltip
