@@ -1,6 +1,6 @@
 import { Route, Switch } from "react-router-dom";
 import { useServices } from "../../services-def";
-import { ComponentRouteMatching, NamedRoutes } from "./named-route";
+import { ComponentRouteMatching } from "./named-route";
 import { useObservable } from "react-use";
 
 interface MatchingRoutesProps {
@@ -20,7 +20,7 @@ export function MatchingRoutes({
   const matchs = routes
     .allHavingTag(tag, user.permissions)
     .map((matchingComponent) =>
-      renderNamedRoute(routes, matchingComponent, completeAction)
+      renderNamedRoute(matchingComponent, completeAction)
     );
 
   if (firstMatch) {
@@ -31,15 +31,17 @@ export function MatchingRoutes({
 }
 
 export function renderNamedRoute(
-  routes: NamedRoutes,
   matchingComponent: ComponentRouteMatching,
   completeAction?: () => Promise<unknown>
 ) {
   const Component = matchingComponent.component;
-  const route = routes.getRouteByName(matchingComponent.name);
 
   return (
-    <Route path={route.path} key={route.name} exact={matchingComponent.exact}>
+    <Route
+      path={matchingComponent.path}
+      key={matchingComponent.name}
+      exact={matchingComponent.exact}
+    >
       {Component && <Component completeAction={completeAction} />}
     </Route>
   );

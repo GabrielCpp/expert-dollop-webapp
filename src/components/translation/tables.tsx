@@ -1,4 +1,4 @@
-import { PrimaryIndex, TableRecord } from "../../shared/redux-db";
+import { TableRecord } from "../../shared/redux-db";
 import { ReduxDatabase } from "../../shared/redux-db/database";
 
 const TranslationTableName = "translation";
@@ -9,12 +9,8 @@ export interface LocalizedTranslation extends TableRecord {
   value: string;
 }
 
-function buildTranslationPk(translation: TableRecord): string {
-  return translation.name as string;
-}
-
 export function setupTables(reduxDb: ReduxDatabase) {
-  reduxDb.addTable(TranslationTableName, new PrimaryIndex(buildTranslationPk));
+  reduxDb.addTable(TranslationTableName);
 }
 
 export function addTranslations(

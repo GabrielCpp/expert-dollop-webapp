@@ -19,13 +19,29 @@ export function FieldArray({ fields, path, children }: FieldArrayProps) {
 
   useEffect(() => {
     const records = fields.map((id, index) =>
-      createFormFieldRecord(INT_VALIDATOR, [...path, id], "index", index, id)
+      createFormFieldRecord(
+        INT_VALIDATOR,
+        [...path, id],
+        "index",
+        index,
+        String(index),
+        id,
+        []
+      )
     );
 
     reduxDb.getTable(FormFieldTableName).upsertMany(records);
 
     const toRemoves = difference(lastFields.current, fields).map((id, index) =>
-      createFormFieldRecord(INT_VALIDATOR, [...path, id], "index", index, id)
+      createFormFieldRecord(
+        INT_VALIDATOR,
+        [...path, id],
+        "index",
+        index,
+        String(index),
+        id,
+        []
+      )
     );
 
     reduxDb.getTable(FormFieldTableName).removeMany(toRemoves);

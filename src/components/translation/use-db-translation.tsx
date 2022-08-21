@@ -47,6 +47,7 @@ export function DbI18n({
 
   useEffect(() => {
     const defaultRecord: LocalizedTranslation = {
+      id: i18n || t(emptyPlaceholder),
       ressourceId,
       name: i18n || t(emptyPlaceholder),
       value: i18n || t(emptyPlaceholder),

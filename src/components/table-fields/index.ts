@@ -1,13 +1,14 @@
 export type { FormFieldRecord } from "./form-field-record";
 export {
   createFormFieldRecord,
-  addFormFieldRecordTable,
+  setupFormTables,
   queryDirectChildrenOf,
   buildFieldByNameMap,
   upsertFormFieldRecord,
   BOOLEAN_VALIDATOR,
   STRING_VALIDATOR,
   INT_VALIDATOR,
+  EMAIL_VALIDATOR,
   queryChildrenOf,
   hydrateForm,
   validateForm,
@@ -16,19 +17,16 @@ export {
   indexRecords,
   buildFormMapById,
 } from "./form-field-record";
-export { textField } from "./table-text-field";
-export { checkboxField } from "./table-checkbox-field";
-export { radioField } from "./table-radio-field";
-export type { TableRadioFieldOption } from "./table-radio-field";
+
 export type { TabTableCollectionProps } from "./fixed-table-display";
 export { FixedTabDisplay } from "./fixed-table-display";
-export { Field } from "./field";
 export {
-  useForm,
-  Form,
   useFormHiddenValue,
-  useFormFieldValueRef,
-  useSaveForm,
+  useFormFieldValueRef
 } from "./form-hook";
-export { selectField } from "./select-field";
+
 export { FieldArray } from "./field-array";
+
+export * from "./views";
+export * from "./hooks";
+export * from "./wrappers";

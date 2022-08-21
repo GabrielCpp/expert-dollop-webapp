@@ -32,7 +32,7 @@ export function AddDatasheet() {
       return;
     }
 
-    const form = hydrateForm<AddDatasheetForm>(reduxDb)(path);
+    const form = hydrateForm<AddDatasheetForm>(reduxDb, path);
 
     const { data } = await apollo.mutate<
       CreateDatasheetMutation,
@@ -68,7 +68,7 @@ export function AddDatasheet() {
               defaultValue={""}
               name="name"
               component={textField}
-              label="name"
+              label={"name"}
               t={t}
             />
 

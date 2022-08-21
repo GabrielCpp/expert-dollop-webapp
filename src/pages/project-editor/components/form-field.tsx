@@ -7,6 +7,7 @@ import {
   IconButton,
   styled,
 } from "@mui/material";
+import { LeftSideButton } from "../../../components/custom-styles";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { usePopupMenu } from "../../../components/menus";
 import {
@@ -20,10 +21,6 @@ import {
 } from "../../../generated";
 import { FieldWrapper } from "./field-wrapper";
 import { NodePicker, useNodePickerState } from "./node-picker";
-
-const LeftSideButton = styled("span")(() => ({
-  marginLeft: "auto",
-}));
 
 interface FormFieldCardProps {
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["nodes"][number]["children"][number];
@@ -51,7 +48,7 @@ export function FormField({
         refetch()
           .then(() => {
             setCurrentNodeId(x.addProjectCollectionItem[0].id);
-            success("form.section_added");
+            success("shared.forms.section_added");
             scrollTop();
           })
           .catch(catchError);

@@ -6,8 +6,8 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-import { Namespace, TFunction } from "react-i18next";
-import { FieldChildren } from "./field";
+import { ReactNode } from "react";
+import { FieldChildren } from "../form-field-record";
 
 export interface TableRadioFieldOption {
   id: string;
@@ -16,11 +16,10 @@ export interface TableRadioFieldOption {
 }
 
 interface RadiodProps extends FieldChildren {
-  t: (key: string) => string;
-  label: string;
   options: TableRadioFieldOption[];
+  label?: string;
   title?: string;
-  translationProvider?: TFunction<Namespace>;
+  startAdornment?: ReactNode;
 }
 
 export function radioField({
@@ -30,8 +29,8 @@ export function radioField({
   label,
   errors,
   title,
-  getType,
   onChange,
+  startAdornment,
   t,
   options,
 }: RadiodProps) {
@@ -41,6 +40,7 @@ export function radioField({
     <fieldset>
       {translatedLabel !== "" && (
         <legend>
+          {startAdornment}
           <FormLabel>{translatedLabel}</FormLabel>
         </legend>
       )}

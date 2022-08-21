@@ -37,7 +37,6 @@ export const UnpadCardContent = styled(CardContent)(() => ({
 export const ListRoot = styled(List)(() => ({
   width: "100%",
   backgroundColor: theme.palette.background.paper,
-  padding: "o",
 }));
 
 export const NestedListItem = styled(ListItem)(() => ({
@@ -46,10 +45,13 @@ export const NestedListItem = styled(ListItem)(() => ({
 
 export const ActionToolbar = styled(Grid)(() => ({
   display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
   width: "100%",
   height: theme.spacing(6),
   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
   borderRadius: "0",
+}));
+
+
+export const LeftSideButton = styled("span")(() => ({
+  marginLeft: "auto",
 }));

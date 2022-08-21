@@ -44,7 +44,7 @@ export function AddProjectView() {
       return;
     }
 
-    const form = hydrateForm<AddProjectViewForm>(reduxDb)(path);
+    const form = hydrateForm<AddProjectViewForm>(reduxDb, path);
 
     const { data } = await apollo.mutate<
       CreateProjectMutation,
@@ -91,7 +91,7 @@ export function AddProjectView() {
               defaultValue={""}
               name="name"
               component={textField}
-              label="name"
+              label={t("name")}
               t={t}
             />
             <Field
@@ -100,7 +100,7 @@ export function AddProjectView() {
               defaultValue={head(options)?.id}
               name="projectDefinitionId"
               component={selectField}
-              label="project_type"
+              label={t("project_type")}
               options={options}
               t={t}
             />

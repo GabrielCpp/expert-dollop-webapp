@@ -1,32 +1,32 @@
 {
   "intlNumber": "{{val, number(minimumFractionDigits: 2)}}",
-  "button": {
-    "edit": "Edit",
-    "add": "Add",
-    "more": "More",
-    "delete": "Delete",
-    "cancel": "Cancel",
-    "save": "Save",
-    "clone": "Clone",
-    "view_all": "View all"
-  },
-  "tooltip": {
-    "go": "Go"
-  },
-  "form": {
-    "saved": "Changes were saved.",
-    "section_added": "Section added",
-    "section_deleted": "Section deleted"
-  },
-  "field_validation": {
-    "name": {
-      "pattern": "Must only contain lower case letter a to z, numbers or underscore",
-      "length": "Should contain at least one character but no more than 64"
+  "shared": {
+    "buttons": {
+      "edit": "Edit",
+      "add": "Add",
+      "more": "More",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "clone": "Clone",
+      "view_all": "View all"
+    },
+    "forms": {
+      "saved": "Changes were saved.",
+      "section_added": "Section added",
+      "section_deleted": "Section deleted"
+    },
+    "validations": {
+      "name_pattern": "Must only contain lower case letter a to z, numbers or underscore",
+      "name_length": "Should contain at least one character but no more than 64"
     }
   },
-  "language": {
-    "french": "French",
-    "english": "English"
+  "account": {
+    "registration": {
+      "company_fieldset": "Company",
+      "company_email": "Email",
+      "company_name": "Name"
+    }
   },
   "project_editor": {
     "unamed": "<unammed>",

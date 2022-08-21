@@ -5,14 +5,13 @@ import { Suspense } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { GlobalLoading } from "./components/global-loading";
 import { LoadingFrame } from "./components/loading-frame";
-import { CurrentUserDocument } from "./generated";
 import {
-  RouteCheck,
   AuthTokenView,
   LoginRedirect,
   LogoutRedirect,
-  RouteGuard,
   RedirectChecks,
+  RouteCheck,
+  RouteGuard,
 } from "./pages/account";
 import { Dashboard } from "./pages/dashboard";
 import { Services } from "./services-def";

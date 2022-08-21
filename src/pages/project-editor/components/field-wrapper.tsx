@@ -1,6 +1,10 @@
 import { Tooltip } from "@mui/material";
-import { Field, radioField, textField } from "../../../components/table-fields";
-import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
+import {
+  Field,
+  radioField,
+  textField,
+  checkboxField,
+} from "../../../components/table-fields";
 import { useDbTranslation } from "../../../components/translation";
 import {
   DecimalFieldConfig,
@@ -30,6 +34,14 @@ function getFieldValue(
   return realValue;
 }
 
+function integerFormatter(x: string) {
+  return x.replace(/[^0-9]/g, "");
+}
+
+function decimalFormatter(x: string) {
+  return x.replace(/[^0-9.,+-]/g, "").replace(/,/g, ".");
+}
+
 export function FieldWrapper({
   definition,
   node,
@@ -41,6 +53,11 @@ export function FieldWrapper({
   const { __typename: fieldType } = definition.config.fieldDetails || {};
   const value = getFieldValue(node.value);
   const validator = JSON.parse(definition.config.valueValidator);
+  const commonProps = {
+    t: dbTrans,
+    unmount: false,
+    metadata: node.value?.__typename,
+  };
 
   if (
     fieldType === "StringFieldConfig" ||
@@ -48,12 +65,15 @@ export function FieldWrapper({
     fieldType === "DecimalFieldConfig"
   ) {
     let unit: string | undefined;
+    let formatter = undefined;
     if (fieldType === "IntFieldConfig") {
       const config = definition.config.fieldDetails as IntFieldConfig;
       unit = config.unit;
+      formatter = integerFormatter;
     } else if (fieldType === "DecimalFieldConfig") {
       const config = definition.config.fieldDetails as DecimalFieldConfig;
       unit = config.unit;
+      formatter = decimalFormatter;
     }
 
     return (
@@ -65,9 +85,10 @@ export function FieldWrapper({
         id={node.id}
         label={definition.config.translations.label}
         title={definition.config.translations.helpTextName}
-        t={dbTrans}
         component={textField}
         unit={unit}
+        formatter={formatter}
+        {...commonProps}
       />
     );
   }
@@ -82,8 +103,8 @@ export function FieldWrapper({
         id={node.id}
         label={definition.config.translations.label}
         title={definition.config.translations.helpTextName}
-        t={dbTrans}
         component={checkboxField}
+        {...commonProps}
       />
     );
   }
@@ -100,8 +121,8 @@ export function FieldWrapper({
         id={node.id}
         label={definition.config.translations.label}
         title={definition.config.translations.helpTextName}
-        t={dbTrans}
         component={radioField}
+        {...commonProps}
       />
     );
   }

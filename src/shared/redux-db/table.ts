@@ -13,7 +13,7 @@ import {
 import { TableChangeEmitter } from "./table-change-emitter";
 import { Transaction } from "./transaction";
 
-export class TableRecordDetails extends RecordChangeEmitter {
+class TableRecordDetails extends RecordChangeEmitter {
   public value: TableRecord;
 
   public constructor(value: TableRecord) {
@@ -22,7 +22,7 @@ export class TableRecordDetails extends RecordChangeEmitter {
   }
 }
 
-export class PrimaryIndex {
+class PrimaryIndex {
   public records = new Map<PrimaryKey, TableRecordDetails>();
   public buildKey: UniqueIndexKeyBuilder;
   public fieldPath: string | undefined;
@@ -35,13 +35,9 @@ export class PrimaryIndex {
 
 export class Table {
   private tableChangeEmitter = new TableChangeEmitter();
-  private primaryIndex: PrimaryIndex;
+  private primaryIndex= new PrimaryIndex(getPk, "id");
 
-  public constructor(
-    records: TableRecord[] = [],
-    primaryIndex: PrimaryIndex = new PrimaryIndex(getPk, "id")
-  ) {
-    this.primaryIndex = primaryIndex;
+  public constructor(records: TableRecord[] = []) {
     this.upsertMany(
       new TableTransaction(new Transaction(), this.tableChangeEmitter),
       records
@@ -50,10 +46,6 @@ export class Table {
 
   public get tableEventEmitter(): TableChangeEmitter {
     return this.tableChangeEmitter;
-  }
-
-  public get buildPk(): UniqueIndexKeyBuilder {
-    return this.primaryIndex.buildKey;
   }
 
   public get records(): TableRecord[] {
@@ -76,7 +68,7 @@ export class Table {
     return keys;
   }
 
-  public where<T extends Record<string, unknown>>(
+  public where<T extends TableRecord>(
     predicate: (record: T) => boolean
   ): T[] {
     const records: T[] = [];
@@ -151,5 +143,10 @@ export class Table {
 
   public getRecord(primaryKey: PrimaryKey): TableRecordDetails | undefined {
     return this.primaryIndex.records.get(primaryKey);
+  }
+
+  public silentSet(primaryKey: string, record: TableRecord) {
+    const recordDetails = new TableRecordDetails(record);
+    this.primaryIndex.records.set(primaryKey, recordDetails);
   }
 }

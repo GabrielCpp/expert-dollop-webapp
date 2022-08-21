@@ -1,5 +1,6 @@
 import {
   Card,
+  CardActions,
   CardHeader,
   Collapse,
   Grid,
@@ -10,7 +11,8 @@ import {
 } from "@mui/material";
 import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
-import React, { useState } from "react";
+import { useState } from "react";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Link as RouterLink } from "react-router-dom";
 
 import {
@@ -22,8 +24,12 @@ import {
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { Field, radioField, textField } from "../../../components/table-fields";
-import { checkboxField } from "../../../components/table-fields/table-checkbox-field";
+import {
+  Field,
+  radioField,
+  textField,
+  checkboxField,
+} from "../../../components/table-fields";
 import { useDbTranslation } from "../hooks/db-trans";
 import { EditButton } from "../components/edit-button";
 import {
@@ -35,6 +41,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import {
   ExpandIconButton,
+  LeftSideButton,
   UnpadCardContent,
 } from "../../../components/custom-styles";
 
@@ -77,6 +84,7 @@ function FormField({ node }: FormProps): JSX.Element {
   const EditButton = (
     <IconButton
       aria-label="edit"
+      size="small"
       component={RouterLink}
       to={routes.render(
         PROJECT_DEFINITION_EDITOR_NODE_EDIT,
@@ -97,41 +105,33 @@ function FormField({ node }: FormProps): JSX.Element {
     fieldType === "DecimalFieldConfig"
   ) {
     return (
-      <FullWidthGrid>
-        <GridFieldItem>
-          <Field
-            validator={validator}
-            path={node.definition.path}
-            name={node.definition.name}
-            defaultValue={value}
-            id={node.definition.id}
-            label={node.definition.name}
-            t={dbTrans}
-            component={textField}
-          />
-        </GridFieldItem>
-        <GridEditButton>{EditButton}</GridEditButton>
-      </FullWidthGrid>
+      <Field
+        validator={validator}
+        path={node.definition.path}
+        name={node.definition.name}
+        defaultValue={value}
+        id={node.definition.id}
+        label={node.definition.name}
+        t={dbTrans}
+        component={textField}
+        startAdornment={EditButton}
+      />
     );
   }
 
   if (fieldType === "BoolFieldConfig") {
     return (
-      <FullWidthGrid>
-        <GridFieldItem>
-          <Field
-            validator={validator}
-            path={node.definition.path}
-            name={node.definition.name}
-            defaultValue={value}
-            id={node.definition.id}
-            label={node.definition.name}
-            t={dbTrans}
-            component={checkboxField}
-          />
-        </GridFieldItem>
-        <GridEditButton>{EditButton}</GridEditButton>
-      </FullWidthGrid>
+      <Field
+        validator={validator}
+        path={node.definition.path}
+        name={node.definition.name}
+        defaultValue={value}
+        id={node.definition.id}
+        label={node.definition.name}
+        t={dbTrans}
+        component={checkboxField}
+        endAdornment={EditButton}
+      />
     );
   }
 
@@ -139,50 +139,32 @@ function FormField({ node }: FormProps): JSX.Element {
     const choices = node.definition.config
       .fieldDetails as StaticChoiceFieldConfig;
     return (
-      <FullWidthGrid>
-        <GridFieldItem>
-          <Field
-            options={choices.options}
-            validator={validator}
-            path={node.definition.path}
-            name={node.definition.name}
-            defaultValue={value}
-            id={node.definition.id}
-            label={node.definition.config.translations.label}
-            t={dbTrans}
-            component={radioField}
-          />
-        </GridFieldItem>
-        <GridEditButton>{EditButton}</GridEditButton>
-      </FullWidthGrid>
+      <Field
+        options={choices.options}
+        validator={validator}
+        path={node.definition.path}
+        name={node.definition.name}
+        defaultValue={value}
+        id={node.definition.id}
+        label={node.definition.config.translations.label}
+        t={dbTrans}
+        component={radioField}
+        startAdornment={EditButton}
+      />
     );
   }
 
   if (fieldType === "StaticNumberFieldConfig") {
     return (
-      <FullWidthGrid>
-        <GridFieldItem>
-          <label>{dbTrans(node.definition.name)}</label>{" "}
-        </GridFieldItem>
-        <GridEditButton>{EditButton}</GridEditButton>
-      </FullWidthGrid>
+      <label>
+        {dbTrans(node.definition.name)}
+        {EditButton}
+      </label>
     );
   }
 
   return <div key={node.definition.name}>{node.definition.name}</div>;
 }
-
-const FullWidthGrid = styled(Grid)(() => ({
-  width: "100%",
-}));
-
-const GridFieldItem = styled(Grid)(() => ({
-  width: "90%",
-}));
-
-const GridEditButton = styled(Grid)(() => ({
-  width: "10%",
-}));
 
 function FormSection({ node }: FormProps): JSX.Element {
   const valueType = node.definition.config
@@ -227,7 +209,7 @@ function FormSection({ node }: FormProps): JSX.Element {
       />
       <Collapse in={expanded} mountOnEnter={true} timeout="auto">
         <UnpadCardContent>
-          <Grid container direction="column">
+          <Grid container direction="column" rowSpacing={1}>
             {node.children.map((child) => (
               <Grid item key={child.definition.name}>
                 <FormField node={child} />
@@ -236,6 +218,17 @@ function FormSection({ node }: FormProps): JSX.Element {
           </Grid>
         </UnpadCardContent>
       </Collapse>
+      {/* TODO: extract those to a reusable component */}
+      <CardActions disableSpacing>
+        <LeftSideButton>
+          <IconButton>
+            <AddIcon />
+          </IconButton>
+          <IconButton>
+            <MoreVertIcon />
+          </IconButton>
+        </LeftSideButton>
+      </CardActions>
     </Card>
   );
 }
@@ -281,29 +274,31 @@ export function FormDefinitionEditor({
               </Grid>
             ))}
           {formNode && (
-            <Card variant="outlined">
-              <CardHeader
-                action={
-                  <IconButton
-                    component={RouterLink}
-                    to={routes.render(
-                      PROJECT_DEFINITION_EDITOR_NODE_ADD,
-                      buildAddNodeParams(projectDefinitionId, [
-                        ...formNode.path,
-                        formNode.id,
-                      ])
-                    )}
-                  >
-                    <AddIcon />
-                  </IconButton>
-                }
-                title={
-                  <Typography variant="h5" component="h5" gutterBottom>
-                    {t("project_definition_editor.add_new_section")}
-                  </Typography>
-                }
-              />
-            </Card>
+            <Grid item>
+              <Card variant="outlined">
+                <CardHeader
+                  action={
+                    <IconButton
+                      component={RouterLink}
+                      to={routes.render(
+                        PROJECT_DEFINITION_EDITOR_NODE_ADD,
+                        buildAddNodeParams(projectDefinitionId, [
+                          ...formNode.path,
+                          formNode.id,
+                        ])
+                      )}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  }
+                  title={
+                    <Typography variant="h5" component="h5" gutterBottom>
+                      {t("project_definition_editor.add_new_section")}
+                    </Typography>
+                  }
+                />
+              </Card>
+            </Grid>
           )}
         </Grid>
       </form>

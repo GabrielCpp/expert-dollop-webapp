@@ -18,7 +18,7 @@ import {
 } from "lodash";
 import { Query, FilterNode, QuerySort } from "./query";
 import { Table } from "./table";
-import { PrimaryKey, TableRecord } from "./table-record";
+import { getPk, PrimaryKey, TableRecord } from "./table-record";
 import CryptoJS, { SHA256 } from "crypto-js";
 import { Unsubscribe } from "./table-record-change-emitter";
 import { QueryChangeEmitter } from "./query-change-emitter";
@@ -133,7 +133,7 @@ function buildPredicate(
 
   const evaluate = filter.length === 0 ? stubTrue : evalTree;
 
-  return (record: TableRecord, otherRecord: TableRecord = {}): boolean =>
+  return (record: TableRecord, otherRecord: TableRecord = { id: '' }): boolean =>
     Boolean(evaluate(record, otherRecord, filter as FilterNode));
 }
 
@@ -211,12 +211,11 @@ export class QueryExecutor {
     const layer: Layer = {
       tableName,
       predicate: predicate,
-      resultset: new Set<PrimaryKey>(records.map(table.buildPk)),
+      resultset: new Set<PrimaryKey>(records.map(getPk)),
     };
 
     this.layers.push(layer);
 
-    const buildPk = table.buildPk;
     this.unsubscribe = table.tableEventEmitter.addOnCommitSubscriber(
       (
         insertions: TableRecord[],
@@ -227,17 +226,17 @@ export class QueryExecutor {
           predicate(record)
         );
         const resultDeletions = deletions.filter((record) =>
-          layer.resultset.has(buildPk(record))
+          layer.resultset.has(getPk(record))
         );
         const newResults = updates.filter(([_, record]) => predicate(record));
         const lostResults = updates.filter(
           ([before, after]) => predicate(before) && !predicate(after)
         );
 
-        resultInsertions.forEach((r) => layer.resultset.add(buildPk(r)));
-        newResults.forEach(([_, r]) => layer.resultset.add(buildPk(r)));
-        resultDeletions.forEach((r) => layer.resultset.delete(buildPk(r)));
-        lostResults.forEach(([_, r]) => layer.resultset.delete(buildPk(r)));
+        resultInsertions.forEach((r) => layer.resultset.add(getPk(r)));
+        newResults.forEach(([_, r]) => layer.resultset.add(getPk(r)));
+        resultDeletions.forEach((r) => layer.resultset.delete(getPk(r)));
+        lostResults.forEach(([_, r]) => layer.resultset.delete(getPk(r)));
 
         if (
           resultInsertions.length > 0 ||
@@ -293,7 +292,7 @@ export class QueryExecutor {
           const value = get(record, path);
           set(previousValue, alias, value);
           return previousValue;
-        }, {})
+        }, {} as TableRecord)
       );
     }
 

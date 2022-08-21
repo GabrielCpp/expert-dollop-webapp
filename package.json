@@ -12,6 +12,7 @@
     "@mui/material": "^5.2.7",
     "ajv": "^7.0.2",
     "ajv-errors": "^2.0.0",
+    "ajv-formats": "^2.1.1",
     "apollo3-cache-persist": "^0.14.1",
     "build-url": "^6.0.1",
     "crypto-js": "^4.0.0",

@@ -19,13 +19,15 @@ import { compact } from "lodash";
 import { Link as RouterLink, Route } from "react-router-dom";
 import { useObservable } from "react-use";
 import { ActionToolbar } from "../../components/custom-styles";
-import { GlobalLoading } from "../../components/global-loading";
 import { useLocaleSelector } from "../../components/translation/use-translation-scope";
 import { useServices } from "../../services-def";
 import { MatchingRoutes, useComponentMatcher } from "../../shared/named-routes";
+import { theme } from "../../theme";
 import { DATASHEET_INDEX } from "../datasheet-editor/routes";
 import { PROJECT_DEFINITION_INDEX } from "../project-definition-editor/routes";
 import { PROJECT_INDEX } from "../project-editor/routes";
+
+const drawerWidth = 220;
 
 function Copyright() {
   return (
@@ -40,12 +42,38 @@ function Copyright() {
   );
 }
 
-const DashboardRoot = styled("div")(() => ({
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
+  open?: boolean;
+}>(({ theme, open }) => ({
+  flexGrow: 1,
+  overflowX: "hidden",
+  transition: theme.transitions.create("margin", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  paddingLeft: theme.spacing(1),
+  marginLeft: `-${drawerWidth}px`,
+  ...(open && {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  }),
+}));
+
+const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+  justifyContent: "flex-end",
 }));
 
 const AppBarWithDrawer = styled(AppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
+  ...(theme.mixins.toolbar as any),
 }));
 
 const TextFieldOverToolbar = styled(TextField)`
@@ -70,33 +98,17 @@ const FlexToolbar = styled(Toolbar)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-start",
   height: "100%",
+  ...(theme.mixins.toolbar as any),
 }));
 
 const ToolbarSpacer = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  height: "100%",
   ...(theme.mixins.toolbar as any),
+  display: "flex",
+  height: "100%",
 }));
 
 const MenuButton = styled(IconButton)(() => ({
   marginRight: 36,
-}));
-
-const StyledDrawer = styled(Drawer)(() => ({
-  width: 200,
-}));
-
-const MainContent = styled("main", {
-  shouldForwardProp: (prop) => prop !== "hasDrawer",
-})(({ hasDrawer }: { hasDrawer: boolean }) => ({
-  flexGrow: 1,
-  ...(hasDrawer ? { marginLeft: "30px" } : {}),
-}));
-
-const MainSection = styled("div")(({ theme }) => ({
-  margin: theme.spacing(2),
 }));
 
 interface Locale {
@@ -162,8 +174,9 @@ export function Dashboard() {
   ]);
 
   return (
-    <DashboardRoot>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
+
       <AppBarWithDrawer position="fixed">
         <FlexToolbar>
           <Grid
@@ -234,29 +247,51 @@ export function Dashboard() {
       </AppBarWithDrawer>
 
       {drawerListItems.length > 0 && (
-        <StyledDrawer variant="permanent">
+        <Drawer
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+            },
+          }}
+          variant="permanent"
+          anchor="left"
+        >
           <ToolbarSpacer />
           <List>{drawerListItems}</List>
-        </StyledDrawer>
+        </Drawer>
       )}
 
-      <MainContent hasDrawer={drawerListItems.length > 0}>
+      <Box
+        sx={{
+          paddingLeft: theme.spacing(1),
+          paddingRight: theme.spacing(1),
+          flexGrow: 1,
+        }}
+      >
+        <DrawerHeader />
         <ToolbarSpacer />
 
-        <RouterToolbar />
-        <MainSection>
-          <MatchingRoutes tag="main-content" firstMatch={true} />
-        </MainSection>
-        <Box pt={4}>
-          <Copyright />
-        </Box>
-      </MainContent>
-    </DashboardRoot>
+        <Grid container direction="column" spacing={1}>
+          <Grid item xl={12}>
+            <RouterToolbar />
+          </Grid>
+          <Grid item xl={12}>
+            <MatchingRoutes tag="main-content" firstMatch={true} />
+          </Grid>
+          <Grid item>
+            <Copyright />
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
   );
 }
 
 function RouterToolbar() {
-  const { auth0 } = useServices();
+  const { auth0, loader } = useServices();
   const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
   const { hasMatch, matchingComponents } = useComponentMatcher(
     "main-toolbar",

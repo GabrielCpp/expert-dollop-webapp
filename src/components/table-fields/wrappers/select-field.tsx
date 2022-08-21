@@ -6,8 +6,7 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-import { Namespace, TFunction } from "react-i18next";
-import { FieldChildren } from "./field";
+import { FieldChildren } from "../form-field-record";
 
 export interface TableSelectFieldOption {
   id: string;
@@ -16,11 +15,9 @@ export interface TableSelectFieldOption {
 }
 
 interface SelectProps extends FieldChildren {
-  t: (key: string) => string;
   label: string;
   options: TableSelectFieldOption[];
   title?: string;
-  translationProvider?: TFunction<Namespace>;
 }
 
 export function selectField({
@@ -30,7 +27,6 @@ export function selectField({
   label,
   errors,
   title,
-  getType,
   onChange,
   t,
   options,

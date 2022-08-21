@@ -1,26 +1,21 @@
 {
   "intlNumber": "{{val, number(minimumFractionDigits: 2)}}",
-  "button": {
-    "edit": "Éditer",
-    "add": "Ajouter",
-    "more": "Plus de choix",
-    "delete": "Supprimer",
-    "cancel": "Annuler",
-    "save": "Sauvegarder",
-    "clone": "Dupliquer",
-    "view_all": "Voir tout"
-  },
-  "tooltip": {
-    "go": "Accèder"
-  },
-  "form": {
-    "saved": "Les changements ont été sauvegardés.",
-    "section_added": "Section ajoutée",
-    "section_deleted": "Section supprimée"
-  },
-  "language": {
-    "french": "Français",
-    "english": "Anglais"
+  "shared": {
+    "buttons": {
+      "edit": "Éditer",
+      "add": "Ajouter",
+      "more": "Plus de choix",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Sauvegarder",
+      "clone": "Dupliquer",
+      "view_all": "Voir tout"
+    },
+    "forms": {
+      "saved": "Les changements ont été sauvegardés.",
+      "section_added": "Section ajoutée",
+      "section_deleted": "Section supprimée"
+    }
   },
   "project_editor": {
     "unamed": "<sans nom>",

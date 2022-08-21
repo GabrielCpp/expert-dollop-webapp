@@ -78,8 +78,8 @@ export class TableTransaction {
 
   public addRecordUpdateEvent(
     recordDetails: RecordWatcher,
-    before: Record<string, unknown>,
-    after: Record<string, unknown>
+    before: TableRecord,
+    after: TableRecord
   ) {
     const previousEvent = this._recordEvents.get(recordDetails);
 
@@ -106,7 +106,7 @@ export class TableTransaction {
 
   public addRecordRemoveEvent(
     recordDetails: RecordWatcher,
-    record: Record<string, unknown>
+    record: TableRecord
   ) {
     this._recordEvents.set(
       recordDetails,
@@ -116,7 +116,7 @@ export class TableTransaction {
 
   public addRecordInsertEvent(
     recordDetails: RecordWatcher,
-    record: Record<string, unknown>
+    record: TableRecord
   ) {
     this._recordEvents.set(
       recordDetails,

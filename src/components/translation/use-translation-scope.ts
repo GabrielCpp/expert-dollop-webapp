@@ -25,6 +25,7 @@ function mapTranslationBundle(
 
   for (const [name, value] of Object.entries(bundle)) {
     mappedTranslations.push({
+      id: name,
       name,
       value,
       ressourceId,

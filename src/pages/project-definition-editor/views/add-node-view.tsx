@@ -71,7 +71,7 @@ export function FieldTranslation({
   translationConfig,
 }: FieldTranslationProps) {
   const { t } = useTranslation();
-  const { formPath } = useForm(name, path);
+  const { formPath } = useForm({ name, parentPath: path });
   const tabTranslations = translations.filter(
     (translation) => translation.locale === name
   );
@@ -97,7 +97,7 @@ export function FieldTranslation({
         defaultValue={label}
         name="label"
         component={textField}
-        label="project_definition_editor.add_node_form.label"
+        label={t("project_definition_editor.add_node_form.label")}
         t={t}
       />
       <Field
@@ -106,7 +106,7 @@ export function FieldTranslation({
         defaultValue={helpText}
         name="helpText"
         component={textField}
-        label="project_definition_editor.add_node_form.help_text"
+        label={t("project_definition_editor.add_node_form.help_text")}
         t={t}
       />
     </Grid>
@@ -119,7 +119,7 @@ interface TriggersProps {
 
 function Triggers({ path }: TriggersProps) {
   const { t } = useTranslation();
-  const { formPath } = useForm("triggers", path);
+  const { formPath } = useForm({ name: "triggers", parentPath: path });
   const [ids, setIds] = useState<string[]>([]);
 
   function addTrigger() {
@@ -154,6 +154,7 @@ function Triggers({ path }: TriggersProps) {
                   defaultValue={"SET_VISIBILITY"}
                   path={subpath}
                   name="action"
+                  t={t}
                   component={selectField}
                   label="project_definition_editor.add_node_form.triggers.action"
                   options={[
@@ -168,7 +169,6 @@ function Triggers({ path }: TriggersProps) {
                         "project_definition_editor.add_node_form.triggers.set_visibility_option",
                     },
                   ]}
-                  t={t}
                 />
               </Grid>
             )}
@@ -188,7 +188,7 @@ interface ConfigFormProps {
 
 function ConfigForm({ name, path, config, level }: ConfigFormProps) {
   const { t } = useTranslation();
-  const { formPath } = useForm(name, path);
+  const { formPath } = useForm({ name, parentPath: path });
   const { value, id: configTypeId } = useFormFieldValueRef(
     "fieldConfigType",
     formPath,
@@ -211,9 +211,9 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
         defaultValue={collapsibleContainerFieldConfig.isCollapsible}
         path={formPath}
         name="isCollapsible"
-        component={checkboxField}
-        label="project_definition_editor.add_node_form.is_collapsible"
         t={t}
+        component={checkboxField}
+        label={t("project_definition_editor.add_node_form.is_collapsible")}
       />
     );
   }
@@ -227,6 +227,7 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
           defaultValue={value}
           path={formPath}
           name="fieldConfigType"
+          t={t}
           component={selectField}
           label="project_definition_editor.add_node_form.field_details"
           options={[
@@ -255,7 +256,6 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
               label: "calcul",
             },
           ]}
-          t={t}
         />
       )}
       {value === "BOOL_FIELD_CONFIG" && (
@@ -264,9 +264,9 @@ function ConfigForm({ name, path, config, level }: ConfigFormProps) {
           defaultValue={true}
           path={formPath}
           name="isCheckbox"
-          component={checkboxField}
           label="project_definition_editor.add_node_form.config.is_checkbox"
           t={t}
+          component={checkboxField}
         />
       )}
       <Triggers path={formPath} />
@@ -394,36 +394,36 @@ function ContainerForm({
               path={path}
               defaultValue={node.name}
               name="name"
-              component={textField}
               label="project_definition_editor.add_node_form.name"
               t={t}
+              component={textField}
             />
             <Field
               validator={BOOLEAN_VALIDATOR}
               path={path}
               defaultValue={node.isCollection}
               name="isCollection"
-              component={checkboxField}
               label="project_definition_editor.add_node_form.is_collection"
               t={t}
+              component={checkboxField}
             />
             <Field
               validator={BOOLEAN_VALIDATOR}
               path={path}
               defaultValue={node.instanciateByDefault}
               name="instanciateByDefault"
-              component={checkboxField}
               label="project_definition_editor.add_node_form.instanciate_by_default"
               t={t}
+              component={checkboxField}
             />
             <Field
               validator={INT_VALIDATOR}
               path={path}
               defaultValue={node.orderIndex}
               name="orderIndex"
-              component={textField}
-              label="project_definition_editor.add_node_form.order"
               t={t}
+              label="project_definition_editor.add_node_form.order"
+              component={textField}
             />
             <FixedTabDisplay
               path={path}
@@ -498,7 +498,7 @@ export function AddContainerView() {
       newNodePath = [...node.path, node.id];
     }
 
-    const form = hydrateForm<AddContainerFormBody>(reduxDb)(path);
+    const form = hydrateForm<AddContainerFormBody>(reduxDb, path);
 
     await apollo.mutate({
       mutation: AddProjectDefinitionNodeDocument,
@@ -571,8 +571,6 @@ export function EditContainerView() {
     if (validateForm(reduxDb, ajv)(path) === false) {
       return;
     }
-
-    const form = hydrateForm<AddContainerFormBody>(reduxDb)(path);
   }
 
   const { data, loading, error } = useFindProjectDefinitionNodeQuery({

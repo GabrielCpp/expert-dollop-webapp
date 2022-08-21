@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -33,29 +32,26 @@ export function buildPk(...items: string[]): string {
   return items.join(".");
 }
 
-export function useTableRecord<T>(
+export function useTableRecord<T extends TableRecord>(
   tableName: string,
   primaryKey: PrimaryKey,
-  defaultValue: T,
+  makeDefaultValue: () => T,
   sideEffect: (value: T) => void = noop
 ): [T, UpdateTableRecord<T>, UpdateTableRecord<T>] {
   const { reduxDb } = useServices<ReduxDbService>();
-  const [state, setLocalState] = useState<T | undefined>(
-    () =>
-      (reduxDb.getTable(tableName).findRecord(primaryKey) as T) || defaultValue
-  );
+  const [state, setLocalState] = useState<T>(makeDefaultValue);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const table = reduxDb.getTable(tableName);
 
     return table.watchRecord(primaryKey, {
-      defaultRecord: defaultValue as Record<string, unknown>,
+      defaultRecord: makeDefaultValue(),
       onUpdate: (_, after) => {
         sideEffect(after as T);
         setLocalState(after as T);
       },
     });
-  }, [reduxDb, primaryKey, defaultValue, sideEffect, tableName]);
+  }, [reduxDb, primaryKey, makeDefaultValue, sideEffect, tableName]);
 
   const publishState = useCallback(
     (value: T) => {
@@ -64,10 +60,10 @@ export function useTableRecord<T>(
     [reduxDb, tableName]
   );
 
-  return [state as T, publishState, setLocalState];
+  return [state, publishState, setLocalState];
 }
 
-export function useTableQuery<T, U = T[]>(
+export function useTableQuery<T extends TableRecord, U = T[]>(
   query: Query,
   denormalize: (results: T[]) => U = identity
 ): U {

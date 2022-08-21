@@ -1,63 +1,16 @@
 import { last } from "lodash";
-import { useCallback, useEffect, useState } from "react";
-import { useLayoutEffect, useRef } from "react";
-
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useServices } from "../../services-def";
-import { ReduxDatabase, TableRecord, useId } from "../../shared/redux-db";
+import { TableRecord, useId } from "../../shared/redux-db";
 import { WatchEvent } from "../../shared/redux-db/table-record-change-emitter";
 import {
-  buildFormFieldRecordPk,
   createFormFieldRecord,
   FormFieldError,
   FormFieldRecord,
   FormFieldTableName,
   queryChildrenOfWithErrors,
   upsertFormFieldRecord,
-  validateForm,
 } from "./form-field-record";
-
-interface UseFormHook {
-  formId: string;
-  formPath: string[];
-}
-
-export function useForm(name?: string, parentPath: string[] = []): UseFormHook {
-  const formId = useId(name);
-  const formPath = useRef<string[] | undefined>(undefined);
-  const { reduxDb } = useServices();
-
-  if (formPath.current === undefined) {
-    formPath.current = [...parentPath, formId];
-  }
-
-  useLayoutEffect(() => {
-    formPath.current = [...parentPath, formId];
-  }, [formId, formPath, parentPath]);
-
-  useLayoutEffect(() => {
-    if (name !== undefined) {
-      const path = formPath.current as string[];
-      const record = createFormFieldRecord(
-        true,
-        path.slice(0, path.length - 1),
-        name,
-        null,
-        last(path)
-      );
-
-      upsertFormFieldRecord(reduxDb, [record]);
-
-      return () => {
-        reduxDb.getTable(FormFieldTableName).removeMany([record]);
-      };
-    }
-  }, [reduxDb, formPath, name]);
-
-  return {
-    formId,
-    formPath: formPath.current,
-  };
-}
 
 interface UseFormHiddenValue {
   formId: string;
@@ -85,13 +38,15 @@ export function useFormHiddenValue(
         path.slice(0, path.length - 1),
         name,
         value,
-        last(path)
+        String(value),
+        last(path) as string,
+        []
       );
 
       upsertFormFieldRecord(reduxDb, [record]);
 
       return () => {
-        reduxDb.getTable(FormFieldTableName).removeMany([record]);
+        reduxDb.getTable(FormFieldTableName).removeManyByKey([record.id]);
       };
     }
   }, [reduxDb, formPath, name, value]);
@@ -121,7 +76,15 @@ export function useFormFieldValueRef(
   }
 
   useEffect(() => {
-    const record = createFormFieldRecord(true, path, name, value, id);
+    const record = createFormFieldRecord(
+      true,
+      path,
+      name,
+      value,
+      String(value),
+      id,
+      []
+    );
     upsertFormFieldRecord(reduxDb, [record]);
 
     const watchEvent: WatchEvent = {
@@ -129,24 +92,12 @@ export function useFormFieldValueRef(
     };
     const unsubscribe = reduxDb
       .getTable(FormFieldTableName)
-      .watchRecord(buildFormFieldRecordPk(record), watchEvent);
+      .watchRecord(record.id, watchEvent);
 
     return unsubscribe;
   });
 
   return { value, id };
-}
-
-interface FormProps {
-  name?: string;
-  path?: string[];
-  children: (props: UseFormHook) => JSX.Element;
-}
-
-export function Form({ name, path, children }: FormProps): JSX.Element {
-  const props = useForm(name, path);
-
-  return children(props);
 }
 
 export function useFormError(...rootPath: string[]): FormFieldError[][] {
@@ -168,29 +119,4 @@ export function useFormError(...rootPath: string[]): FormFieldError[][] {
   }, [reduxDb, rootPathMemoised]);
 
   return errors;
-}
-
-export function useSaveForm<T>(
-  mutate: (p: { variables: T }) => Promise<unknown>,
-  makeForm: (reduxDb: ReduxDatabase, formPath: string[]) => T,
-  formPath: string[]
-): { save: () => void } {
-  const { reduxDb, ajv, loader } = useServices();
-  const makeFormMemoised = useRef(makeForm);
-  const formPathMemoised = useRef(formPath);
-  const save = useCallback(async () => {
-    try {
-      if (validateForm(reduxDb, ajv)(formPathMemoised.current) === false) {
-        return;
-      }
-
-      await mutate({
-        variables: makeFormMemoised.current(reduxDb, formPathMemoised.current),
-      });
-    } catch (e) {
-      loader.onError(e as Error);
-    }
-  }, [reduxDb, ajv, mutate, makeFormMemoised, formPathMemoised, loader]);
-
-  return { save };
 }

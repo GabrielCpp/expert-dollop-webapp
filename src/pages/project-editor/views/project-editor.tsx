@@ -33,8 +33,8 @@ export function ProjectEditor() {
     <Switch>
       <Route path={routes.getUrl(PROJECT_EDITOR)} exact={true}>
         {rootSectionId && (
-          <Grid container spacing={1} wrap={"wrap"} direction="row">
-            <Grid item xs={12}>
+          <Grid container spacing={1}>
+            <Grid item xs={12} md={12} xl={12}>
               <RootSectionBar
                 projectId={projectId}
                 rootSectionId={rootSectionId}
@@ -42,11 +42,11 @@ export function ProjectEditor() {
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} md={12} xl={12}>
               <AlertContainer id={snackbarId}></AlertContainer>
             </Grid>
 
-            <Grid item md={4} style={{ minWidth: "4em" }}>
+            <Grid item xs={12} md={4} xl={4} style={{ minWidth: "4em" }}>
               {subSectionId && formId && (
                 <SidePanel
                   projectId={projectId}
@@ -57,7 +57,7 @@ export function ProjectEditor() {
               )}
             </Grid>
 
-            <Grid item>
+            <Grid item xs={12} md={8} xl={6}>
               {formId && (
                 <FormEditor
                   snackbarId={snackbarId}

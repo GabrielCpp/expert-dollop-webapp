@@ -40,14 +40,14 @@ export class Auth0Wrapper implements Auth0Context {
 
 
   async getToken(): Promise<string | undefined> {
-    let token: string | undefined = undefined;
+    let token: string | undefined = process.env.REACT_APP_AUTH0_DEV_TOKEN;
 
-    if (process.env.REACT_APP_AUTH0_DEV_TOKEN) {
-      return process.env.REACT_APP_AUTH0_DEV_TOKEN;
-    }
 
     if (this.auth0 === undefined) {
-      console.error(`Auth0 wrapper uninitiazed`)
+      if(this.user === EmptyUser && token !== undefined) {
+        await this.reloadUser(token)
+      }
+
       return token
     }
 

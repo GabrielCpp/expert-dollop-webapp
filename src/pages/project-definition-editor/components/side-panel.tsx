@@ -15,7 +15,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import {
@@ -53,9 +53,7 @@ export function SidePanel({
 }: SidePanelProps) {
   const { routes } = useServices();
   const { t, dbTrans } = useDbTranslation(projectDefinitionId);
-  const [expanded, setExpanded] = React.useState<string | undefined>(
-    subSectionDefId
-  );
+  const [expanded, setExpanded] = useState<string | undefined>(subSectionDefId);
 
   const { data, loading, error } =
     useFindProjectDefinitionRootSectionContainersQuery({

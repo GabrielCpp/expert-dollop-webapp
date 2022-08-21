@@ -848,7 +848,7 @@ export type Translation = {
 export type TranslationConfig = {
   __typename?: "TranslationConfig";
   helpTextName: FieldWrapper<Scalars["String"]>;
-  label?: Maybe<FieldWrapper<Scalars["String"]>>;
+  label: FieldWrapper<Scalars["String"]>;
 };
 
 export type TranslationConnection = {
@@ -905,17 +905,6 @@ export type User = {
   oauthId: FieldWrapper<Scalars["ID"]>;
   organizationId: FieldWrapper<Scalars["String"]>;
   permissions: Array<FieldWrapper<Scalars["String"]>>;
-};
-
-export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>;
-
-export type CurrentUserQuery = { __typename?: "Query" } & {
-  currentUser?: Maybe<
-    { __typename?: "User" } & Pick<
-      User,
-      "id" | "permissions" | "email" | "oauthId" | "organizationId"
-    >
-  >;
 };
 
 export type CreateSingleUserOrganizationMutationVariables = Exact<{
@@ -2573,65 +2562,6 @@ export type FindReportDefinitionsFromProjectDetailsQuery = {
   };
 };
 
-export const CurrentUserDocument = gql`
-  query currentUser {
-    currentUser {
-      id
-      permissions
-      email
-      oauthId
-      organizationId
-    }
-  }
-`;
-
-/**
- * __useCurrentUserQuery__
- *
- * To run a query within a React component, call `useCurrentUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useCurrentUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCurrentUserQuery({
- *   variables: {
- *   },
- * });
- */
-export function useCurrentUserQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    CurrentUserQuery,
-    CurrentUserQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<CurrentUserQuery, CurrentUserQueryVariables>(
-    CurrentUserDocument,
-    options
-  );
-}
-export function useCurrentUserLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    CurrentUserQuery,
-    CurrentUserQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<CurrentUserQuery, CurrentUserQueryVariables>(
-    CurrentUserDocument,
-    options
-  );
-}
-export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
-export type CurrentUserLazyQueryHookResult = ReturnType<
-  typeof useCurrentUserLazyQuery
->;
-export type CurrentUserQueryResult = Apollo.QueryResult<
-  CurrentUserQuery,
-  CurrentUserQueryVariables
->;
 export const CreateSingleUserOrganizationDocument = gql`
   mutation createSingleUserOrganization(
     $singleUserOrganization: NewSingleUserOrganizationInput!

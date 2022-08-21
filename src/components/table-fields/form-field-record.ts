@@ -1,12 +1,9 @@
 import { ErrorObject, JSONSchemaType, Schema } from "ajv";
 import { isEqual, map, omit, set, sortBy, startsWith, tail } from "lodash";
-import { v4 as uuidv4 } from "uuid";
 import { AjvFactory } from "../../services-def";
 
 import {
   ops,
-  PrimaryIndex,
-  PrimaryKey,
   Query,
   QueryBuilder,
   queryParam,
@@ -17,32 +14,49 @@ import { ReduxDatabase } from "../../shared/redux-db/database";
 
 export const FormFieldTableName = "form-field";
 export type FormFieldError = ErrorObject<string, Record<string, any>, unknown>;
-export type FormFieldRecordValue = unknown;
+export type TranslatableString = string | (() => JSX.Element) | JSX.Element;
+export type Translator = (key?: string | null) => TranslatableString;
+export interface FieldChildren {
+  id: string;
+  name: string;
+  value: unknown;
+  errors: FormFieldError[];
+  onChange: (value: unknown) => void;
+  t: Translator;
+}
+
 
 export interface FormFieldRecord extends TableRecord {
-  fieldPath: string[];
-  fieldName: string;
-  fieldId: string;
-  value: FormFieldRecordValue;
+  path: string[];
+  name: string;
+  value: unknown;
+  viewValue: string;
   errors: FormFieldError[];
   jsonSchemaValidator: Schema | JSONSchemaType<any>;
+  fullPath: string[]
+  metadata?: unknown
 }
 
 export function createFormFieldRecord(
   jsonSchemaValidator: Schema | JSONSchemaType<any>,
-  fieldPath: string[],
-  fieldName: string,
-  value: FormFieldRecordValue,
-  fieldId: string = uuidv4(),
-  errors: FormFieldError[] = []
+  path: string[],
+  name: string,
+  value: unknown,
+  viewValue: string,
+  id: string,
+  errors: FormFieldError[],
+  metadata?: unknown
 ): FormFieldRecord {
   return {
     jsonSchemaValidator,
-    fieldPath,
-    fieldName,
-    fieldId,
+    path,
+    name,
+    id,
     value,
+    viewValue,
     errors,
+    fullPath: [...path, id],
+    metadata
   };
 }
 
@@ -51,8 +65,8 @@ export function queryPathByName(name: string, path: string[]): Query {
     .where(
       ops(
         "and",
-        ops("isEqual", recordParam("fieldPath"), queryParam("path")),
-        ops("isEqual", recordParam("fieldName"), queryParam("name"))
+        ops("isEqual", recordParam("path"), queryParam("path")),
+        ops("isEqual", recordParam("name"), queryParam("name"))
       )
     )
     .bindParameters({
@@ -63,7 +77,7 @@ export function queryPathByName(name: string, path: string[]): Query {
 
 export function queryDirectChildrenOf(path: string[]): Query {
   return QueryBuilder.fromTable(FormFieldTableName)
-    .where(ops("isEqual", recordParam("fieldPath"), queryParam("path")))
+    .where(ops("isEqual", recordParam("path"), queryParam("path")))
     .bindParameters({
       path,
     }).query;
@@ -71,7 +85,7 @@ export function queryDirectChildrenOf(path: string[]): Query {
 
 export function queryChildrenOf(path: string[]): Query {
   return QueryBuilder.fromTable(FormFieldTableName)
-    .where(ops("arrayStartWith", recordParam("fieldPath"), queryParam("path")))
+    .where(ops("arrayStartWith", recordParam("path"), queryParam("path")))
     .bindParameters({
       path,
     }).query;
@@ -82,7 +96,7 @@ export function queryChildrenOfWithErrors(path: string[]): Query {
     .where(
       ops(
         "and",
-        ops("arrayStartWith", recordParam("fieldPath"), queryParam("path")),
+        ops("arrayStartWith", recordParam("path"), queryParam("path")),
         ops("gt", ops("len", recordParam("errors")), queryParam("zero"))
       )
     )
@@ -105,7 +119,7 @@ export function deleteFormFieldRecords(
 ): void {
   const table = database.getTable(FormFieldTableName);
   const records = table.where<FormFieldRecord>((record) =>
-    startsWith(record.fieldPath.join("."), path.join("."))
+    startsWith(record.path.join("."), path.join("."))
   );
   table.removeMany(records);
 }
@@ -116,7 +130,7 @@ export function deleteChildFormFieldRecords(
 ): void {
   const table = database.getTable(FormFieldTableName);
   const records = table.where<FormFieldRecord>((record) => {
-    const lhs = record.fieldPath.join(".");
+    const lhs = record.path.join(".");
     const rhs = path.join(".");
 
     return lhs !== rhs && startsWith(lhs, rhs);
@@ -124,6 +138,11 @@ export function deleteChildFormFieldRecords(
 
   table.removeMany(records);
 }
+
+export const EMAIL_VALIDATOR = {
+  type: "string",
+  "format": "email"
+};
 
 export const STRING_VALIDATOR = {
   type: "string",
@@ -133,15 +152,8 @@ export const STRING_VALIDATOR = {
 export const BOOLEAN_VALIDATOR = { type: "boolean" };
 export const INT_VALIDATOR = { type: "integer" };
 
-export function buildFormFieldRecordPk(record: FormFieldRecord): PrimaryKey {
-  return `${record.fieldPath.join(".")}.${record.fieldName}.${record.fieldId}`;
-}
-
-export function addFormFieldRecordTable(database: ReduxDatabase): void {
-  const primaryKey = new PrimaryIndex(
-    buildFormFieldRecordPk as (r: TableRecord) => PrimaryKey
-  );
-  database.addTable(FormFieldTableName, primaryKey);
+export function setupFormTables(database: ReduxDatabase): void {
+  database.addTable(FormFieldTableName);
 }
 
 export function buildFieldByNameMap(
@@ -150,7 +162,7 @@ export function buildFieldByNameMap(
   const fieldMap = new Map<string, FormFieldRecord>();
 
   for (const record of records) {
-    fieldMap.set(record.fieldName, record);
+    fieldMap.set(record.name, record);
   }
 
   return fieldMap;
@@ -174,20 +186,18 @@ export function indexRecords<T>(
 export function buildFormMapById(
   database: ReduxDatabase,
   rootPath: string[]
-): Map<string, unknown> {
-  const fields = new Map<string, unknown>();
+): Map<string, FormFieldRecord> {
+  const fields = new Map<string, FormFieldRecord>();
   const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
 
   for (const record of records) {
-    fields.set(record.fieldId, record.value);
+    fields.set(record.id, record);
   }
 
   return fields;
 }
 
-export const hydrateForm =
-  <T>(database: ReduxDatabase) =>
-  (rootPath: string[], useFieldName = true): T => {
+export const hydrateForm = <T>(database: ReduxDatabase, rootPath: string[], usename = true): T => {
     function getPathLength(x: [string[], unknown]): number {
       return x[0].length;
     }
@@ -196,8 +206,8 @@ export const hydrateForm =
     const valuePaths: Array<[string[], unknown]> = sortBy(
       records.map((record) => [
         [
-          ...tail(record.fieldPath),
-          useFieldName ? record.fieldName : record.fieldId,
+          ...tail(record.path),
+          usename ? record.name : record.id,
         ],
         record.value,
       ]),

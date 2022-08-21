@@ -1,10 +1,12 @@
 import { Checkbox, FormControlLabel, Typography, Tooltip } from "@mui/material";
-import { FieldChildren } from "./field";
+import { ReactNode } from "react";
+import { theme } from "../../../theme";
+import { FieldChildren } from "../form-field-record";
 
 interface CheckboxFieldProps extends FieldChildren {
-  t: (key: string) => string;
   label: string;
   title?: string;
+  endAdornment?: ReactNode;
 }
 
 export function checkboxField({
@@ -14,7 +16,7 @@ export function checkboxField({
   label,
   errors,
   title,
-  getType,
+  endAdornment,
   onChange,
   t,
 }: CheckboxFieldProps) {
@@ -27,15 +29,22 @@ export function checkboxField({
             onChange={onChange}
             name={name}
             color="primary"
+            sx={{ padding: theme.spacing(0.5) }}
           />
         }
         label={
           title !== undefined ? (
             <Tooltip title={t(title)}>
-              <Typography>{t(label)}</Typography>
+              <Typography>
+                {t(label)}
+                {endAdornment}
+              </Typography>
             </Tooltip>
           ) : (
-            t(label)
+            <Typography>
+              {t(label)}
+              {endAdornment}
+            </Typography>
           )
         }
       />

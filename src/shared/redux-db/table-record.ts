@@ -1,6 +1,8 @@
 export type PrimaryKey = string;
 export type UniqueIndexKeyBuilder = (record: TableRecord) => PrimaryKey;
-export type TableRecord = Record<string, unknown>;
+export interface TableRecord extends Record<string, unknown> {
+  id: string
+}
 
 export const UPDATE_EVENT = "update";
 export const ADD_EVENT = "add";

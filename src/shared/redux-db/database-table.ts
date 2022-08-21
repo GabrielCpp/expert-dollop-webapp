@@ -1,4 +1,4 @@
-import { PrimaryKey, TableRecord } from "./table-record";
+import { getPk, PrimaryKey, TableRecord } from "./table-record";
 import { Unsubscribe, WatchEvent } from "./table-record-change-emitter";
 import { TableTransaction } from "./table-transaction";
 import { Table } from "./table";
@@ -13,7 +13,7 @@ export class DatabaseTable {
     this._tableTransaction = tableTransaction;
   }
 
-  public where<T extends Record<string, unknown>>(
+  public where<T extends TableRecord>(
     predicate: (record: T) => boolean
   ): T[] {
     return this._table.where(predicate);
@@ -25,8 +25,7 @@ export class DatabaseTable {
   }
 
   public removeMany(records: TableRecord[]) {
-    const buildPk = this._table.buildPk;
-    this._table.removeMany(this._tableTransaction, records.map(buildPk));
+    this._table.removeMany(this._tableTransaction, records.map(getPk));
     this._tableTransaction.flush();
   }
 
@@ -35,14 +34,28 @@ export class DatabaseTable {
     this._tableTransaction.flush();
   }
 
-  public getPrimaryKey(record: TableRecord): PrimaryKey {
-    return this._table.buildPk(record);
-  }
-
   public findRecord<T extends TableRecord>(
     primaryKey: PrimaryKey
   ): T | undefined {
     return this._table.getRecord(primaryKey)?.value as T | undefined;
+  }
+
+  public findRecordOrDefault<T extends TableRecord>(
+    primaryKey: PrimaryKey,
+    defaultRecord: T
+  ): T {
+    return (this._table.getRecord(primaryKey)?.value || defaultRecord) as T;
+  }
+
+  public initRecord<T extends TableRecord>(primaryKey: PrimaryKey, defaultValue: T): T {
+    let record = this.findRecord(primaryKey)
+
+    if(record === undefined) {
+      this._table.silentSet(primaryKey, defaultValue)
+      record = defaultValue
+    }
+
+    return record as T
   }
 
   public watchRecord(primaryKey: string, events: WatchEvent): Unsubscribe {

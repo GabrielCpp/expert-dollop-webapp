@@ -1,6 +1,6 @@
 import { DatabaseTable } from "./database-table";
 import { Query } from "./query";
-import { PrimaryIndex, Table } from "./table";
+import { Table } from "./table";
 import { TableRecord } from "./table-record";
 import { getQueryFootprint, QueryEngine, QueryExecutor } from "./query-engine";
 import { Unsubscribe } from "./table-record-change-emitter";
@@ -40,7 +40,7 @@ export class ReduxDatabase {
     return new QueryExecutor(query, this.getInternalTable).execute() as T[];
   }
 
-  public watchQuery<T>(
+  public watchQuery<T extends TableRecord>(
     query: Query,
     onChange: OnQueryChange<T>
   ): [T[], Unsubscribe] {
@@ -59,9 +59,9 @@ export class ReduxDatabase {
     return [records, unsubscribe];
   }
 
-  public addTable(tableName: string, primaryIndex?: PrimaryIndex): void {
+  public addTable(tableName: string): void {
     if (!this._tables.has(tableName)) {
-      this._tables.set(tableName, new Table([], primaryIndex));
+      this._tables.set(tableName, new Table([]));
     }
   }
 

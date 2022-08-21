@@ -71,7 +71,7 @@ export function FormSection({
         refetch()
           .then(() => {
             setCurrentNodeId(x.addProjectCollectionItem[0].id);
-            success("form.section_added");
+            success("shared.forms.section_added");
             scrollTop();
           })
           .catch(catchError);

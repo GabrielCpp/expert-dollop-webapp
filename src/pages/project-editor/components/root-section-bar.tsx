@@ -139,7 +139,7 @@ export function RootSectionBar({
       onCompleted: (x) => {
         refetch()
           .then(() => {
-            success("form.section_added");
+            success("shared.forms.section_added");
             scrollTop();
             history.push(
               buildLinkToProjectPath(
@@ -163,7 +163,7 @@ export function RootSectionBar({
     onCompleted: (x) => {
       refetch()
         .then(() => {
-          success("form.section_added");
+          success("shared.forms.section_added");
           scrollTop();
           history.push(
             buildLinkToProjectPath(
@@ -247,9 +247,6 @@ export function RootSectionBar({
         onChange={onChange}
         variant="scrollable"
         scrollButtons="auto"
-        style={{
-          maxWidth: "calc(100vw - 200px)",
-        }}
       >
         {urls &&
           roots
