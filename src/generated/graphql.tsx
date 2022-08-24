@@ -356,7 +356,8 @@ export type MutationDeleteProjectCollectionArgs = {
 };
 
 export type MutationUpdateProjectDefinitionNodeArgs = {
-  node: ProjectDefinitionNodeUpdateInput;
+  node: ProjectDefinitionNodeCreationInput;
+  nodeId: Scalars["String"];
   projectDefinitionId: Scalars["String"];
 };
 
@@ -490,19 +491,6 @@ export type ProjectDefinitionNodeCreationInput = {
 export type ProjectDefinitionNodeTree = {
   __typename?: "ProjectDefinitionNodeTree";
   roots: Array<FieldWrapper<ProjectDefinitionTreeNode>>;
-};
-
-export type ProjectDefinitionNodeUpdateInput = {
-  fieldDetails?: Maybe<FieldDetailsUnionInput>;
-  id: Scalars["ID"];
-  instanciateByDefault: Scalars["Boolean"];
-  isCollection: Scalars["Boolean"];
-  meta: NodeMetaConfigInput;
-  name: Scalars["String"];
-  orderIndex: Scalars["Int"];
-  path: Array<Scalars["String"]>;
-  translations: TranslationConfigInput;
-  triggers: Array<Maybe<TriggerInput>>;
 };
 
 export type ProjectDefinitionTreeNode = {
@@ -1136,7 +1124,8 @@ export type AddProjectDefinitionNodeMutation = { __typename?: "Mutation" } & {
 
 export type UpdateProjectDefinitionNodeMutationVariables = Exact<{
   projectDefinitionId: Scalars["String"];
-  node: ProjectDefinitionNodeUpdateInput;
+  nodeId: Scalars["String"];
+  node: ProjectDefinitionNodeCreationInput;
 }>;
 
 export type UpdateProjectDefinitionNodeMutation = {
@@ -3001,10 +2990,12 @@ export type AddProjectDefinitionNodeMutationOptions =
 export const UpdateProjectDefinitionNodeDocument = gql`
   mutation updateProjectDefinitionNode(
     $projectDefinitionId: String!
-    $node: ProjectDefinitionNodeUpdateInput!
+    $nodeId: String!
+    $node: ProjectDefinitionNodeCreationInput!
   ) {
     updateProjectDefinitionNode(
       projectDefinitionId: $projectDefinitionId
+      nodeId: $nodeId
       node: $node
     ) {
       id
@@ -3065,6 +3056,7 @@ export type UpdateProjectDefinitionNodeMutationFn = Apollo.MutationFunction<
  * const [updateProjectDefinitionNodeMutation, { data, loading, error }] = useUpdateProjectDefinitionNodeMutation({
  *   variables: {
  *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      nodeId: // value for 'nodeId'
  *      node: // value for 'node'
  *   },
  * });

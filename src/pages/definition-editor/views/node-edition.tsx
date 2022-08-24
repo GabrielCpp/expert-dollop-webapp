@@ -42,10 +42,8 @@ export function EditContainerView() {
     await updateNode({
       variables: {
         projectDefinitionId,
-        node: {
-          id: nodeId,
-          ...data,
-        },
+        nodeId,
+        node: data,
       },
     });
   }

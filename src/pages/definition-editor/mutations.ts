@@ -45,8 +45,8 @@ export const ADD_PROJECT_DEFINITION_NODE = gql`
 
 
 export const UPDATE_PROJECT_DEFINITION_NODE = gql`
-  mutation updateProjectDefinitionNode($projectDefinitionId: String!, $node: ProjectDefinitionNodeUpdateInput!) {
-    updateProjectDefinitionNode(projectDefinitionId: $projectDefinitionId, node: $node) {
+  mutation updateProjectDefinitionNode($projectDefinitionId: String!, $nodeId: String! $node: ProjectDefinitionNodeCreationInput!) {
+    updateProjectDefinitionNode(projectDefinitionId: $projectDefinitionId, nodeId: $nodeId, node: $node) {
       id
       projectDefinitionId
       name
