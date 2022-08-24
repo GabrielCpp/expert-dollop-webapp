@@ -19,7 +19,11 @@ import {
   FindProjectRootSectionContainersQuery,
   useFindProjectRootSectionContainersQuery,
 } from "../../../generated/graphql";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  RefectGroup,
+  useLoaderEffect,
+  useSharedRefetch,
+} from "../../../components/loading-frame";
 import { useDbTranslation } from "../../../components/translation";
 import { buildLinkToProjectPath } from "../routes";
 import { NodePicker } from "../components/node-picker";
@@ -34,6 +38,7 @@ interface SidePanelProps {
   rootSectionId: string;
   subSectionId: string;
   formId: string;
+  refectGroup: RefectGroup;
 }
 
 export function SidePanel({
@@ -41,19 +46,22 @@ export function SidePanel({
   rootSectionId,
   subSectionId,
   formId,
+  refectGroup,
 }: SidePanelProps) {
   const [expanded, setExpanded] = React.useState<string | undefined>(
     subSectionId
   );
-  const { data, loading, error } = useFindProjectRootSectionContainersQuery({
-    skip: rootSectionId === undefined,
-    variables: {
-      projectId,
-      rootSectionId,
-    },
-  });
+  const { data, loading, error, refetch } =
+    useFindProjectRootSectionContainersQuery({
+      skip: rootSectionId === undefined,
+      variables: {
+        projectId,
+        rootSectionId,
+      },
+    });
 
   useLoaderEffect(error, loading);
+  useSharedRefetch(refectGroup, refetch);
 
   const subSections = data?.findProjectRootSectionContainers.roots;
 
@@ -136,10 +144,8 @@ function SubSectionPicker({
             onChange={setCurrentNodeId}
           />
         )}
-        <Tooltip title={dbTrans(definition.config.translations.helpTextName)}>
-          <ListItemText
-            primary={dbTrans(definition.config.translations.label)}
-          />
+        <Tooltip title={dbTrans(definition.translations.helpTextName)}>
+          <ListItemText primary={dbTrans(definition.translations.label)} />
         </Tooltip>
 
         <ListItemSecondaryAction>
@@ -214,9 +220,7 @@ function FormPicker({
         />
       )}
       <Tooltip
-        title={dbTrans(
-          secondLayerNode.definition.config.translations.helpTextName
-        )}
+        title={dbTrans(secondLayerNode.definition.translations.helpTextName)}
       >
         <ListItemText
           primaryTypographyProps={{
@@ -226,7 +230,7 @@ function FormPicker({
           }}
           primary={
             currentNodeId === formId ? (
-              dbTrans(secondLayerNode.definition.config.translations.label)
+              dbTrans(secondLayerNode.definition.translations.label)
             ) : (
               <Link
                 component={RouterLink}
@@ -237,7 +241,7 @@ function FormPicker({
                   secondLayerNode.nodes[0].node.id
                 )}
               >
-                {dbTrans(secondLayerNode.definition.config.translations.label)}
+                {dbTrans(secondLayerNode.definition.translations.label)}
               </Link>
             )
           }

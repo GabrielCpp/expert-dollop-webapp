@@ -87,7 +87,7 @@ export function SidePanel({
                 <ListItem>
                   <Tooltip
                     title={dbTrans(
-                      subSection.definition.config.translations.helpTextName
+                      subSection.definition.translations.helpTextName
                     )}
                   >
                     <ListItemText
@@ -103,9 +103,7 @@ export function SidePanel({
                             )
                           )}
                         >
-                          {dbTrans(
-                            subSection.definition.config.translations.label
-                          )}
+                          {dbTrans(subSection.definition.translations.label)}
                         </Link>
                       }
                     />
@@ -194,9 +192,7 @@ function FormLinkList({
         <Fragment key={formNode.definition.name}>
           <NestedListItem>
             <Tooltip
-              title={dbTrans(
-                formNode.definition.config.translations.helpTextName
-              )}
+              title={dbTrans(formNode.definition.translations.helpTextName)}
             >
               <ListItemText
                 primaryTypographyProps={{
@@ -208,7 +204,7 @@ function FormLinkList({
                 }}
                 primary={
                   formNode.definition.id === formId ? (
-                    dbTrans(formNode.definition.config.translations.label)
+                    dbTrans(formNode.definition.translations.label)
                   ) : (
                     <Link
                       component={RouterLink}
@@ -219,7 +215,7 @@ function FormLinkList({
                         formNode.definition.id
                       )}
                     >
-                      {dbTrans(formNode.definition.config.translations.label)}
+                      {dbTrans(formNode.definition.translations.label)}
                     </Link>
                   )
                 }

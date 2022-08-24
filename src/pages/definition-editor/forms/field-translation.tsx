@@ -12,6 +12,7 @@ import { nodeFormLabels } from "../form-definitions";
 export interface FieldTranslationProps {
   path: string[];
   name: string;
+  locale: string;
   label: unknown;
   labels: typeof nodeFormLabels["tabs"]["body"];
   translations: Translation[];
@@ -21,6 +22,7 @@ export interface FieldTranslationProps {
 export function FieldTranslation({
   path,
   name,
+  locale,
   translations,
   translationConfig,
   labels,
@@ -28,13 +30,13 @@ export function FieldTranslation({
   const { t } = useTranslation();
   const { formPath } = useForm({ name, parentPath: path });
   const tabTranslations = translations.filter(
-    (translation) => translation.locale === name
+    (translation) => translation.locale === locale
   );
-  const helpText =
+  const label =
     tabTranslations.find(
       (translation) => translation.name === translationConfig.label
     )?.value || "";
-  const label =
+  const helpText =
     tabTranslations.find(
       (translation) => translation.name === translationConfig.helpTextName
     )?.value || "";

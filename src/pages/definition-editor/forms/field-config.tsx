@@ -10,7 +10,7 @@ import {
   useFormFieldValueRef,
   useHiddenField,
 } from "../../../components/table-fields";
-import { NodeConfig } from "../../../generated";
+import { FieldDetailsUnionInput } from "../../../generated";
 import { FormRole, nodeFormLabels, NodeLevel } from "../form-definitions";
 import { Triggers } from "./triggers";
 
@@ -44,17 +44,22 @@ const opyions = [
 interface ConfigFormProps {
   name: string;
   path: string[];
-  config: NodeConfig;
+  fieldDetails: FieldDetailsUnionInput;
   level: NodeLevel;
   role: FormRole;
   labels: typeof nodeFormLabels["fieldConfig"];
 }
 
-export function FieldConfig({ name, path, config, labels }: ConfigFormProps) {
+export function FieldConfig({
+  name,
+  path,
+  fieldDetails,
+  labels,
+}: ConfigFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm({ name, parentPath: path });
   const { value, id: configTypeId } = useFormFieldValueRef("string");
-  console.log(config);
+  console.log(fieldDetails);
   useHiddenField("configType", formPath, null);
 
   return (

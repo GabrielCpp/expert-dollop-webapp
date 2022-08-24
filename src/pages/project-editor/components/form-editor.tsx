@@ -1,6 +1,10 @@
 import { Tooltip, Typography } from "@mui/material";
 import { useEffect } from "react";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  RefectGroup,
+  useLoaderEffect,
+  useSharedRefetch,
+} from "../../../components/loading-frame";
 import {
   scrollTop,
   useNotification,
@@ -25,6 +29,7 @@ interface FormEditorProps {
   formId: string;
   projectId: string;
   snackbarId: string;
+  refectGroup: RefectGroup;
 }
 
 export function FormEditor({
@@ -32,6 +37,7 @@ export function FormEditor({
   rootSectionId,
   formId,
   snackbarId,
+  refectGroup,
 }: FormEditorProps) {
   const { dbTrans } = useDbTranslation(projectId);
   const { success, catchError, clear } = useNotification(snackbarId);
@@ -57,6 +63,8 @@ export function FormEditor({
     onError: catchError,
   });
 
+  useSharedRefetch(refectGroup, refetch);
+
   const { formPath } = useForm({ id: rootSectionId });
   const save = async (fields: Map<string, FormFieldRecord>) => {
     const updates: FieldUpdateInput[] = [];
@@ -77,6 +85,7 @@ export function FormEditor({
         updates: updates,
       },
     });
+    await refectGroup.refetchAll();
   };
 
   useEffect(clear, [clear, formId]);
@@ -91,10 +100,10 @@ export function FormEditor({
   const content = [
     <Tooltip
       key={formDefinition.id}
-      title={dbTrans(formDefinition.config.translations.helpTextName)}
+      title={dbTrans(formDefinition.translations.helpTextName)}
     >
       <Typography variant="h4">
-        {dbTrans(formDefinition.config.translations.label)}
+        {dbTrans(formDefinition.translations.label)}
       </Typography>
     </Tooltip>,
     ...formContent.map((node) => (

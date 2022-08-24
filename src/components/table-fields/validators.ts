@@ -12,3 +12,4 @@ export const STRING_VALIDATOR = {
 };
 export const BOOLEAN_VALIDATOR = { type: "boolean" };
 export const INT_VALIDATOR = { type: "integer" };
+export const DECIMAL_VALIDATOR = { type: "number" };

@@ -40,57 +40,44 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            valueValidator
-            translations {
-              helpTextName
-              label
-            }
-            fieldDetails {
-              __typename
-              ... on IntFieldConfig {
-                unit
-              }
-              ... on DecimalFieldConfig {
-                unit
-                precision
-              }
-              ... on StringFieldConfig {
-                transforms
-              }
-              ... on BoolFieldConfig {
-                isCheckbox
-              }
-              ... on StaticChoiceFieldConfig {
-                options {
-                  id
-                  label
-                  helpText
-                }
-              }
-              ... on CollapsibleContainerFieldConfig {
-                isCollapsible
-              }
-              ... on StaticNumberFieldConfig {
-                passToTranslation
-                precision
-                unit
-              }
-            }
+          validator
+          translations {
+            helpTextName
+            label
           }
-          defaultValue {
+          fieldDetails {
             __typename
-            ... on StringFieldValue {
-              text
-            }
-            ... on IntFieldValue {
+            ... on IntFieldConfig {
+              unit
               integer
             }
-            ... on DecimalFieldValue {
+            ... on DecimalFieldConfig {
+              unit
+              precision
               numeric
             }
-            ... on BoolFieldValue {
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
               enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
             }
           }
           path
@@ -117,57 +104,44 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            valueValidator
-            translations {
-              helpTextName
-              label
-            }
-            fieldDetails {
-              __typename
-              ... on IntFieldConfig {
-                unit
-              }
-              ... on DecimalFieldConfig {
-                unit
-                precision
-              }
-              ... on StringFieldConfig {
-                transforms
-              }
-              ... on BoolFieldConfig {
-                isCheckbox
-              }
-              ... on StaticChoiceFieldConfig {
-                options {
-                  id
-                  label
-                  helpText
-                }
-              }
-              ... on CollapsibleContainerFieldConfig {
-                isCollapsible
-              }
-              ... on StaticNumberFieldConfig {
-                passToTranslation
-                precision
-                unit
-              }
-            }
+          validator
+          translations {
+            helpTextName
+            label
           }
-          defaultValue {
+          fieldDetails {
             __typename
-            ... on StringFieldValue {
-              text
-            }
-            ... on IntFieldValue {
+            ... on IntFieldConfig {
+              unit
               integer
             }
-            ... on DecimalFieldValue {
+            ... on DecimalFieldConfig {
+              unit
+              precision
               numeric
             }
-            ... on BoolFieldValue {
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
               enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
             }
           }
           path
@@ -180,57 +154,44 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
             isCollection
             instanciateByDefault
             orderIndex
-            config {
-              valueValidator
-              translations {
-                helpTextName
-                label
-              }
-              fieldDetails {
-                __typename
-                ... on IntFieldConfig {
-                  unit
-                }
-                ... on DecimalFieldConfig {
-                  unit
-                  precision
-                }
-                ... on StringFieldConfig {
-                  transforms
-                }
-                ... on BoolFieldConfig {
-                  isCheckbox
-                }
-                ... on StaticChoiceFieldConfig {
-                  options {
-                    id
-                    label
-                    helpText
-                  }
-                }
-                ... on CollapsibleContainerFieldConfig {
-                  isCollapsible
-                }
-                ... on StaticNumberFieldConfig {
-                  passToTranslation
-                  precision
-                  unit
-                }
-              }
+            validator
+            translations {
+              helpTextName
+              label
             }
-            defaultValue {
+            fieldDetails {
               __typename
-              ... on StringFieldValue {
-                text
-              }
-              ... on IntFieldValue {
+              ... on IntFieldConfig {
+                unit
                 integer
               }
-              ... on DecimalFieldValue {
+              ... on DecimalFieldConfig {
+                unit
+                precision
                 numeric
               }
-              ... on BoolFieldValue {
+              ... on StringFieldConfig {
+                transforms
+                text
+              }
+              ... on BoolFieldConfig {
                 enabled
+              }
+              ... on StaticChoiceFieldConfig {
+                options {
+                  id
+                  label
+                  helpText
+                }
+                selected
+              }
+              ... on CollapsibleContainerFieldConfig {
+                isCollapsible
+              }
+              ... on StaticNumberFieldConfig {
+                passToTranslation
+                precision
+                unit
               }
             }
             path
@@ -251,52 +212,55 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
       instanciateByDefault
       orderIndex
       path
-      config {
-        valueValidator
-        triggers {
-          action
-          targetTypeId
-          params {
-            name
-            value
-          }
-        }
-        translations {
-          helpTextName
-          label
-        }
-        fieldDetails {
-          __typename
-          ... on IntFieldConfig {
-            unit
-          }
-          ... on DecimalFieldConfig {
-            unit
-            precision
-          }
-          ... on StringFieldConfig {
-            transforms
-          }
-          ... on BoolFieldConfig {
-            isCheckbox
-          }
-          ... on StaticChoiceFieldConfig {
-            options {
-              id
-              label
-              helpText
-            }
-          }
-          ... on CollapsibleContainerFieldConfig {
-            isCollapsible
-          }
-          ... on StaticNumberFieldConfig {
-            passToTranslation
-            precision
-            unit
-          }
+      validator
+      triggers {
+        action
+        targetTypeId
+        params {
+          name
+          value
         }
       }
+      translations {
+        helpTextName
+        label
+      }
+      fieldDetails {
+        __typename
+        ... on IntFieldConfig {
+          unit
+          integer
+        }
+        ... on DecimalFieldConfig {
+          unit
+          precision
+          numeric
+        }
+        ... on StringFieldConfig {
+          transforms
+          text
+        }
+        ... on BoolFieldConfig {
+          enabled
+        }
+        ... on StaticChoiceFieldConfig {
+          options {
+            id
+            label
+            helpText
+          }
+          selected
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
+        }
+        ... on StaticNumberFieldConfig {
+          passToTranslation
+          precision
+          unit
+        }
+      }
+      
     }
     findProjectDefinitionFormContent(
       projectDefinitionId: $id
@@ -310,8 +274,65 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            valueValidator
+          validator
+          triggers {
+            action
+            targetTypeId
+            params {
+              name
+              value
+            }
+          }
+          translations {
+            helpTextName
+            label
+          }
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+              integer
+            }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+              numeric
+            }
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
+              enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
+            }
+          }
+          path
+        }
+        children {
+          definition {
+            id
+            projectDefinitionId
+            name
+            isCollection
+            instanciateByDefault
+            orderIndex
+            validator
             triggers {
               action
               targetTypeId
@@ -328,16 +349,19 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
               __typename
               ... on IntFieldConfig {
                 unit
+                integer
               }
               ... on DecimalFieldConfig {
                 unit
                 precision
+                numeric
               }
               ... on StringFieldConfig {
                 transforms
+                text
               }
               ... on BoolFieldConfig {
-                isCheckbox
+                enabled
               }
               ... on StaticChoiceFieldConfig {
                 options {
@@ -345,6 +369,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
                   label
                   helpText
                 }
+                selected
               }
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
@@ -353,93 +378,6 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
                 passToTranslation
                 precision
                 unit
-              }
-            }
-          }
-          defaultValue {
-            __typename
-            ... on StringFieldValue {
-              text
-            }
-            ... on IntFieldValue {
-              integer
-            }
-            ... on DecimalFieldValue {
-              numeric
-            }
-            ... on BoolFieldValue {
-              enabled
-            }
-          }
-          path
-        }
-        children {
-          definition {
-            id
-            projectDefinitionId
-            name
-            isCollection
-            instanciateByDefault
-            orderIndex
-            config {
-              valueValidator
-              triggers {
-                action
-                targetTypeId
-                params {
-                  name
-                  value
-                }
-              }
-              translations {
-                helpTextName
-                label
-              }
-              fieldDetails {
-                __typename
-                ... on IntFieldConfig {
-                  unit
-                }
-                ... on DecimalFieldConfig {
-                  unit
-                  precision
-                }
-                ... on StringFieldConfig {
-                  transforms
-                }
-                ... on BoolFieldConfig {
-                  isCheckbox
-                }
-                ... on StaticChoiceFieldConfig {
-                  options {
-                    id
-                    label
-                    helpText
-                  }
-                }
-                ... on CollapsibleContainerFieldConfig {
-                  isCollapsible
-                }
-                ... on StaticNumberFieldConfig {
-                  passToTranslation
-                  precision
-                  unit
-                }
-              }
-            }
-            defaultValue {
-              __typename
-              ... on StringFieldValue {
-                text
-              }
-              ... on IntFieldValue {
-                integer
-              }
-              ... on DecimalFieldValue {
-                numeric
-              }
-              ... on BoolFieldValue {
-                enabled
               }
             }
             path
@@ -463,53 +401,58 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
       instanciateByDefault
       orderIndex
       path
-      config {
-        valueValidator
-        triggers {
-          action
-          targetTypeId
-          params {
-            name
-            value
-          }
-        }
-        translations {
-          helpTextName
-          label
-        }
-        fieldDetails {
-          __typename
-          ... on IntFieldConfig {
-            unit
-          }
-          ... on DecimalFieldConfig {
-            unit
-            precision
-          }
-          ... on StringFieldConfig {
-            transforms
-          }
-          ... on BoolFieldConfig {
-            isCheckbox
-          }
-          ... on StaticChoiceFieldConfig {
-            options {
-              id
-              label
-              helpText
-            }
-          }
-          ... on CollapsibleContainerFieldConfig {
-            isCollapsible
-          }
-          ... on StaticNumberFieldConfig {
-            passToTranslation
-            precision
-            unit
-          }
+      validator
+      triggers {
+        action
+        targetTypeId
+        params {
+          name
+          value
         }
       }
       translations {
+        helpTextName
+        label
+      }
+      meta {
+				isVisible
+			}
+      fieldDetails {
+        __typename
+        ... on IntFieldConfig  {
+          unit
+          integer
+        }
+        ... on DecimalFieldConfig {
+          unit
+          precision
+          numeric
+        }
+        ... on StringFieldConfig  {
+          transforms
+          text
+        }
+        ... on BoolFieldConfig {
+          enabled
+        }
+        ... on StaticChoiceFieldConfig {
+          options {
+            id
+            label
+            helpText
+          }
+          selected
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
+        }
+        ... on StaticNumberFieldConfig {
+          passToTranslation
+          precision
+          unit
+        }
+      }
+      translated {
         id
         ressourceId
         locale

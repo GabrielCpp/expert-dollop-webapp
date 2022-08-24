@@ -57,7 +57,7 @@
       },
 
       "field_name": "Name",
-      "field_is_collection": "Is a collection",
+      "field_is_collection": "May repeat itself",
       "field_instanciate_by_default": "Instanciate by default",
       "field_order": "Order",
       "tab_french": "French",

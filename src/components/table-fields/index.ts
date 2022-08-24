@@ -14,7 +14,8 @@ export{
   BOOLEAN_VALIDATOR,
   STRING_VALIDATOR,
   INT_VALIDATOR,
-  EMAIL_VALIDATOR
+  EMAIL_VALIDATOR,
+  DECIMAL_VALIDATOR
 } from './validators'
 
 export * from "./views";

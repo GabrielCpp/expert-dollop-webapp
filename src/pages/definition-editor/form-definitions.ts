@@ -11,51 +11,6 @@ export const levelMapping: Record<string, NodeLevel> = {
 };
 
 
-export interface NodeFormI18n {
-  title: KeyNamespace<FormRole, NodeLevel>;
-  name: {
-    label: string;
-    id: string;
-  };
-  isCollection: {
-    label: string;
-    id: string;
-  };
-  instanciateByDefault: {
-    label: string;
-    id: string;
-  };
-  orderIndex: {
-    label: string;
-    id: string;
-  };
-  tabs: {
-    id: string;
-    defaultOne: string;
-    body: {
-      label: {
-        id: string 
-        label: string
-      },
-      helpText: {
-        id: string 
-        label: string
-      },
-    }
-    fr: {
-      label: string;
-      id: string;
-    };
-    en: {
-      label: string;
-      id: string;
-    };
-  };
-  fieldConfig: {
-    id: string;
-  };
-}
-
 export const nodeFormLabels = {
   title: new KeyNamespace<FormRole, NodeLevel>({
     edit: new KeyMapping<NodeLevel>({
@@ -105,10 +60,12 @@ export const nodeFormLabels = {
     fr: {
       label: "definition_editor.node_form.tab_french",
       id: "fr",
+      locale: 'fr-CA'
     },
     en: {
       label: "definition_editor.node_form.tab_english",
       id: "en",
+      locale: 'en-US'
     },
   },
   fieldConfig: {

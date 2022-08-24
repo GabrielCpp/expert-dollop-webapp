@@ -1,16 +1,14 @@
 import { Tooltip } from "@mui/material";
 import {
+  checkboxField,
   Field,
   radioField,
   textField,
-  checkboxField,
 } from "../../../components/table-fields";
 import { useDbTranslation } from "../../../components/translation";
 import {
-  DecimalFieldConfig,
   FindProjectFormContentQuery,
-  IntFieldConfig,
-  StaticChoiceFieldConfig,
+  StaticChoiceOption,
   StaticNumberFieldConfig,
 } from "../../../generated";
 
@@ -50,9 +48,12 @@ export function FieldWrapper({
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["nodes"][number]["node"];
 }): JSX.Element {
   const { dbTrans, t } = useDbTranslation(definition.projectDefinitionId);
-  const { __typename: fieldType } = definition.config.fieldDetails || {};
+  const { __typename: fieldType } = definition.fieldDetails || {};
   const value = getFieldValue(node.value);
-  const validator = JSON.parse(definition.config.valueValidator);
+  const validator =
+    definition.validator === undefined
+      ? undefined
+      : JSON.parse(definition.validator);
   const commonProps = {
     t: dbTrans,
     unmount: false,
@@ -66,12 +67,13 @@ export function FieldWrapper({
   ) {
     let unit: string | undefined;
     let formatter = undefined;
+
     if (fieldType === "IntFieldConfig") {
-      const config = definition.config.fieldDetails as IntFieldConfig;
+      const config = definition.fieldDetails as { unit: string };
       unit = config.unit;
       formatter = integerFormatter;
     } else if (fieldType === "DecimalFieldConfig") {
-      const config = definition.config.fieldDetails as DecimalFieldConfig;
+      const config = definition.fieldDetails as { unit: string };
       unit = config.unit;
       formatter = decimalFormatter;
     }
@@ -83,8 +85,8 @@ export function FieldWrapper({
         name={definition.name}
         defaultValue={value}
         id={node.id}
-        label={definition.config.translations.label}
-        title={definition.config.translations.helpTextName}
+        label={definition.translations.label}
+        title={definition.translations.helpTextName}
         component={textField}
         unit={unit}
         formatter={formatter}
@@ -101,8 +103,8 @@ export function FieldWrapper({
         name={definition.name}
         defaultValue={Boolean(value)}
         id={node.id}
-        label={definition.config.translations.label}
-        title={definition.config.translations.helpTextName}
+        label={definition.translations.label}
+        title={definition.translations.helpTextName}
         component={checkboxField}
         {...commonProps}
       />
@@ -110,7 +112,10 @@ export function FieldWrapper({
   }
 
   if (fieldType === "StaticChoiceFieldConfig") {
-    const choices = definition.config.fieldDetails as StaticChoiceFieldConfig;
+    const choices = definition.fieldDetails as {
+      options: StaticChoiceOption[];
+    };
+
     return (
       <Field
         options={choices.options}
@@ -119,21 +124,20 @@ export function FieldWrapper({
         name={definition.name}
         defaultValue={value}
         id={node.id}
-        label={definition.config.translations.label}
-        title={definition.config.translations.helpTextName}
+        label={definition.translations.label}
+        title={definition.translations.helpTextName}
         component={radioField}
         {...commonProps}
       />
     );
   }
 
-  const staticNumberConfig = definition.config
-    .fieldDetails as StaticNumberFieldConfig;
+  const staticNumberConfig = definition.fieldDetails as StaticNumberFieldConfig;
 
   return (
-    <Tooltip title={dbTrans(definition.config.translations.helpTextName)}>
+    <Tooltip title={dbTrans(definition.translations.helpTextName)}>
       <div key={definition.name}>
-        {dbTrans(definition.config.translations.label)}
+        {dbTrans(definition.translations.label)}
         &nbsp;
         <strong>
           {t("intlNumber", { val: value, minimumFractionDigits: 3 })}

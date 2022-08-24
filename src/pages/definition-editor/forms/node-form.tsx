@@ -10,7 +10,11 @@ import {
   textField,
   useForm,
 } from "../../../components/table-fields";
-import { ProjectDefinitionNode } from "../../../generated";
+import {
+  FieldWrapper,
+  ProjectDefinitionNodeCreationInput,
+  Translation,
+} from "../../../generated";
 import { FormRole, nodeFormLabels, NodeLevel } from "../form-definitions";
 import { NAME_VALIDATOR } from "../validators";
 import { FieldConfig } from "./field-config";
@@ -19,10 +23,18 @@ import { FieldTranslation } from "./field-translation";
 interface ContainerFormProps {
   level: NodeLevel;
   role: FormRole;
-  node: ProjectDefinitionNode;
+  node: ProjectDefinitionNodeCreationInput;
+  translated: Array<FieldWrapper<Translation>>;
+  onSubmit: (data: ProjectDefinitionNodeCreationInput) => Promise<void>;
 }
 
-export function NodeForm({ level, role, node }: ContainerFormProps) {
+export function NodeForm({
+  level,
+  role,
+  node,
+  translated,
+  onSubmit,
+}: ContainerFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm();
 
@@ -91,24 +103,26 @@ export function NodeForm({ level, role, node }: ContainerFormProps) {
               path={formPath}
               key={labels.tabs.fr.id}
               name={labels.tabs.fr.id}
+              locale={labels.tabs.fr.locale}
               label={t(labels.tabs.fr.label)}
               labels={labels.tabs.body}
-              translationConfig={node.config.translations}
-              translations={node.translations}
+              translationConfig={node.translations}
+              translations={translated}
             />
             <FieldTranslation
               path={formPath}
               key={labels.tabs.en.id}
               name={labels.tabs.en.id}
+              locale={labels.tabs.en.locale}
               label={t(labels.tabs.en.label)}
               labels={labels.tabs.body}
-              translationConfig={node.config.translations}
-              translations={node.translations}
+              translationConfig={node.translations}
+              translations={translated}
             />
           </StaticTabs>
         </CardContent>
       </Card>
-      {level === "field" && (
+      {node.fieldDetails !== undefined && node.fieldDetails !== null && (
         <FieldConfig
           path={formPath}
           key={labels.fieldConfig.id}
@@ -116,7 +130,7 @@ export function NodeForm({ level, role, node }: ContainerFormProps) {
           level={level}
           role={role}
           labels={labels.fieldConfig}
-          config={node.config}
+          fieldDetails={node.fieldDetails}
         />
       )}
     </Form>

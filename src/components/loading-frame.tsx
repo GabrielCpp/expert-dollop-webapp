@@ -1,5 +1,5 @@
 import { Backdrop } from "@mui/material";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderNotifier, useServices } from "../services-def";
 import { useId } from "../shared/redux-db";
 
@@ -117,4 +117,41 @@ export function useLoadingNotifier(): LoaderDetails {
     onLoading,
     onError,
   };
+}
+
+export interface RefectGroup {
+  add: (f: () => Promise<unknown>) => void;
+  pop: (f: () => Promise<unknown>) => void;
+  refetchAll: () => Promise<void>;
+}
+
+export function useRefetchGroup() {
+  const fetchers = useRef<Set<() => Promise<unknown>>>(new Set());
+  const [actions] = useState<RefectGroup>(() => {
+    return {
+      add: (f: () => Promise<unknown>) => {
+        fetchers.current.add(f);
+      },
+      pop: (f: () => Promise<unknown>) => {
+        fetchers.current.delete(f);
+      },
+      refetchAll: async () => {
+        await Promise.all(
+          Array.from(fetchers.current.values()).map((r) => r())
+        );
+      },
+    };
+  });
+
+  return actions;
+}
+
+export function useSharedRefetch(
+  refectGroup: RefectGroup,
+  f: () => Promise<unknown>
+) {
+  useEffect(() => {
+    refectGroup.add(f);
+    return () => refectGroup.pop(f);
+  }, [f, refectGroup]);
 }

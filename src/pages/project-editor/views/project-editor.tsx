@@ -1,6 +1,9 @@
 import { Grid } from "@mui/material";
 import { Route, Switch, useParams } from "react-router-dom";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  useLoaderEffect,
+  useRefetchGroup,
+} from "../../../components/loading-frame";
 import { useDynamicTranlation } from "../../../components/translation";
 import { useServices } from "../../../services-def";
 import { FormEditor } from "../components/form-editor";
@@ -24,6 +27,7 @@ export function ProjectEditor() {
   const [rootSectionId, subSectionId, formId] = path || [];
   const { isLoading, error } = useDynamicTranlation(projectId);
   const overallLoading = useLoaderEffect(error, isLoading, loading);
+  const refectGroup = useRefetchGroup();
 
   if (overallLoading) {
     return null;
@@ -39,6 +43,7 @@ export function ProjectEditor() {
                 projectId={projectId}
                 rootSectionId={rootSectionId}
                 snackbarId={snackbarId}
+                refectGroup={refectGroup}
               />
             </Grid>
 
@@ -53,6 +58,7 @@ export function ProjectEditor() {
                   rootSectionId={rootSectionId}
                   subSectionId={subSectionId}
                   formId={formId}
+                  refectGroup={refectGroup}
                 />
               )}
             </Grid>
@@ -64,6 +70,7 @@ export function ProjectEditor() {
                   projectId={projectId}
                   rootSectionId={rootSectionId}
                   formId={formId}
+                  refectGroup={refectGroup}
                 />
               )}
             </Grid>
