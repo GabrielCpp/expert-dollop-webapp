@@ -50,11 +50,11 @@
     },
     "node_form": {
       "is_collapsible": "Is collapsible",
-      "triggers": {
-        "action": "Action",
-        "change_name_option": "On Change",
-        "set_visibility_option": "Toggle visibility"
-      },
+      "triggers_blank_slate_none_created": "This node does not have any trigger yet.",
+      "triggers_header_title": "Triggers",
+      "triggers_action": "action",
+      "triggers_action_option_change_name_option": "On Change",
+      "triggers_action_option_set_visibility_option": "Toggle visibility",
       "field_name": "Name",
       "field_is_collection": "May repeat itself",
       "field_instanciate_by_default": "Instanciate by default",
@@ -78,7 +78,7 @@
       "field_type_option_boolean": "Boolean",
       "field_type_option_choice": "Static selection",
       "field_type_option_computation": "Computation",
-      "field_bool_default_value": "Default value",
+      "field_bool_default_value": "Checked by default ",
       "field_int_default_value": "Default value",
       "field_numeric_default_value": "Default value",
       "field_precision": "Number of decimals",

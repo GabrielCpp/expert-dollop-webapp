@@ -1,15 +1,16 @@
-import { IconButton, Menu, MenuItem } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
-import { useCallback, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { IconButton, Menu, MenuItem } from "@mui/material";
 import { once } from "lodash";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type ButtonAction = () => void;
 
 interface ActionIconButtonDetails {
   icon: JSX.Element;
   act: ButtonAction;
+  disabled?: boolean;
 }
 
 export interface ActionButtonsProps {
@@ -19,32 +20,9 @@ export interface ActionButtonsProps {
     actions: {
       label: string;
       act?: ButtonAction;
+      disabled?: boolean;
     }[];
   };
-}
-
-function useBoundedCallbacks<E, A, C>(
-  elements: E[],
-  getArg: (e: E) => A,
-  makeCallback: (a: A) => C
-): C[] {
-  const callbacks = useRef(new Map<A, C>());
-
-  const args: A[] = elements.map((e) => getArg(e));
-
-  for (const arg of callbacks.current.keys()) {
-    if (!args.includes(arg)) {
-      callbacks.current.delete(arg);
-    }
-  }
-
-  for (const arg of args) {
-    if (!callbacks.current.has(arg)) {
-      callbacks.current.set(arg, makeCallback(arg));
-    }
-  }
-
-  return args.map((a) => callbacks.current.get(a) as C);
 }
 
 export function ButtonActionsGroup({
@@ -68,15 +46,6 @@ export function ButtonActionsGroup({
     (a) => a.act !== undefined
   );
 
-  const acts = useBoundedCallbacks(
-    actions,
-    (a) => a.act as ButtonAction,
-    (act: () => void) => () => {
-      handleClose();
-      act();
-    }
-  );
-
   return (
     <>
       {iconButtons.map((iconButton, index) => (
@@ -96,7 +65,11 @@ export function ButtonActionsGroup({
       {moreMenuButton && (
         <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
           {actions.map((action, index) => (
-            <MenuItem key={index} onClick={acts[index]}>
+            <MenuItem
+              key={index}
+              onClick={action.act}
+              disabled={action.disabled}
+            >
               {t(action.label)}
             </MenuItem>
           ))}
@@ -116,8 +89,8 @@ export function AdditionRemovalActionGroup({
   deleteAction,
 }: AdditionRemovalActionGroupProps) {
   const makeProps = once(
-    useCallback(
-      (): ActionButtonsProps => ({
+    useCallback((): ActionButtonsProps => {
+      return {
         iconButtons: [
           {
             act: addAction,
@@ -130,12 +103,12 @@ export function AdditionRemovalActionGroup({
             {
               act: deleteAction,
               label: "shared.buttons.delete",
+              disabled: deleteAction === undefined,
             },
           ],
         },
-      }),
-      [addAction, deleteAction]
-    )
+      };
+    }, [addAction, deleteAction])
   );
 
   return <ButtonActionsGroup {...makeProps()}></ButtonActionsGroup>;

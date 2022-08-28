@@ -46,8 +46,8 @@ export function FieldConfig({
         validator={STRING_VALIDATOR}
         defaultValue={value}
         path={formPath}
-        name={labels.fieldConfigType.id}
-        key={labels.fieldConfigType.id}
+        name={labels.fieldConfigType.name}
+        key={labels.fieldConfigType.name}
         label={labels.fieldConfigType.label}
         t={t}
         component={selectField}
@@ -58,8 +58,8 @@ export function FieldConfig({
           validator={INT_VALIDATOR}
           defaultValue={fieldDetails.int?.integer || 0}
           path={formPath}
-          name={labels.int.id}
-          key={labels.int.id}
+          name={labels.int.name}
+          key={labels.int.name}
           label={labels.int.label}
           t={t}
           component={textField}
@@ -67,8 +67,8 @@ export function FieldConfig({
         <UnitSelector
           unit={fieldDetails.int?.unit}
           formPath={formPath}
-          name={labels.unit.id}
-          key={labels.unit.id}
+          name={labels.unit.name}
+          key={labels.unit.name}
           label={labels.unit.label}
           t={t}
         />,
@@ -80,8 +80,8 @@ export function FieldConfig({
             fieldDetails.decimal?.numeric || labels.precision.defaultValue
           }
           path={formPath}
-          name={labels.decimal.id}
-          key={labels.decimal.id}
+          name={labels.decimal.name}
+          key={labels.decimal.name}
           label={labels.decimal.label}
           t={t}
           component={textField}
@@ -92,8 +92,8 @@ export function FieldConfig({
             fieldDetails.decimal?.precision || labels.precision.defaultPrecision
           }
           path={formPath}
-          name={labels.precision.id}
-          key={labels.precision.id}
+          name={labels.precision.name}
+          key={labels.precision.name}
           label={labels.precision.label}
           t={t}
           component={textField}
@@ -101,8 +101,8 @@ export function FieldConfig({
         <UnitSelector
           unit={fieldDetails.decimal?.unit}
           formPath={formPath}
-          name={labels.unit.id}
-          key={labels.unit.id}
+          name={labels.unit.name}
+          key={labels.unit.name}
           label={labels.unit.label}
           t={t}
         />,
@@ -116,8 +116,8 @@ export function FieldConfig({
               : fieldDetails.bool?.enabled
           }
           path={formPath}
-          name={labels.bool.id}
-          key={labels.bool.id}
+          name={labels.bool.name}
+          key={labels.bool.name}
           label={labels.bool.label}
           t={t}
           component={checkboxField}
@@ -128,8 +128,8 @@ export function FieldConfig({
           validator={USER_STRING_VALIDATOR}
           defaultValue={fieldDetails.string?.text}
           path={formPath}
-          name={labels.string.id}
-          key={labels.string.id}
+          name={labels.string.name}
+          key={labels.string.name}
           label={labels.string.label}
           t={t}
           component={textField}
@@ -140,8 +140,8 @@ export function FieldConfig({
           defaultValue={fieldDetails.staticChoice?.selected}
           options={fieldDetails.staticChoice?.options}
           parentPath={formPath}
-          name={labels.staticChoice.id}
-          key={labels.staticChoice.id}
+          name={labels.staticChoice.name}
+          key={labels.staticChoice.name}
           labels={labels.staticChoice}
           t={t}
         />

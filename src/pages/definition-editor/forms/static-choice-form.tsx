@@ -26,7 +26,7 @@ import { FieldTranslation } from "./field-translation";
 
 interface StaticChoiceFormLabels {
   selected: {
-    id: string;
+    name: string;
     label: string;
     fallbackLabel: string;
   };
@@ -35,38 +35,38 @@ interface StaticChoiceFormLabels {
   };
   options: {
     id: {
-      id: string;
+      name: string;
       label: string;
     };
     label: {
-      id: string;
+      name: string;
       label: string;
     };
     helpText: {
-      id: string;
+      name: string;
       label: string;
     };
     tabs: {
-      id: string;
+      name: string;
       defaultOne: string;
       body: {
         label: {
-          id: string;
+          name: string;
           label: string;
         };
         helpText: {
-          id: string;
+          name: string;
           label: string;
         };
       };
       fr: {
         label: string;
-        id: string;
+        name: string;
         locale: string;
       };
       en: {
         label: string;
-        id: string;
+        name: string;
         locale: string;
       };
     };
@@ -92,37 +92,10 @@ export function StaticChoiceForm({
 }: StaticChoiceFormProps) {
   const { reduxDb } = useServices();
   const { formPath } = useForm({ parentPath, name });
-  const getDefaultOptions = useCallback(
-    (makeId) => () => {
-      const existingElements = options.map((o, index) => ({
-        id: makeId(),
-        value: {
-          option: o,
-          optionValueId: makeId(),
-        },
-        metadata: { ordinal: index },
-      }));
-
-      if (existingElements.length === 0) {
-        return [
-          {
-            id: makeId(),
-            value: makeDefaultOption(makeId),
-            metadata: { ordinal: 0 },
-          },
-        ];
-      }
-
-      return existingElements;
-    },
-    [options]
-  );
-
   const { push, remove, elements } = useFieldArray<StaticOptionArrayValue>(
     makeDefaultOption,
-    getDefaultOptions
+    getDefaultOptions(options)
   );
-
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(
     head(elements)?.id
   );
@@ -138,13 +111,25 @@ export function StaticChoiceForm({
     )?.value.optionValueId
   );
 
+  const removeCurrentElement = useCallback(() => {
+    if (currentNodeId) {
+      remove(currentNodeId);
+    }
+
+    setCurrentNodeId(elements.find((e) => e.id !== currentNodeId)?.id);
+  }, [remove, setCurrentNodeId, elements, currentNodeId]);
+
+  const addElement = useCallback(() => {
+    push({ onAdded: (e) => setCurrentNodeId(e.id) });
+  }, [push, setCurrentNodeId]);
+
   return (
     <FormSection>
       <Field
         id={selectedId}
         path={formPath}
-        name={labels.selected.id}
-        key={labels.selected.id}
+        name={labels.selected.name}
+        key={labels.selected.name}
         label={labels.selected.label}
         validator={STRING_VALIDATOR}
         component={selectField}
@@ -187,11 +172,9 @@ export function StaticChoiceForm({
           />
           <LeftSideButton>
             <AdditionRemovalActionGroup
-              addAction={() => {
-                push({ onAdded: (e) => setCurrentNodeId(e.id) });
-              }}
+              addAction={addElement}
               deleteAction={
-                currentNodeId ? () => remove(currentNodeId) : undefined
+                currentNodeId === undefined ? undefined : removeCurrentElement
               }
             />
           </LeftSideButton>
@@ -217,6 +200,30 @@ function makeDefaultOption(makeId: () => string): StaticOptionArrayValue {
     optionValueId: makeId(),
   };
 }
+
+const getDefaultOptions =
+  (options: StaticChoiceOptionInput[]) => (makeId: () => string) => () => {
+    const existingElements = options.map((o, index) => ({
+      id: makeId(),
+      value: {
+        option: o,
+        optionValueId: makeId(),
+      },
+      metadata: { ordinal: index },
+    }));
+
+    if (existingElements.length === 0) {
+      return [
+        {
+          id: makeId(),
+          value: makeDefaultOption(makeId),
+          metadata: { ordinal: 0 },
+        },
+      ];
+    }
+
+    return existingElements;
+  };
 
 interface SelectOptionFormProps {
   element: FieldArrayElement<StaticOptionArrayValue>;
@@ -247,17 +254,20 @@ function SelectOptionForm({
         validator={STRING_VALIDATOR}
         path={path}
         defaultValue={option.id}
-        name={labels.id.id}
-        key={labels.id.id}
+        name={labels.id.name}
+        key={labels.id.name}
         label={labels.id.label}
         component={textField}
         t={t}
       />
-      <StaticTabs defaultSelectedField={labels.tabs.fr.id} key={labels.tabs.id}>
+      <StaticTabs
+        defaultSelectedField={labels.tabs.fr.name}
+        key={labels.tabs.name}
+      >
         <FieldTranslation
           path={path}
-          key={labels.tabs.fr.id}
-          name={labels.tabs.fr.id}
+          key={labels.tabs.fr.name}
+          name={labels.tabs.fr.name}
           locale={labels.tabs.fr.locale}
           label={t(labels.tabs.fr.label)}
           labels={labels.tabs.body}
@@ -267,8 +277,8 @@ function SelectOptionForm({
         />
         <FieldTranslation
           path={path}
-          key={labels.tabs.en.id}
-          name={labels.tabs.en.id}
+          key={labels.tabs.en.name}
+          name={labels.tabs.en.name}
           locale={labels.tabs.en.locale}
           label={t(labels.tabs.en.label)}
           labels={labels.tabs.body}

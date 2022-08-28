@@ -47,8 +47,8 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
         validator={NAME_VALIDATOR}
         path={formPath}
         defaultValue={node.name}
-        key={labels.name.id}
-        name={labels.name.id}
+        key={labels.name.name}
+        name={labels.name.name}
         label={t(labels.name.label)}
         t={t}
         component={textField}
@@ -57,8 +57,8 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
         validator={BOOLEAN_VALIDATOR}
         path={formPath}
         defaultValue={node.isCollection}
-        key={labels.isCollection.id}
-        name={labels.isCollection.id}
+        key={labels.isCollection.name}
+        name={labels.isCollection.name}
         label={t(labels.isCollection.label)}
         t={t}
         component={checkboxField}
@@ -67,8 +67,8 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
         validator={BOOLEAN_VALIDATOR}
         path={formPath}
         defaultValue={node.instanciateByDefault}
-        key={labels.instanciateByDefault.id}
-        name={labels.instanciateByDefault.id}
+        key={labels.instanciateByDefault.name}
+        name={labels.instanciateByDefault.name}
         label={t(labels.instanciateByDefault.label)}
         t={t}
         component={checkboxField}
@@ -77,8 +77,8 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
         validator={INT_VALIDATOR}
         path={formPath}
         defaultValue={node.orderIndex}
-        key={labels.orderIndex.id}
-        name={labels.orderIndex.id}
+        key={labels.orderIndex.name}
+        name={labels.orderIndex.name}
         label={t(labels.orderIndex.label)}
         t={t}
         component={textField}
@@ -86,13 +86,13 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
       <Card>
         <CardContent>
           <StaticTabs
-            defaultSelectedField={labels.tabs.fr.id}
-            key={labels.tabs.id}
+            defaultSelectedField={labels.tabs.fr.name}
+            key={labels.tabs.name}
           >
             <FieldTranslation
               path={formPath}
-              key={labels.tabs.fr.id}
-              name={labels.tabs.fr.id}
+              key={labels.tabs.fr.name}
+              name={labels.tabs.fr.name}
               locale={labels.tabs.fr.locale}
               label={t(labels.tabs.fr.label)}
               labels={labels.tabs.body}
@@ -102,8 +102,8 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
             />
             <FieldTranslation
               path={formPath}
-              key={labels.tabs.en.id}
-              name={labels.tabs.en.id}
+              key={labels.tabs.en.name}
+              name={labels.tabs.en.name}
               locale={labels.tabs.en.locale}
               label={t(labels.tabs.en.label)}
               labels={labels.tabs.body}
@@ -117,15 +117,20 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
       {node.fieldDetails !== undefined && node.fieldDetails !== null && (
         <FieldConfig
           path={formPath}
-          key={labels.fieldConfig.id}
-          name={labels.fieldConfig.id}
+          key={labels.fieldConfig.name}
+          name={labels.fieldConfig.name}
           level={level}
           role={role}
           labels={labels.fieldConfig}
           fieldDetails={node.fieldDetails}
         />
       )}
-      <Triggers path={formPath} key={labels.triggers.id} />
+      <Triggers
+        path={formPath}
+        name={labels.triggers.name}
+        key={labels.triggers.name}
+        labels={labels.triggers}
+      />
     </Form>
   );
 }

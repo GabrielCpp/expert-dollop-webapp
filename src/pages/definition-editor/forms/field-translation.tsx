@@ -10,11 +10,11 @@ import { TranslationInput } from "../../../generated";
 
 export interface FieldTranslationLabels {
   label: {
-    id: string;
+    name: string;
     label: string;
   };
   helpText: {
-    id: string;
+    name: string;
     label: string;
   };
 }
@@ -59,8 +59,8 @@ export function FieldTranslation({
         validator={STRING_VALIDATOR}
         path={formPath}
         defaultValue={label}
-        name={labels.label.id}
-        key={labels.label.id}
+        name={labels.label.name}
+        key={labels.label.name}
         label={labels.label.label}
         component={textField}
         t={t}
@@ -69,8 +69,8 @@ export function FieldTranslation({
         validator={STRING_VALIDATOR}
         path={formPath}
         defaultValue={helpText}
-        name={labels.helpText.id}
-        key={labels.helpText.id}
+        name={labels.helpText.name}
+        key={labels.helpText.name}
         label={labels.helpText.label}
         component={textField}
         t={t}
