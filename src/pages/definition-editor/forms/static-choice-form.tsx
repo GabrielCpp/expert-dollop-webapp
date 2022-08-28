@@ -17,6 +17,7 @@ import {
   useFieldArray,
   useFieldWatch,
   useForm,
+  useFormFieldValueRef,
   useNodePickerState,
 } from "../../../components/table-fields";
 import { StaticChoiceOptionInput } from "../../../generated";
@@ -26,6 +27,10 @@ import { FieldTranslation } from "./field-translation";
 interface StaticChoiceFormLabels {
   selected: {
     id: string;
+    label: string;
+    fallbackLabel: string;
+  };
+  optionCardHeader: {
     label: string;
   };
   options: {
@@ -38,10 +43,6 @@ interface StaticChoiceFormLabels {
       label: string;
     };
     helpText: {
-      id: string;
-      label: string;
-    };
-    selected: {
       id: string;
       label: string;
     };
@@ -98,7 +99,6 @@ export function StaticChoiceForm({
         value: {
           option: o,
           optionValueId: makeId(),
-          isSelected: defaultValue === o.id,
         },
         metadata: { ordinal: index },
       }));
@@ -107,7 +107,7 @@ export function StaticChoiceForm({
         return [
           {
             id: makeId(),
-            value: { ...makeDefaultOption(makeId), isSelected: true },
+            value: makeDefaultOption(makeId),
             metadata: { ordinal: 0 },
           },
         ];
@@ -131,66 +131,73 @@ export function StaticChoiceForm({
     elements.find((e) => e.id === currentNodeId)?.value.optionValueId
   );
 
+  const { value: selectedValue, id: selectedId } = useFormFieldValueRef(
+    elements.find(
+      (e) =>
+        e.value.option.id === (defaultValue || head(elements)?.value.option.id)
+    )?.value.optionValueId
+  );
+
   return (
-    <Card>
-      <CardHeader title="Triggers" />
-      <CardContent>
-        <FormSection>
-          <Field
-            path={formPath}
-            name={labels.selected.id}
-            key={labels.selected.id}
-            label={labels.selected.label}
-            validator={STRING_VALIDATOR}
-            component={selectField}
-            t={t}
-            defaultValue={defaultValue || head(elements)?.value.option.id}
-            options={elements.map((e) => ({
-              id: e.value.optionValueId,
-              label: getFieldValue(
-                reduxDb,
-                e.value.optionValueId,
-                e.value.option.id
-              ) as string,
-            }))}
+    <FormSection>
+      <Field
+        id={selectedId}
+        path={formPath}
+        name={labels.selected.id}
+        key={labels.selected.id}
+        label={labels.selected.label}
+        validator={STRING_VALIDATOR}
+        component={selectField}
+        t={t}
+        defaultValue={selectedValue}
+        fallbackSelection={{ label: labels.selected.fallbackLabel }}
+        options={elements.map((e) => ({
+          id: e.value.optionValueId,
+          label: getFieldValue(
+            reduxDb,
+            e.value.optionValueId,
+            e.value.option.id
+          ) as string,
+        }))}
+      />
+      <Card>
+        <CardHeader title={t(labels.optionCardHeader.label)} />
+        <CardContent>
+          <FormSection>
+            {elements
+              .filter((e) => e.id === currentNodeId)
+              .map((element) => (
+                <SelectOptionForm
+                  key={element.id}
+                  parentPath={formPath}
+                  element={element}
+                  labels={labels.options}
+                  t={t}
+                />
+              ))}
+          </FormSection>
+        </CardContent>
+        <CardActions disableSpacing>
+          <FieldArrayElementPicker
+            elements={elements}
+            current={currentNodeId}
+            currentLabel={currentElementValue as string}
+            onChange={setCurrentNodeId}
+            getLabel={(e) => getFieldValue(reduxDb, e.id) as string}
           />
-          {elements.map((element) => (
-            <div
-              key={element.id}
-              style={{
-                display: element.id === currentNodeId ? "block" : "none",
+          <LeftSideButton>
+            <AdditionRemovalActionGroup
+              addAction={() => {
+                push({ onAdded: (e) => setCurrentNodeId(e.id) });
               }}
-            >
-              <SelectOptionForm
-                parentPath={formPath}
-                element={element}
-                labels={labels.options}
-                t={t}
-              />
-            </div>
-          ))}
-        </FormSection>
-      </CardContent>
-      <CardActions disableSpacing>
-        <FieldArrayElementPicker
-          elements={elements}
-          current={currentNodeId}
-          currentLabel={currentElementValue as string}
-          onChange={setCurrentNodeId}
-          getLabel={(e) => getFieldValue(reduxDb, e.id) as string}
-        />
-        <LeftSideButton>
-          <AdditionRemovalActionGroup
-            addAction={() => {
-              push({ onAdded: (e) => setCurrentNodeId(e.id) });
-            }}
-            deleteAction={
-              currentNodeId ? () => remove(currentNodeId) : undefined
-            }
-          />
-        </LeftSideButton>
-      </CardActions>
-    </Card>
+              deleteAction={
+                currentNodeId ? () => remove(currentNodeId) : undefined
+              }
+            />
+          </LeftSideButton>
+        </CardActions>
+      </Card>
+    </FormSection>
   );
 }
 

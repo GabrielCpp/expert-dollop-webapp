@@ -86,7 +86,13 @@
       "field_static_choice": "Static choice",
       "field_unit": "Unit",
       "field_label": "Label",
-      "field_help_text": "Help text"
+      "field_help_text": "Help text",
+      "static_choice_option_id": "Value of the selection",
+      "static_choice_option_label": "Label translation key",
+      "static_choice_option_help_text": "Help text translation key",
+      "static_choice_default_selection": "Default selection",
+      "static_choice_option_card_header_title": "Possible selections",
+      "static_choice_no_choice_available": "No choice available"
     },
     "unit_selection_form": {
       "option_no_unit_selected": "Field does not habe an unit"

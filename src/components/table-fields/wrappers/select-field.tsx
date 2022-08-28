@@ -28,19 +28,25 @@ export function selectField({
   t,
   options,
 }: SelectProps) {
+  const isValueInOptions = options.some((o) => o.id === value);
+
+  if (fallbackSelection === undefined && !isValueInOptions) {
+    return <></>;
+  }
+
   return (
     <FormControl error={errors.length > 0} fullWidth>
       <InputLabel shrink id={id}>
         {t(label)}
       </InputLabel>
       <Select
-        value={value || DefaultEmptyId}
+        value={isValueInOptions ? value : DefaultEmptyId}
         onChange={onChange}
         label={t(label)}
         labelId={id}
         id={id}
       >
-        {fallbackSelection && !Boolean(value) && (
+        {fallbackSelection && !isValueInOptions && (
           <MenuItem key={DefaultEmptyId} value={DefaultEmptyId}>
             {fallbackSelection.title === undefined ? (
               <Typography>{t(fallbackSelection.label)}</Typography>

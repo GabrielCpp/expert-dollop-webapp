@@ -122,24 +122,24 @@ export const nodeFormLabels = {
       label: "definition_editor.node_form.field_static_choice",
       selected: {
         id: "selected",
-        label: ""
+        label: "definition_editor.node_form.static_choice_default_selection",
+        fallbackLabel: "definition_editor.node_form.static_choice_no_choice_available"
+      },
+      optionCardHeader: {
+        label: "definition_editor.node_form.static_choice_option_card_header_title"
       },
       options: {
         id: {
           id: "id",
-          label: ""
+          label: "definition_editor.node_form.static_choice_option_id"
         },
         label: {
           id: "label",
-          label: ""
+          label: "definition_editor.node_form.static_choice_option_label"
         },
         helpText: {
           id: "help_text",
-          label: ""
-        },
-        selected: {
-          id: "selected",
-          label: ""
+          label: "definition_editor.node_form.static_choice_option_help_text"
         },
         tabs: {
           id: "languages",

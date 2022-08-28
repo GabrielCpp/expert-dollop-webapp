@@ -17,7 +17,6 @@ export interface FieldProps<T extends FieldChildren> {
   name: string;
   defaultValue: unknown;
   validator: AnySchema;
-  unmount?: boolean;
   metadata?: unknown;
   componentId?: string;
   sideEffect?: (r: FormFieldRecord) => void;
@@ -40,7 +39,6 @@ export function Field<T extends FieldChildren>({
   metadata,
   formatter = identity,
   valueToFormModel = selectValueToFormModel(validator),
-  unmount = true,
   componentId,
   sideEffect,
   ...others
@@ -50,7 +48,6 @@ export function Field<T extends FieldChildren>({
     name,
     defaultValue,
     validator,
-    unmount,
     id,
     formatter,
     valueToFormModel,

@@ -1,6 +1,6 @@
 import { AnySchema } from "ajv";
 import { isBoolean } from "lodash";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useServices } from "../../../services-def";
 import { useId, useTableRecord } from "../../../shared/redux-db";
 import { createFormFieldRecord, FormFieldRecord, FormFieldTableName } from "../form-field-record";
@@ -13,7 +13,6 @@ interface UseFieldHookParams {
   name: string,
   defaultValue: unknown,
   validator: AnySchema,
-  unmount: boolean,
   formatter: ViewValueFormatter
   valueToFormModel: ValueToFormModel
   id?: string,
@@ -35,7 +34,6 @@ export function useField({
   name,
   defaultValue,
   validator,
-  unmount,
   id,
   formatter,
   valueToFormModel,
@@ -70,14 +68,6 @@ export function useField({
     fieldId,
     makeDefaultRecord
   );
-
-  useEffect(() => {
-      if(unmount) {
-        return () => {
-          reduxDb.getTable(FormFieldTableName).removeManyByKey([fieldId]);
-        };
-      }
-  }, [reduxDb, unmount, fieldId]);
 
   const onChange = useCallback(
     (e: any) => {

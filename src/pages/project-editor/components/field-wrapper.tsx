@@ -58,7 +58,6 @@ export function FieldWrapper({
       : JSON.parse(definition.validator);
   const commonProps = {
     t: dbTrans,
-    unmount: false,
     metadata: node.value?.__typename,
   };
 
