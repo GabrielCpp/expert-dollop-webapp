@@ -63,17 +63,10 @@ export function EditContainerView() {
     path: x.path,
     translations: x.translations,
     triggers: x.triggers,
+    translated: x.translated,
   };
 
-  return (
-    <NodeForm
-      level={level}
-      role="edit"
-      translated={x.translated}
-      node={node}
-      onSubmit={onSubmit}
-    />
-  );
+  return <NodeForm level={level} role="edit" node={node} onSubmit={onSubmit} />;
 }
 
 const conversionMappings = new Map<

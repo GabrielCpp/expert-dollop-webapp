@@ -1,20 +1,25 @@
-import { JSONSchemaType, Schema } from "ajv";
-import { identity } from "lodash";
+import { AnySchema } from "ajv";
+import { identity, isBoolean } from "lodash";
 import { FieldChildren, Translator } from "../form-field-record";
-import { useField } from "../hooks/use-field";
+import {
+  useField,
+  ViewValueFormatter,
+  ValueToFormModel,
+} from "../hooks/use-field";
 
 export interface FieldProps<T extends FieldChildren> {
   id?: string;
   path: string[];
   name: string;
   defaultValue: unknown;
-  validator: Schema | JSONSchemaType<any>;
+  validator: AnySchema;
   unmount?: boolean;
   metadata?: unknown;
   t: Translator;
   component?: (props: T) => JSX.Element;
   children?: (props: T) => JSX.Element;
-  formatter?: (x: string) => string;
+  formatter?: ViewValueFormatter;
+  valueToFormModel?: ValueToFormModel;
 }
 
 export function Field<T extends FieldChildren>({
@@ -28,6 +33,7 @@ export function Field<T extends FieldChildren>({
   t,
   metadata,
   formatter = identity,
+  valueToFormModel = selectValueToFormModel(validator),
   unmount = true,
   ...others
 }: FieldProps<T> & Omit<T, keyof FieldChildren>) {
@@ -39,6 +45,7 @@ export function Field<T extends FieldChildren>({
     unmount,
     id,
     formatter,
+    valueToFormModel,
     metadata,
   });
 
@@ -66,4 +73,22 @@ export function Field<T extends FieldChildren>({
   }
 
   return null;
+}
+
+const toNumber: ValueToFormModel = (_, c) => Number(c);
+const toBoolean: ValueToFormModel = (_, c) => Boolean(c);
+const toString: ValueToFormModel = (_, c) => String(c);
+
+function selectValueToFormModel(validator: AnySchema): ValueToFormModel {
+  const type = isBoolean(validator) ? "string" : validator.type;
+
+  if (type === "number" || type === "integer") {
+    return toNumber;
+  }
+
+  if (type === "boolean") {
+    return toBoolean;
+  }
+
+  return toString;
 }

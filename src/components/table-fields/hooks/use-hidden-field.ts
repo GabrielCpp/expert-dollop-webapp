@@ -13,6 +13,7 @@ interface UseHiddenField {
   id: string;
   path: string[];
   record: FormFieldRecord;
+  updateRecord: (patchedRecord: Partial<FormFieldRecord>) => void
 }
 
 export function useHiddenField(
@@ -38,6 +39,12 @@ export function useHiddenField(
     [path, name, value, id, metadata]
   );
   const [record, setRecord] = useState(makeRecord);
+  const updateRecord = useCallback((patchedRecord: Partial<FormFieldRecord>) => {
+    setRecord({
+      ...record,
+      ...patchedRecord
+    })
+  }, [setRecord, record])
 
   useEffect(() => {
     const record = makeRecord();
@@ -54,6 +61,7 @@ export function useHiddenField(
   return {
     id,
     record,
+    updateRecord,
     path: record.fullPath,
   };
 }

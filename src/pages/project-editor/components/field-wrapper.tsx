@@ -8,7 +8,7 @@ import {
 import { useDbTranslation } from "../../../components/translation";
 import {
   FindProjectFormContentQuery,
-  StaticChoiceOption,
+  StaticChoiceFieldConfig,
   StaticNumberFieldConfig,
 } from "../../../generated";
 
@@ -32,12 +32,14 @@ function getFieldValue(
   return realValue;
 }
 
-function integerFormatter(x: string) {
-  return x.replace(/[^0-9]/g, "");
+function integerFormatter(x: unknown) {
+  return String(x).replace(/[^0-9]/g, "");
 }
 
-function decimalFormatter(x: string) {
-  return x.replace(/[^0-9.,+-]/g, "").replace(/,/g, ".");
+function decimalFormatter(x: unknown) {
+  return String(x)
+    .replace(/[^0-9.,+-]/g, "")
+    .replace(/,/g, ".");
 }
 
 export function FieldWrapper({
@@ -112,9 +114,7 @@ export function FieldWrapper({
   }
 
   if (fieldType === "StaticChoiceFieldConfig") {
-    const choices = definition.fieldDetails as {
-      options: StaticChoiceOption[];
-    };
+    const choices = definition.fieldDetails as StaticChoiceFieldConfig;
 
     return (
       <Field

@@ -1,5 +1,5 @@
-import { ErrorObject, JSONSchemaType, Schema } from "ajv";
-import { isEqual, set, sortBy, startsWith, tail } from "lodash";
+import { ErrorObject, AnySchema } from "ajv";
+import { flatten, isEqual, set, sortBy, startsWith, tail } from "lodash";
 import { AjvFactory } from "../../services-def";
 import {
   ops,
@@ -13,8 +13,8 @@ import { ReduxDatabase } from "../../shared/redux-db/database";
 
 export const FormFieldTableName = "form-field";
 export type FormFieldError = ErrorObject<string, Record<string, any>, unknown>;
-export type TranslatableString = string | (() => JSX.Element) | JSX.Element;
-export type Translator = (key?: string | null) => TranslatableString;
+export type TranslatedString = string | (() => JSX.Element) | JSX.Element;
+export type Translator = (key?: string | null) => TranslatedString;
 export interface FieldChildren {
   id: string;
   name: string;
@@ -24,13 +24,19 @@ export interface FieldChildren {
   t: Translator;
 }
 
+export interface SelectOption {
+  id: string;
+  label: string;
+  title?: string;
+}
+
 export interface FormFieldRecord extends TableRecord {
   path: string[];
   name: string;
   value: unknown;
-  viewValue: string;
+  viewValue: unknown;
   errors: FormFieldError[];
-  jsonSchemaValidator: Schema | JSONSchemaType<any>;
+  jsonSchemaValidator: AnySchema;
   fullPath: string[]
   metadata?: unknown
 }
@@ -40,11 +46,11 @@ export function setupFormTables(database: ReduxDatabase): void {
 }
 
 export function createFormFieldRecord(
-  jsonSchemaValidator: Schema | JSONSchemaType<any>,
+  jsonSchemaValidator: AnySchema,
   path: string[],
   name: string,
   value: unknown,
-  viewValue: string,
+  viewValue: unknown,
   id: string,
   errors: FormFieldError[],
   metadata?: unknown
@@ -115,6 +121,20 @@ export function upsertFormFieldRecord(
   database.getTable(FormFieldTableName).upsertMany(records);
 }
 
+export function getFieldValue(
+  database: ReduxDatabase,
+  id: string,
+  defaultValue?: unknown
+): unknown {
+  const record = database.getTable(FormFieldTableName).findRecord(id)
+
+  if(record === undefined) {
+    return defaultValue
+  }
+
+  return record.value;
+}
+
 export function deleteFormFieldRecords(
   database: ReduxDatabase,
   path: string[]
@@ -171,14 +191,13 @@ export const hydrateForm = <T>(database: ReduxDatabase, rootPath: string[]): T =
 
     function makeAssignationPath(record: FormFieldRecord): Array<string | number> {
       return [
-        ...tail(record.path).map(id => idToName.get(id) as string),
-        ...getOrdinal(record.metadata),
-        record.name
+        ...flatten(tail(record.path).map(id => idToName.get(id) || [])),
+        ...(idToName.get(record.id) || [])
       ]
     }
 
     const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-    const idToName = new Map<string, string>(records.map(record => [record.id, record.name]))
+    const idToName = new Map<string, readonly (string | number)[]>(records.map(record => [record.id, [record.name, ...getOrdinal(record.metadata)]]))
 
     const targetValues: [Array<string | number>, unknown][] = records.map((record) => [
       makeAssignationPath(record),

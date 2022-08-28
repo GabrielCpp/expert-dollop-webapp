@@ -180,6 +180,7 @@ export type DecimalFieldConfig = {
 export type DecimalFieldConfigInput = {
   numeric: Scalars["Float"];
   precision: Scalars["Int"];
+  unit?: Maybe<Scalars["String"]>;
 };
 
 export type DecimalFieldValue = {
@@ -292,6 +293,7 @@ export type IntFieldConfig = {
 
 export type IntFieldConfigInput = {
   integer: Scalars["Int"];
+  unit: Scalars["String"];
 };
 
 export type IntFieldValue = {
@@ -307,7 +309,6 @@ export type Mutation = {
   __typename?: "Mutation";
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
-  addTranslations: Array<FieldWrapper<Translation>>;
   cloneProjectCollection: Array<FieldWrapper<ProjectNode>>;
   createDatasheet: FieldWrapper<Datasheet>;
   createProject: FieldWrapper<ProjectDetails>;
@@ -327,10 +328,6 @@ export type MutationAddProjectCollectionItemArgs = {
 export type MutationAddProjectDefinitionNodeArgs = {
   node: ProjectDefinitionNodeCreationInput;
   projectDefinitionId: Scalars["String"];
-};
-
-export type MutationAddTranslationsArgs = {
-  translations: Array<TranslationInput>;
 };
 
 export type MutationCloneProjectCollectionArgs = {
@@ -484,6 +481,7 @@ export type ProjectDefinitionNodeCreationInput = {
   name: Scalars["String"];
   orderIndex: Scalars["Int"];
   path: Array<Scalars["String"]>;
+  translated: Array<TranslationInput>;
   translations: TranslationConfigInput;
   triggers: Array<Maybe<TriggerInput>>;
 };
@@ -599,6 +597,7 @@ export type Query = {
   findReportDefinitions: Array<FieldWrapper<ReportDefinition>>;
   findRessourceTranslation: FieldWrapper<TranslationConnection>;
   queryDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
+  units: Array<FieldWrapper<Unit>>;
 };
 
 export type QueryFindDatasheetArgs = {
@@ -784,7 +783,7 @@ export type StaticChoiceFieldConfig = {
 
 export type StaticChoiceFieldConfigInput = {
   options: Array<StaticChoiceOptionInput>;
-  validator: Scalars["JsonSchema"];
+  selected: Scalars["String"];
 };
 
 export type StaticChoiceOption = {
@@ -792,13 +791,14 @@ export type StaticChoiceOption = {
   helpText: FieldWrapper<Scalars["String"]>;
   id: FieldWrapper<Scalars["String"]>;
   label: FieldWrapper<Scalars["String"]>;
+  translated: Array<FieldWrapper<Translation>>;
 };
 
 export type StaticChoiceOptionInput = {
   helpText: Scalars["String"];
   id: Scalars["String"];
   label: Scalars["String"];
-  selected: Scalars["String"];
+  translated: Array<TranslationInput>;
 };
 
 export type StaticNumberFieldConfig = {
@@ -879,8 +879,6 @@ export type TranslationEdge = {
 export type TranslationInput = {
   locale: Scalars["String"];
   name: Scalars["String"];
-  ressourceId: Scalars["String"];
-  scope: Scalars["String"];
   value: Scalars["String"];
 };
 
@@ -920,6 +918,11 @@ export type TriggerParam = {
 export type TriggerParamInput = {
   name: Scalars["String"];
   value: Scalars["String"];
+};
+
+export type Unit = {
+  __typename?: "Unit";
+  id: FieldWrapper<Scalars["ID"]>;
 };
 
 export type User = {
@@ -1679,7 +1682,19 @@ export type FindProjectDefinitionNodeQuery = { __typename?: "Query" } & {
                 { __typename?: "StaticChoiceOption" } & Pick<
                   StaticChoiceOption,
                   "id" | "label" | "helpText"
-                >
+                > & {
+                    translated: Array<
+                      { __typename?: "Translation" } & Pick<
+                        Translation,
+                        | "id"
+                        | "ressourceId"
+                        | "locale"
+                        | "scope"
+                        | "name"
+                        | "value"
+                      >
+                    >;
+                  }
               >;
             })
         | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -1724,6 +1739,12 @@ export type FindProjectDefintionsQuery = { __typename?: "Query" } & {
       "hasNextPage" | "endCursor" | "totalCount"
     >;
   };
+};
+
+export type UnitsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type UnitsQuery = { __typename?: "Query" } & {
+  units: Array<{ __typename?: "Unit" } & Pick<Unit, "id">>;
 };
 
 export type CreateProjectMutationVariables = Exact<{
@@ -3722,12 +3743,20 @@ export const FindProjectDefinitionNodeDocument = gql`
           enabled
         }
         ... on StaticChoiceFieldConfig {
+          selected
           options {
             id
             label
             helpText
+            translated {
+              id
+              ressourceId
+              locale
+              scope
+              name
+              value
+            }
           }
-          selected
         }
         ... on CollapsibleContainerFieldConfig {
           isCollapsible
@@ -3876,6 +3905,53 @@ export type FindProjectDefintionsLazyQueryHookResult = ReturnType<
 export type FindProjectDefintionsQueryResult = Apollo.QueryResult<
   FindProjectDefintionsQuery,
   FindProjectDefintionsQueryVariables
+>;
+export const UnitsDocument = gql`
+  query units {
+    units {
+      id
+    }
+  }
+`;
+
+/**
+ * __useUnitsQuery__
+ *
+ * To run a query within a React component, call `useUnitsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUnitsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUnitsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUnitsQuery(
+  baseOptions?: Apollo.QueryHookOptions<UnitsQuery, UnitsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<UnitsQuery, UnitsQueryVariables>(
+    UnitsDocument,
+    options
+  );
+}
+export function useUnitsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<UnitsQuery, UnitsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<UnitsQuery, UnitsQueryVariables>(
+    UnitsDocument,
+    options
+  );
+}
+export type UnitsQueryHookResult = ReturnType<typeof useUnitsQuery>;
+export type UnitsLazyQueryHookResult = ReturnType<typeof useUnitsLazyQuery>;
+export type UnitsQueryResult = Apollo.QueryResult<
+  UnitsQuery,
+  UnitsQueryVariables
 >;
 export const CreateProjectDocument = gql`
   mutation createProject($projectDetails: ProjectDetailsInput!) {

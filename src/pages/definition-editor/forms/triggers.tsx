@@ -19,13 +19,13 @@ interface TriggersProps {
 export function Triggers({ path }: TriggersProps) {
   const { t } = useTranslation();
   const { formPath } = useForm({ name: "triggers", parentPath: path });
-  const { push, remove, ids } = useFieldArray();
+  const { push, remove, elements } = useFieldArray(() => undefined);
 
   return (
     <Card>
       <CardHeader
         action={
-          <IconButton aria-label="settings" onClick={push}>
+          <IconButton aria-label="settings" onClick={() => push()}>
             <AddIcon />
           </IconButton>
         }
@@ -33,14 +33,14 @@ export function Triggers({ path }: TriggersProps) {
       />
       <CardContent>
         <Grid direction="column" container>
-          <FieldArray ids={ids}>
-            {(id, metadata) => (
-              <Grid key={id}>
-                <IconButton onClick={() => remove(id)}>
+          <FieldArray elements={elements}>
+            {(element, metadata) => (
+              <Grid key={element.id}>
+                <IconButton onClick={() => remove(element.id)}>
                   <DeleteIcon />
                 </IconButton>
                 <Field
-                  id={id}
+                  id={element.id}
                   metadata={metadata}
                   validator={STRING_VALIDATOR}
                   defaultValue={"SET_VISIBILITY"}

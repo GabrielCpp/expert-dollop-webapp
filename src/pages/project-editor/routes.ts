@@ -21,7 +21,7 @@ export const routes: NamedRouteDefinition[] = [
         component: ProjectSearchHome,
         exact: true,
         tags: ["main-content"],
-        requiredPermissions: ["project:read"],
+        requiredPermissions: ["project:get"],
       },
       {
         component: HomeToolbar,

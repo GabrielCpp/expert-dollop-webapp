@@ -436,12 +436,20 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
           enabled
         }
         ... on StaticChoiceFieldConfig {
+          selected
           options {
             id
             label
             helpText
+            translated {
+              id
+              ressourceId
+              locale
+              scope
+              name
+              value
+            }
           }
-          selected
         }
         ... on CollapsibleContainerFieldConfig {
           isCollapsible
@@ -487,3 +495,12 @@ export const FIND_PROJECT_DEFINTIONS = gql`
     }
   }
 `;
+
+
+export const UNITS = gql`
+query units {
+  units {
+    id
+  }
+}
+`

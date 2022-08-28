@@ -57,15 +57,8 @@ export function AddContainerView() {
       label: "",
     },
     triggers: [],
+    translated: [],
   };
 
-  return (
-    <NodeForm
-      role="add"
-      level={level}
-      translated={[]}
-      node={node}
-      onSubmit={onSubmit}
-    />
-  );
+  return <NodeForm role="add" level={level} node={node} onSubmit={onSubmit} />;
 }

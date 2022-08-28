@@ -10,31 +10,21 @@ import {
   textField,
   useForm,
 } from "../../../components/table-fields";
-import {
-  FieldWrapper,
-  ProjectDefinitionNodeCreationInput,
-  Translation,
-} from "../../../generated";
+import { ProjectDefinitionNodeCreationInput } from "../../../generated";
 import { FormRole, nodeFormLabels, NodeLevel } from "../form-definitions";
 import { NAME_VALIDATOR } from "../validators";
 import { FieldConfig } from "./field-config";
 import { FieldTranslation } from "./field-translation";
+import { Triggers } from "./triggers";
 
 interface ContainerFormProps {
   level: NodeLevel;
   role: FormRole;
   node: ProjectDefinitionNodeCreationInput;
-  translated: Array<FieldWrapper<Translation>>;
   onSubmit: (data: ProjectDefinitionNodeCreationInput) => Promise<void>;
 }
 
-export function NodeForm({
-  level,
-  role,
-  node,
-  translated,
-  onSubmit,
-}: ContainerFormProps) {
+export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm();
 
@@ -106,8 +96,9 @@ export function NodeForm({
               locale={labels.tabs.fr.locale}
               label={t(labels.tabs.fr.label)}
               labels={labels.tabs.body}
-              translationConfig={node.translations}
-              translations={translated}
+              labelTranslationKeyName={node.translations.label}
+              helpTextTranslationKeyName={node.translations.helpTextName}
+              translations={node.translated}
             />
             <FieldTranslation
               path={formPath}
@@ -116,8 +107,9 @@ export function NodeForm({
               locale={labels.tabs.en.locale}
               label={t(labels.tabs.en.label)}
               labels={labels.tabs.body}
-              translationConfig={node.translations}
-              translations={translated}
+              labelTranslationKeyName={node.translations.label}
+              helpTextTranslationKeyName={node.translations.helpTextName}
+              translations={node.translated}
             />
           </StaticTabs>
         </CardContent>
@@ -133,6 +125,7 @@ export function NodeForm({
           fieldDetails={node.fieldDetails}
         />
       )}
+      <Triggers path={formPath} key={labels.triggers.id} />
     </Form>
   );
 }

@@ -1,4 +1,5 @@
 import { KeyMapping, KeyNamespace } from "../../components/table-fields";
+import { FieldDetailsType } from "../../generated";
 
 export type NodeLevel = "rootSection" | "subSection" | "form" | "section" | "field";
 export type FormRole = "edit" | "add";
@@ -69,19 +70,116 @@ export const nodeFormLabels = {
     },
   },
   fieldConfig: {
-    id: "config",
+    id: "fieldDetails",
     fieldConfigType: {
       label: "definition_editor.node_form.field_type",
       id: "fieldConfigType",
+      options: [
+        {
+          id: FieldDetailsType.STRING_FIELD_CONFIG,
+          label: "definition_editor.node_form.field_type_option_string",
+        },
+        {
+          id: FieldDetailsType.INT_FIELD_CONFIG,
+          label: "definition_editor.node_form.field_type_option_integer",
+        },
+        {
+          id: FieldDetailsType.DECIMAL_FIELD_CONFIG,
+          label: "definition_editor.node_form.field_type_option_decimal",
+        },
+        {
+          id: FieldDetailsType.BOOL_FIELD_CONFIG,
+          label: "definition_editor.node_form.field_type_option_boolean",
+        },
+        {
+          id: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
+          label: "definition_editor.node_form.field_type_option_choice",
+        },
+        {
+          id: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG,
+          label: "definition_editor.node_form.field_type_option_computation",
+        },
+      ]
     },
-    config: {
-      bool: {
-        id: 'isCheckbox',
-        label: "definition_editor.node_form.field_is_checkbox",
+    bool: {
+      id: 'enabled',
+      label: "definition_editor.node_form.field_bool_default_value",
+    },
+    int: {
+      id: 'integer',
+      label: "definition_editor.node_form.field_int_default_value",
+    },
+    decimal: {
+      id: 'numeric',
+      label: "definition_editor.node_form.field_numeric_default_value",
+    },
+    string: {
+      id: 'string',
+      label: "definition_editor.node_form.field_string_default_value",
+    },
+    staticChoice: {
+      id: 'staticChoice',
+      label: "definition_editor.node_form.field_static_choice",
+      selected: {
+        id: "selected",
+        label: ""
+      },
+      options: {
+        id: {
+          id: "id",
+          label: ""
+        },
+        label: {
+          id: "label",
+          label: ""
+        },
+        helpText: {
+          id: "help_text",
+          label: ""
+        },
+        selected: {
+          id: "selected",
+          label: ""
+        },
+        tabs: {
+          id: "languages",
+          defaultOne: "fr",
+          body: {
+            label: {
+              id: "label",
+              label: "definition_editor.node_form.field_label"
+            },
+            helpText: {
+              id: "helpText",
+              label: "definition_editor.node_form.field_help_text"
+            }
+          },
+          fr: {
+            label: "definition_editor.node_form.tab_french",
+            id: "fr",
+            locale: 'fr-CA'
+          },
+          en: {
+            label: "definition_editor.node_form.tab_english",
+            id: "en",
+            locale: 'en-US'
+          },
+        }
       }
     },
-    triggers: {
-      id: "triggers",
-    }
+    unit: {
+      id: 'unit',
+      label: "definition_editor.node_form.field_unit",
+    },
+    precision: {
+      id: 'precision',
+      label: "definition_editor.node_form.field_precision",
+      defaultPrecision: 3,
+      defaultValue: 0
+    },
+    
   },
+  triggers: {
+    id: "triggers",
+  }
 };

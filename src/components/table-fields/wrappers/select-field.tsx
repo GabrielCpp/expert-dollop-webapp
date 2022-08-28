@@ -6,18 +6,14 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-import { FieldChildren } from "../form-field-record";
-
-export interface TableSelectFieldOption {
-  id: string;
-  label: string;
-  title?: string;
-}
+import { FieldChildren, SelectOption } from "../form-field-record";
+import { DefaultEmptyId } from "../hooks/use-field";
 
 interface SelectProps extends FieldChildren {
   label: string;
-  options: TableSelectFieldOption[];
+  options: SelectOption[];
   title?: string;
+  fallbackSelection?: Omit<SelectOption, "id">;
 }
 
 export function selectField({
@@ -27,6 +23,7 @@ export function selectField({
   label,
   errors,
   title,
+  fallbackSelection,
   onChange,
   t,
   options,
@@ -37,12 +34,23 @@ export function selectField({
         {t(label)}
       </InputLabel>
       <Select
-        value={value}
+        value={value || DefaultEmptyId}
         onChange={onChange}
         label={t(label)}
         labelId={id}
         id={id}
       >
+        {fallbackSelection && !Boolean(value) && (
+          <MenuItem key={DefaultEmptyId} value={DefaultEmptyId}>
+            {fallbackSelection.title === undefined ? (
+              <Typography>{t(fallbackSelection.label)}</Typography>
+            ) : (
+              <Tooltip title={t(fallbackSelection.title)}>
+                <Typography>{t(fallbackSelection.label)}</Typography>
+              </Tooltip>
+            )}
+          </MenuItem>
+        )}
         {options.map((option) => (
           <MenuItem key={option.id} value={option.id}>
             {option.title === undefined ? (

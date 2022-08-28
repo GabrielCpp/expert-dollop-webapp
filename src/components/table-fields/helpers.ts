@@ -1,9 +1,10 @@
+import { flatten } from "lodash";
 
-export type AcceptableChild = JSX.Element | false | null;
+export type AcceptableChild = JSX.Element | JSX.Element[] | false | null;
 export type MixedChildren = AcceptableChild | AcceptableChild[]
 export function getJsxElements(children: MixedChildren): JSX.Element[] {
   return (
-    Array.isArray(children) ? children : [children]
+    Array.isArray(children) ? flatten(children) : [children]
   ).filter((x) => Boolean(x)) as JSX.Element[];
 }
 

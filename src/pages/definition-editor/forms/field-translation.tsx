@@ -6,17 +6,28 @@ import {
   textField,
   useForm,
 } from "../../../components/table-fields";
-import { Translation, TranslationConfig } from "../../../generated";
-import { nodeFormLabels } from "../form-definitions";
+import { TranslationInput } from "../../../generated";
+
+export interface FieldTranslationLabels {
+  label: {
+    id: string;
+    label: string;
+  };
+  helpText: {
+    id: string;
+    label: string;
+  };
+}
 
 export interface FieldTranslationProps {
   path: string[];
   name: string;
   locale: string;
   label: unknown;
-  labels: typeof nodeFormLabels["tabs"]["body"];
-  translations: Translation[];
-  translationConfig: TranslationConfig;
+  labels: FieldTranslationLabels;
+  translations: TranslationInput[];
+  labelTranslationKeyName: string;
+  helpTextTranslationKeyName: string;
 }
 
 export function FieldTranslation({
@@ -24,7 +35,8 @@ export function FieldTranslation({
   name,
   locale,
   translations,
-  translationConfig,
+  labelTranslationKeyName,
+  helpTextTranslationKeyName,
   labels,
 }: FieldTranslationProps) {
   const { t } = useTranslation();
@@ -34,11 +46,11 @@ export function FieldTranslation({
   );
   const label =
     tabTranslations.find(
-      (translation) => translation.name === translationConfig.label
+      (translation) => translation.name === labelTranslationKeyName
     )?.value || "";
   const helpText =
     tabTranslations.find(
-      (translation) => translation.name === translationConfig.helpTextName
+      (translation) => translation.name === helpTextTranslationKeyName
     )?.value || "";
 
   return (
@@ -49,7 +61,7 @@ export function FieldTranslation({
         defaultValue={label}
         name={labels.label.id}
         key={labels.label.id}
-        label={t(labels.label.label)}
+        label={labels.label.label}
         component={textField}
         t={t}
       />
@@ -59,7 +71,7 @@ export function FieldTranslation({
         defaultValue={helpText}
         name={labels.helpText.id}
         key={labels.helpText.id}
-        label={t(labels.helpText.label)}
+        label={labels.helpText.label}
         component={textField}
         t={t}
       />
