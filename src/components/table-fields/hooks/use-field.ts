@@ -1,19 +1,24 @@
-import { JSONSchemaType, Schema } from "ajv";
+import { AnySchema } from "ajv";
 import { isBoolean } from "lodash";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useServices } from "../../../services-def";
 import { useId, useTableRecord } from "../../../shared/redux-db";
 import { createFormFieldRecord, FormFieldRecord, FormFieldTableName } from "../form-field-record";
+
+export type ViewValueFormatter = (x: unknown) => string | boolean | number
+export type ValueToFormModel = (current: unknown, componentId?: string) => unknown
 
 interface UseFieldHookParams {
   path: string[],
   name: string,
   defaultValue: unknown,
-  validator: Schema | JSONSchemaType<any>,
-  unmount: boolean,
-  formatter: (original: string) => string
+  validator: AnySchema,
+  formatter: ViewValueFormatter
+  valueToFormModel: ValueToFormModel
   id?: string,
   metadata?: unknown
+  componentId?: string,
+  sideEffect?: (r: FormFieldRecord) => void
 }
 
 
@@ -22,35 +27,41 @@ interface UseFieldHook {
   record: FormFieldRecord;
 }
 
+export const DefaultEmptyId = "<null>"
 
 export function useField({
   path,
   name,
   defaultValue,
   validator,
-  unmount,
   id,
   formatter,
-  metadata
-}:UseFieldHookParams): UseFieldHook {
+  valueToFormModel,
+  metadata,
+  componentId,
+  sideEffect
+}: UseFieldHookParams): UseFieldHook {
   const { ajv, reduxDb } = useServices();
   const fieldId = useId(id);
 
   const makeDefaultRecord = useCallback(() => {
+    const previousRecord = reduxDb
+      .getTable(FormFieldTableName)
+      .findRecord<FormFieldRecord>(fieldId);
+    const value = valueToFormModel(previousRecord?.value || defaultValue)
     const defaultRecord = createFormFieldRecord(
       validator,
       path,
       name,
-      defaultValue,
-      formatter(String(defaultValue)),
+      value,
+      formatter(value),
       fieldId,
       [],
       metadata
     );
-    return reduxDb
-      .getTable(FormFieldTableName)
-      .findRecordOrDefault(fieldId, defaultRecord);
-  }, [reduxDb, formatter, validator, path, name, defaultValue, fieldId, metadata]);
+
+    return previousRecord || defaultRecord;
+  }, [reduxDb, formatter, valueToFormModel, validator, path, name, defaultValue, fieldId, metadata]);
 
   const [record, updateRecord] = useTableRecord<FormFieldRecord>(
     FormFieldTableName,
@@ -58,53 +69,39 @@ export function useField({
     makeDefaultRecord
   );
 
-  useEffect(() => {
-    reduxDb
-      .getTable(FormFieldTableName)
-      .initRecord(fieldId, makeDefaultRecord());
-
-      if(unmount) {
-        return () => {
-          reduxDb.getTable(FormFieldTableName).removeManyByKey([fieldId]);
-        };
-      }
-  }, [reduxDb, makeDefaultRecord, unmount, fieldId]);
-
   const onChange = useCallback(
     (e: any) => {
-      const [value, viewValue] = cast(validator, formatter, e);
+      let value: unknown
+      let viewValue: unknown
+
+      if (!isBoolean(validator) && validator.type === "boolean") {
+        value =  valueToFormModel(e.target.checked, componentId);
+        viewValue = formatter(value)
+      }
+      else {
+        value =  valueToFormModel(e.target.value, componentId);
+        viewValue = formatter(value)
+      }
+
       const validate = ajv.forSchema(validator);
       validate(value);
 
-      updateRecord({
+      const newRecord = {
         ...record,
-        value: value,
+        value,
         viewValue,
         errors: validate.errors || [],
-      });
+      }
+
+      updateRecord(newRecord);
+
+      if(sideEffect) {
+        sideEffect(newRecord)
+      }
     },
-    [ajv, updateRecord, formatter, record, validator]
+    [ajv, updateRecord, formatter, valueToFormModel, record, validator, componentId, sideEffect]
   );
 
   return { onChange, record };
 }
 
-function cast(
-  validator: Schema | JSONSchemaType<any>,
-  formatter: (x: string) => string,
-  e: any
-): [string | number | boolean, string] {
-  const type = isBoolean(validator) ? "string" : validator.type;
-  let value: string | number | boolean  = String(e.target.value)
-  let viewValue: string = value
-
-  if (type === "number" || type === "integer") {
-    viewValue = formatter(e.target.value)
-    value = Number(viewValue);
-  } else if (type === "boolean") {
-    value =  Boolean(e.target.checked);
-    viewValue = formatter(String(value))
-  }
-
-  return [value, viewValue]
-}

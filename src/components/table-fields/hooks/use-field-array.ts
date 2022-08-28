@@ -1,33 +1,59 @@
 import { useCallback, useReducer } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-interface UseFieldArray {
-  push: () => void;
-  remove: (id: string) => void;
-  ids: string[];
+export interface OrdinalMetadata {
+  ordinal: number;
 }
 
-export function useFieldArray(originalIds: () => string[] = () => []): UseFieldArray {
-  const [ids, dispatch] = useReducer(reducer, [], originalIds);
-  const push = useCallback(() => dispatch({ type: "ADD" }), [dispatch]);
+interface UseFieldArray<T> {
+  push: (p?: { newElement?: T, onAdded?: (id: FieldArrayElement<T>, index: number) => void }) => void;
+  remove: (id: string) => void;
+  refresh: () => void;
+  elements: FieldArrayElement<T>[];
+}
+
+export interface FieldArrayElement<T> {
+  id: string
+  value: T
+  metadata: OrdinalMetadata
+}
+
+type Action<T> = { type: "ADD" | "REMOVE" | "UPDATE_VALUE"; id?: string, onAdded?: (id: FieldArrayElement<T>, index: number) => void, makeDefaultValue: (makeId: IdGen) => T }
+type IdGen = () => string
+
+export function useFieldArray<T>(makeDefaultValue: (makeId: IdGen) => T, originalIds: (makeId: IdGen) => () => FieldArrayElement<T>[] = () => () => []): UseFieldArray<T> {
+  const castedReducer = reducer as ((ids: FieldArrayElement<T>[],action: Action<T>) => FieldArrayElement<T>[])
+  const [elements, dispatch] = useReducer(castedReducer, [], originalIds(uuidv4));
+  const push = useCallback(({newElement, onAdded } = {}) => dispatch({ type: "ADD", onAdded, makeDefaultValue: () => newElement || makeDefaultValue(uuidv4) }), [dispatch, makeDefaultValue]);
   const remove = useCallback(
-    (id) => dispatch({ type: "REMOVE", id }),
-    [dispatch]
+    (id) => dispatch({ type: "REMOVE", id, makeDefaultValue }),
+    [dispatch, makeDefaultValue]
+  );
+  const refresh = useCallback(
+    () => dispatch({ type: "UPDATE_VALUE", makeDefaultValue }),
+    [dispatch, makeDefaultValue]
   );
 
-  return { push, remove, ids };
+  return { push, remove, elements, refresh };
 }
 
 
-function reducer(
-  ids: string[],
-  action: { type: "ADD" | "REMOVE"; id?: string }
-) {
+function reducer<T>(
+  elements: FieldArrayElement<T>[],
+  action: Action<T>
+): FieldArrayElement<T>[] {
   switch (action.type) {
     case "ADD":
-      return [...ids, uuidv4()];
+      const newElement = { id: uuidv4(), value: action.makeDefaultValue(uuidv4), metadata: { ordinal: elements.length } }
+      if(action.onAdded) {
+        action.onAdded(newElement, elements.length)
+      }
+      
+      return [...elements, newElement];
     case "REMOVE":
-      return ids.filter((x) => x !== action.id);
+      return elements.filter((x) => x.id !== action.id);
+    case "UPDATE_VALUE":
+      return [...elements]
     default:
       throw new Error();
   }

@@ -30,11 +30,11 @@ export type AttributeBucket = {
 
 export type BoolFieldConfig = {
   __typename?: "BoolFieldConfig";
-  isCheckbox: FieldWrapper<Scalars["Boolean"]>;
+  enabled: FieldWrapper<Scalars["Boolean"]>;
 };
 
 export type BoolFieldConfigInput = {
-  validator: Scalars["JsonSchema"];
+  enabled: Scalars["Boolean"];
 };
 
 export type BoolFieldValue = {
@@ -172,13 +172,15 @@ export type DatasheetInput = {
 
 export type DecimalFieldConfig = {
   __typename?: "DecimalFieldConfig";
+  numeric: FieldWrapper<Scalars["Float"]>;
   precision: FieldWrapper<Scalars["Int"]>;
   unit: FieldWrapper<Scalars["String"]>;
 };
 
 export type DecimalFieldConfigInput = {
+  numeric: Scalars["Float"];
   precision: Scalars["Int"];
-  validator: Scalars["JsonSchema"];
+  unit?: Maybe<Scalars["String"]>;
 };
 
 export type DecimalFieldValue = {
@@ -285,11 +287,13 @@ export type FormulaEdge = {
 
 export type IntFieldConfig = {
   __typename?: "IntFieldConfig";
+  integer: FieldWrapper<Scalars["Int"]>;
   unit: FieldWrapper<Scalars["String"]>;
 };
 
 export type IntFieldConfigInput = {
-  validator: Scalars["JsonSchema"];
+  integer: Scalars["Int"];
+  unit: Scalars["String"];
 };
 
 export type IntFieldValue = {
@@ -305,12 +309,12 @@ export type Mutation = {
   __typename?: "Mutation";
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
-  addTranslations: Array<FieldWrapper<Translation>>;
   cloneProjectCollection: Array<FieldWrapper<ProjectNode>>;
   createDatasheet: FieldWrapper<Datasheet>;
   createProject: FieldWrapper<ProjectDetails>;
   createSingleUserOrganization: FieldWrapper<User>;
   deleteProjectCollection: FieldWrapper<ProjectNode>;
+  updateProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
   updateTranslations: Array<FieldWrapper<Translation>>;
@@ -322,11 +326,8 @@ export type MutationAddProjectCollectionItemArgs = {
 };
 
 export type MutationAddProjectDefinitionNodeArgs = {
-  node: ProjectDefinitionNodeInput;
-};
-
-export type MutationAddTranslationsArgs = {
-  translations: Array<TranslationInput>;
+  node: ProjectDefinitionNodeCreationInput;
+  projectDefinitionId: Scalars["String"];
 };
 
 export type MutationCloneProjectCollectionArgs = {
@@ -351,6 +352,12 @@ export type MutationDeleteProjectCollectionArgs = {
   projectId: Scalars["ID"];
 };
 
+export type MutationUpdateProjectDefinitionNodeArgs = {
+  node: ProjectDefinitionNodeCreationInput;
+  nodeId: Scalars["String"];
+  projectDefinitionId: Scalars["String"];
+};
+
 export type MutationUpdateProjectFieldArgs = {
   nodeId: Scalars["ID"];
   projectId: Scalars["ID"];
@@ -371,23 +378,13 @@ export type NewSingleUserOrganizationInput = {
   organizationName: Scalars["String"];
 };
 
-export type NodeConfig = {
-  __typename?: "NodeConfig";
-  fieldDetails?: Maybe<FieldWrapper<FieldDetailsUnion>>;
-  meta?: Maybe<FieldWrapper<NodeMetaConfig>>;
-  translations: FieldWrapper<TranslationConfig>;
-  triggers: Array<Maybe<FieldWrapper<Trigger>>>;
-  valueValidator?: Maybe<FieldWrapper<Scalars["JsonSchema"]>>;
-};
-
-export type NodeConfigInput = {
-  fieldDetails?: Maybe<FieldDetailsUnionInput>;
-  valueValidator?: Maybe<Scalars["JsonSchema"]>;
-};
-
 export type NodeMetaConfig = {
   __typename?: "NodeMetaConfig";
-  isVisible?: Maybe<FieldWrapper<Scalars["Boolean"]>>;
+  isVisible: FieldWrapper<Scalars["Boolean"]>;
+};
+
+export type NodeMetaConfigInput = {
+  isVisible: Scalars["Boolean"];
 };
 
 export type Organization = {
@@ -461,27 +458,32 @@ export type ProjectDefinitionEdge = {
 export type ProjectDefinitionNode = {
   __typename?: "ProjectDefinitionNode";
   children: Array<FieldWrapper<ProjectDefinitionNode>>;
-  config: FieldWrapper<NodeConfig>;
-  defaultValue?: Maybe<FieldWrapper<FieldValue>>;
+  fieldDetails?: Maybe<FieldWrapper<FieldDetailsUnion>>;
   id: FieldWrapper<Scalars["ID"]>;
   instanciateByDefault: FieldWrapper<Scalars["Boolean"]>;
   isCollection: FieldWrapper<Scalars["Boolean"]>;
+  meta: FieldWrapper<NodeMetaConfig>;
   name: FieldWrapper<Scalars["String"]>;
   orderIndex: FieldWrapper<Scalars["Int"]>;
   path: Array<FieldWrapper<Scalars["String"]>>;
   projectDefinitionId: FieldWrapper<Scalars["String"]>;
-  translations: Array<FieldWrapper<Translation>>;
+  translated: Array<FieldWrapper<Translation>>;
+  translations: FieldWrapper<TranslationConfig>;
+  triggers: Array<Maybe<FieldWrapper<Trigger>>>;
+  validator?: Maybe<FieldWrapper<Scalars["JsonSchema"]>>;
 };
 
-export type ProjectDefinitionNodeInput = {
-  config: NodeConfigInput;
-  defaultValue?: Maybe<FieldValueInput>;
-  id: Scalars["ID"];
+export type ProjectDefinitionNodeCreationInput = {
+  fieldDetails?: Maybe<FieldDetailsUnionInput>;
   instanciateByDefault: Scalars["Boolean"];
   isCollection: Scalars["Boolean"];
+  meta: NodeMetaConfigInput;
   name: Scalars["String"];
   orderIndex: Scalars["Int"];
   path: Array<Scalars["String"]>;
+  translated: Array<TranslationInput>;
+  translations: TranslationConfigInput;
+  triggers: Array<Maybe<TriggerInput>>;
 };
 
 export type ProjectDefinitionNodeTree = {
@@ -541,6 +543,7 @@ export type ProjectNodeMeta = {
   __typename?: "ProjectNodeMeta";
   definition: FieldWrapper<ProjectDefinitionNode>;
   state: FieldWrapper<ProjectNodeMetaState>;
+  translations: Array<FieldWrapper<Translation>>;
   typeId: FieldWrapper<Scalars["ID"]>;
 };
 
@@ -594,6 +597,7 @@ export type Query = {
   findReportDefinitions: Array<FieldWrapper<ReportDefinition>>;
   findRessourceTranslation: FieldWrapper<TranslationConnection>;
   queryDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
+  units: Array<FieldWrapper<Unit>>;
 };
 
 export type QueryFindDatasheetArgs = {
@@ -774,11 +778,12 @@ export type StageColumn = {
 export type StaticChoiceFieldConfig = {
   __typename?: "StaticChoiceFieldConfig";
   options: Array<FieldWrapper<StaticChoiceOption>>;
+  selected: FieldWrapper<Scalars["String"]>;
 };
 
 export type StaticChoiceFieldConfigInput = {
   options: Array<StaticChoiceOptionInput>;
-  validator: Scalars["JsonSchema"];
+  selected: Scalars["String"];
 };
 
 export type StaticChoiceOption = {
@@ -786,12 +791,14 @@ export type StaticChoiceOption = {
   helpText: FieldWrapper<Scalars["String"]>;
   id: FieldWrapper<Scalars["String"]>;
   label: FieldWrapper<Scalars["String"]>;
+  translated: Array<FieldWrapper<Translation>>;
 };
 
 export type StaticChoiceOptionInput = {
   helpText: Scalars["String"];
   id: Scalars["String"];
   label: Scalars["String"];
+  translated: Array<TranslationInput>;
 };
 
 export type StaticNumberFieldConfig = {
@@ -809,12 +816,13 @@ export type StaticNumberFieldConfigInput = {
 
 export type StringFieldConfig = {
   __typename?: "StringFieldConfig";
+  text: FieldWrapper<Scalars["String"]>;
   transforms: Array<FieldWrapper<Scalars["String"]>>;
 };
 
 export type StringFieldConfigInput = {
+  text: Scalars["String"];
   transforms: Array<Scalars["String"]>;
-  validator: Scalars["JsonSchema"];
 };
 
 export type StringFieldValue = {
@@ -851,6 +859,11 @@ export type TranslationConfig = {
   label: FieldWrapper<Scalars["String"]>;
 };
 
+export type TranslationConfigInput = {
+  helpTextName: Scalars["String"];
+  label: Scalars["String"];
+};
+
 export type TranslationConnection = {
   __typename?: "TranslationConnection";
   edges: Array<FieldWrapper<TranslationEdge>>;
@@ -866,8 +879,6 @@ export type TranslationEdge = {
 export type TranslationInput = {
   locale: Scalars["String"];
   name: Scalars["String"];
-  ressourceId: Scalars["String"];
-  scope: Scalars["String"];
   value: Scalars["String"];
 };
 
@@ -892,10 +903,26 @@ export enum TriggerAction {
   SET_VISIBILITY = "SET_VISIBILITY",
 }
 
+export type TriggerInput = {
+  action: TriggerAction;
+  params: Array<TriggerParamInput>;
+  targetTypeId: Scalars["String"];
+};
+
 export type TriggerParam = {
   __typename?: "TriggerParam";
   name: FieldWrapper<Scalars["String"]>;
   value: FieldWrapper<Scalars["String"]>;
+};
+
+export type TriggerParamInput = {
+  name: Scalars["String"];
+  value: Scalars["String"];
+};
+
+export type Unit = {
+  __typename?: "Unit";
+  id: FieldWrapper<Scalars["ID"]>;
 };
 
 export type User = {
@@ -1050,7 +1077,8 @@ export type FindDatasheetsQuery = { __typename?: "Query" } & {
 };
 
 export type AddProjectDefinitionNodeMutationVariables = Exact<{
-  node: ProjectDefinitionNodeInput;
+  projectDefinitionId: Scalars["String"];
+  node: ProjectDefinitionNodeCreationInput;
 }>;
 
 export type AddProjectDefinitionNodeMutation = { __typename?: "Mutation" } & {
@@ -1063,39 +1091,89 @@ export type AddProjectDefinitionNodeMutation = { __typename?: "Mutation" } & {
     | "instanciateByDefault"
     | "orderIndex"
   > & {
-      config: { __typename?: "NodeConfig" } & Pick<
-        NodeConfig,
-        "valueValidator"
-      > & {
-          fieldDetails?: Maybe<
-            | ({ __typename: "BoolFieldConfig" } & Pick<
-                BoolFieldConfig,
-                "isCheckbox"
-              >)
-            | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                CollapsibleContainerFieldConfig,
-                "isCollapsible"
-              >)
-            | ({ __typename: "DecimalFieldConfig" } & Pick<
-                DecimalFieldConfig,
-                "unit" | "precision"
-              >)
-            | ({ __typename: "IntFieldConfig" } & Pick<IntFieldConfig, "unit">)
-            | ({ __typename: "StaticChoiceFieldConfig" } & {
-                options: Array<
-                  { __typename?: "StaticChoiceOption" } & Pick<
-                    StaticChoiceOption,
-                    "id" | "label" | "helpText"
-                  >
-                >;
-              })
-            | { __typename: "StaticNumberFieldConfig" }
-            | ({ __typename: "StringFieldConfig" } & Pick<
-                StringFieldConfig,
-                "transforms"
-              >)
-          >;
-        };
+      fieldDetails?: Maybe<
+        | ({ __typename: "BoolFieldConfig" } & Pick<BoolFieldConfig, "enabled">)
+        | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+            CollapsibleContainerFieldConfig,
+            "isCollapsible"
+          >)
+        | ({ __typename: "DecimalFieldConfig" } & Pick<
+            DecimalFieldConfig,
+            "unit" | "precision" | "numeric"
+          >)
+        | ({ __typename: "IntFieldConfig" } & Pick<
+            IntFieldConfig,
+            "unit" | "integer"
+          >)
+        | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+            StaticChoiceFieldConfig,
+            "selected"
+          > & {
+              options: Array<
+                { __typename?: "StaticChoiceOption" } & Pick<
+                  StaticChoiceOption,
+                  "id" | "label" | "helpText"
+                >
+              >;
+            })
+        | { __typename: "StaticNumberFieldConfig" }
+        | ({ __typename: "StringFieldConfig" } & Pick<
+            StringFieldConfig,
+            "transforms" | "text"
+          >)
+      >;
+    };
+};
+
+export type UpdateProjectDefinitionNodeMutationVariables = Exact<{
+  projectDefinitionId: Scalars["String"];
+  nodeId: Scalars["String"];
+  node: ProjectDefinitionNodeCreationInput;
+}>;
+
+export type UpdateProjectDefinitionNodeMutation = {
+  __typename?: "Mutation";
+} & {
+  updateProjectDefinitionNode: { __typename?: "ProjectDefinitionNode" } & Pick<
+    ProjectDefinitionNode,
+    | "id"
+    | "projectDefinitionId"
+    | "name"
+    | "isCollection"
+    | "instanciateByDefault"
+    | "orderIndex"
+  > & {
+      fieldDetails?: Maybe<
+        | ({ __typename: "BoolFieldConfig" } & Pick<BoolFieldConfig, "enabled">)
+        | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+            CollapsibleContainerFieldConfig,
+            "isCollapsible"
+          >)
+        | ({ __typename: "DecimalFieldConfig" } & Pick<
+            DecimalFieldConfig,
+            "unit" | "precision" | "numeric"
+          >)
+        | ({ __typename: "IntFieldConfig" } & Pick<
+            IntFieldConfig,
+            "unit" | "integer"
+          >)
+        | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+            StaticChoiceFieldConfig,
+            "selected"
+          > & {
+              options: Array<
+                { __typename?: "StaticChoiceOption" } & Pick<
+                  StaticChoiceOption,
+                  "id" | "label" | "helpText"
+                >
+              >;
+            })
+        | { __typename: "StaticNumberFieldConfig" }
+        | ({ __typename: "StringFieldConfig" } & Pick<
+            StringFieldConfig,
+            "transforms" | "text"
+          >)
+      >;
     };
 };
 
@@ -1143,68 +1221,48 @@ export type FindProjectDefinitionRootSectionsQuery = {
           | "isCollection"
           | "instanciateByDefault"
           | "orderIndex"
+          | "validator"
           | "path"
         > & {
-            config: { __typename?: "NodeConfig" } & Pick<
-              NodeConfig,
-              "valueValidator"
-            > & {
-                translations: { __typename?: "TranslationConfig" } & Pick<
-                  TranslationConfig,
-                  "helpTextName" | "label"
-                >;
-                fieldDetails?: Maybe<
-                  | ({ __typename: "BoolFieldConfig" } & Pick<
-                      BoolFieldConfig,
-                      "isCheckbox"
-                    >)
-                  | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                      CollapsibleContainerFieldConfig,
-                      "isCollapsible"
-                    >)
-                  | ({ __typename: "DecimalFieldConfig" } & Pick<
-                      DecimalFieldConfig,
-                      "unit" | "precision"
-                    >)
-                  | ({ __typename: "IntFieldConfig" } & Pick<
-                      IntFieldConfig,
-                      "unit"
-                    >)
-                  | ({ __typename: "StaticChoiceFieldConfig" } & {
-                      options: Array<
-                        { __typename?: "StaticChoiceOption" } & Pick<
-                          StaticChoiceOption,
-                          "id" | "label" | "helpText"
-                        >
-                      >;
-                    })
-                  | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                      StaticNumberFieldConfig,
-                      "passToTranslation" | "precision" | "unit"
-                    >)
-                  | ({ __typename: "StringFieldConfig" } & Pick<
-                      StringFieldConfig,
-                      "transforms"
-                    >)
-                >;
-              };
-            defaultValue?: Maybe<
-              | ({ __typename: "BoolFieldValue" } & Pick<
-                  BoolFieldValue,
+            translations: { __typename?: "TranslationConfig" } & Pick<
+              TranslationConfig,
+              "helpTextName" | "label"
+            >;
+            fieldDetails?: Maybe<
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
                   "enabled"
                 >)
-              | ({ __typename: "DecimalFieldValue" } & Pick<
-                  DecimalFieldValue,
-                  "numeric"
+              | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                  CollapsibleContainerFieldConfig,
+                  "isCollapsible"
                 >)
-              | ({ __typename: "IntFieldValue" } & Pick<
-                  IntFieldValue,
-                  "integer"
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
                 >)
-              | { __typename: "ReferenceId" }
-              | ({ __typename: "StringFieldValue" } & Pick<
-                  StringFieldValue,
-                  "text"
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+                  StaticNumberFieldConfig,
+                  "passToTranslation" | "precision" | "unit"
+                >)
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
                 >)
             >;
           };
@@ -1234,68 +1292,48 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
           | "isCollection"
           | "instanciateByDefault"
           | "orderIndex"
+          | "validator"
           | "path"
         > & {
-            config: { __typename?: "NodeConfig" } & Pick<
-              NodeConfig,
-              "valueValidator"
-            > & {
-                translations: { __typename?: "TranslationConfig" } & Pick<
-                  TranslationConfig,
-                  "helpTextName" | "label"
-                >;
-                fieldDetails?: Maybe<
-                  | ({ __typename: "BoolFieldConfig" } & Pick<
-                      BoolFieldConfig,
-                      "isCheckbox"
-                    >)
-                  | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                      CollapsibleContainerFieldConfig,
-                      "isCollapsible"
-                    >)
-                  | ({ __typename: "DecimalFieldConfig" } & Pick<
-                      DecimalFieldConfig,
-                      "unit" | "precision"
-                    >)
-                  | ({ __typename: "IntFieldConfig" } & Pick<
-                      IntFieldConfig,
-                      "unit"
-                    >)
-                  | ({ __typename: "StaticChoiceFieldConfig" } & {
-                      options: Array<
-                        { __typename?: "StaticChoiceOption" } & Pick<
-                          StaticChoiceOption,
-                          "id" | "label" | "helpText"
-                        >
-                      >;
-                    })
-                  | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                      StaticNumberFieldConfig,
-                      "passToTranslation" | "precision" | "unit"
-                    >)
-                  | ({ __typename: "StringFieldConfig" } & Pick<
-                      StringFieldConfig,
-                      "transforms"
-                    >)
-                >;
-              };
-            defaultValue?: Maybe<
-              | ({ __typename: "BoolFieldValue" } & Pick<
-                  BoolFieldValue,
+            translations: { __typename?: "TranslationConfig" } & Pick<
+              TranslationConfig,
+              "helpTextName" | "label"
+            >;
+            fieldDetails?: Maybe<
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
                   "enabled"
                 >)
-              | ({ __typename: "DecimalFieldValue" } & Pick<
-                  DecimalFieldValue,
-                  "numeric"
+              | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                  CollapsibleContainerFieldConfig,
+                  "isCollapsible"
                 >)
-              | ({ __typename: "IntFieldValue" } & Pick<
-                  IntFieldValue,
-                  "integer"
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
                 >)
-              | { __typename: "ReferenceId" }
-              | ({ __typename: "StringFieldValue" } & Pick<
-                  StringFieldValue,
-                  "text"
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+                  StaticNumberFieldConfig,
+                  "passToTranslation" | "precision" | "unit"
+                >)
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
                 >)
             >;
           };
@@ -1309,70 +1347,48 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
               | "isCollection"
               | "instanciateByDefault"
               | "orderIndex"
+              | "validator"
               | "path"
             > & {
-                config: { __typename?: "NodeConfig" } & Pick<
-                  NodeConfig,
-                  "valueValidator"
-                > & {
-                    translations: { __typename?: "TranslationConfig" } & Pick<
-                      TranslationConfig,
-                      "helpTextName" | "label"
-                    >;
-                    fieldDetails?: Maybe<
-                      | ({ __typename: "BoolFieldConfig" } & Pick<
-                          BoolFieldConfig,
-                          "isCheckbox"
-                        >)
-                      | ({
-                          __typename: "CollapsibleContainerFieldConfig";
-                        } & Pick<
-                          CollapsibleContainerFieldConfig,
-                          "isCollapsible"
-                        >)
-                      | ({ __typename: "DecimalFieldConfig" } & Pick<
-                          DecimalFieldConfig,
-                          "unit" | "precision"
-                        >)
-                      | ({ __typename: "IntFieldConfig" } & Pick<
-                          IntFieldConfig,
-                          "unit"
-                        >)
-                      | ({ __typename: "StaticChoiceFieldConfig" } & {
-                          options: Array<
-                            { __typename?: "StaticChoiceOption" } & Pick<
-                              StaticChoiceOption,
-                              "id" | "label" | "helpText"
-                            >
-                          >;
-                        })
-                      | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                          StaticNumberFieldConfig,
-                          "passToTranslation" | "precision" | "unit"
-                        >)
-                      | ({ __typename: "StringFieldConfig" } & Pick<
-                          StringFieldConfig,
-                          "transforms"
-                        >)
-                    >;
-                  };
-                defaultValue?: Maybe<
-                  | ({ __typename: "BoolFieldValue" } & Pick<
-                      BoolFieldValue,
+                translations: { __typename?: "TranslationConfig" } & Pick<
+                  TranslationConfig,
+                  "helpTextName" | "label"
+                >;
+                fieldDetails?: Maybe<
+                  | ({ __typename: "BoolFieldConfig" } & Pick<
+                      BoolFieldConfig,
                       "enabled"
                     >)
-                  | ({ __typename: "DecimalFieldValue" } & Pick<
-                      DecimalFieldValue,
-                      "numeric"
+                  | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                      CollapsibleContainerFieldConfig,
+                      "isCollapsible"
                     >)
-                  | ({ __typename: "IntFieldValue" } & Pick<
-                      IntFieldValue,
-                      "integer"
+                  | ({ __typename: "DecimalFieldConfig" } & Pick<
+                      DecimalFieldConfig,
+                      "unit" | "precision" | "numeric"
                     >)
-                  | { __typename: "ReferenceId" }
-                  | ({ __typename: "StringFieldValue" } & Pick<
-                      StringFieldValue,
-                      "text"
+                  | ({ __typename: "IntFieldConfig" } & Pick<
+                      IntFieldConfig,
+                      "unit" | "integer"
+                    >)
+                  | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                      StaticChoiceFieldConfig,
+                      "selected"
+                    > & {
+                        options: Array<
+                          { __typename?: "StaticChoiceOption" } & Pick<
+                            StaticChoiceOption,
+                            "id" | "label" | "helpText"
+                          >
+                        >;
+                      })
+                  | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+                      StaticNumberFieldConfig,
+                      "passToTranslation" | "precision" | "unit"
+                    >)
+                  | ({ __typename: "StringFieldConfig" } & Pick<
+                      StringFieldConfig,
+                      "transforms" | "text"
                     >)
                 >;
               };
@@ -1398,62 +1414,61 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
     | "instanciateByDefault"
     | "orderIndex"
     | "path"
+    | "validator"
   > & {
-      config: { __typename?: "NodeConfig" } & Pick<
-        NodeConfig,
-        "valueValidator"
-      > & {
-          triggers: Array<
-            Maybe<
-              { __typename?: "Trigger" } & Pick<
-                Trigger,
-                "action" | "targetTypeId"
-              > & {
-                  params: Array<
-                    { __typename?: "TriggerParam" } & Pick<
-                      TriggerParam,
-                      "name" | "value"
-                    >
-                  >;
-                }
-            >
-          >;
-          translations: { __typename?: "TranslationConfig" } & Pick<
-            TranslationConfig,
-            "helpTextName" | "label"
-          >;
-          fieldDetails?: Maybe<
-            | ({ __typename: "BoolFieldConfig" } & Pick<
-                BoolFieldConfig,
-                "isCheckbox"
-              >)
-            | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                CollapsibleContainerFieldConfig,
-                "isCollapsible"
-              >)
-            | ({ __typename: "DecimalFieldConfig" } & Pick<
-                DecimalFieldConfig,
-                "unit" | "precision"
-              >)
-            | ({ __typename: "IntFieldConfig" } & Pick<IntFieldConfig, "unit">)
-            | ({ __typename: "StaticChoiceFieldConfig" } & {
-                options: Array<
-                  { __typename?: "StaticChoiceOption" } & Pick<
-                    StaticChoiceOption,
-                    "id" | "label" | "helpText"
-                  >
-                >;
-              })
-            | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                StaticNumberFieldConfig,
-                "passToTranslation" | "precision" | "unit"
-              >)
-            | ({ __typename: "StringFieldConfig" } & Pick<
-                StringFieldConfig,
-                "transforms"
-              >)
-          >;
-        };
+      triggers: Array<
+        Maybe<
+          { __typename?: "Trigger" } & Pick<
+            Trigger,
+            "action" | "targetTypeId"
+          > & {
+              params: Array<
+                { __typename?: "TriggerParam" } & Pick<
+                  TriggerParam,
+                  "name" | "value"
+                >
+              >;
+            }
+        >
+      >;
+      translations: { __typename?: "TranslationConfig" } & Pick<
+        TranslationConfig,
+        "helpTextName" | "label"
+      >;
+      fieldDetails?: Maybe<
+        | ({ __typename: "BoolFieldConfig" } & Pick<BoolFieldConfig, "enabled">)
+        | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+            CollapsibleContainerFieldConfig,
+            "isCollapsible"
+          >)
+        | ({ __typename: "DecimalFieldConfig" } & Pick<
+            DecimalFieldConfig,
+            "unit" | "precision" | "numeric"
+          >)
+        | ({ __typename: "IntFieldConfig" } & Pick<
+            IntFieldConfig,
+            "unit" | "integer"
+          >)
+        | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+            StaticChoiceFieldConfig,
+            "selected"
+          > & {
+              options: Array<
+                { __typename?: "StaticChoiceOption" } & Pick<
+                  StaticChoiceOption,
+                  "id" | "label" | "helpText"
+                >
+              >;
+            })
+        | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+            StaticNumberFieldConfig,
+            "passToTranslation" | "precision" | "unit"
+          >)
+        | ({ __typename: "StringFieldConfig" } & Pick<
+            StringFieldConfig,
+            "transforms" | "text"
+          >)
+      >;
     };
   findProjectDefinitionFormContent: {
     __typename?: "ProjectDefinitionNodeTree";
@@ -1468,11 +1483,78 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
           | "isCollection"
           | "instanciateByDefault"
           | "orderIndex"
+          | "validator"
           | "path"
         > & {
-            config: { __typename?: "NodeConfig" } & Pick<
-              NodeConfig,
-              "valueValidator"
+            triggers: Array<
+              Maybe<
+                { __typename?: "Trigger" } & Pick<
+                  Trigger,
+                  "action" | "targetTypeId"
+                > & {
+                    params: Array<
+                      { __typename?: "TriggerParam" } & Pick<
+                        TriggerParam,
+                        "name" | "value"
+                      >
+                    >;
+                  }
+              >
+            >;
+            translations: { __typename?: "TranslationConfig" } & Pick<
+              TranslationConfig,
+              "helpTextName" | "label"
+            >;
+            fieldDetails?: Maybe<
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
+                  "enabled"
+                >)
+              | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                  CollapsibleContainerFieldConfig,
+                  "isCollapsible"
+                >)
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
+                >)
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+                  StaticNumberFieldConfig,
+                  "passToTranslation" | "precision" | "unit"
+                >)
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
+                >)
+            >;
+          };
+        children: Array<
+          { __typename?: "ProjectDefinitionTreeNode" } & {
+            definition: { __typename?: "ProjectDefinitionNode" } & Pick<
+              ProjectDefinitionNode,
+              | "id"
+              | "projectDefinitionId"
+              | "name"
+              | "isCollection"
+              | "instanciateByDefault"
+              | "orderIndex"
+              | "validator"
+              | "path"
             > & {
                 triggers: Array<
                   Maybe<
@@ -1496,7 +1578,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                 fieldDetails?: Maybe<
                   | ({ __typename: "BoolFieldConfig" } & Pick<
                       BoolFieldConfig,
-                      "isCheckbox"
+                      "enabled"
                     >)
                   | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
                       CollapsibleContainerFieldConfig,
@@ -1504,139 +1586,30 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                     >)
                   | ({ __typename: "DecimalFieldConfig" } & Pick<
                       DecimalFieldConfig,
-                      "unit" | "precision"
+                      "unit" | "precision" | "numeric"
                     >)
                   | ({ __typename: "IntFieldConfig" } & Pick<
                       IntFieldConfig,
-                      "unit"
+                      "unit" | "integer"
                     >)
-                  | ({ __typename: "StaticChoiceFieldConfig" } & {
-                      options: Array<
-                        { __typename?: "StaticChoiceOption" } & Pick<
-                          StaticChoiceOption,
-                          "id" | "label" | "helpText"
-                        >
-                      >;
-                    })
+                  | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                      StaticChoiceFieldConfig,
+                      "selected"
+                    > & {
+                        options: Array<
+                          { __typename?: "StaticChoiceOption" } & Pick<
+                            StaticChoiceOption,
+                            "id" | "label" | "helpText"
+                          >
+                        >;
+                      })
                   | ({ __typename: "StaticNumberFieldConfig" } & Pick<
                       StaticNumberFieldConfig,
                       "passToTranslation" | "precision" | "unit"
                     >)
                   | ({ __typename: "StringFieldConfig" } & Pick<
                       StringFieldConfig,
-                      "transforms"
-                    >)
-                >;
-              };
-            defaultValue?: Maybe<
-              | ({ __typename: "BoolFieldValue" } & Pick<
-                  BoolFieldValue,
-                  "enabled"
-                >)
-              | ({ __typename: "DecimalFieldValue" } & Pick<
-                  DecimalFieldValue,
-                  "numeric"
-                >)
-              | ({ __typename: "IntFieldValue" } & Pick<
-                  IntFieldValue,
-                  "integer"
-                >)
-              | { __typename: "ReferenceId" }
-              | ({ __typename: "StringFieldValue" } & Pick<
-                  StringFieldValue,
-                  "text"
-                >)
-            >;
-          };
-        children: Array<
-          { __typename?: "ProjectDefinitionTreeNode" } & {
-            definition: { __typename?: "ProjectDefinitionNode" } & Pick<
-              ProjectDefinitionNode,
-              | "id"
-              | "projectDefinitionId"
-              | "name"
-              | "isCollection"
-              | "instanciateByDefault"
-              | "orderIndex"
-              | "path"
-            > & {
-                config: { __typename?: "NodeConfig" } & Pick<
-                  NodeConfig,
-                  "valueValidator"
-                > & {
-                    triggers: Array<
-                      Maybe<
-                        { __typename?: "Trigger" } & Pick<
-                          Trigger,
-                          "action" | "targetTypeId"
-                        > & {
-                            params: Array<
-                              { __typename?: "TriggerParam" } & Pick<
-                                TriggerParam,
-                                "name" | "value"
-                              >
-                            >;
-                          }
-                      >
-                    >;
-                    translations: { __typename?: "TranslationConfig" } & Pick<
-                      TranslationConfig,
-                      "helpTextName" | "label"
-                    >;
-                    fieldDetails?: Maybe<
-                      | ({ __typename: "BoolFieldConfig" } & Pick<
-                          BoolFieldConfig,
-                          "isCheckbox"
-                        >)
-                      | ({
-                          __typename: "CollapsibleContainerFieldConfig";
-                        } & Pick<
-                          CollapsibleContainerFieldConfig,
-                          "isCollapsible"
-                        >)
-                      | ({ __typename: "DecimalFieldConfig" } & Pick<
-                          DecimalFieldConfig,
-                          "unit" | "precision"
-                        >)
-                      | ({ __typename: "IntFieldConfig" } & Pick<
-                          IntFieldConfig,
-                          "unit"
-                        >)
-                      | ({ __typename: "StaticChoiceFieldConfig" } & {
-                          options: Array<
-                            { __typename?: "StaticChoiceOption" } & Pick<
-                              StaticChoiceOption,
-                              "id" | "label" | "helpText"
-                            >
-                          >;
-                        })
-                      | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                          StaticNumberFieldConfig,
-                          "passToTranslation" | "precision" | "unit"
-                        >)
-                      | ({ __typename: "StringFieldConfig" } & Pick<
-                          StringFieldConfig,
-                          "transforms"
-                        >)
-                    >;
-                  };
-                defaultValue?: Maybe<
-                  | ({ __typename: "BoolFieldValue" } & Pick<
-                      BoolFieldValue,
-                      "enabled"
-                    >)
-                  | ({ __typename: "DecimalFieldValue" } & Pick<
-                      DecimalFieldValue,
-                      "numeric"
-                    >)
-                  | ({ __typename: "IntFieldValue" } & Pick<
-                      IntFieldValue,
-                      "integer"
-                    >)
-                  | { __typename: "ReferenceId" }
-                  | ({ __typename: "StringFieldValue" } & Pick<
-                      StringFieldValue,
-                      "text"
+                      "transforms" | "text"
                     >)
                 >;
               };
@@ -1662,63 +1635,78 @@ export type FindProjectDefinitionNodeQuery = { __typename?: "Query" } & {
     | "instanciateByDefault"
     | "orderIndex"
     | "path"
+    | "validator"
   > & {
-      config: { __typename?: "NodeConfig" } & Pick<
-        NodeConfig,
-        "valueValidator"
-      > & {
-          triggers: Array<
-            Maybe<
-              { __typename?: "Trigger" } & Pick<
-                Trigger,
-                "action" | "targetTypeId"
-              > & {
-                  params: Array<
-                    { __typename?: "TriggerParam" } & Pick<
-                      TriggerParam,
-                      "name" | "value"
-                    >
-                  >;
-                }
-            >
-          >;
-          translations: { __typename?: "TranslationConfig" } & Pick<
-            TranslationConfig,
-            "helpTextName" | "label"
-          >;
-          fieldDetails?: Maybe<
-            | ({ __typename: "BoolFieldConfig" } & Pick<
-                BoolFieldConfig,
-                "isCheckbox"
-              >)
-            | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                CollapsibleContainerFieldConfig,
-                "isCollapsible"
-              >)
-            | ({ __typename: "DecimalFieldConfig" } & Pick<
-                DecimalFieldConfig,
-                "unit" | "precision"
-              >)
-            | ({ __typename: "IntFieldConfig" } & Pick<IntFieldConfig, "unit">)
-            | ({ __typename: "StaticChoiceFieldConfig" } & {
-                options: Array<
-                  { __typename?: "StaticChoiceOption" } & Pick<
-                    StaticChoiceOption,
-                    "id" | "label" | "helpText"
-                  >
-                >;
-              })
-            | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                StaticNumberFieldConfig,
-                "passToTranslation" | "precision" | "unit"
-              >)
-            | ({ __typename: "StringFieldConfig" } & Pick<
-                StringFieldConfig,
-                "transforms"
-              >)
-          >;
-        };
-      translations: Array<
+      triggers: Array<
+        Maybe<
+          { __typename?: "Trigger" } & Pick<
+            Trigger,
+            "action" | "targetTypeId"
+          > & {
+              params: Array<
+                { __typename?: "TriggerParam" } & Pick<
+                  TriggerParam,
+                  "name" | "value"
+                >
+              >;
+            }
+        >
+      >;
+      translations: { __typename?: "TranslationConfig" } & Pick<
+        TranslationConfig,
+        "helpTextName" | "label"
+      >;
+      meta: { __typename?: "NodeMetaConfig" } & Pick<
+        NodeMetaConfig,
+        "isVisible"
+      >;
+      fieldDetails?: Maybe<
+        | ({ __typename: "BoolFieldConfig" } & Pick<BoolFieldConfig, "enabled">)
+        | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+            CollapsibleContainerFieldConfig,
+            "isCollapsible"
+          >)
+        | ({ __typename: "DecimalFieldConfig" } & Pick<
+            DecimalFieldConfig,
+            "unit" | "precision" | "numeric"
+          >)
+        | ({ __typename: "IntFieldConfig" } & Pick<
+            IntFieldConfig,
+            "unit" | "integer"
+          >)
+        | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+            StaticChoiceFieldConfig,
+            "selected"
+          > & {
+              options: Array<
+                { __typename?: "StaticChoiceOption" } & Pick<
+                  StaticChoiceOption,
+                  "id" | "label" | "helpText"
+                > & {
+                    translated: Array<
+                      { __typename?: "Translation" } & Pick<
+                        Translation,
+                        | "id"
+                        | "ressourceId"
+                        | "locale"
+                        | "scope"
+                        | "name"
+                        | "value"
+                      >
+                    >;
+                  }
+              >;
+            })
+        | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+            StaticNumberFieldConfig,
+            "passToTranslation" | "precision" | "unit"
+          >)
+        | ({ __typename: "StringFieldConfig" } & Pick<
+            StringFieldConfig,
+            "transforms" | "text"
+          >)
+      >;
+      translated: Array<
         { __typename?: "Translation" } & Pick<
           Translation,
           "id" | "ressourceId" | "locale" | "scope" | "name" | "value"
@@ -1751,6 +1739,12 @@ export type FindProjectDefintionsQuery = { __typename?: "Query" } & {
       "hasNextPage" | "endCursor" | "totalCount"
     >;
   };
+};
+
+export type UnitsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type UnitsQuery = { __typename?: "Query" } & {
+  units: Array<{ __typename?: "Unit" } & Pick<Unit, "id">>;
 };
 
 export type CreateProjectMutationVariables = Exact<{
@@ -1904,47 +1898,46 @@ export type FindProjectRootSectionsQuery = { __typename?: "Query" } & {
           | "isCollection"
           | "instanciateByDefault"
           | "orderIndex"
+          | "validator"
         > & {
-            config: { __typename?: "NodeConfig" } & Pick<
-              NodeConfig,
-              "valueValidator"
-            > & {
-                translations: { __typename?: "TranslationConfig" } & Pick<
-                  TranslationConfig,
-                  "helpTextName" | "label"
-                >;
-                fieldDetails?: Maybe<
-                  | ({ __typename: "BoolFieldConfig" } & Pick<
-                      BoolFieldConfig,
-                      "isCheckbox"
-                    >)
-                  | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                      CollapsibleContainerFieldConfig,
-                      "isCollapsible"
-                    >)
-                  | ({ __typename: "DecimalFieldConfig" } & Pick<
-                      DecimalFieldConfig,
-                      "unit" | "precision"
-                    >)
-                  | ({ __typename: "IntFieldConfig" } & Pick<
-                      IntFieldConfig,
-                      "unit"
-                    >)
-                  | ({ __typename: "StaticChoiceFieldConfig" } & {
-                      options: Array<
-                        { __typename?: "StaticChoiceOption" } & Pick<
-                          StaticChoiceOption,
-                          "id" | "label" | "helpText"
-                        >
-                      >;
-                    })
-                  | { __typename: "StaticNumberFieldConfig" }
-                  | ({ __typename: "StringFieldConfig" } & Pick<
-                      StringFieldConfig,
-                      "transforms"
-                    >)
-                >;
-              };
+            translations: { __typename?: "TranslationConfig" } & Pick<
+              TranslationConfig,
+              "helpTextName" | "label"
+            >;
+            fieldDetails?: Maybe<
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
+                  "enabled"
+                >)
+              | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                  CollapsibleContainerFieldConfig,
+                  "isCollapsible"
+                >)
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
+                >)
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | { __typename: "StaticNumberFieldConfig" }
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
+                >)
+            >;
           };
         state: { __typename?: "ProjectNodeMetaState" } & Pick<
           ProjectNodeMetaState,
@@ -2000,47 +1993,46 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
           | "isCollection"
           | "instanciateByDefault"
           | "orderIndex"
+          | "validator"
         > & {
-            config: { __typename?: "NodeConfig" } & Pick<
-              NodeConfig,
-              "valueValidator"
-            > & {
-                translations: { __typename?: "TranslationConfig" } & Pick<
-                  TranslationConfig,
-                  "helpTextName" | "label"
-                >;
-                fieldDetails?: Maybe<
-                  | ({ __typename: "BoolFieldConfig" } & Pick<
-                      BoolFieldConfig,
-                      "isCheckbox"
-                    >)
-                  | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                      CollapsibleContainerFieldConfig,
-                      "isCollapsible"
-                    >)
-                  | ({ __typename: "DecimalFieldConfig" } & Pick<
-                      DecimalFieldConfig,
-                      "unit" | "precision"
-                    >)
-                  | ({ __typename: "IntFieldConfig" } & Pick<
-                      IntFieldConfig,
-                      "unit"
-                    >)
-                  | ({ __typename: "StaticChoiceFieldConfig" } & {
-                      options: Array<
-                        { __typename?: "StaticChoiceOption" } & Pick<
-                          StaticChoiceOption,
-                          "id" | "label" | "helpText"
-                        >
-                      >;
-                    })
-                  | { __typename: "StaticNumberFieldConfig" }
-                  | ({ __typename: "StringFieldConfig" } & Pick<
-                      StringFieldConfig,
-                      "transforms"
-                    >)
-                >;
-              };
+            translations: { __typename?: "TranslationConfig" } & Pick<
+              TranslationConfig,
+              "helpTextName" | "label"
+            >;
+            fieldDetails?: Maybe<
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
+                  "enabled"
+                >)
+              | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                  CollapsibleContainerFieldConfig,
+                  "isCollapsible"
+                >)
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
+                >)
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | { __typename: "StaticNumberFieldConfig" }
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
+                >)
+            >;
           };
         state: { __typename?: "ProjectNodeMetaState" } & Pick<
           ProjectNodeMetaState,
@@ -2082,48 +2074,48 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
                   | "isCollection"
                   | "instanciateByDefault"
                   | "orderIndex"
+                  | "validator"
                 > & {
-                    config: { __typename?: "NodeConfig" } & Pick<
-                      NodeConfig,
-                      "valueValidator"
-                    > & {
-                        translations: {
-                          __typename?: "TranslationConfig";
-                        } & Pick<TranslationConfig, "helpTextName" | "label">;
-                        fieldDetails?: Maybe<
-                          | ({ __typename: "BoolFieldConfig" } & Pick<
-                              BoolFieldConfig,
-                              "isCheckbox"
-                            >)
-                          | ({
-                              __typename: "CollapsibleContainerFieldConfig";
-                            } & Pick<
-                              CollapsibleContainerFieldConfig,
-                              "isCollapsible"
-                            >)
-                          | ({ __typename: "DecimalFieldConfig" } & Pick<
-                              DecimalFieldConfig,
-                              "unit" | "precision"
-                            >)
-                          | ({ __typename: "IntFieldConfig" } & Pick<
-                              IntFieldConfig,
-                              "unit"
-                            >)
-                          | ({ __typename: "StaticChoiceFieldConfig" } & {
-                              options: Array<
-                                { __typename?: "StaticChoiceOption" } & Pick<
-                                  StaticChoiceOption,
-                                  "id" | "label" | "helpText"
-                                >
-                              >;
-                            })
-                          | { __typename: "StaticNumberFieldConfig" }
-                          | ({ __typename: "StringFieldConfig" } & Pick<
-                              StringFieldConfig,
-                              "transforms"
-                            >)
-                        >;
-                      };
+                    translations: { __typename?: "TranslationConfig" } & Pick<
+                      TranslationConfig,
+                      "helpTextName" | "label"
+                    >;
+                    fieldDetails?: Maybe<
+                      | ({ __typename: "BoolFieldConfig" } & Pick<
+                          BoolFieldConfig,
+                          "enabled"
+                        >)
+                      | ({
+                          __typename: "CollapsibleContainerFieldConfig";
+                        } & Pick<
+                          CollapsibleContainerFieldConfig,
+                          "isCollapsible"
+                        >)
+                      | ({ __typename: "DecimalFieldConfig" } & Pick<
+                          DecimalFieldConfig,
+                          "unit" | "precision" | "numeric"
+                        >)
+                      | ({ __typename: "IntFieldConfig" } & Pick<
+                          IntFieldConfig,
+                          "unit" | "integer"
+                        >)
+                      | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                          StaticChoiceFieldConfig,
+                          "selected"
+                        > & {
+                            options: Array<
+                              { __typename?: "StaticChoiceOption" } & Pick<
+                                StaticChoiceOption,
+                                "id" | "label" | "helpText"
+                              >
+                            >;
+                          })
+                      | { __typename: "StaticNumberFieldConfig" }
+                      | ({ __typename: "StringFieldConfig" } & Pick<
+                          StringFieldConfig,
+                          "transforms" | "text"
+                        >)
+                    >;
                   };
                 state: { __typename?: "ProjectNodeMetaState" } & Pick<
                   ProjectNodeMetaState,
@@ -2184,51 +2176,50 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
         | "isCollection"
         | "instanciateByDefault"
         | "orderIndex"
+        | "validator"
         | "path"
       > & {
-          config: { __typename?: "NodeConfig" } & Pick<
-            NodeConfig,
-            "valueValidator"
-          > & {
-              fieldDetails?: Maybe<
-                | ({ __typename: "BoolFieldConfig" } & Pick<
-                    BoolFieldConfig,
-                    "isCheckbox"
-                  >)
-                | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                    CollapsibleContainerFieldConfig,
-                    "isCollapsible"
-                  >)
-                | ({ __typename: "DecimalFieldConfig" } & Pick<
-                    DecimalFieldConfig,
-                    "unit" | "precision"
-                  >)
-                | ({ __typename: "IntFieldConfig" } & Pick<
-                    IntFieldConfig,
-                    "unit"
-                  >)
-                | ({ __typename: "StaticChoiceFieldConfig" } & {
-                    options: Array<
-                      { __typename?: "StaticChoiceOption" } & Pick<
-                        StaticChoiceOption,
-                        "id" | "label" | "helpText"
-                      >
-                    >;
-                  })
-                | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                    StaticNumberFieldConfig,
-                    "unit" | "precision"
-                  >)
-                | ({ __typename: "StringFieldConfig" } & Pick<
-                    StringFieldConfig,
-                    "transforms"
-                  >)
-              >;
-              translations: { __typename?: "TranslationConfig" } & Pick<
-                TranslationConfig,
-                "helpTextName" | "label"
-              >;
-            };
+          fieldDetails?: Maybe<
+            | ({ __typename: "BoolFieldConfig" } & Pick<
+                BoolFieldConfig,
+                "enabled"
+              >)
+            | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                CollapsibleContainerFieldConfig,
+                "isCollapsible"
+              >)
+            | ({ __typename: "DecimalFieldConfig" } & Pick<
+                DecimalFieldConfig,
+                "unit" | "precision" | "numeric"
+              >)
+            | ({ __typename: "IntFieldConfig" } & Pick<
+                IntFieldConfig,
+                "unit" | "integer"
+              >)
+            | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                StaticChoiceFieldConfig,
+                "selected"
+              > & {
+                  options: Array<
+                    { __typename?: "StaticChoiceOption" } & Pick<
+                      StaticChoiceOption,
+                      "id" | "label" | "helpText"
+                    >
+                  >;
+                })
+            | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+                StaticNumberFieldConfig,
+                "unit" | "precision"
+              >)
+            | ({ __typename: "StringFieldConfig" } & Pick<
+                StringFieldConfig,
+                "transforms" | "text"
+              >)
+          >;
+          translations: { __typename?: "TranslationConfig" } & Pick<
+            TranslationConfig,
+            "helpTextName" | "label"
+          >;
         };
       state: { __typename?: "ProjectNodeMetaState" } & Pick<
         ProjectNodeMetaState,
@@ -2246,50 +2237,49 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
           | "isCollection"
           | "instanciateByDefault"
           | "orderIndex"
+          | "validator"
         > & {
-            config: { __typename?: "NodeConfig" } & Pick<
-              NodeConfig,
-              "valueValidator"
-            > & {
-                translations: { __typename?: "TranslationConfig" } & Pick<
-                  TranslationConfig,
-                  "helpTextName" | "label"
-                >;
-                fieldDetails?: Maybe<
-                  | ({ __typename: "BoolFieldConfig" } & Pick<
-                      BoolFieldConfig,
-                      "isCheckbox"
-                    >)
-                  | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
-                      CollapsibleContainerFieldConfig,
-                      "isCollapsible"
-                    >)
-                  | ({ __typename: "DecimalFieldConfig" } & Pick<
-                      DecimalFieldConfig,
-                      "unit" | "precision"
-                    >)
-                  | ({ __typename: "IntFieldConfig" } & Pick<
-                      IntFieldConfig,
-                      "unit"
-                    >)
-                  | ({ __typename: "StaticChoiceFieldConfig" } & {
-                      options: Array<
-                        { __typename?: "StaticChoiceOption" } & Pick<
-                          StaticChoiceOption,
-                          "id" | "label" | "helpText"
-                        >
-                      >;
-                    })
-                  | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                      StaticNumberFieldConfig,
-                      "unit" | "precision"
-                    >)
-                  | ({ __typename: "StringFieldConfig" } & Pick<
-                      StringFieldConfig,
-                      "transforms"
-                    >)
-                >;
-              };
+            translations: { __typename?: "TranslationConfig" } & Pick<
+              TranslationConfig,
+              "helpTextName" | "label"
+            >;
+            fieldDetails?: Maybe<
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
+                  "enabled"
+                >)
+              | ({ __typename: "CollapsibleContainerFieldConfig" } & Pick<
+                  CollapsibleContainerFieldConfig,
+                  "isCollapsible"
+                >)
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
+                >)
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+                  StaticNumberFieldConfig,
+                  "unit" | "precision"
+                >)
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
+                >)
+            >;
           };
         state: { __typename?: "ProjectNodeMetaState" } & Pick<
           ProjectNodeMetaState,
@@ -2331,51 +2321,51 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                   | "isCollection"
                   | "instanciateByDefault"
                   | "orderIndex"
+                  | "validator"
                 > & {
-                    config: { __typename?: "NodeConfig" } & Pick<
-                      NodeConfig,
-                      "valueValidator"
-                    > & {
-                        translations: {
-                          __typename?: "TranslationConfig";
-                        } & Pick<TranslationConfig, "helpTextName" | "label">;
-                        fieldDetails?: Maybe<
-                          | ({ __typename: "BoolFieldConfig" } & Pick<
-                              BoolFieldConfig,
-                              "isCheckbox"
-                            >)
-                          | ({
-                              __typename: "CollapsibleContainerFieldConfig";
-                            } & Pick<
-                              CollapsibleContainerFieldConfig,
-                              "isCollapsible"
-                            >)
-                          | ({ __typename: "DecimalFieldConfig" } & Pick<
-                              DecimalFieldConfig,
-                              "unit" | "precision"
-                            >)
-                          | ({ __typename: "IntFieldConfig" } & Pick<
-                              IntFieldConfig,
-                              "unit"
-                            >)
-                          | ({ __typename: "StaticChoiceFieldConfig" } & {
-                              options: Array<
-                                { __typename?: "StaticChoiceOption" } & Pick<
-                                  StaticChoiceOption,
-                                  "id" | "label" | "helpText"
-                                >
-                              >;
-                            })
-                          | ({ __typename: "StaticNumberFieldConfig" } & Pick<
-                              StaticNumberFieldConfig,
-                              "unit" | "precision"
-                            >)
-                          | ({ __typename: "StringFieldConfig" } & Pick<
-                              StringFieldConfig,
-                              "transforms"
-                            >)
-                        >;
-                      };
+                    translations: { __typename?: "TranslationConfig" } & Pick<
+                      TranslationConfig,
+                      "helpTextName" | "label"
+                    >;
+                    fieldDetails?: Maybe<
+                      | ({ __typename: "BoolFieldConfig" } & Pick<
+                          BoolFieldConfig,
+                          "enabled"
+                        >)
+                      | ({
+                          __typename: "CollapsibleContainerFieldConfig";
+                        } & Pick<
+                          CollapsibleContainerFieldConfig,
+                          "isCollapsible"
+                        >)
+                      | ({ __typename: "DecimalFieldConfig" } & Pick<
+                          DecimalFieldConfig,
+                          "unit" | "precision" | "numeric"
+                        >)
+                      | ({ __typename: "IntFieldConfig" } & Pick<
+                          IntFieldConfig,
+                          "unit" | "integer"
+                        >)
+                      | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                          StaticChoiceFieldConfig,
+                          "selected"
+                        > & {
+                            options: Array<
+                              { __typename?: "StaticChoiceOption" } & Pick<
+                                StaticChoiceOption,
+                                "id" | "label" | "helpText"
+                              >
+                            >;
+                          })
+                      | ({ __typename: "StaticNumberFieldConfig" } & Pick<
+                          StaticNumberFieldConfig,
+                          "unit" | "precision"
+                        >)
+                      | ({ __typename: "StringFieldConfig" } & Pick<
+                          StringFieldConfig,
+                          "transforms" | "text"
+                        >)
+                    >;
                   };
                 state: { __typename?: "ProjectNodeMetaState" } & Pick<
                   ProjectNodeMetaState,
@@ -2926,41 +2916,48 @@ export type FindDatasheetsQueryResult = Apollo.QueryResult<
   FindDatasheetsQueryVariables
 >;
 export const AddProjectDefinitionNodeDocument = gql`
-  mutation addProjectDefinitionNode($node: ProjectDefinitionNodeInput!) {
-    addProjectDefinitionNode(node: $node) {
+  mutation addProjectDefinitionNode(
+    $projectDefinitionId: String!
+    $node: ProjectDefinitionNodeCreationInput!
+  ) {
+    addProjectDefinitionNode(
+      projectDefinitionId: $projectDefinitionId
+      node: $node
+    ) {
       id
       projectDefinitionId
       name
       isCollection
       instanciateByDefault
       orderIndex
-      config {
-        valueValidator
-        fieldDetails {
-          __typename
-          ... on IntFieldConfig {
-            unit
+      fieldDetails {
+        __typename
+        ... on IntFieldConfig {
+          unit
+          integer
+        }
+        ... on DecimalFieldConfig {
+          unit
+          precision
+          numeric
+        }
+        ... on StringFieldConfig {
+          transforms
+          text
+        }
+        ... on BoolFieldConfig {
+          enabled
+        }
+        ... on StaticChoiceFieldConfig {
+          options {
+            id
+            label
+            helpText
           }
-          ... on DecimalFieldConfig {
-            unit
-            precision
-          }
-          ... on StringFieldConfig {
-            transforms
-          }
-          ... on BoolFieldConfig {
-            isCheckbox
-          }
-          ... on StaticChoiceFieldConfig {
-            options {
-              id
-              label
-              helpText
-            }
-          }
-          ... on CollapsibleContainerFieldConfig {
-            isCollapsible
-          }
+          selected
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
         }
       }
     }
@@ -2984,6 +2981,7 @@ export type AddProjectDefinitionNodeMutationFn = Apollo.MutationFunction<
  * @example
  * const [addProjectDefinitionNodeMutation, { data, loading, error }] = useAddProjectDefinitionNodeMutation({
  *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
  *      node: // value for 'node'
  *   },
  * });
@@ -3009,6 +3007,102 @@ export type AddProjectDefinitionNodeMutationOptions =
   Apollo.BaseMutationOptions<
     AddProjectDefinitionNodeMutation,
     AddProjectDefinitionNodeMutationVariables
+  >;
+export const UpdateProjectDefinitionNodeDocument = gql`
+  mutation updateProjectDefinitionNode(
+    $projectDefinitionId: String!
+    $nodeId: String!
+    $node: ProjectDefinitionNodeCreationInput!
+  ) {
+    updateProjectDefinitionNode(
+      projectDefinitionId: $projectDefinitionId
+      nodeId: $nodeId
+      node: $node
+    ) {
+      id
+      projectDefinitionId
+      name
+      isCollection
+      instanciateByDefault
+      orderIndex
+      fieldDetails {
+        __typename
+        ... on IntFieldConfig {
+          unit
+          integer
+        }
+        ... on DecimalFieldConfig {
+          unit
+          precision
+          numeric
+        }
+        ... on StringFieldConfig {
+          transforms
+          text
+        }
+        ... on BoolFieldConfig {
+          enabled
+        }
+        ... on StaticChoiceFieldConfig {
+          options {
+            id
+            label
+            helpText
+          }
+          selected
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
+        }
+      }
+    }
+  }
+`;
+export type UpdateProjectDefinitionNodeMutationFn = Apollo.MutationFunction<
+  UpdateProjectDefinitionNodeMutation,
+  UpdateProjectDefinitionNodeMutationVariables
+>;
+
+/**
+ * __useUpdateProjectDefinitionNodeMutation__
+ *
+ * To run a mutation, you first call `useUpdateProjectDefinitionNodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProjectDefinitionNodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProjectDefinitionNodeMutation, { data, loading, error }] = useUpdateProjectDefinitionNodeMutation({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      nodeId: // value for 'nodeId'
+ *      node: // value for 'node'
+ *   },
+ * });
+ */
+export function useUpdateProjectDefinitionNodeMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateProjectDefinitionNodeMutation,
+    UpdateProjectDefinitionNodeMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateProjectDefinitionNodeMutation,
+    UpdateProjectDefinitionNodeMutationVariables
+  >(UpdateProjectDefinitionNodeDocument, options);
+}
+export type UpdateProjectDefinitionNodeMutationHookResult = ReturnType<
+  typeof useUpdateProjectDefinitionNodeMutation
+>;
+export type UpdateProjectDefinitionNodeMutationResult =
+  Apollo.MutationResult<UpdateProjectDefinitionNodeMutation>;
+export type UpdateProjectDefinitionNodeMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateProjectDefinitionNodeMutation,
+    UpdateProjectDefinitionNodeMutationVariables
   >;
 export const FindProjectDefinitionFormulasDocument = gql`
   query findProjectDefinitionFormulas(
@@ -3103,57 +3197,44 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            valueValidator
-            translations {
-              helpTextName
-              label
-            }
-            fieldDetails {
-              __typename
-              ... on IntFieldConfig {
-                unit
-              }
-              ... on DecimalFieldConfig {
-                unit
-                precision
-              }
-              ... on StringFieldConfig {
-                transforms
-              }
-              ... on BoolFieldConfig {
-                isCheckbox
-              }
-              ... on StaticChoiceFieldConfig {
-                options {
-                  id
-                  label
-                  helpText
-                }
-              }
-              ... on CollapsibleContainerFieldConfig {
-                isCollapsible
-              }
-              ... on StaticNumberFieldConfig {
-                passToTranslation
-                precision
-                unit
-              }
-            }
+          validator
+          translations {
+            helpTextName
+            label
           }
-          defaultValue {
+          fieldDetails {
             __typename
-            ... on StringFieldValue {
-              text
-            }
-            ... on IntFieldValue {
+            ... on IntFieldConfig {
+              unit
               integer
             }
-            ... on DecimalFieldValue {
+            ... on DecimalFieldConfig {
+              unit
+              precision
               numeric
             }
-            ... on BoolFieldValue {
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
               enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
             }
           }
           path
@@ -3230,57 +3311,44 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            valueValidator
-            translations {
-              helpTextName
-              label
-            }
-            fieldDetails {
-              __typename
-              ... on IntFieldConfig {
-                unit
-              }
-              ... on DecimalFieldConfig {
-                unit
-                precision
-              }
-              ... on StringFieldConfig {
-                transforms
-              }
-              ... on BoolFieldConfig {
-                isCheckbox
-              }
-              ... on StaticChoiceFieldConfig {
-                options {
-                  id
-                  label
-                  helpText
-                }
-              }
-              ... on CollapsibleContainerFieldConfig {
-                isCollapsible
-              }
-              ... on StaticNumberFieldConfig {
-                passToTranslation
-                precision
-                unit
-              }
-            }
+          validator
+          translations {
+            helpTextName
+            label
           }
-          defaultValue {
+          fieldDetails {
             __typename
-            ... on StringFieldValue {
-              text
-            }
-            ... on IntFieldValue {
+            ... on IntFieldConfig {
+              unit
               integer
             }
-            ... on DecimalFieldValue {
+            ... on DecimalFieldConfig {
+              unit
+              precision
               numeric
             }
-            ... on BoolFieldValue {
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
               enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
             }
           }
           path
@@ -3293,57 +3361,44 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
             isCollection
             instanciateByDefault
             orderIndex
-            config {
-              valueValidator
-              translations {
-                helpTextName
-                label
-              }
-              fieldDetails {
-                __typename
-                ... on IntFieldConfig {
-                  unit
-                }
-                ... on DecimalFieldConfig {
-                  unit
-                  precision
-                }
-                ... on StringFieldConfig {
-                  transforms
-                }
-                ... on BoolFieldConfig {
-                  isCheckbox
-                }
-                ... on StaticChoiceFieldConfig {
-                  options {
-                    id
-                    label
-                    helpText
-                  }
-                }
-                ... on CollapsibleContainerFieldConfig {
-                  isCollapsible
-                }
-                ... on StaticNumberFieldConfig {
-                  passToTranslation
-                  precision
-                  unit
-                }
-              }
+            validator
+            translations {
+              helpTextName
+              label
             }
-            defaultValue {
+            fieldDetails {
               __typename
-              ... on StringFieldValue {
-                text
-              }
-              ... on IntFieldValue {
+              ... on IntFieldConfig {
+                unit
                 integer
               }
-              ... on DecimalFieldValue {
+              ... on DecimalFieldConfig {
+                unit
+                precision
                 numeric
               }
-              ... on BoolFieldValue {
+              ... on StringFieldConfig {
+                transforms
+                text
+              }
+              ... on BoolFieldConfig {
                 enabled
+              }
+              ... on StaticChoiceFieldConfig {
+                options {
+                  id
+                  label
+                  helpText
+                }
+                selected
+              }
+              ... on CollapsibleContainerFieldConfig {
+                isCollapsible
+              }
+              ... on StaticNumberFieldConfig {
+                passToTranslation
+                precision
+                unit
               }
             }
             path
@@ -3414,50 +3469,52 @@ export const FindProjectDefinitionFormContentDocument = gql`
       instanciateByDefault
       orderIndex
       path
-      config {
-        valueValidator
-        triggers {
-          action
-          targetTypeId
-          params {
-            name
-            value
-          }
+      validator
+      triggers {
+        action
+        targetTypeId
+        params {
+          name
+          value
         }
-        translations {
-          helpTextName
-          label
+      }
+      translations {
+        helpTextName
+        label
+      }
+      fieldDetails {
+        __typename
+        ... on IntFieldConfig {
+          unit
+          integer
         }
-        fieldDetails {
-          __typename
-          ... on IntFieldConfig {
-            unit
+        ... on DecimalFieldConfig {
+          unit
+          precision
+          numeric
+        }
+        ... on StringFieldConfig {
+          transforms
+          text
+        }
+        ... on BoolFieldConfig {
+          enabled
+        }
+        ... on StaticChoiceFieldConfig {
+          options {
+            id
+            label
+            helpText
           }
-          ... on DecimalFieldConfig {
-            unit
-            precision
-          }
-          ... on StringFieldConfig {
-            transforms
-          }
-          ... on BoolFieldConfig {
-            isCheckbox
-          }
-          ... on StaticChoiceFieldConfig {
-            options {
-              id
-              label
-              helpText
-            }
-          }
-          ... on CollapsibleContainerFieldConfig {
-            isCollapsible
-          }
-          ... on StaticNumberFieldConfig {
-            passToTranslation
-            precision
-            unit
-          }
+          selected
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
+        }
+        ... on StaticNumberFieldConfig {
+          passToTranslation
+          precision
+          unit
         }
       }
     }
@@ -3473,8 +3530,65 @@ export const FindProjectDefinitionFormContentDocument = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            valueValidator
+          validator
+          triggers {
+            action
+            targetTypeId
+            params {
+              name
+              value
+            }
+          }
+          translations {
+            helpTextName
+            label
+          }
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+              integer
+            }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+              numeric
+            }
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
+              enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              passToTranslation
+              precision
+              unit
+            }
+          }
+          path
+        }
+        children {
+          definition {
+            id
+            projectDefinitionId
+            name
+            isCollection
+            instanciateByDefault
+            orderIndex
+            validator
             triggers {
               action
               targetTypeId
@@ -3491,16 +3605,19 @@ export const FindProjectDefinitionFormContentDocument = gql`
               __typename
               ... on IntFieldConfig {
                 unit
+                integer
               }
               ... on DecimalFieldConfig {
                 unit
                 precision
+                numeric
               }
               ... on StringFieldConfig {
                 transforms
+                text
               }
               ... on BoolFieldConfig {
-                isCheckbox
+                enabled
               }
               ... on StaticChoiceFieldConfig {
                 options {
@@ -3508,6 +3625,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
                   label
                   helpText
                 }
+                selected
               }
               ... on CollapsibleContainerFieldConfig {
                 isCollapsible
@@ -3516,93 +3634,6 @@ export const FindProjectDefinitionFormContentDocument = gql`
                 passToTranslation
                 precision
                 unit
-              }
-            }
-          }
-          defaultValue {
-            __typename
-            ... on StringFieldValue {
-              text
-            }
-            ... on IntFieldValue {
-              integer
-            }
-            ... on DecimalFieldValue {
-              numeric
-            }
-            ... on BoolFieldValue {
-              enabled
-            }
-          }
-          path
-        }
-        children {
-          definition {
-            id
-            projectDefinitionId
-            name
-            isCollection
-            instanciateByDefault
-            orderIndex
-            config {
-              valueValidator
-              triggers {
-                action
-                targetTypeId
-                params {
-                  name
-                  value
-                }
-              }
-              translations {
-                helpTextName
-                label
-              }
-              fieldDetails {
-                __typename
-                ... on IntFieldConfig {
-                  unit
-                }
-                ... on DecimalFieldConfig {
-                  unit
-                  precision
-                }
-                ... on StringFieldConfig {
-                  transforms
-                }
-                ... on BoolFieldConfig {
-                  isCheckbox
-                }
-                ... on StaticChoiceFieldConfig {
-                  options {
-                    id
-                    label
-                    helpText
-                  }
-                }
-                ... on CollapsibleContainerFieldConfig {
-                  isCollapsible
-                }
-                ... on StaticNumberFieldConfig {
-                  passToTranslation
-                  precision
-                  unit
-                }
-              }
-            }
-            defaultValue {
-              __typename
-              ... on StringFieldValue {
-                text
-              }
-              ... on IntFieldValue {
-                integer
-              }
-              ... on DecimalFieldValue {
-                numeric
-              }
-              ... on BoolFieldValue {
-                enabled
               }
             }
             path
@@ -3677,53 +3708,66 @@ export const FindProjectDefinitionNodeDocument = gql`
       instanciateByDefault
       orderIndex
       path
-      config {
-        valueValidator
-        triggers {
-          action
-          targetTypeId
-          params {
-            name
-            value
-          }
-        }
-        translations {
-          helpTextName
-          label
-        }
-        fieldDetails {
-          __typename
-          ... on IntFieldConfig {
-            unit
-          }
-          ... on DecimalFieldConfig {
-            unit
-            precision
-          }
-          ... on StringFieldConfig {
-            transforms
-          }
-          ... on BoolFieldConfig {
-            isCheckbox
-          }
-          ... on StaticChoiceFieldConfig {
-            options {
-              id
-              label
-              helpText
-            }
-          }
-          ... on CollapsibleContainerFieldConfig {
-            isCollapsible
-          }
-          ... on StaticNumberFieldConfig {
-            passToTranslation
-            precision
-            unit
-          }
+      validator
+      triggers {
+        action
+        targetTypeId
+        params {
+          name
+          value
         }
       }
       translations {
+        helpTextName
+        label
+      }
+      meta {
+        isVisible
+      }
+      fieldDetails {
+        __typename
+        ... on IntFieldConfig {
+          unit
+          integer
+        }
+        ... on DecimalFieldConfig {
+          unit
+          precision
+          numeric
+        }
+        ... on StringFieldConfig {
+          transforms
+          text
+        }
+        ... on BoolFieldConfig {
+          enabled
+        }
+        ... on StaticChoiceFieldConfig {
+          selected
+          options {
+            id
+            label
+            helpText
+            translated {
+              id
+              ressourceId
+              locale
+              scope
+              name
+              value
+            }
+          }
+        }
+        ... on CollapsibleContainerFieldConfig {
+          isCollapsible
+        }
+        ... on StaticNumberFieldConfig {
+          passToTranslation
+          precision
+          unit
+        }
+      }
+      translated {
         id
         ressourceId
         locale
@@ -3861,6 +3905,53 @@ export type FindProjectDefintionsLazyQueryHookResult = ReturnType<
 export type FindProjectDefintionsQueryResult = Apollo.QueryResult<
   FindProjectDefintionsQuery,
   FindProjectDefintionsQueryVariables
+>;
+export const UnitsDocument = gql`
+  query units {
+    units {
+      id
+    }
+  }
+`;
+
+/**
+ * __useUnitsQuery__
+ *
+ * To run a query within a React component, call `useUnitsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUnitsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUnitsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUnitsQuery(
+  baseOptions?: Apollo.QueryHookOptions<UnitsQuery, UnitsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<UnitsQuery, UnitsQueryVariables>(
+    UnitsDocument,
+    options
+  );
+}
+export function useUnitsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<UnitsQuery, UnitsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<UnitsQuery, UnitsQueryVariables>(
+    UnitsDocument,
+    options
+  );
+}
+export type UnitsQueryHookResult = ReturnType<typeof useUnitsQuery>;
+export type UnitsLazyQueryHookResult = ReturnType<typeof useUnitsLazyQuery>;
+export type UnitsQueryResult = Apollo.QueryResult<
+  UnitsQuery,
+  UnitsQueryVariables
 >;
 export const CreateProjectDocument = gql`
   mutation createProject($projectDetails: ProjectDetailsInput!) {
@@ -4279,38 +4370,40 @@ export const FindProjectRootSectionsDocument = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            translations {
-              helpTextName
-              label
+          validator
+          translations {
+            helpTextName
+            label
+          }
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+              integer
             }
-            fieldDetails {
-              __typename
-              ... on IntFieldConfig {
-                unit
-              }
-              ... on DecimalFieldConfig {
-                unit
-                precision
-              }
-              ... on StringFieldConfig {
-                transforms
-              }
-              ... on BoolFieldConfig {
-                isCheckbox
-              }
-              ... on StaticChoiceFieldConfig {
-                options {
-                  id
-                  label
-                  helpText
-                }
-              }
-              ... on CollapsibleContainerFieldConfig {
-                isCollapsible
-              }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+              numeric
             }
-            valueValidator
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
+              enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
           }
         }
         state {
@@ -4411,38 +4504,40 @@ export const FindProjectRootSectionContainersDocument = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            translations {
-              helpTextName
-              label
+          validator
+          translations {
+            helpTextName
+            label
+          }
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+              integer
             }
-            fieldDetails {
-              __typename
-              ... on IntFieldConfig {
-                unit
-              }
-              ... on DecimalFieldConfig {
-                unit
-                precision
-              }
-              ... on StringFieldConfig {
-                transforms
-              }
-              ... on BoolFieldConfig {
-                isCheckbox
-              }
-              ... on StaticChoiceFieldConfig {
-                options {
-                  id
-                  label
-                  helpText
-                }
-              }
-              ... on CollapsibleContainerFieldConfig {
-                isCollapsible
-              }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+              numeric
             }
-            valueValidator
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
+              enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
           }
         }
         state {
@@ -4480,38 +4575,40 @@ export const FindProjectRootSectionContainersDocument = gql`
               isCollection
               instanciateByDefault
               orderIndex
-              config {
-                translations {
-                  helpTextName
-                  label
+              validator
+              translations {
+                helpTextName
+                label
+              }
+              fieldDetails {
+                __typename
+                ... on IntFieldConfig {
+                  unit
+                  integer
                 }
-                fieldDetails {
-                  __typename
-                  ... on IntFieldConfig {
-                    unit
-                  }
-                  ... on DecimalFieldConfig {
-                    unit
-                    precision
-                  }
-                  ... on StringFieldConfig {
-                    transforms
-                  }
-                  ... on BoolFieldConfig {
-                    isCheckbox
-                  }
-                  ... on StaticChoiceFieldConfig {
-                    options {
-                      id
-                      label
-                      helpText
-                    }
-                  }
-                  ... on CollapsibleContainerFieldConfig {
-                    isCollapsible
-                  }
+                ... on DecimalFieldConfig {
+                  unit
+                  precision
+                  numeric
                 }
-                valueValidator
+                ... on StringFieldConfig {
+                  transforms
+                  text
+                }
+                ... on BoolFieldConfig {
+                  enabled
+                }
+                ... on StaticChoiceFieldConfig {
+                  options {
+                    id
+                    label
+                    helpText
+                  }
+                  selected
+                }
+                ... on CollapsibleContainerFieldConfig {
+                  isCollapsible
+                }
               }
             }
             state {
@@ -4611,42 +4708,44 @@ export const FindProjectFormContentDocument = gql`
         isCollection
         instanciateByDefault
         orderIndex
-        config {
-          fieldDetails {
-            __typename
-            ... on IntFieldConfig {
-              unit
-            }
-            ... on DecimalFieldConfig {
-              unit
-              precision
-            }
-            ... on StringFieldConfig {
-              transforms
-            }
-            ... on BoolFieldConfig {
-              isCheckbox
-            }
-            ... on StaticChoiceFieldConfig {
-              options {
-                id
-                label
-                helpText
-              }
-            }
-            ... on CollapsibleContainerFieldConfig {
-              isCollapsible
-            }
-            ... on StaticNumberFieldConfig {
-              unit
-              precision
-            }
+        validator
+        fieldDetails {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
           }
-          valueValidator
-          translations {
-            helpTextName
-            label
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
           }
+          ... on StringFieldConfig {
+            transforms
+            text
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            options {
+              id
+              label
+              helpText
+            }
+            selected
+          }
+          ... on CollapsibleContainerFieldConfig {
+            isCollapsible
+          }
+          ... on StaticNumberFieldConfig {
+            unit
+            precision
+          }
+        }
+        translations {
+          helpTextName
+          label
         }
         path
       }
@@ -4663,42 +4762,44 @@ export const FindProjectFormContentDocument = gql`
           isCollection
           instanciateByDefault
           orderIndex
-          config {
-            translations {
-              helpTextName
-              label
+          validator
+          translations {
+            helpTextName
+            label
+          }
+          fieldDetails {
+            __typename
+            ... on IntFieldConfig {
+              unit
+              integer
             }
-            fieldDetails {
-              __typename
-              ... on IntFieldConfig {
-                unit
-              }
-              ... on DecimalFieldConfig {
-                unit
-                precision
-              }
-              ... on StringFieldConfig {
-                transforms
-              }
-              ... on BoolFieldConfig {
-                isCheckbox
-              }
-              ... on StaticChoiceFieldConfig {
-                options {
-                  id
-                  label
-                  helpText
-                }
-              }
-              ... on CollapsibleContainerFieldConfig {
-                isCollapsible
-              }
-              ... on StaticNumberFieldConfig {
-                unit
-                precision
-              }
+            ... on DecimalFieldConfig {
+              unit
+              precision
+              numeric
             }
-            valueValidator
+            ... on StringFieldConfig {
+              transforms
+              text
+            }
+            ... on BoolFieldConfig {
+              enabled
+            }
+            ... on StaticChoiceFieldConfig {
+              options {
+                id
+                label
+                helpText
+              }
+              selected
+            }
+            ... on CollapsibleContainerFieldConfig {
+              isCollapsible
+            }
+            ... on StaticNumberFieldConfig {
+              unit
+              precision
+            }
           }
         }
         state {
@@ -4736,42 +4837,44 @@ export const FindProjectFormContentDocument = gql`
               isCollection
               instanciateByDefault
               orderIndex
-              config {
-                translations {
-                  helpTextName
-                  label
+              validator
+              translations {
+                helpTextName
+                label
+              }
+              fieldDetails {
+                __typename
+                ... on IntFieldConfig {
+                  unit
+                  integer
                 }
-                fieldDetails {
-                  __typename
-                  ... on IntFieldConfig {
-                    unit
-                  }
-                  ... on DecimalFieldConfig {
-                    unit
-                    precision
-                  }
-                  ... on StringFieldConfig {
-                    transforms
-                  }
-                  ... on BoolFieldConfig {
-                    isCheckbox
-                  }
-                  ... on StaticChoiceFieldConfig {
-                    options {
-                      id
-                      label
-                      helpText
-                    }
-                  }
-                  ... on CollapsibleContainerFieldConfig {
-                    isCollapsible
-                  }
-                  ... on StaticNumberFieldConfig {
-                    unit
-                    precision
-                  }
+                ... on DecimalFieldConfig {
+                  unit
+                  precision
+                  numeric
                 }
-                valueValidator
+                ... on StringFieldConfig {
+                  transforms
+                  text
+                }
+                ... on BoolFieldConfig {
+                  enabled
+                }
+                ... on StaticChoiceFieldConfig {
+                  options {
+                    id
+                    label
+                    helpText
+                  }
+                  selected
+                }
+                ... on CollapsibleContainerFieldConfig {
+                  isCollapsible
+                }
+                ... on StaticNumberFieldConfig {
+                  unit
+                  precision
+                }
               }
             }
             state {

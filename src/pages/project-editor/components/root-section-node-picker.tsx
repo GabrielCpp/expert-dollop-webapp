@@ -170,7 +170,7 @@ export function RootCollectionPicker({
               <Grid item md={10}>
                 <TextField
                   {...params}
-                  label={dbTrans(root.definition.config.translations.label)}
+                  label={dbTrans(root.definition.translations.label)}
                   variant="outlined"
                   error={Boolean(selectionError)}
                   helperText={selectionError && t(selectionError)}

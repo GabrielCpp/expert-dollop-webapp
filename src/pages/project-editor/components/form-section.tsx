@@ -56,7 +56,7 @@ export function FormSection({
   snackbarId,
   refetch,
 }: FormSectionProps): JSX.Element {
-  const collapsibleConfig = node.definition.config
+  const collapsibleConfig = node.definition
     .fieldDetails as CollapsibleContainerFieldConfig;
   const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
   const { success, catchError } = useNotification(snackbarId);
@@ -145,11 +145,9 @@ export function FormSection({
       <CardHeader
         action={action}
         title={
-          <Tooltip
-            title={dbTrans(node.definition.config.translations.helpTextName)}
-          >
+          <Tooltip title={dbTrans(node.definition.translations.helpTextName)}>
             <Typography variant="h5" component="h5" gutterBottom>
-              {dbTrans(node.definition.config.translations.label)}
+              {dbTrans(node.definition.translations.label)}
             </Typography>
           </Tooltip>
         }

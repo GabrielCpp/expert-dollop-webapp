@@ -39,7 +39,7 @@ export const routes: NamedRouteDefinition[] = [
         component: BrowseDatasheet,
         tags: ["main-content"],
         exact: true,
-        requiredPermissions: ["datasheet:read"],
+        requiredPermissions: ["datasheet:get"],
       },
     ],
   },

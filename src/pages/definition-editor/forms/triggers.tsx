@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, Grid, IconButton } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
   Field,
-  FieldArray,
+  FormSection,
   selectField,
+  SelectOption,
   STRING_VALIDATOR,
   useFieldArray,
   useForm,
@@ -14,58 +15,90 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 interface TriggersProps {
   path: string[];
+  name: string;
+  labels: {
+    formTitle: string;
+    blankSlates: {
+      noTriggerYetLabel: string;
+    };
+    action: {
+      name: string;
+      label: string;
+      defaultValue: string;
+      options: SelectOption[];
+    };
+    targetTypeId: {
+      name: string;
+      label: string;
+    };
+  };
 }
 
-export function Triggers({ path }: TriggersProps) {
+export function Triggers({ name, path, labels }: TriggersProps) {
   const { t } = useTranslation();
-  const { formPath } = useForm({ name: "triggers", parentPath: path });
-  const { push, remove, ids } = useFieldArray();
+  const { formPath } = useForm({ name: name, parentPath: path });
+  const { push, remove, elements } = useFieldArray(() => undefined);
 
   return (
     <Card>
       <CardHeader
         action={
-          <IconButton aria-label="settings" onClick={push}>
+          <IconButton aria-label="settings" onClick={() => push()}>
             <AddIcon />
           </IconButton>
         }
-        title="Triggers"
+        title={t(labels.formTitle)}
       />
       <CardContent>
-        <Grid direction="column" container>
-          <FieldArray ids={ids}>
-            {(id, metadata) => (
-              <Grid key={id}>
-                <IconButton onClick={() => remove(id)}>
-                  <DeleteIcon />
-                </IconButton>
-                <Field
-                  id={id}
-                  metadata={metadata}
-                  validator={STRING_VALIDATOR}
-                  defaultValue={"SET_VISIBILITY"}
-                  path={formPath}
-                  name="action"
-                  t={t}
-                  component={selectField}
-                  label="definition_editor.node_form.triggers.action"
-                  options={[
-                    {
-                      id: "CHANGE_NAME",
-                      label:
-                        "definition_editor.node_form.triggers.change_name_option",
-                    },
-                    {
-                      id: "SET_VISIBILITY",
-                      label:
-                        "definition_editor.node_form.triggers.set_visibility_option",
-                    },
-                  ]}
-                />
+        <FormSection spacing={0}>
+          {elements.length === 0 && t(labels.blankSlates.noTriggerYetLabel)}
+          {elements.map((element) => (
+            <Grid
+              key={element.id}
+              container
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="flex-start"
+            >
+              <Grid
+                item
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Grid item>
+                  <IconButton onClick={() => remove(element.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Grid>
               </Grid>
-            )}
-          </FieldArray>
-        </Grid>
+              <Grid
+                item
+                container
+                direction="column"
+                alignItems="stretch"
+                xl={11}
+                md={11}
+                xs={11}
+              >
+                <Grid item>
+                  <Field
+                    id={element.id}
+                    metadata={element.metadata}
+                    validator={STRING_VALIDATOR}
+                    defaultValue={labels.action.defaultValue}
+                    path={formPath}
+                    name={labels.action.name}
+                    label={labels.action.label}
+                    options={labels.action.options}
+                    t={t}
+                    component={selectField}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+          ))}
+        </FormSection>
       </CardContent>
     </Card>
   );

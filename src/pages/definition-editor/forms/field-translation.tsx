@@ -6,37 +6,51 @@ import {
   textField,
   useForm,
 } from "../../../components/table-fields";
-import { Translation, TranslationConfig } from "../../../generated";
-import { nodeFormLabels } from "../form-definitions";
+import { TranslationInput } from "../../../generated";
+
+export interface FieldTranslationLabels {
+  label: {
+    name: string;
+    label: string;
+  };
+  helpText: {
+    name: string;
+    label: string;
+  };
+}
 
 export interface FieldTranslationProps {
   path: string[];
   name: string;
+  locale: string;
   label: unknown;
-  labels: typeof nodeFormLabels["tabs"]["body"];
-  translations: Translation[];
-  translationConfig: TranslationConfig;
+  labels: FieldTranslationLabels;
+  translations: TranslationInput[];
+  labelTranslationKeyName: string;
+  helpTextTranslationKeyName: string;
 }
 
 export function FieldTranslation({
   path,
   name,
+  locale,
   translations,
-  translationConfig,
+  labelTranslationKeyName,
+  helpTextTranslationKeyName,
   labels,
 }: FieldTranslationProps) {
   const { t } = useTranslation();
   const { formPath } = useForm({ name, parentPath: path });
   const tabTranslations = translations.filter(
-    (translation) => translation.locale === name
+    (translation) => translation.locale === locale
   );
-  const helpText =
-    tabTranslations.find(
-      (translation) => translation.name === translationConfig.label
-    )?.value || "";
   const label =
     tabTranslations.find(
-      (translation) => translation.name === translationConfig.helpTextName
+      (translation) => translation.name === labelTranslationKeyName
+    )?.value || "";
+  const helpText =
+    tabTranslations.find(
+      (translation) => translation.name === helpTextTranslationKeyName
     )?.value || "";
 
   return (
@@ -45,9 +59,9 @@ export function FieldTranslation({
         validator={STRING_VALIDATOR}
         path={formPath}
         defaultValue={label}
-        name={labels.label.id}
-        key={labels.label.id}
-        label={t(labels.label.label)}
+        name={labels.label.name}
+        key={labels.label.name}
+        label={labels.label.label}
         component={textField}
         t={t}
       />
@@ -55,9 +69,9 @@ export function FieldTranslation({
         validator={STRING_VALIDATOR}
         path={formPath}
         defaultValue={helpText}
-        name={labels.helpText.id}
-        key={labels.helpText.id}
-        label={t(labels.helpText.label)}
+        name={labels.helpText.name}
+        key={labels.helpText.name}
+        label={labels.helpText.label}
         component={textField}
         t={t}
       />

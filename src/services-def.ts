@@ -1,13 +1,13 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { NamedRoutes } from "./shared/named-routes";
 import { ReduxDatabase } from "./shared/redux-db/database";
-import { JSONSchemaType, Schema, ValidateFunction } from "ajv";
+import { AnySchema, ValidateFunction } from "ajv";
 import { useServices as useServicesGlobal } from "./shared/service-context";
 import { Auth0ContextInterface, useAuth0 } from "@auth0/auth0-react";
 import { User } from "./generated";
 
 export interface AjvFactory {
-  forSchema<T>(schema: Schema | JSONSchemaType<T>): ValidateFunction<T>;
+  forSchema<T>(schema: AnySchema): ValidateFunction<T>;
 }
 
 export interface LoaderNotifier {

@@ -7,16 +7,10 @@ import {
   Tooltip,
 } from "@mui/material";
 import { ReactNode } from "react";
-import { FieldChildren } from "../form-field-record";
-
-export interface TableRadioFieldOption {
-  id: string;
-  label: string;
-  helpText?: string;
-}
+import { FieldChildren, SelectOption } from "../form-field-record";
 
 interface RadiodProps extends FieldChildren {
-  options: TableRadioFieldOption[];
+  options: SelectOption[];
   label?: string;
   title?: string;
   startAdornment?: ReactNode;
@@ -51,10 +45,10 @@ export function radioField({
             value={option.id}
             control={<Radio />}
             label={
-              option.helpText === undefined ? (
+              option.title === undefined ? (
                 <Typography>{t(option.label)}</Typography>
               ) : (
-                <Tooltip title={t(option.helpText)}>
+                <Tooltip title={t(option.title)}>
                   <Typography>{t(option.label)}</Typography>
                 </Tooltip>
               )

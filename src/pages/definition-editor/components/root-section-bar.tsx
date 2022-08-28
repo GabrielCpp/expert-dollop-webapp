@@ -46,7 +46,7 @@ export function RootSectionBar({
         <Tab
           value={def.definition.id}
           key={def.definition.id}
-          label={dbTrans(def.definition.config.translations.label)}
+          label={dbTrans(def.definition.translations.label)}
         />
       ))}
     </Tabs>

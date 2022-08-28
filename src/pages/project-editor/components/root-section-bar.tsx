@@ -4,7 +4,11 @@ import { EventEmitter } from "fbemitter";
 import { noop } from "lodash";
 import React, { useCallback, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  RefectGroup,
+  useLoaderEffect,
+  useSharedRefetch,
+} from "../../../components/loading-frame";
 import {
   scrollTop,
   useNotification,
@@ -118,12 +122,14 @@ interface RootSectionBarProps {
   projectId: string;
   rootSectionId: string;
   snackbarId: string;
+  refectGroup: RefectGroup;
 }
 
 export function RootSectionBar({
   projectId,
   rootSectionId,
   snackbarId,
+  refectGroup,
 }: RootSectionBarProps) {
   const history = useHistory();
   const { dbTrans } = useDbTranslation(rootSectionId);
@@ -192,6 +198,8 @@ export function RootSectionBar({
     },
     onError: catchError,
   });
+
+  useSharedRefetch(refectGroup, refetch);
 
   useLoaderEffect(
     error || addError || cloneError || deleteError,
@@ -283,7 +291,7 @@ function renderRootTab(
         <Tab
           value={def.definition.id}
           key={def.definition.id}
-          label={dbTrans(def.definition.config.translations.label)}
+          label={dbTrans(def.definition.translations.label)}
           iconPosition="end"
           icon={<ArrowDropDownIcon onClick={item?.handleClick} />}
         />
@@ -294,9 +302,7 @@ function renderRootTab(
       <Tab
         value={node.node.id}
         key={node.node.id}
-        label={
-          node.node.label || dbTrans(def.definition.config.translations.label)
-        }
+        label={node.node.label || dbTrans(def.definition.translations.label)}
         iconPosition="end"
         icon={<ArrowDropDownIcon onClick={item?.handleClick} />}
       />
@@ -309,7 +315,7 @@ function renderRootTab(
     <Tab
       value={node.id}
       key={node.id}
-      label={dbTrans(def.definition.config.translations.label)}
+      label={dbTrans(def.definition.translations.label)}
     />
   );
 }

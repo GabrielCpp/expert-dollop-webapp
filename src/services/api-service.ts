@@ -21,7 +21,7 @@ export class HttpApi implements ApiService {
     }
 
     const response = await this.http.get(
-      `/api/translation/${ressourceId}/${language}/json_bundle`
+      `/api/translations/${ressourceId}/${language}/json_bundle`
     );
 
     if (response.ok) {

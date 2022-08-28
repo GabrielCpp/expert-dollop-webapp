@@ -47,17 +47,6 @@ export class DatabaseTable {
     return (this._table.getRecord(primaryKey)?.value || defaultRecord) as T;
   }
 
-  public initRecord<T extends TableRecord>(primaryKey: PrimaryKey, defaultValue: T): T {
-    let record = this.findRecord(primaryKey)
-
-    if(record === undefined) {
-      this._table.silentSet(primaryKey, defaultValue)
-      record = defaultValue
-    }
-
-    return record as T
-  }
-
   public watchRecord(primaryKey: string, events: WatchEvent): Unsubscribe {
     return this._table.watchRecord(primaryKey, events);
   }

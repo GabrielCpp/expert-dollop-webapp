@@ -5,7 +5,6 @@ import {
   Collapse,
   Grid,
   IconButton,
-  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -49,38 +48,19 @@ interface FormProps {
   node: ProjectDefinitionTreeNode;
 }
 
-function getFieldValue(node: ProjectDefinitionNode): string | number | boolean {
-  const { text, numeric, enabled, integer } = {
-    text: null,
-    numeric: null,
-    enabled: null,
-    integer: null,
-    ...node.defaultValue,
-  };
-
-  const value = [text, numeric, enabled, integer].find((x) => x != null);
-
-  if (value === null || value === undefined) {
-    throw new Error("Bad value");
-  }
-
-  return value;
-}
-
 function FormField({ node }: FormProps): JSX.Element {
   const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
   const { routes } = useServices();
+  const validator = node.definition.validator;
 
   if (
-    node.definition.config.fieldDetails === null ||
-    node.definition.config.fieldDetails === undefined
+    node.definition.fieldDetails === null ||
+    node.definition.fieldDetails === undefined
   ) {
     throw new Error("Bad config");
   }
 
-  const { __typename: fieldType } = node.definition.config.fieldDetails;
-  const value = getFieldValue(node.definition);
-  const validator = JSON.parse(node.definition.config.valueValidator);
+  const { __typename: fieldType } = node.definition.fieldDetails;
   const EditButton = (
     <IconButton
       aria-label="edit"
@@ -99,17 +79,45 @@ function FormField({ node }: FormProps): JSX.Element {
     </IconButton>
   );
 
-  if (
-    fieldType === "StringFieldConfig" ||
-    fieldType === "IntFieldConfig" ||
-    fieldType === "DecimalFieldConfig"
-  ) {
+  if (fieldType === "StringFieldConfig") {
     return (
       <Field
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
-        defaultValue={value}
+        defaultValue={node.definition.fieldDetails.text}
+        id={node.definition.id}
+        label={node.definition.name}
+        t={dbTrans}
+        component={textField}
+        startAdornment={EditButton}
+      />
+    );
+  }
+
+  if (fieldType === "IntFieldConfig") {
+    return (
+      <Field
+        validator={validator}
+        path={node.definition.path}
+        name={node.definition.name}
+        defaultValue={node.definition.fieldDetails.integer}
+        id={node.definition.id}
+        label={node.definition.name}
+        t={dbTrans}
+        component={textField}
+        startAdornment={EditButton}
+      />
+    );
+  }
+
+  if (fieldType === "DecimalFieldConfig") {
+    return (
+      <Field
+        validator={validator}
+        path={node.definition.path}
+        name={node.definition.name}
+        defaultValue={node.definition.fieldDetails.numeric}
         id={node.definition.id}
         label={node.definition.name}
         t={dbTrans}
@@ -125,7 +133,7 @@ function FormField({ node }: FormProps): JSX.Element {
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
-        defaultValue={value}
+        defaultValue={node.definition.fieldDetails.enabled}
         id={node.definition.id}
         label={node.definition.name}
         t={dbTrans}
@@ -136,17 +144,16 @@ function FormField({ node }: FormProps): JSX.Element {
   }
 
   if (fieldType === "StaticChoiceFieldConfig") {
-    const choices = node.definition.config
-      .fieldDetails as StaticChoiceFieldConfig;
+    const choices = node.definition.fieldDetails as StaticChoiceFieldConfig;
     return (
       <Field
         options={choices.options}
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
-        defaultValue={value}
+        defaultValue={node.definition.fieldDetails.selected}
         id={node.definition.id}
-        label={node.definition.config.translations.label}
+        label={node.definition.translations.label}
         t={dbTrans}
         component={radioField}
         startAdornment={EditButton}
@@ -167,7 +174,7 @@ function FormField({ node }: FormProps): JSX.Element {
 }
 
 function FormSection({ node }: FormProps): JSX.Element {
-  const valueType = node.definition.config
+  const valueType = node.definition
     .fieldDetails as CollapsibleContainerFieldConfig;
   const [expanded, setExpanded] = useState(!valueType.isCollapsible);
   const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
@@ -198,11 +205,9 @@ function FormSection({ node }: FormProps): JSX.Element {
         }
         action={action}
         title={
-          <Tooltip
-            title={dbTrans(node.definition.config.translations.helpTextName)}
-          >
+          <Tooltip title={dbTrans(node.definition.translations.helpTextName)}>
             <Typography variant="h5" component="h5" gutterBottom>
-              {dbTrans(node.definition.config.translations.label)}
+              {dbTrans(node.definition.translations.label)}
             </Typography>
           </Tooltip>
         }
@@ -259,9 +264,9 @@ export function FormDefinitionEditor({
   return (
     <>
       {formNode && (
-        <Tooltip title={dbTrans(formNode.config.translations.helpTextName)}>
+        <Tooltip title={dbTrans(formNode.translations.helpTextName)}>
           <Typography variant="h4" component="h4" gutterBottom>
-            {dbTrans(formNode.config.translations.label)}
+            {dbTrans(formNode.translations.label)}
           </Typography>
         </Tooltip>
       )}

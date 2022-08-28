@@ -50,14 +50,13 @@
     },
     "node_form": {
       "is_collapsible": "Is collapsible",
-      "triggers": {
-        "action": "Action",
-        "change_name_option": "On Change",
-        "set_visibility_option": "Toggle visibility"
-      },
-
+      "triggers_blank_slate_none_created": "This node does not have any trigger yet.",
+      "triggers_header_title": "Triggers",
+      "triggers_action": "action",
+      "triggers_action_option_change_name_option": "On Change",
+      "triggers_action_option_set_visibility_option": "Toggle visibility",
       "field_name": "Name",
-      "field_is_collection": "Is a collection",
+      "field_is_collection": "May repeat itself",
       "field_instanciate_by_default": "Instanciate by default",
       "field_order": "Order",
       "tab_french": "French",
@@ -73,9 +72,30 @@
       "title_field_add": "Add field",
       "title_field_edit": "Edit field",
       "field_type": "Field's type",
-      "field_is_checkbox": "Present as a checkbox",
+      "field_type_option_string": "String",
+      "field_type_option_integer": "Integer",
+      "field_type_option_decimal": "Decimal",
+      "field_type_option_boolean": "Boolean",
+      "field_type_option_choice": "Static selection",
+      "field_type_option_computation": "Computation",
+      "field_bool_default_value": "Checked by default ",
+      "field_int_default_value": "Default value",
+      "field_numeric_default_value": "Default value",
+      "field_precision": "Number of decimals",
+      "field_string_default_value": "Default value",
+      "field_static_choice": "Static choice",
+      "field_unit": "Unit",
       "field_label": "Label",
-      "field_help_text": "Help text"
+      "field_help_text": "Help text",
+      "static_choice_option_id": "Value of the selection",
+      "static_choice_option_label": "Label translation key",
+      "static_choice_option_help_text": "Help text translation key",
+      "static_choice_default_selection": "Default selection",
+      "static_choice_option_card_header_title": "Possible selections",
+      "static_choice_no_choice_available": "No choice available"
+    },
+    "unit_selection_form": {
+      "option_no_unit_selected": "Field does not habe an unit"
     }
   },
   "project_reports": {

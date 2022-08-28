@@ -14,9 +14,9 @@ import { TableChangeEmitter } from "./table-change-emitter";
 import { Transaction } from "./transaction";
 
 class TableRecordDetails extends RecordChangeEmitter {
-  public value: TableRecord;
+  public value?: TableRecord;
 
-  public constructor(value: TableRecord) {
+  public constructor(value?: TableRecord) {
     super();
     this.value = value;
   }
@@ -52,7 +52,10 @@ export class Table {
     const records: TableRecord[] = [];
 
     for (const record of this.primaryIndex.records.values()) {
-      records.push(record.value);
+      if(record.value) {
+        records.push(record.value);
+      }
+      
     }
 
     return records;
@@ -90,7 +93,7 @@ export class Table {
       const primaryKey = this.primaryIndex.buildKey(record);
       let recordDetails = this.primaryIndex.records.get(primaryKey);
 
-      if (recordDetails === undefined) {
+      if (recordDetails === undefined || recordDetails.value === undefined) {
         recordDetails = new TableRecordDetails(record);
         this.primaryIndex.records.set(primaryKey, recordDetails);
         eventCumulator.addRecordInsertEvent(recordDetails, record);
@@ -111,14 +114,19 @@ export class Table {
 
       if (recordDetails !== undefined) {
         this.primaryIndex.records.delete(primaryKey);
-        eventCumulator.addRecordRemoveEvent(recordDetails, recordDetails.value);
+        if(recordDetails.value) {
+          eventCumulator.addRecordRemoveEvent(recordDetails, recordDetails.value);
+        }
       }
     }
   }
 
   public truncate(eventCumulator: TableTransaction) {
     for (const recordDetails of this.primaryIndex.records.values()) {
-      eventCumulator.addRecordRemoveEvent(recordDetails, recordDetails.value);
+      if(recordDetails.value) {
+
+        eventCumulator.addRecordRemoveEvent(recordDetails, recordDetails.value);
+      }
     }
 
     this.primaryIndex.records.clear();
@@ -132,9 +140,8 @@ export class Table {
         recordDetails = new TableRecordDetails(events.defaultRecord);
         this.primaryIndex.records.set(primaryKey, recordDetails);
       } else {
-        const error = new Error(`No such key ${primaryKey}`);
-        error.name = "primary_key_missing";
-        throw error;
+        recordDetails = new TableRecordDetails();
+        this.primaryIndex.records.set(primaryKey, recordDetails);
       }
     }
 
@@ -143,10 +150,5 @@ export class Table {
 
   public getRecord(primaryKey: PrimaryKey): TableRecordDetails | undefined {
     return this.primaryIndex.records.get(primaryKey);
-  }
-
-  public silentSet(primaryKey: string, record: TableRecord) {
-    const recordDetails = new TableRecordDetails(record);
-    this.primaryIndex.records.set(primaryKey, recordDetails);
   }
 }

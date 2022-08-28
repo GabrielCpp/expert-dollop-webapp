@@ -1,20 +1,30 @@
-import { JSONSchemaType, Schema } from "ajv";
-import { identity } from "lodash";
-import { FieldChildren, Translator } from "../form-field-record";
-import { useField } from "../hooks/use-field";
+import { AnySchema } from "ajv";
+import { identity, isBoolean } from "lodash";
+import {
+  FieldChildren,
+  FormFieldRecord,
+  Translator,
+} from "../form-field-record";
+import {
+  useField,
+  ViewValueFormatter,
+  ValueToFormModel,
+} from "../hooks/use-field";
 
 export interface FieldProps<T extends FieldChildren> {
   id?: string;
   path: string[];
   name: string;
   defaultValue: unknown;
-  validator: Schema | JSONSchemaType<any>;
-  unmount?: boolean;
+  validator: AnySchema;
   metadata?: unknown;
+  componentId?: string;
+  sideEffect?: (r: FormFieldRecord) => void;
   t: Translator;
   component?: (props: T) => JSX.Element;
   children?: (props: T) => JSX.Element;
-  formatter?: (x: string) => string;
+  formatter?: ViewValueFormatter;
+  valueToFormModel?: ValueToFormModel;
 }
 
 export function Field<T extends FieldChildren>({
@@ -22,13 +32,15 @@ export function Field<T extends FieldChildren>({
   name,
   defaultValue,
   validator,
-  id,
   component,
-  children,
   t,
+  id,
+  children,
   metadata,
   formatter = identity,
-  unmount = true,
+  valueToFormModel = selectValueToFormModel(validator),
+  componentId,
+  sideEffect,
   ...others
 }: FieldProps<T> & Omit<T, keyof FieldChildren>) {
   const { onChange, record } = useField({
@@ -36,10 +48,12 @@ export function Field<T extends FieldChildren>({
     name,
     defaultValue,
     validator,
-    unmount,
     id,
     formatter,
+    valueToFormModel,
     metadata,
+    componentId,
+    sideEffect,
   });
 
   if (record === undefined) {
@@ -66,4 +80,22 @@ export function Field<T extends FieldChildren>({
   }
 
   return null;
+}
+
+const toNumber: ValueToFormModel = (c) => Number(c);
+const toBoolean: ValueToFormModel = (c) => Boolean(c);
+const toString: ValueToFormModel = (c) => String(c);
+
+function selectValueToFormModel(validator: AnySchema): ValueToFormModel {
+  const type = isBoolean(validator) ? "string" : validator.type;
+
+  if (type === "number" || type === "integer") {
+    return toNumber;
+  }
+
+  if (type === "boolean") {
+    return toBoolean;
+  }
+
+  return toString;
 }
