@@ -6,7 +6,7 @@ import { useId, useTableRecord } from "../../../shared/redux-db";
 import { createFormFieldRecord, FormFieldRecord, FormFieldTableName } from "../form-field-record";
 
 export type ViewValueFormatter = (x: unknown) => string | boolean | number
-export type ValueToFormModel = (previous: unknown, current: unknown) => unknown
+export type ValueToFormModel = (current: unknown, componentId?: string) => unknown
 
 interface UseFieldHookParams {
   path: string[],
@@ -18,6 +18,8 @@ interface UseFieldHookParams {
   valueToFormModel: ValueToFormModel
   id?: string,
   metadata?: unknown
+  componentId?: string,
+  sideEffect?: (r: FormFieldRecord) => void
 }
 
 
@@ -37,26 +39,31 @@ export function useField({
   id,
   formatter,
   valueToFormModel,
-  metadata
+  metadata,
+  componentId,
+  sideEffect
 }: UseFieldHookParams): UseFieldHook {
   const { ajv, reduxDb } = useServices();
   const fieldId = useId(id);
 
   const makeDefaultRecord = useCallback(() => {
+    const previousRecord = reduxDb
+      .getTable(FormFieldTableName)
+      .findRecord<FormFieldRecord>(fieldId);
+    const value = valueToFormModel(previousRecord?.value || defaultValue)
     const defaultRecord = createFormFieldRecord(
       validator,
       path,
       name,
-      defaultValue,
-      formatter(defaultValue),
+      value,
+      formatter(value),
       fieldId,
       [],
       metadata
     );
-    return reduxDb
-      .getTable(FormFieldTableName)
-      .findRecordOrDefault(fieldId, defaultRecord);
-  }, [reduxDb, formatter, validator, path, name, defaultValue, fieldId, metadata]);
+
+    return previousRecord || defaultRecord;
+  }, [reduxDb, formatter, valueToFormModel, validator, path, name, defaultValue, fieldId, metadata]);
 
   const [record, updateRecord] = useTableRecord<FormFieldRecord>(
     FormFieldTableName,
@@ -65,16 +72,12 @@ export function useField({
   );
 
   useEffect(() => {
-    reduxDb
-      .getTable(FormFieldTableName)
-      .initRecord(fieldId, makeDefaultRecord());
-
       if(unmount) {
         return () => {
           reduxDb.getTable(FormFieldTableName).removeManyByKey([fieldId]);
         };
       }
-  }, [reduxDb, makeDefaultRecord, unmount, fieldId]);
+  }, [reduxDb, unmount, fieldId]);
 
   const onChange = useCallback(
     (e: any) => {
@@ -82,25 +85,31 @@ export function useField({
       let viewValue: unknown
 
       if (!isBoolean(validator) && validator.type === "boolean") {
-        value =  valueToFormModel(record.value, e.target.checked);
+        value =  valueToFormModel(e.target.checked, componentId);
         viewValue = formatter(value)
       }
       else {
-        value =  valueToFormModel(record.value, e.target.value);
+        value =  valueToFormModel(e.target.value, componentId);
         viewValue = formatter(value)
       }
 
       const validate = ajv.forSchema(validator);
       validate(value);
 
-      updateRecord({
+      const newRecord = {
         ...record,
         value,
         viewValue,
         errors: validate.errors || [],
-      });
+      }
+
+      updateRecord(newRecord);
+
+      if(sideEffect) {
+        sideEffect(newRecord)
+      }
     },
-    [ajv, updateRecord, formatter, valueToFormModel, record, validator]
+    [ajv, updateRecord, formatter, valueToFormModel, record, validator, componentId, sideEffect]
   );
 
   return { onChange, record };

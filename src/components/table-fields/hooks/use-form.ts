@@ -1,8 +1,7 @@
-import { isEqual } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useServices } from "../../../services-def";
-import { useId } from "../../../shared/redux-db";
-import { createFormFieldRecord, FormFieldTableName } from "../form-field-record";
+import { useId, useTableRecord } from "../../../shared/redux-db";
+import { createFormFieldRecord, FormFieldRecord, FormFieldTableName } from "../form-field-record";
 
 export interface UseFormParams {
   name?: string;
@@ -45,22 +44,18 @@ export function useForm({name, parentPath, id, metadata }: UseFormParams = {}): 
       .findRecordOrDefault(formId, record);
   }, [reduxDb, parentPath, name, formId, metadata])
 
-  const [record, setRecord] = useState(makeFormRecord)
+  const [record] = useTableRecord<FormFieldRecord>(
+    FormFieldTableName,
+    formId,
+    makeFormRecord
+  );
+
   
   useEffect(() => {
-      const newRecord = makeFormRecord()
-      reduxDb.getTable(FormFieldTableName).initRecord(record.id, record);
-
-      if(!isEqual(makeFormRecord(), record)) {
-        // TODO: Update children
-        setRecord(newRecord)
-      }
-
       return () => {
-        reduxDb.getTable(FormFieldTableName).removeManyByKey([record.id]);
+        reduxDb.getTable(FormFieldTableName).removeManyByKey([formId]);
       };
-
-  }, [reduxDb, makeFormRecord, setRecord, record]);
+  }, [reduxDb, formId]);
 
   return {
     formId,

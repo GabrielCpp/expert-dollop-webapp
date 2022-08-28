@@ -135,6 +135,20 @@ export function getFieldValue(
   return record.value;
 }
 
+export function patchFormField(
+  database: ReduxDatabase,
+  id: string,
+  patchRecord: Partial<FormFieldRecord>
+): void {
+  const record = database.getTable(FormFieldTableName).findRecord(id)
+
+  if(record !== undefined) {
+    database.getTable(FormFieldTableName).upsertMany([{...record, ...patchRecord}])
+  }
+
+
+}
+
 export function deleteFormFieldRecords(
   database: ReduxDatabase,
   path: string[]

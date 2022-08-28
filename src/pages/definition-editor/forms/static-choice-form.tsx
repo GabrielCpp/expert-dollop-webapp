@@ -1,18 +1,15 @@
 import { Card, CardActions, CardContent, CardHeader } from "@mui/material";
 import { head } from "lodash";
 import { useCallback } from "react";
-import { usePrevious } from "react-use";
 import { AdditionRemovalActionGroup } from "../../../components/buttons";
 import { LeftSideButton } from "../../../components/custom-styles";
 import {
-  checkboxField,
   Field,
-  FieldArray,
   FieldArrayElement,
   FieldArrayElementPicker,
   FormSection,
   getFieldValue,
-  OrdinalMetadata,
+  selectField,
   StaticTabs,
   STRING_VALIDATOR,
   textField,
@@ -20,12 +17,10 @@ import {
   useFieldArray,
   useFieldWatch,
   useForm,
-  useFormFieldValueRef,
   useNodePickerState,
 } from "../../../components/table-fields";
 import { StaticChoiceOptionInput } from "../../../generated";
 import { useServices } from "../../../services-def";
-import { useId } from "../../../shared/redux-db";
 import { FieldTranslation } from "./field-translation";
 
 interface StaticChoiceFormLabels {
@@ -98,16 +93,24 @@ export function StaticChoiceForm({
   const { formPath } = useForm({ parentPath, name });
   const getDefaultOptions = useCallback(
     (makeId) => () => {
-      const existingElements = options.map((o) => ({
+      const existingElements = options.map((o, index) => ({
         id: makeId(),
         value: {
           option: o,
           optionValueId: makeId(),
+          isSelected: defaultValue === o.id,
         },
+        metadata: { ordinal: index },
       }));
 
       if (existingElements.length === 0) {
-        return [{ id: makeId(), value: makeDefaultOption(makeId) }];
+        return [
+          {
+            id: makeId(),
+            value: { ...makeDefaultOption(makeId), isSelected: true },
+            metadata: { ordinal: 0 },
+          },
+        ];
       }
 
       return existingElements;
@@ -121,37 +124,52 @@ export function StaticChoiceForm({
   );
 
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(
-    head(elements)?.value.optionValueId
+    head(elements)?.id
   );
 
-  const { value: currentElementValue } = useFieldWatch(currentNodeId);
-  const defaultValueSelectedId = useId();
+  const { value: currentElementValue } = useFieldWatch(
+    elements.find((e) => e.id === currentNodeId)?.value.optionValueId
+  );
 
   return (
     <Card>
       <CardHeader title="Triggers" />
       <CardContent>
-        <FieldArray<StaticOptionArrayValue>
-          elements={elements}
-          current={currentNodeId}
-        >
-          {(
-            element: FieldArrayElement<StaticOptionArrayValue>,
-            metadata: OrdinalMetadata
-          ) => (
-            <SelectOptionForm
+        <FormSection>
+          <Field
+            path={formPath}
+            name={labels.selected.id}
+            key={labels.selected.id}
+            label={labels.selected.label}
+            validator={STRING_VALIDATOR}
+            component={selectField}
+            t={t}
+            defaultValue={defaultValue || head(elements)?.value.option.id}
+            options={elements.map((e) => ({
+              id: e.value.optionValueId,
+              label: getFieldValue(
+                reduxDb,
+                e.value.optionValueId,
+                e.value.option.id
+              ) as string,
+            }))}
+          />
+          {elements.map((element) => (
+            <div
               key={element.id}
-              parentPath={formPath}
-              id={element.id}
-              metadata={metadata}
-              labels={labels.options}
-              option={element.value.option}
-              optionValueId={element.value.optionValueId}
-              defaultValueSelectedId={defaultValueSelectedId}
-              t={t}
-            />
-          )}
-        </FieldArray>
+              style={{
+                display: element.id === currentNodeId ? "block" : "none",
+              }}
+            >
+              <SelectOptionForm
+                parentPath={formPath}
+                element={element}
+                labels={labels.options}
+                t={t}
+              />
+            </div>
+          ))}
+        </FormSection>
       </CardContent>
       <CardActions disableSpacing>
         <FieldArrayElementPicker
@@ -163,7 +181,9 @@ export function StaticChoiceForm({
         />
         <LeftSideButton>
           <AdditionRemovalActionGroup
-            addAction={() => push()}
+            addAction={() => {
+              push({ onAdded: (e) => setCurrentNodeId(e.id) });
+            }}
             deleteAction={
               currentNodeId ? () => remove(currentNodeId) : undefined
             }
@@ -183,7 +203,7 @@ function makeDefaultOption(makeId: () => string): StaticOptionArrayValue {
   return {
     option: {
       helpText: "",
-      id: "",
+      id: "0",
       label: "",
       translated: [],
     },
@@ -192,78 +212,38 @@ function makeDefaultOption(makeId: () => string): StaticOptionArrayValue {
 }
 
 interface SelectOptionFormProps {
-  id: string;
+  element: FieldArrayElement<StaticOptionArrayValue>;
   parentPath: string[];
-  metadata: OrdinalMetadata;
-  option: StaticChoiceOptionInput;
-  optionValueId: string;
-  defaultValueSelectedId: string;
-  t: Translator;
   labels: StaticChoiceFormLabels["options"];
+  t: Translator;
 }
 
 function SelectOptionForm({
-  id,
   parentPath,
-  metadata,
   labels,
-  option,
-  optionValueId,
-  defaultValueSelectedId,
+  element,
   t,
 }: SelectOptionFormProps) {
   const { formPath: path } = useForm({
     parentPath,
-    id,
+    id: element.id,
     name: "options",
-    metadata,
+    metadata: element.metadata,
   });
 
-  const { value: optionIdValue, id: optionId } = useFormFieldValueRef(
-    "0",
-    optionValueId
-  );
-  const { value: selectedDefaultValue, id: selectedId } = useFormFieldValueRef(
-    "0",
-    defaultValueSelectedId
-  );
-  const previousOptionIdValue = usePrevious(optionIdValue);
+  const option = element.value.option;
 
   return (
     <FormSection>
       <Field
-        id={optionId}
+        id={element.value.optionValueId}
         validator={STRING_VALIDATOR}
         path={path}
-        defaultValue={optionIdValue}
+        defaultValue={option.id}
         name={labels.id.id}
         key={labels.id.id}
         label={labels.id.label}
         component={textField}
-        t={t}
-      />
-      <Field
-        id={selectedId}
-        validator={STRING_VALIDATOR}
-        path={parentPath}
-        defaultValue={
-          previousOptionIdValue === selectedDefaultValue &&
-          optionIdValue !== selectedDefaultValue
-            ? optionIdValue
-            : selectedDefaultValue
-        }
-        name={labels.selected.id}
-        key={labels.selected.id}
-        label={labels.selected.label}
-        component={checkboxField}
-        valueToFormModel={(previous, current) => {
-          if (Boolean(current)) {
-            return optionIdValue;
-          }
-
-          return previous;
-        }}
-        formatter={(current) => current === optionIdValue}
         t={t}
       />
       <StaticTabs defaultSelectedField={labels.tabs.fr.id} key={labels.tabs.id}>

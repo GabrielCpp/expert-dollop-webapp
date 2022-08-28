@@ -60,15 +60,19 @@ export function useFieldWatch(
           setValue(after.value);
         },
       };
+
+      setValue(getFieldValue(reduxDb, id))
   
       const unsubscribe = reduxDb
         .getTable(FormFieldTableName)
         .watchRecord(id, watchEvent);
+        
   
       return unsubscribe;
     }
 
   }, [reduxDb, id]);
+
 
   return { value };
 }

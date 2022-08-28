@@ -1,6 +1,10 @@
 import { AnySchema } from "ajv";
 import { identity, isBoolean } from "lodash";
-import { FieldChildren, Translator } from "../form-field-record";
+import {
+  FieldChildren,
+  FormFieldRecord,
+  Translator,
+} from "../form-field-record";
 import {
   useField,
   ViewValueFormatter,
@@ -15,6 +19,8 @@ export interface FieldProps<T extends FieldChildren> {
   validator: AnySchema;
   unmount?: boolean;
   metadata?: unknown;
+  componentId?: string;
+  sideEffect?: (r: FormFieldRecord) => void;
   t: Translator;
   component?: (props: T) => JSX.Element;
   children?: (props: T) => JSX.Element;
@@ -27,14 +33,16 @@ export function Field<T extends FieldChildren>({
   name,
   defaultValue,
   validator,
-  id,
   component,
-  children,
   t,
+  id,
+  children,
   metadata,
   formatter = identity,
   valueToFormModel = selectValueToFormModel(validator),
   unmount = true,
+  componentId,
+  sideEffect,
   ...others
 }: FieldProps<T> & Omit<T, keyof FieldChildren>) {
   const { onChange, record } = useField({
@@ -47,6 +55,8 @@ export function Field<T extends FieldChildren>({
     formatter,
     valueToFormModel,
     metadata,
+    componentId,
+    sideEffect,
   });
 
   if (record === undefined) {
@@ -75,9 +85,9 @@ export function Field<T extends FieldChildren>({
   return null;
 }
 
-const toNumber: ValueToFormModel = (_, c) => Number(c);
-const toBoolean: ValueToFormModel = (_, c) => Boolean(c);
-const toString: ValueToFormModel = (_, c) => String(c);
+const toNumber: ValueToFormModel = (c) => Number(c);
+const toBoolean: ValueToFormModel = (c) => Boolean(c);
+const toString: ValueToFormModel = (c) => String(c);
 
 function selectValueToFormModel(validator: AnySchema): ValueToFormModel {
   const type = isBoolean(validator) ? "string" : validator.type;
