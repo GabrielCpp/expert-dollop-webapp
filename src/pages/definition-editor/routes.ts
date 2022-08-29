@@ -5,6 +5,7 @@ import { EditorLayout } from "./views/project-def-editor";
 import { ProjectDefinitionHome } from "./views/home";
 import { EditFormulas } from "./toolbars/edit-formulas";
 import { FormulasSearch } from "./views/formulas-search";
+import { DefinitionIndexDrawerItemLink } from "./drawers/definition-index-drawer-item-link";
 
 export const PROJECT_DEFINITION_INDEX = "PROJECT_DEFINITION_EDITOR_HOME";
 export const PROJECT_DEFINITION_EDITOR_MAIN = "PROJECT_DEFINITION_EDITOR_MAIN";
@@ -20,11 +21,19 @@ export const PROJECT_DEFINITION_EDITOR_FORMULA_EDIT =
 
 export const routes: NamedRouteDefinition[] = [
   {
+    name: "PROJECT_DEFINITION_ROOT",
+    path: "/",
+    components: [
+      { component: DefinitionIndexDrawerItemLink, tags: ["main-drawer"]  }
+    ],
+    requiredPermissions: ["project_definition:get"]
+  },
+  {
     name: PROJECT_DEFINITION_INDEX,
     path: "/project_definitions",
     components: [
       { component: ProjectDefinitionHome, exact: true, tags: ["main-content"] },
-    ],
+    ]
   },
   {
     name: PROJECT_DEFINITION_EDITOR_MAIN,

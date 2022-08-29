@@ -1,6 +1,3 @@
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import ApartmentIcon from "@mui/icons-material/Apartment";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Autocomplete, Grid, styled, TextField } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
@@ -10,22 +7,15 @@ import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { compact } from "lodash";
-import { Link as RouterLink, Route } from "react-router-dom";
+import { Route } from "react-router-dom";
 import { useObservable } from "react-use";
 import { ActionToolbar } from "../../components/custom-styles";
 import { useLocaleSelector } from "../../components/translation/use-translation-scope";
 import { useServices } from "../../services-def";
 import { MatchingRoutes, useComponentMatcher } from "../../shared/named-routes";
 import { theme } from "../../theme";
-import { DATASHEET_INDEX } from "../datasheet-editor/routes";
-import { PROJECT_DEFINITION_INDEX } from "../definition-editor/routes";
-import { PROJECT_INDEX } from "../project-editor/routes";
 
 const drawerWidth = 220;
 
@@ -102,56 +92,7 @@ const locales: Locale[] = [
 ];
 
 export function Dashboard() {
-  const { routes, auth0 } = useServices();
   const [locale, setLocale] = useLocaleSelector();
-  const currentUser = useObservable(
-    auth0.observeCurrentUser(),
-    auth0.currentUser
-  );
-
-  const drawerListItems = compact([
-    routes.isAccessible(PROJECT_DEFINITION_INDEX, currentUser.permissions) && (
-      <ListItem
-        button
-        component={RouterLink}
-        to={routes.render(PROJECT_DEFINITION_INDEX)}
-        key={PROJECT_DEFINITION_INDEX}
-      >
-        <ListItemIcon>
-          <AccountTreeIcon />
-        </ListItemIcon>
-        <ListItemText primary={"Project Templates"} />
-      </ListItem>
-    ),
-
-    routes.isAccessible(PROJECT_INDEX, currentUser.permissions) && (
-      <ListItem
-        button
-        component={RouterLink}
-        to={routes.render(PROJECT_INDEX)}
-        key={PROJECT_INDEX}
-      >
-        <ListItemIcon>
-          <ApartmentIcon />
-        </ListItemIcon>
-        <ListItemText primary={"Projects"} />
-      </ListItem>
-    ),
-
-    routes.isAccessible(DATASHEET_INDEX, currentUser.permissions) && (
-      <ListItem
-        button
-        component={RouterLink}
-        to={routes.render(DATASHEET_INDEX)}
-        key={DATASHEET_INDEX}
-      >
-        <ListItemIcon>
-          <ListAltIcon />
-        </ListItemIcon>
-        <ListItemText primary={"Datasheet"} />
-      </ListItem>
-    ),
-  ]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -226,23 +167,7 @@ export function Dashboard() {
         </FlexToolbar>
       </AppBarWithDrawer>
 
-      {drawerListItems.length > 0 && (
-        <Drawer
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              width: drawerWidth,
-              boxSizing: "border-box",
-            },
-          }}
-          variant="permanent"
-          anchor="left"
-        >
-          <ToolbarSpacer />
-          <List>{drawerListItems}</List>
-        </Drawer>
-      )}
+      <RoutedDrawer />
 
       <Box
         sx={{
@@ -271,8 +196,39 @@ export function Dashboard() {
   );
 }
 
+function RoutedDrawer() {
+  const { auth0 } = useServices();
+  const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
+  const { hasMatch, matchingComponents } = useComponentMatcher(
+    "main-drawer",
+    user.permissions
+  );
+
+  if (!hasMatch) {
+    return null;
+  }
+
+  return (
+    <Drawer
+      sx={{
+        width: drawerWidth,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: drawerWidth,
+          boxSizing: "border-box",
+        },
+      }}
+      variant="permanent"
+      anchor="left"
+    >
+      <ToolbarSpacer />
+      <List>{matchingComponents.map((m) => m.component({}))}</List>
+    </Drawer>
+  );
+}
+
 function RouterToolbar() {
-  const { auth0, loader } = useServices();
+  const { auth0 } = useServices();
   const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
   const { hasMatch, matchingComponents } = useComponentMatcher(
     "main-toolbar",

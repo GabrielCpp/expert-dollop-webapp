@@ -1,4 +1,5 @@
 import { NamedRouteDefinition } from "../../shared/named-routes";
+import { ProjectIndexDrawerItemLink } from "./drawers/project-index-drawer-item-link";
 import { HomeToolbar } from "./toolbars/home-toolbar";
 import { AddProjectView } from "./views/add-project-view";
 import { ProjectSearchHome } from "./views/home";
@@ -11,8 +12,19 @@ export const PROJECT_HOME_TOOLBAR = "PROJECT_HOME_TOOLBAR";
 export const ADD_PROJECT_VIEW = "ADD_PROJECT_VIEW";
 export const PROJECT_EDITOR_PICK_ROOT_COLLECTION =
   "PROJECT_EDITOR_PICK_ROOT_COLLECTION";
-
+  
 export const routes: NamedRouteDefinition[] = [
+  {
+    name: "PROJECT_ROOT",
+    path: "/",
+    components: [
+      {
+        component: ProjectIndexDrawerItemLink,
+        tags: ["main-drawer"],
+      },
+    ],
+    requiredPermissions: ["project:get"]
+  },
   {
     name: PROJECT_INDEX,
     path: "/projects",

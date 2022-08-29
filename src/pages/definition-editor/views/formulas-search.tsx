@@ -72,7 +72,7 @@ export function FormulasSearch() {
           projectDefinitionId,
         }
       ),
-    [apollo, onError]
+    [apollo, onError, projectDefinitionId]
   );
 
   return <PaginatedDataGrid fetch={fetch} headers={headers} />;
