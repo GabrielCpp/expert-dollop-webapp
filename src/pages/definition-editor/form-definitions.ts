@@ -69,6 +69,25 @@ export const nodeFormLabels = {
       locale: 'en-US'
     },
   },
+  sectionConfig: {
+    name: "fieldDetails",
+    sectionConfigTypes: {
+      name: "fieldConfigType",
+      label: "definition_editor.node_form.section_config_label",
+      options: [
+        {
+          id: FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG,
+          label: "definition_editor.node_form.section_config_types_collapsible_container_field_config",
+        },
+      ],
+      defaultOption: FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG,
+    },
+    collapsibleContainer: {
+      name: "collapsibleContainer",
+      label: "definition_editor.node_form.section_config_field_collapsible_container",
+      defaultValue: false
+    }
+  },
   fieldConfig: {
     name: "fieldDetails",
     fieldConfigType: {
@@ -129,6 +148,9 @@ export const nodeFormLabels = {
         label: "definition_editor.node_form.static_choice_option_card_header_title"
       },
       options: {
+        formElement: {
+          name: "options"
+        },
         id: {
           name: "id",
           label: "definition_editor.node_form.static_choice_option_id"

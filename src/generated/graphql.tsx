@@ -791,7 +791,6 @@ export type StaticChoiceOption = {
   helpText: FieldWrapper<Scalars["String"]>;
   id: FieldWrapper<Scalars["String"]>;
   label: FieldWrapper<Scalars["String"]>;
-  translated: Array<FieldWrapper<Translation>>;
 };
 
 export type StaticChoiceOptionInput = {
@@ -1682,19 +1681,7 @@ export type FindProjectDefinitionNodeQuery = { __typename?: "Query" } & {
                 { __typename?: "StaticChoiceOption" } & Pick<
                   StaticChoiceOption,
                   "id" | "label" | "helpText"
-                > & {
-                    translated: Array<
-                      { __typename?: "Translation" } & Pick<
-                        Translation,
-                        | "id"
-                        | "ressourceId"
-                        | "locale"
-                        | "scope"
-                        | "name"
-                        | "value"
-                      >
-                    >;
-                  }
+                >
               >;
             })
         | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -3748,14 +3735,6 @@ export const FindProjectDefinitionNodeDocument = gql`
             id
             label
             helpText
-            translated {
-              id
-              ressourceId
-              locale
-              scope
-              name
-              value
-            }
           }
         }
         ... on CollapsibleContainerFieldConfig {

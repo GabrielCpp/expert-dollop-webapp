@@ -92,7 +92,10 @@
       "static_choice_option_help_text": "Help text translation key",
       "static_choice_default_selection": "Default selection",
       "static_choice_option_card_header_title": "Possible selections",
-      "static_choice_no_choice_available": "No choice available"
+      "static_choice_no_choice_available": "No choice available",
+      "section_config_types_collapsible_container_field_config": "Collapsible section",
+      "section_config_label": "Section configuration",
+      "section_config_field_collapsible_container": "Section is collapsible"
     },
     "unit_selection_form": {
       "option_no_unit_selected": "Field does not habe an unit"

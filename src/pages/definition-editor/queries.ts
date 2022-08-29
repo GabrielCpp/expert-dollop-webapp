@@ -441,14 +441,6 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
             id
             label
             helpText
-            translated {
-              id
-              ressourceId
-              locale
-              scope
-              name
-              value
-            }
           }
         }
         ... on CollapsibleContainerFieldConfig {

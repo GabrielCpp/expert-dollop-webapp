@@ -1,3 +1,6 @@
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   Card,
   CardActions,
@@ -8,41 +11,37 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Link as RouterLink } from "react-router-dom";
 
-import {
-  CollapsibleContainerFieldConfig,
-  ProjectDefinitionNode,
-  ProjectDefinitionTreeNode,
-  StaticChoiceFieldConfig,
-  useFindProjectDefinitionFormContentQuery,
-} from "../../../generated";
-import { useServices } from "../../../services-def";
-import { useLoaderEffect } from "../../../components/loading-frame";
-import {
-  Field,
-  radioField,
-  textField,
-  checkboxField,
-} from "../../../components/table-fields";
-import { useDbTranslation } from "../hooks/db-trans";
-import { EditButton } from "./edit-button";
-import {
-  buildAddNodeParams,
-  buildEditNodeParams,
-  PROJECT_DEFINITION_EDITOR_NODE_ADD,
-  PROJECT_DEFINITION_EDITOR_NODE_EDIT,
-} from "../routes";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   ExpandIconButton,
   LeftSideButton,
   UnpadCardContent,
 } from "../../../components/custom-styles";
+import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  checkboxField,
+  Field,
+  radioField,
+  textField,
+} from "../../../components/table-fields";
+import {
+  CollapsibleContainerFieldConfig,
+  ProjectDefinitionTreeNode,
+  StaticChoiceFieldConfig,
+  useFindProjectDefinitionFormContentQuery,
+} from "../../../generated";
+import { useServices } from "../../../services-def";
+import { useDbTranslation } from "../hooks/db-trans";
+import {
+  buildAddNodeParams,
+  buildEditNodeParams,
+  PROJECT_DEFINITION_EDITOR_NODE_ADD,
+  PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+} from "../routes";
+import { EditButton } from "./edit-button";
 
 interface FormProps {
   node: ProjectDefinitionTreeNode;
@@ -51,7 +50,7 @@ interface FormProps {
 function FormField({ node }: FormProps): JSX.Element {
   const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
   const { routes } = useServices();
-  const validator = node.definition.validator;
+  const validator = JSON.parse(node.definition.validator);
 
   if (
     node.definition.fieldDetails === null ||

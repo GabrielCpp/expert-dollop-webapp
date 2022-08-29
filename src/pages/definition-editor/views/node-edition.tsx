@@ -1,10 +1,19 @@
 import { useParams } from "react-router-dom";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import {
+  BoolFieldConfig,
+  CollapsibleContainerFieldConfig,
+  DecimalFieldConfig,
   FieldDetailsType,
   FieldDetailsUnion,
   FieldDetailsUnionInput,
+  IntFieldConfig,
   ProjectDefinitionNodeCreationInput,
+  StaticChoiceFieldConfig,
+  StaticChoiceFieldConfigInput,
+  StaticNumberFieldConfig,
+  StringFieldConfig,
+  Translation,
   useFindProjectDefinitionNodeQuery,
   useUpdateProjectDefinitionNodeMutation,
 } from "../../../generated";
@@ -54,7 +63,10 @@ export function EditContainerView() {
 
   const x = data.findProjectDefinitionNode;
   const node: ProjectDefinitionNodeCreationInput = {
-    fieldDetails: expendFieldDetails(x.fieldDetails as FieldDetailsUnion),
+    fieldDetails: expendFieldDetails(
+      x.fieldDetails as FieldDetailsUnion,
+      x.translated
+    ),
     instanciateByDefault: x.instanciateByDefault,
     isCollection: x.isCollection,
     meta: x.meta,
@@ -69,45 +81,82 @@ export function EditContainerView() {
   return <NodeForm level={level} role="edit" node={node} onSubmit={onSubmit} />;
 }
 
+type BuildFieldDetailsUnionInput = (
+  value: FieldDetailsUnion,
+  allTranslations: Translation[]
+) => FieldDetailsUnionInput;
 const conversionMappings = new Map<
   FieldDetailsUnion["__typename"],
-  (value: FieldDetailsUnion) => FieldDetailsUnionInput
+  BuildFieldDetailsUnionInput
 >([
   [
     "BoolFieldConfig",
-    (x) => ({ ...x, kind: FieldDetailsType.BOOL_FIELD_CONFIG }),
+    (x) => ({
+      bool: x as BoolFieldConfig,
+      kind: FieldDetailsType.BOOL_FIELD_CONFIG,
+    }),
   ],
   [
     "CollapsibleContainerFieldConfig",
     (x) => ({
-      ...x,
+      collapsibleContainer: x as CollapsibleContainerFieldConfig,
       kind: FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG,
     }),
   ],
   [
     "DecimalFieldConfig",
-    (x) => ({ ...x, kind: FieldDetailsType.DECIMAL_FIELD_CONFIG }),
+    (x) => ({
+      decimal: x as DecimalFieldConfig,
+      kind: FieldDetailsType.DECIMAL_FIELD_CONFIG,
+    }),
   ],
   [
     "IntFieldConfig",
-    (x) => ({ ...x, kind: FieldDetailsType.INT_FIELD_CONFIG }),
+    (x) => ({
+      int: x as IntFieldConfig,
+      kind: FieldDetailsType.INT_FIELD_CONFIG,
+    }),
   ],
   [
     "StaticChoiceFieldConfig",
-    (x) => ({ ...x, kind: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG }),
+    (
+      x,
+      allTranslations: Translation[]
+    ): {
+      staticChoice: StaticChoiceFieldConfigInput;
+      kind: FieldDetailsType;
+    } => ({
+      staticChoice: {
+        ...(x as StaticChoiceFieldConfig),
+        options: (x as StaticChoiceFieldConfig).options.map((option) => ({
+          ...option,
+          translated: allTranslations.filter((t) =>
+            [option.label, option.helpText].includes(t.name)
+          ),
+        })),
+      },
+      kind: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
+    }),
   ],
   [
     "StaticNumberFieldConfig",
-    (x) => ({ ...x, kind: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG }),
+    (x) => ({
+      staticNumberFieldConfig: x as StaticNumberFieldConfig,
+      kind: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG,
+    }),
   ],
   [
     "StringFieldConfig",
-    (x) => ({ ...x, kind: FieldDetailsType.STRING_FIELD_CONFIG }),
+    (x) => ({
+      string: x as StringFieldConfig,
+      kind: FieldDetailsType.STRING_FIELD_CONFIG,
+    }),
   ],
 ]);
 
 function expendFieldDetails(
-  x?: FieldDetailsUnion
+  x: FieldDetailsUnion | undefined,
+  allTranslations: Translation[]
 ): FieldDetailsUnionInput | undefined {
   const build = conversionMappings.get(x?.__typename);
 
@@ -115,5 +164,5 @@ function expendFieldDetails(
     return undefined;
   }
 
-  return build(x);
+  return build(x, allTranslations);
 }

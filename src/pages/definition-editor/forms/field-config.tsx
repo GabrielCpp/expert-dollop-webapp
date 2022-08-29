@@ -16,7 +16,7 @@ import {
   USER_STRING_VALIDATOR,
 } from "../../../components/table-fields/validators";
 import { FieldDetailsType, FieldDetailsUnionInput } from "../../../generated";
-import { FormRole, nodeFormLabels, NodeLevel } from "../form-definitions";
+import { nodeFormLabels } from "../form-definitions";
 import { StaticChoiceForm } from "./static-choice-form";
 import { UnitSelector } from "./unit-selector-form";
 
@@ -24,8 +24,6 @@ interface ConfigFormProps {
   name: string;
   path: string[];
   fieldDetails: FieldDetailsUnionInput;
-  level: NodeLevel;
-  role: FormRole;
   labels: typeof nodeFormLabels["fieldConfig"];
 }
 

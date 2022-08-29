@@ -1,6 +1,6 @@
 import { Card, CardActions, CardContent, CardHeader } from "@mui/material";
 import { head } from "lodash";
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { AdditionRemovalActionGroup } from "../../../components/buttons";
 import { LeftSideButton } from "../../../components/custom-styles";
 import {
@@ -9,6 +9,7 @@ import {
   FieldArrayElementPicker,
   FormSection,
   getFieldValue,
+  patchFormField,
   selectField,
   StaticTabs,
   STRING_VALIDATOR,
@@ -17,11 +18,11 @@ import {
   useFieldArray,
   useFieldWatch,
   useForm,
-  useFormFieldValueRef,
   useNodePickerState,
 } from "../../../components/table-fields";
 import { StaticChoiceOptionInput } from "../../../generated";
 import { useServices } from "../../../services-def";
+import { useId } from "../../../shared/redux-db";
 import { FieldTranslation } from "./field-translation";
 
 interface StaticChoiceFormLabels {
@@ -34,6 +35,9 @@ interface StaticChoiceFormLabels {
     label: string;
   };
   options: {
+    formElement: {
+      name: string;
+    };
     id: {
       name: string;
       label: string;
@@ -104,13 +108,6 @@ export function StaticChoiceForm({
     elements.find((e) => e.id === currentNodeId)?.value.optionValueId
   );
 
-  const { value: selectedValue, id: selectedId } = useFormFieldValueRef(
-    elements.find(
-      (e) =>
-        e.value.option.id === (defaultValue || head(elements)?.value.option.id)
-    )?.value.optionValueId
-  );
-
   const removeCurrentElement = useCallback(() => {
     if (currentNodeId) {
       remove(currentNodeId);
@@ -123,6 +120,56 @@ export function StaticChoiceForm({
     push({ onAdded: (e) => setCurrentNodeId(e.id) });
   }, [push, setCurrentNodeId]);
 
+  const getLabel = useCallback(
+    (e) =>
+      getFieldValue(
+        reduxDb,
+        e.value.optionValueId,
+        e.value.option.id
+      ) as string,
+    [reduxDb]
+  );
+
+  const selectedId = useId();
+
+  const modelView = useRef(
+    (() => {
+      let optionValueId: unknown;
+
+      const toModel = (current: unknown) => {
+        const e = elements.find((e) => e.value.optionValueId === current);
+
+        if (e === undefined) {
+          return defaultValue || head(elements)?.value.option.id;
+        }
+        console.log(current);
+        optionValueId = current;
+        return currentElementValue || getLabel(e);
+      };
+
+      const toView = () => optionValueId as string;
+
+      const update = () => {
+        if (optionValueId) {
+          patchFormField(reduxDb, selectedId, {
+            value: toModel(optionValueId),
+            viewValue: optionValueId,
+          });
+        }
+      };
+
+      return {
+        toModel,
+        toView,
+        update,
+      };
+    })()
+  );
+
+  useLayoutEffect(() => {
+    modelView.current.update();
+  }, [getLabel, elements, defaultValue, currentElementValue]);
+
   return (
     <FormSection>
       <Field
@@ -134,41 +181,53 @@ export function StaticChoiceForm({
         validator={STRING_VALIDATOR}
         component={selectField}
         t={t}
-        defaultValue={selectedValue}
+        defaultValue={
+          elements.find(
+            (e) =>
+              e.value.option.id ===
+              (defaultValue || head(elements)?.value.option.id)
+          )?.value.optionValueId
+        }
         fallbackSelection={{ label: labels.selected.fallbackLabel }}
+        valueToFormModel={modelView.current.toModel}
+        formatter={modelView.current.toView}
         options={elements.map((e) => ({
           id: e.value.optionValueId,
-          label: getFieldValue(
-            reduxDb,
-            e.value.optionValueId,
-            e.value.option.id
-          ) as string,
+          label: getLabel(e),
         }))}
       />
       <Card>
         <CardHeader title={t(labels.optionCardHeader.label)} />
         <CardContent>
           <FormSection>
-            {elements
-              .filter((e) => e.id === currentNodeId)
-              .map((element) => (
+            {elements.map((element) => (
+              <div
+                key={element.id}
+                style={{
+                  display: element.id === currentNodeId ? "block" : "none",
+                }}
+              >
                 <SelectOptionForm
                   key={element.id}
                   parentPath={formPath}
                   element={element}
                   labels={labels.options}
+                  active={element.id === currentNodeId}
                   t={t}
                 />
-              ))}
+              </div>
+            ))}
           </FormSection>
         </CardContent>
         <CardActions disableSpacing>
           <FieldArrayElementPicker
             elements={elements}
             current={currentNodeId}
-            currentLabel={currentElementValue as string}
+            currentLabel={getLabel(
+              elements.find((e) => e.id === currentNodeId)
+            )}
             onChange={setCurrentNodeId}
-            getLabel={(e) => getFieldValue(reduxDb, e.id) as string}
+            getLabel={getLabel}
           />
           <LeftSideButton>
             <AdditionRemovalActionGroup
@@ -229,6 +288,7 @@ interface SelectOptionFormProps {
   element: FieldArrayElement<StaticOptionArrayValue>;
   parentPath: string[];
   labels: StaticChoiceFormLabels["options"];
+  active: boolean;
   t: Translator;
 }
 
@@ -236,12 +296,13 @@ function SelectOptionForm({
   parentPath,
   labels,
   element,
+  active,
   t,
 }: SelectOptionFormProps) {
   const { formPath: path } = useForm({
     parentPath,
     id: element.id,
-    name: "options",
+    name: labels.formElement.name,
     metadata: element.metadata,
   });
 
@@ -263,6 +324,7 @@ function SelectOptionForm({
       <StaticTabs
         defaultSelectedField={labels.tabs.fr.name}
         key={labels.tabs.name}
+        active={active}
       >
         <FieldTranslation
           path={path}

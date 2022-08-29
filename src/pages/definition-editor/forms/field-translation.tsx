@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import {
+  ANY_STRING_VALIDATOR,
   Field,
   FormSection,
-  STRING_VALIDATOR,
   textField,
   useForm,
 } from "../../../components/table-fields";
@@ -56,7 +56,7 @@ export function FieldTranslation({
   return (
     <FormSection>
       <Field
-        validator={STRING_VALIDATOR}
+        validator={ANY_STRING_VALIDATOR}
         path={formPath}
         defaultValue={label}
         name={labels.label.name}
@@ -66,7 +66,7 @@ export function FieldTranslation({
         t={t}
       />
       <Field
-        validator={STRING_VALIDATOR}
+        validator={ANY_STRING_VALIDATOR}
         path={formPath}
         defaultValue={helpText}
         name={labels.helpText.name}

@@ -5,8 +5,8 @@ import { useServices } from "../../../services-def";
 import { useId, useTableRecord } from "../../../shared/redux-db";
 import { createFormFieldRecord, FormFieldRecord, FormFieldTableName } from "../form-field-record";
 
-export type ViewValueFormatter = (x: unknown) => string | boolean | number
-export type ValueToFormModel = (current: unknown, componentId?: string) => unknown
+export type ViewValueFormatter = (x: unknown, record: FormFieldRecord ) => string | boolean | number
+export type ValueToFormModel = (current: unknown, componentId: string | undefined, record: FormFieldRecord) => unknown
 
 interface UseFieldHookParams {
   path: string[],
@@ -45,23 +45,29 @@ export function useField({
   const fieldId = useId(id);
 
   const makeDefaultRecord = useCallback(() => {
-    const previousRecord = reduxDb
+    const existingRecord = reduxDb
       .getTable(FormFieldTableName)
       .findRecord<FormFieldRecord>(fieldId);
-    const value = valueToFormModel(previousRecord?.value || defaultValue)
-    const defaultRecord = createFormFieldRecord(
-      validator,
-      path,
-      name,
-      value,
-      formatter(value),
-      fieldId,
-      [],
-      metadata
-    );
 
-    return previousRecord || defaultRecord;
-  }, [reduxDb, formatter, valueToFormModel, validator, path, name, defaultValue, fieldId, metadata]);
+    if(existingRecord === undefined) {
+      const defaultRecord = createFormFieldRecord(
+        validator,
+        path,
+        name,
+        undefined,
+        "",
+        fieldId,
+        [],
+        metadata
+      );
+
+      defaultRecord.value = valueToFormModel(defaultValue, componentId, defaultRecord)
+      defaultRecord.viewValue = formatter(defaultRecord.value , defaultRecord)
+      return defaultRecord
+    }
+
+    return existingRecord;
+  }, [reduxDb, formatter, valueToFormModel, validator, path, name, defaultValue, fieldId, metadata, componentId]);
 
   const [record, updateRecord] = useTableRecord<FormFieldRecord>(
     FormFieldTableName,
@@ -75,12 +81,12 @@ export function useField({
       let viewValue: unknown
 
       if (!isBoolean(validator) && validator.type === "boolean") {
-        value =  valueToFormModel(e.target.checked, componentId);
-        viewValue = formatter(value)
+        value =  valueToFormModel(e.target.checked, componentId, record);
+        viewValue = formatter(value,record)
       }
       else {
-        value =  valueToFormModel(e.target.value, componentId);
-        viewValue = formatter(value)
+        value =  valueToFormModel(e.target.value, componentId, record);
+        viewValue = formatter(value, record)
       }
 
       const validate = ajv.forSchema(validator);

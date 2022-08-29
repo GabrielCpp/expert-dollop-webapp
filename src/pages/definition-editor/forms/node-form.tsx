@@ -15,6 +15,7 @@ import { FormRole, nodeFormLabels, NodeLevel } from "../form-definitions";
 import { NAME_VALIDATOR } from "../validators";
 import { FieldConfig } from "./field-config";
 import { FieldTranslation } from "./field-translation";
+import { SectionConfig } from "./section-config";
 import { Triggers } from "./triggers";
 
 interface ContainerFormProps {
@@ -114,15 +115,24 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
           </StaticTabs>
         </CardContent>
       </Card>
-      {node.fieldDetails !== undefined && node.fieldDetails !== null && (
-        <FieldConfig
-          path={formPath}
-          key={labels.fieldConfig.name}
-          name={labels.fieldConfig.name}
-          level={level}
-          role={role}
-          labels={labels.fieldConfig}
-          fieldDetails={node.fieldDetails}
+      {node.fieldDetails !== undefined &&
+        node.fieldDetails !== null &&
+        level === "field" && (
+          <FieldConfig
+            path={formPath}
+            key={labels.fieldConfig.name}
+            name={labels.fieldConfig.name}
+            labels={labels.fieldConfig}
+            fieldDetails={node.fieldDetails}
+          />
+        )}
+      {level === "section" && (
+        <SectionConfig
+          parentPath={formPath}
+          key={labels.sectionConfig.name}
+          name={labels.sectionConfig.name}
+          labels={labels.sectionConfig}
+          fieldDetails={node.fieldDetails || undefined}
         />
       )}
       <Triggers

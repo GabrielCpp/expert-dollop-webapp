@@ -51,7 +51,11 @@ export function Triggers({ name, path, labels }: TriggersProps) {
       />
       <CardContent>
         <FormSection spacing={0}>
-          {elements.length === 0 && t(labels.blankSlates.noTriggerYetLabel)}
+          {elements.length === 0 && (
+            <span key={labels.blankSlates.noTriggerYetLabel}>
+              {t(labels.blankSlates.noTriggerYetLabel)}
+            </span>
+          )}
           {elements.map((element) => (
             <Grid
               key={element.id}
