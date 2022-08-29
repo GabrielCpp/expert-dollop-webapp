@@ -19,6 +19,7 @@ export const FIND_PROJECT_DEFINITION_FORMULAS = gql`
         totalCount
       }
       edges {
+        cursor
         node {
           id
           name

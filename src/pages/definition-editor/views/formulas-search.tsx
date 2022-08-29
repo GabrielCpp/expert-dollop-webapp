@@ -54,15 +54,23 @@ function FormulaLink({ data }: { data: Result }) {
   );
 }
 
+interface FormulasSearchParams {
+  projectDefinitionId: string;
+}
+
 export function FormulasSearch() {
   const { apollo } = useServices();
   const { onError } = useLoadingNotifier();
+  const { projectDefinitionId } = useParams<FormulasSearchParams>();
   const fetch = useMemo(
     () =>
       apolloClientFetch<Result>(
         apollo,
         FindProjectDefinitionFormulasDocument,
-        onError
+        onError,
+        {
+          projectDefinitionId,
+        }
       ),
     [apollo, onError]
   );

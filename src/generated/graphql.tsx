@@ -1190,12 +1190,12 @@ export type FindProjectDefinitionFormulasQuery = { __typename?: "Query" } & {
       "hasNextPage" | "endCursor" | "totalCount"
     >;
     edges: Array<
-      { __typename?: "FormulaEdge" } & {
-        node: { __typename?: "Formula" } & Pick<
-          Formula,
-          "id" | "name" | "expression"
-        >;
-      }
+      { __typename?: "FormulaEdge" } & Pick<FormulaEdge, "cursor"> & {
+          node: { __typename?: "Formula" } & Pick<
+            Formula,
+            "id" | "name" | "expression"
+          >;
+        }
     >;
   };
 };
@@ -3110,6 +3110,7 @@ export const FindProjectDefinitionFormulasDocument = gql`
         totalCount
       }
       edges {
+        cursor
         node {
           id
           name

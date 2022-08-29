@@ -42,26 +42,6 @@ function Copyright() {
   );
 }
 
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
-  open?: boolean;
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  overflowX: "hidden",
-  transition: theme.transitions.create("margin", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  paddingLeft: theme.spacing(1),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
-}));
-
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -269,6 +249,7 @@ export function Dashboard() {
           paddingLeft: theme.spacing(1),
           paddingRight: theme.spacing(1),
           flexGrow: 1,
+          overflowWrap: "anywhere",
         }}
       >
         <DrawerHeader />

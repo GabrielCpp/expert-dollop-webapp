@@ -161,7 +161,8 @@ const TableWithMinWidth = styled(Table)(() => ({
 export function apolloClientFetch<Data>(
   apollo: ApolloClient<NormalizedCacheObject>,
   document: DocumentNode,
-  onError: (error?: Error) => void
+  onError: (error?: Error) => void,
+  variables?: Record<string, unknown>
 ) {
   return (
     query: string,
@@ -172,6 +173,7 @@ export function apolloClientFetch<Data>(
       .query<{ results: ResultSet<Data> }>({
         query: document,
         variables: {
+          ...variables,
           query,
           first,
           after: nextPageToken,
@@ -208,13 +210,13 @@ export interface ResultSet<Data> {
   pageInfo: PageInfo;
 }
 
+export type GridFetchData<Data> = (
+  query: string,
+  first: number,
+  nextPageToken?: string
+) => Promise<ResultSet<Data>>;
 export interface PaginatedDataGridProps<Data> {
-  fetch: (
-    query: string,
-    limit: number,
-    nextPageToken?: string
-  ) => Promise<ResultSet<Data>>;
-
+  fetch: GridFetchData<Data>;
   headers: HeadCell<Data>[];
   globalActions?: (props: { selected: string[] }) => JSX.Element | null;
   defaultRowsPerPage?: number;

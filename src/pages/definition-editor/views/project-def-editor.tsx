@@ -45,7 +45,7 @@ export function EditorLayout() {
       {matchingComponents.map((m) => renderNamedRoute(m))}
       <Route path={routes.getUrl(PROJECT_DEFINITION_EDITOR_MAIN)} exact={true}>
         <Grid container direction="row" spacing={1}>
-          <Grid item xs={10} md={10} xl={10}>
+          <Grid item>
             <RootSectionBar
               projectDefinitionId={projectDefinitionId}
               rootSectionDefId={rootSectionDefId}
