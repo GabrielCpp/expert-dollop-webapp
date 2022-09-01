@@ -18,10 +18,10 @@ export interface FieldArrayElement<T> {
   metadata: OrdinalMetadata
 }
 
-type Action<T> = { type: "ADD" | "REMOVE" | "UPDATE_VALUE"; id?: string, onAdded?: (id: FieldArrayElement<T>, index: number) => void, makeDefaultValue: (makeId: IdGen) => T }
-type IdGen = () => string
+type Action<T> = { type: "ADD" | "REMOVE" | "UPDATE_VALUE"; id?: string, onAdded?: (id: FieldArrayElement<T>, index: number) => void, makeDefaultValue: (makeId: IdGenerator) => T }
+export type IdGenerator = () => string
 
-export function useFieldArray<T>(makeDefaultValue: (makeId: IdGen) => T, originalIds: (makeId: IdGen) => () => FieldArrayElement<T>[] = () => () => []): UseFieldArray<T> {
+export function useFieldArray<T>(makeDefaultValue: (makeId: IdGenerator) => T, originalIds: (makeId: IdGenerator) => () => FieldArrayElement<T>[] = () => () => []): UseFieldArray<T> {
   const castedReducer = reducer as ((ids: FieldArrayElement<T>[],action: Action<T>) => FieldArrayElement<T>[])
   const [elements, dispatch] = useReducer(castedReducer, [], originalIds(uuidv4));
   const push = useCallback(({newElement, onAdded } = {}) => dispatch({ type: "ADD", onAdded, makeDefaultValue: () => newElement || makeDefaultValue(uuidv4) }), [dispatch, makeDefaultValue]);

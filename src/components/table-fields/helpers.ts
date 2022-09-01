@@ -52,3 +52,14 @@ export class KeyNamespace<Namespace extends string, K extends string> {
     return keyGetter.get(...keys);
   }
 }
+
+const EmptyValues: unknown[] = [null, undefined, '']
+export function fallbackWhenEmpty<T>(...items: (T | undefined | null)[]): T {
+  for(const item of items) {
+    if(!EmptyValues.includes(item)) {
+      return item as T
+    }
+  }
+
+  throw new Error('A non empty value must be provided')
+}

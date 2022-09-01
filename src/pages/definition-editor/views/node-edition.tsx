@@ -21,8 +21,8 @@ import { splitPath } from "../../project-editor/routes";
 import { levelMapping } from "../form-definitions";
 import { NodeForm } from "../forms/node-form";
 
-export interface AddContainerFormProps {
-  configType: FieldDetailsType;
+export interface EditContainerViewProps {
+  completeAction?: (() => Promise<unknown>) | undefined;
 }
 
 interface EditContainerFormParams {
@@ -31,12 +31,9 @@ interface EditContainerFormParams {
   nodeId: string;
 }
 
-export function EditContainerView() {
+export function EditContainerView({ completeAction }: EditContainerViewProps) {
   const { projectDefinitionId, selectedPath, nodeId } =
     useParams<EditContainerFormParams>();
-  const nodePath = splitPath(selectedPath);
-  const level = levelMapping[nodePath.length];
-
   const [updateNode] = useUpdateProjectDefinitionNodeMutation();
   const { data, loading, error } = useFindProjectDefinitionNodeQuery({
     variables: {
@@ -47,14 +44,22 @@ export function EditContainerView() {
 
   useLoaderEffect(error, loading);
 
+  const nodePath = splitPath(selectedPath);
+  const level = levelMapping[nodePath.length];
+
   async function onSubmit(data: ProjectDefinitionNodeCreationInput) {
+    console.log(data);
     await updateNode({
       variables: {
         projectDefinitionId,
         nodeId,
-        node: data,
+        node: { ...data, path: nodePath },
       },
     });
+
+    if (completeAction) {
+      await completeAction();
+    }
   }
 
   if (data === undefined) {

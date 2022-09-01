@@ -1,20 +1,24 @@
 import { Grid } from "@mui/material";
-import { Route, Switch, useParams } from "react-router-dom";
-import { useServices } from "../../../services-def";
+import { useEffect } from "react";
+import { Route, useHistory, useParams } from "react-router-dom";
 import {
-  renderNamedRoute,
-  useComponentMatcher,
-} from "../../../shared/named-routes";
-import { useLoaderEffect } from "../../../components/loading-frame";
+  useLoaderEffect,
+  useRefetchGroup,
+} from "../../../components/loading-frame";
+import {
+  AlertContainer,
+  scrollTop,
+  useNotification,
+} from "../../../components/snackbar-display";
 import { useDynamicTranlation } from "../../../components/translation";
-import { useProjectDefPath } from "../hooks/project-def-path";
-import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
+import { useServices } from "../../../services-def";
+import { MatchingRoutes } from "../../../shared/named-routes";
+import { useId } from "../../../shared/redux-db";
 import { FormDefinitionEditor } from "../components/form-editor";
 import { RootSectionBar } from "../components/root-section-bar";
 import { SidePanel } from "../components/side-panel";
-import { useObservable } from "react-use";
-import { AlertContainer } from "../../../components/snackbar-display";
-import { useId } from "../../../shared/redux-db";
+import { useProjectDefPath } from "../hooks/project-def-path";
+import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 
 interface EditorLayoutParams extends Record<string, string> {
   projectDefinitionId: string;
@@ -23,7 +27,8 @@ interface EditorLayoutParams extends Record<string, string> {
 
 export function EditorLayout() {
   const snackbarId = useId();
-  const { routes, auth0 } = useServices();
+  const { success, clear } = useNotification(snackbarId);
+  const { routes } = useServices();
   const params = useParams<EditorLayoutParams>();
   const { projectDefinitionId, selectedPath } = params;
   const { loading, path } = useProjectDefPath(
@@ -32,23 +37,30 @@ export function EditorLayout() {
   );
   const [rootSectionDefId, subSectionDefId, formDefId] = path || [];
   const { isLoading, error } = useDynamicTranlation(projectDefinitionId);
-  const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
-  const { matchingComponents } = useComponentMatcher(
-    "project-definition-view",
-    user.permissions
-  );
-
+  const refectGroup = useRefetchGroup();
+  const history = useHistory();
   useLoaderEffect(error, isLoading || loading);
+  useEffect(clear, [clear, formDefId]);
+
+  async function completeAction() {
+    history.push(routes.render(PROJECT_DEFINITION_EDITOR_MAIN, params));
+    refectGroup.refetchAll();
+    success("shared.forms.saved");
+    scrollTop();
+  }
 
   return (
-    <Switch>
-      {matchingComponents.map((m) => renderNamedRoute(m))}
+    <MatchingRoutes
+      tag="project-definition-view"
+      completeAction={completeAction}
+    >
       <Route path={routes.getUrl(PROJECT_DEFINITION_EDITOR_MAIN)} exact={true}>
         <Grid container direction="row" spacing={1}>
           <Grid item>
             <RootSectionBar
               projectDefinitionId={projectDefinitionId}
               rootSectionDefId={rootSectionDefId}
+              refectGroup={refectGroup}
             />
           </Grid>
 
@@ -63,6 +75,7 @@ export function EditorLayout() {
                 rootSectionDefId={rootSectionDefId}
                 subSectionDefId={subSectionDefId}
                 formDefId={formDefId}
+                refectGroup={refectGroup}
               />
             )}
           </Grid>
@@ -72,11 +85,12 @@ export function EditorLayout() {
               <FormDefinitionEditor
                 projectDefinitionId={projectDefinitionId}
                 formDefId={formDefId}
+                refectGroup={refectGroup}
               />
             )}
           </Grid>
         </Grid>
       </Route>
-    </Switch>
+    </MatchingRoutes>
   );
 }

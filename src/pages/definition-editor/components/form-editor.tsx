@@ -20,7 +20,11 @@ import {
   LeftSideButton,
   UnpadCardContent,
 } from "../../../components/custom-styles";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  RefectGroup,
+  useLoaderEffect,
+  useSharedRefetch,
+} from "../../../components/loading-frame";
 import {
   checkboxField,
   Field,
@@ -240,21 +244,25 @@ function FormSection({ node }: FormProps): JSX.Element {
 interface FormDefinitionEditorProps {
   projectDefinitionId: string;
   formDefId: string;
+  refectGroup: RefectGroup;
 }
 
 export function FormDefinitionEditor({
   projectDefinitionId,
   formDefId,
+  refectGroup,
 }: FormDefinitionEditorProps) {
   const { t, dbTrans } = useDbTranslation(projectDefinitionId);
   const { routes } = useServices();
-  const { loading, data, error } = useFindProjectDefinitionFormContentQuery({
-    variables: {
-      id: projectDefinitionId,
-      formId: formDefId,
-    },
-  });
+  const { loading, data, error, refetch } =
+    useFindProjectDefinitionFormContentQuery({
+      variables: {
+        id: projectDefinitionId,
+        formId: formDefId,
+      },
+    });
 
+  useSharedRefetch(refectGroup, refetch);
   useLoaderEffect(error, loading);
 
   const formNode = data?.findProjectDefinitionNode;

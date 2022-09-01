@@ -1,7 +1,11 @@
 import { Tab, Tabs } from "@mui/material";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  RefectGroup,
+  useLoaderEffect,
+  useSharedRefetch,
+} from "../../../components/loading-frame";
 import { useFindProjectDefinitionRootSectionsQuery } from "../../../generated/graphql";
 import { useDbTranslation } from "../hooks/db-trans";
 import { buildLinkFor } from "../routes";
@@ -9,20 +13,24 @@ import { buildLinkFor } from "../routes";
 interface RootSectionBarProps {
   projectDefinitionId: string;
   rootSectionDefId: string | undefined;
+  refectGroup: RefectGroup;
 }
 
 export function RootSectionBar({
   projectDefinitionId,
   rootSectionDefId,
+  refectGroup,
 }: RootSectionBarProps) {
   const history = useHistory();
   const { dbTrans } = useDbTranslation(projectDefinitionId);
-  const { loading, data, error } = useFindProjectDefinitionRootSectionsQuery({
-    variables: {
-      id: projectDefinitionId,
-    },
-  });
+  const { loading, data, error, refetch } =
+    useFindProjectDefinitionRootSectionsQuery({
+      variables: {
+        id: projectDefinitionId,
+      },
+    });
 
+  useSharedRefetch(refectGroup, refetch);
   useLoaderEffect(error, loading);
 
   const onChange = (_: React.ChangeEvent<{}>, newRootSectionDefId: string) => {

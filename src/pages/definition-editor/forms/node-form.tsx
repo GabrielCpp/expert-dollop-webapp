@@ -6,15 +6,18 @@ import {
   Field,
   Form,
   INT_VALIDATOR,
-  StaticTabs,
   textField,
+  useFieldsWatchCallack,
   useForm,
+  useHiddenField,
 } from "../../../components/table-fields";
 import { ProjectDefinitionNodeCreationInput } from "../../../generated";
+import { useId } from "../../../shared/redux-db";
 import { FormRole, nodeFormLabels, NodeLevel } from "../form-definitions";
 import { NAME_VALIDATOR } from "../validators";
 import { FieldConfig } from "./field-config";
-import { FieldTranslation } from "./field-translation";
+import { MetaConfigForm } from "./meta-config-form";
+import { MultiLanguageField } from "./multi-language-field";
 import { SectionConfig } from "./section-config";
 import { Triggers } from "./triggers";
 
@@ -28,29 +31,56 @@ interface ContainerFormProps {
 export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm();
-
-  async function save(data: any) {
-    console.log(data);
-  }
-
+  const nameId = useId();
   const labels = nodeFormLabels;
+
+  const { formPath: translationConfigPath } = useForm({
+    name: "translations",
+    parentPath: formPath,
+  });
+
+  const { value: latestLabelTranslationKeyName } =
+    useFieldsWatchCallack<string>({
+      defaultValue: node.translations.label,
+      ids: nameId,
+    });
+
+  useHiddenField({
+    name: "label",
+    path: translationConfigPath,
+    value: latestLabelTranslationKeyName,
+  });
+
+  const { value: latestHelpTextTranslationKeyName } =
+    useFieldsWatchCallack<string>({
+      defaultValue: node.translations.helpTextName,
+      ids: nameId,
+      callback: buildTranslationKey,
+    });
+
+  useHiddenField({
+    name: "helpTextName",
+    path: translationConfigPath,
+    value: latestHelpTextTranslationKeyName,
+  });
 
   return (
     <Form
       formPath={formPath}
-      save={save}
+      save={onSubmit}
       label="shared.buttons.save"
       title={
         <Typography variant="h4">{t(labels.title.get(role, level))}</Typography>
       }
     >
       <Field
+        id={nameId}
         validator={NAME_VALIDATOR}
         path={formPath}
         defaultValue={node.name}
         key={labels.name.name}
         name={labels.name.name}
-        label={t(labels.name.label)}
+        label={labels.name.label}
         t={t}
         component={textField}
       />
@@ -84,35 +114,26 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
         t={t}
         component={textField}
       />
+      <MetaConfigForm
+        parentPath={formPath}
+        key={labels.meta.name}
+        name={labels.meta.name}
+        meta={node.meta}
+        labels={labels.meta}
+        t={t}
+      />
       <Card>
         <CardContent>
-          <StaticTabs
-            defaultSelectedField={labels.tabs.fr.name}
-            key={labels.tabs.name}
-          >
-            <FieldTranslation
-              path={formPath}
-              key={labels.tabs.fr.name}
-              name={labels.tabs.fr.name}
-              locale={labels.tabs.fr.locale}
-              label={t(labels.tabs.fr.label)}
-              labels={labels.tabs.body}
-              labelTranslationKeyName={node.translations.label}
-              helpTextTranslationKeyName={node.translations.helpTextName}
-              translations={node.translated}
-            />
-            <FieldTranslation
-              path={formPath}
-              key={labels.tabs.en.name}
-              name={labels.tabs.en.name}
-              locale={labels.tabs.en.locale}
-              label={t(labels.tabs.en.label)}
-              labels={labels.tabs.body}
-              labelTranslationKeyName={node.translations.label}
-              helpTextTranslationKeyName={node.translations.helpTextName}
-              translations={node.translated}
-            />
-          </StaticTabs>
+          <MultiLanguageField
+            parentPath={formPath}
+            name={labels.tabs.name}
+            labels={labels.tabs}
+            labelTranslationKeyName={node.translations.label}
+            helpTextTranslationKeyName={node.translations.helpTextName}
+            nameId={nameId}
+            translations={node.translated}
+            t={t}
+          />
         </CardContent>
       </Card>
       {node.fieldDetails !== undefined &&
@@ -143,4 +164,8 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
       />
     </Form>
   );
+}
+
+function buildTranslationKey(...name: unknown[]): string {
+  return `${name[0] as string}_help_text`;
 }

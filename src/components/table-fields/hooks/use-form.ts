@@ -8,6 +8,7 @@ export interface UseFormParams {
   parentPath?: string | string[]
   id?: string
   metadata?: unknown
+  value?: unknown
 }
 
 export interface UseFormHook {
@@ -15,7 +16,7 @@ export interface UseFormHook {
   formPath: string[];
 }
 
-export function useForm({name, parentPath, id, metadata }: UseFormParams = {}): UseFormHook {
+export function useForm({name, parentPath, id, metadata, value }: UseFormParams = {}): UseFormHook {
   const formId = useId(id);
   const { reduxDb } = useServices();
   const makeFormRecord = useCallback(() => {
@@ -31,8 +32,8 @@ export function useForm({name, parentPath, id, metadata }: UseFormParams = {}): 
     const record = createFormFieldRecord(
       true,
       parentPathArray,
-      name || formId,
-      null,
+      name || '',
+      value || null,
       '',
       formId,
       [],
@@ -42,7 +43,7 @@ export function useForm({name, parentPath, id, metadata }: UseFormParams = {}): 
     return reduxDb
       .getTable(FormFieldTableName)
       .findRecordOrDefault(formId, record);
-  }, [reduxDb, parentPath, name, formId, metadata])
+  }, [reduxDb, parentPath, name, formId, metadata, value])
 
   const [record] = useTableRecord<FormFieldRecord>(
     FormFieldTableName,

@@ -25,8 +25,11 @@ interface SectionConfigProps {
     };
     collapsibleContainer: {
       name: string;
-      label: string;
-      defaultValue: boolean;
+      isCollapsible: {
+        name: string;
+        label: string;
+        defaultValue: boolean;
+      };
     };
   };
 }
@@ -39,6 +42,10 @@ export function SectionConfig({
 }: SectionConfigProps) {
   const { t } = useTranslation();
   const { formPath } = useForm({ name, parentPath });
+  const { formPath: collapsibleContainerFormPath } = useForm({
+    name: labels.collapsibleContainer.name,
+    parentPath: formPath,
+  });
   const { value, id: configTypeId } = useFormFieldValueRef(
     fieldDetails?.kind || labels.sectionConfigTypes.defaultOption
   );
@@ -60,14 +67,14 @@ export function SectionConfig({
       {value === FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG && (
         <Field
           validator={BOOLEAN_VALIDATOR}
-          path={formPath}
+          path={collapsibleContainerFormPath}
           defaultValue={
             fieldDetails?.collapsibleContainer?.isCollapsible ||
-            labels.collapsibleContainer.defaultValue
+            labels.collapsibleContainer.isCollapsible.defaultValue
           }
-          key={labels.collapsibleContainer.name}
-          name={labels.collapsibleContainer.name}
-          label={t(labels.collapsibleContainer.label)}
+          key={labels.collapsibleContainer.isCollapsible.name}
+          name={labels.collapsibleContainer.isCollapsible.name}
+          label={t(labels.collapsibleContainer.isCollapsible.label)}
           t={t}
           component={checkboxField}
         />

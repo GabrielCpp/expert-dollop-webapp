@@ -7,6 +7,7 @@ export {
   useTableQuery,
   useTableRecord,
   useId,
+  useIds,
   buildPk,
   useTableLifetime,
 } from "./query-hook";

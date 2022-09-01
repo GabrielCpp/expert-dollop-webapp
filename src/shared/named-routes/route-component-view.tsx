@@ -7,12 +7,14 @@ interface MatchingRoutesProps {
   tag: string;
   firstMatch?: boolean;
   completeAction?: () => Promise<unknown>;
+  children?: JSX.Element | JSX.Element[];
 }
 
 export function MatchingRoutes({
   tag,
   firstMatch = false,
   completeAction,
+  children,
 }: MatchingRoutesProps) {
   const { routes, auth0 } = useServices();
   const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
@@ -24,10 +26,20 @@ export function MatchingRoutes({
     );
 
   if (firstMatch) {
-    return <Switch>{matchs}</Switch>;
+    return (
+      <Switch>
+        {matchs}
+        {children}
+      </Switch>
+    );
   }
 
-  return <>{matchs}</>;
+  return (
+    <>
+      {matchs}
+      {children}
+    </>
+  );
 }
 
 export function renderNamedRoute(

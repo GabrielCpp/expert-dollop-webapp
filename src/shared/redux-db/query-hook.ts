@@ -32,6 +32,28 @@ export function buildPk(...items: string[]): string {
   return items.join(".");
 }
 
+
+type KeyOfObject<T> = { [key in keyof T]: string }
+interface UseMultipleIdResult<T> { idByName: KeyOfObject<T>, ids: string[] }
+
+export function useIds<T>(...names: (keyof T)[]): UseMultipleIdResult<T> {
+  const refRef = useRef<UseMultipleIdResult<T> | undefined>();
+
+  if (refRef.current === undefined) {
+    const idByName: Partial<KeyOfObject<T>> = {} 
+    const ids: string[] = []
+    for(const name of names) {
+      const id = uuidv4()
+      idByName[name] = id
+      ids.push(id)
+    }
+
+    refRef.current = { idByName: idByName as KeyOfObject<T>, ids }
+  }
+
+  return refRef.current as UseMultipleIdResult<T>
+}
+
 export function useTableRecord<T extends TableRecord>(
   tableName: string,
   primaryKey: PrimaryKey,

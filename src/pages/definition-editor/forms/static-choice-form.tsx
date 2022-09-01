@@ -11,19 +11,19 @@ import {
   getFieldValue,
   patchFormField,
   selectField,
-  StaticTabs,
   STRING_VALIDATOR,
   textField,
   Translator,
   useFieldArray,
   useFieldWatch,
   useForm,
+  useHiddenField,
   useNodePickerState,
 } from "../../../components/table-fields";
 import { StaticChoiceOptionInput } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { useId } from "../../../shared/redux-db";
-import { FieldTranslation } from "./field-translation";
+import { MultiLanguageField } from "./multi-language-field";
 
 interface StaticChoiceFormLabels {
   selected: {
@@ -142,7 +142,7 @@ export function StaticChoiceForm({
         if (e === undefined) {
           return defaultValue || head(elements)?.value.option.id;
         }
-        console.log(current);
+
         optionValueId = current;
         return currentElementValue || getLabel(e);
       };
@@ -308,6 +308,18 @@ function SelectOptionForm({
 
   const option = element.value.option;
 
+  useHiddenField({
+    path,
+    name: labels.label.name,
+    value: option.label,
+  });
+
+  useHiddenField({
+    path,
+    name: labels.helpText.name,
+    value: option.helpText,
+  });
+
   return (
     <FormSection>
       <Field
@@ -321,34 +333,17 @@ function SelectOptionForm({
         component={textField}
         t={t}
       />
-      <StaticTabs
-        defaultSelectedField={labels.tabs.fr.name}
-        key={labels.tabs.name}
+      <MultiLanguageField
+        parentPath={path}
+        name={labels.tabs.name}
+        labels={labels.tabs}
+        labelTranslationKeyName={option.label}
+        helpTextTranslationKeyName={option.helpText}
+        nameId={element.value.optionValueId}
+        translations={option.translated}
+        t={t}
         active={active}
-      >
-        <FieldTranslation
-          path={path}
-          key={labels.tabs.fr.name}
-          name={labels.tabs.fr.name}
-          locale={labels.tabs.fr.locale}
-          label={t(labels.tabs.fr.label)}
-          labels={labels.tabs.body}
-          labelTranslationKeyName={option.label}
-          helpTextTranslationKeyName={option.helpText}
-          translations={option.translated}
-        />
-        <FieldTranslation
-          path={path}
-          key={labels.tabs.en.name}
-          name={labels.tabs.en.name}
-          locale={labels.tabs.en.locale}
-          label={t(labels.tabs.en.label)}
-          labels={labels.tabs.body}
-          labelTranslationKeyName={option.label}
-          helpTextTranslationKeyName={option.helpText}
-          translations={option.translated}
-        />
-      </StaticTabs>
+      />
     </FormSection>
   );
 }

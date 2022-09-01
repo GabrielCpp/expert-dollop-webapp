@@ -9,7 +9,7 @@ import { levelMapping } from "../form-definitions";
 import { NodeForm } from "../forms/node-form";
 
 export interface AddContainerFormProps {
-  configType: FieldDetailsType;
+  completeAction?: (() => Promise<unknown>) | undefined;
 }
 
 interface AddContainerFormParams {
@@ -17,7 +17,7 @@ interface AddContainerFormParams {
   selectedPath: string;
 }
 
-export function AddContainerView() {
+export function AddContainerView({ completeAction }: AddContainerFormProps) {
   const { projectDefinitionId, selectedPath } =
     useParams<AddContainerFormParams>();
   const nodePath = splitPath(selectedPath);
@@ -25,12 +25,21 @@ export function AddContainerView() {
   const [addNode] = useAddProjectDefinitionNodeMutation();
 
   async function onSubmit(data: ProjectDefinitionNodeCreationInput) {
+    console.log(data);
+
     await addNode({
       variables: {
         projectDefinitionId,
-        node: data,
+        node: {
+          ...data,
+          path: nodePath,
+        },
       },
     });
+
+    if (completeAction) {
+      await completeAction();
+    }
   }
 
   const node: ProjectDefinitionNodeCreationInput = {

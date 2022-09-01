@@ -1,3 +1,4 @@
+import { identity } from "lodash";
 import {
   useCallback,
   useEffect, useState
@@ -9,21 +10,26 @@ import {
   FormFieldTableName, upsertFormFieldRecord
 } from "../form-field-record";
 
-interface UseHiddenField {
+interface UseHiddenFieldResult {
   id: string;
   path: string[];
   record: FormFieldRecord;
   updateRecord: (patchedRecord: Partial<FormFieldRecord>) => void
 }
 
-export function useHiddenField(
+interface UseHiddenFieldParams {
   name: string,
   path: string[],
   value: any,
+  id?: string;
   metadata?: unknown
-): UseHiddenField {
+  watch?: string[]
+  makeValue?: (...values: unknown[]) => unknown
+}
+
+export function useHiddenField({ name, path, value, id, metadata, watch = [], makeValue = identity }: UseHiddenFieldParams): UseHiddenFieldResult {
   const { reduxDb } = useServices();
-  const id = useId(name);
+  const fieldId = useId(id);
   const makeRecord = useCallback(
     () =>
       createFormFieldRecord(
@@ -32,11 +38,11 @@ export function useHiddenField(
         name,
         value,
         String(value),
-        id,
+        fieldId,
         [],
         metadata
       ),
-    [path, name, value, id, metadata]
+    [path, name, value, fieldId, metadata]
   );
   const [record, setRecord] = useState(makeRecord);
   const updateRecord = useCallback((patchedRecord: Partial<FormFieldRecord>) => {
@@ -59,7 +65,7 @@ export function useHiddenField(
   }, [reduxDb, makeRecord]);
 
   return {
-    id,
+    id: fieldId,
     record,
     updateRecord,
     path: record.fullPath,

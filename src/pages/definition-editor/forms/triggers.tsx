@@ -36,7 +36,7 @@ interface TriggersProps {
 
 export function Triggers({ name, path, labels }: TriggersProps) {
   const { t } = useTranslation();
-  const { formPath } = useForm({ name: name, parentPath: path });
+  const { formPath } = useForm({ name: name, parentPath: path, value: [] });
   const { push, remove, elements } = useFieldArray(() => undefined);
 
   return (

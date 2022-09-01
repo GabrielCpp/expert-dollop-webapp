@@ -4,7 +4,6 @@ import {
   Field,
   FormSection,
   textField,
-  useForm,
 } from "../../../components/table-fields";
 import { TranslationInput } from "../../../generated";
 
@@ -20,8 +19,8 @@ export interface FieldTranslationLabels {
 }
 
 export interface FieldTranslationProps {
-  path: string[];
-  name: string;
+  labelPath: string[];
+  helpTextPath: string[];
   locale: string;
   label: unknown;
   labels: FieldTranslationLabels;
@@ -31,8 +30,8 @@ export interface FieldTranslationProps {
 }
 
 export function FieldTranslation({
-  path,
-  name,
+  labelPath,
+  helpTextPath,
   locale,
   translations,
   labelTranslationKeyName,
@@ -40,7 +39,6 @@ export function FieldTranslation({
   labels,
 }: FieldTranslationProps) {
   const { t } = useTranslation();
-  const { formPath } = useForm({ name, parentPath: path });
   const tabTranslations = translations.filter(
     (translation) => translation.locale === locale
   );
@@ -57,20 +55,20 @@ export function FieldTranslation({
     <FormSection>
       <Field
         validator={ANY_STRING_VALIDATOR}
-        path={formPath}
+        path={labelPath}
         defaultValue={label}
         name={labels.label.name}
-        key={labels.label.name}
+        key={labels.label.label}
         label={labels.label.label}
         component={textField}
         t={t}
       />
       <Field
         validator={ANY_STRING_VALIDATOR}
-        path={formPath}
+        path={helpTextPath}
         defaultValue={helpText}
         name={labels.helpText.name}
-        key={labels.helpText.name}
+        key={labels.helpText.label}
         label={labels.helpText.label}
         component={textField}
         t={t}

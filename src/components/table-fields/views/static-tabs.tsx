@@ -28,13 +28,11 @@ export function StaticTabs({
       <Tabs value={selectedTab} onChange={handleChange}>
         {active &&
           elements
-            .map((x) => [x.props.name, x.props.label])
-            .map(([name, label]) => (
-              <Tab key={name} label={label} value={name} />
-            ))}
+            .map((x) => [x.key, x.props.label])
+            .map(([key, label]) => <Tab key={key} label={label} value={key} />)}
       </Tabs>
       {elements.map((child) => (
-        <TabPanel key={child.key} value={child.props.name} index={selectedTab}>
+        <TabPanel key={child.key} value={child.key} index={selectedTab}>
           <Box sx={{ marginTop: 1.5 }}>{child}</Box>
         </TabPanel>
       ))}

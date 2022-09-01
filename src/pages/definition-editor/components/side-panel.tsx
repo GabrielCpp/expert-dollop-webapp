@@ -23,7 +23,11 @@ import {
   useFindProjectDefinitionRootSectionContainersQuery,
 } from "../../../generated/graphql";
 import { useServices } from "../../../services-def";
-import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  RefectGroup,
+  useLoaderEffect,
+  useSharedRefetch,
+} from "../../../components/loading-frame";
 import { useDbTranslation } from "../hooks/db-trans";
 import {
   buildAddNodeParams,
@@ -43,6 +47,7 @@ interface SidePanelProps {
   rootSectionDefId: string;
   subSectionDefId: string | undefined;
   formDefId: string | undefined;
+  refectGroup: RefectGroup;
 }
 
 export function SidePanel({
@@ -50,12 +55,13 @@ export function SidePanel({
   rootSectionDefId,
   subSectionDefId,
   formDefId,
+  refectGroup,
 }: SidePanelProps) {
   const { routes } = useServices();
   const { t, dbTrans } = useDbTranslation(projectDefinitionId);
   const [expanded, setExpanded] = useState<string | undefined>(subSectionDefId);
 
-  const { data, loading, error } =
+  const { data, loading, error, refetch } =
     useFindProjectDefinitionRootSectionContainersQuery({
       variables: {
         id: projectDefinitionId,
@@ -69,6 +75,7 @@ export function SidePanel({
     }
   }, [subSectionDefId]);
 
+  useSharedRefetch(refectGroup, refetch);
   useLoaderEffect(error, loading);
 
   const handleChange = (id: string) => () => {

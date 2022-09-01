@@ -45,16 +45,23 @@ export const nodeFormLabels = {
     label: "definition_editor.node_form.field_order",
     name: "orderIndex",
   },
+  meta: {
+    name: 'meta',
+    isVisible: {
+      name: 'isVisible',
+      label: 'definition_editor.node_form.meta_is_visible'
+    }
+  },
   tabs: {
-    name: "languages",
+    name: "translated",
     defaultOne: "fr",
     body: {
       label: {
-        name: "label",
+        name: "value",
         label: "definition_editor.node_form.field_label"
       },
       helpText: {
-        name: "helpText",
+        name: "value",
         label: "definition_editor.node_form.field_help_text"
       }
     },
@@ -72,7 +79,7 @@ export const nodeFormLabels = {
   sectionConfig: {
     name: "fieldDetails",
     sectionConfigTypes: {
-      name: "fieldConfigType",
+      name: "kind",
       label: "definition_editor.node_form.section_config_label",
       options: [
         {
@@ -84,15 +91,18 @@ export const nodeFormLabels = {
     },
     collapsibleContainer: {
       name: "collapsibleContainer",
-      label: "definition_editor.node_form.section_config_field_collapsible_container",
-      defaultValue: false
+      isCollapsible: {
+        name: 'isCollapsible',
+        label: 'definition_editor.node_form.section_config_field_collapsible_container',
+        defaultValue: false,
+      }
     }
   },
   fieldConfig: {
     name: "fieldDetails",
     fieldConfigType: {
       label: "definition_editor.node_form.field_type",
-      name: "fieldConfigType",
+      name: "kind",
       options: [
         {
           id: FieldDetailsType.STRING_FIELD_CONFIG,
@@ -160,19 +170,19 @@ export const nodeFormLabels = {
           label: "definition_editor.node_form.static_choice_option_label"
         },
         helpText: {
-          name: "help_text",
+          name: "helpText",
           label: "definition_editor.node_form.static_choice_option_help_text"
         },
         tabs: {
-          name: "languages",
+          name: "translated",
           defaultOne: "fr",
           body: {
             label: {
-              name: "label",
+              name: "value",
               label: "definition_editor.node_form.field_label"
             },
             helpText: {
-              name: "helpText",
+              name: "value",
               label: "definition_editor.node_form.field_help_text"
             }
           },
