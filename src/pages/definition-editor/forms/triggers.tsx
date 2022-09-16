@@ -2,7 +2,9 @@ import { Card, CardContent, CardHeader, Grid, IconButton } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
   Field,
+  FieldArrayElement,
   FormSection,
+  IdGenerator,
   selectField,
   SelectOption,
   STRING_VALIDATOR,
@@ -12,10 +14,12 @@ import {
 
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { TriggerAction, TriggerInput } from "../../../generated";
 
 interface TriggersProps {
   path: string[];
   name: string;
+  triggers: TriggerInput[];
   labels: {
     formTitle: string;
     blankSlates: {
@@ -34,10 +38,13 @@ interface TriggersProps {
   };
 }
 
-export function Triggers({ name, path, labels }: TriggersProps) {
+export function Triggers({ name, path, labels, triggers }: TriggersProps) {
   const { t } = useTranslation();
   const { formPath } = useForm({ name: name, parentPath: path, value: [] });
-  const { push, remove, elements } = useFieldArray(() => undefined);
+  const { push, remove, elements } = useFieldArray(
+    makeDefaultTrigger,
+    getTriggers(triggers)
+  );
 
   return (
     <Card>
@@ -107,3 +114,28 @@ export function Triggers({ name, path, labels }: TriggersProps) {
     </Card>
   );
 }
+
+function makeDefaultTrigger() {
+  return {
+    action: TriggerAction.CHANGE_NAME,
+    params: [],
+    targetTypeId: "",
+  };
+}
+
+const getTriggers =
+  (triggers: TriggerInput[]) =>
+  (makeId: IdGenerator) =>
+  (): FieldArrayElement<TriggerInput>[] => {
+    return triggers.map((trigger, index) => ({
+      id: makeId(),
+      metadata: {
+        ordinal: index,
+      },
+      value: {
+        action: trigger.action,
+        params: trigger.params,
+        targetTypeId: trigger.targetTypeId,
+      },
+    }));
+  };

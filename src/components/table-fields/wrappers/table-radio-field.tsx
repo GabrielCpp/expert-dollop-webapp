@@ -38,7 +38,12 @@ export function radioField({
           <FormLabel>{translatedLabel}</FormLabel>
         </legend>
       )}
-      <RadioGroup name={name} value={value} onChange={onChange} id={id}>
+      <RadioGroup
+        name={name}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        id={id}
+      >
         {options.map((option) => (
           <FormControlLabel
             key={option.id}

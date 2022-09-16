@@ -497,3 +497,41 @@ query units {
   }
 }
 `
+
+export const FIND_DEFINITION_FORMULA_FIELD_MIX = gql`
+query findDefinitionFormulaFieldMix(
+	$projectDefinitionId: ID!
+	$query: String!
+	$first: Int!
+	$after: String
+) {
+	results: findDefinitionFormulaFieldMix(
+		projectDefinitionId: $projectDefinitionId
+		query: $query
+		first: $first
+		after: $after
+	) {
+		edges {
+			node {
+				id
+				label: name
+			}
+			cursor
+		}
+		pageInfo {
+			hasNextPage
+			endCursor
+			totalCount
+		}
+	}
+}
+`
+
+export const FIND_FORMULA = gql`
+query findFormula($projectDefinitionId: ID!, $formulaId: ID!) {
+	result: findFormula(projectDefinitionId: $projectDefinitionId, formulaId: $formulaId) {
+		id
+		label: name
+	}
+}
+`

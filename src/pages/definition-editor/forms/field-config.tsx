@@ -5,7 +5,9 @@ import {
   Field,
   FormSection,
   INT_VALIDATOR,
+  remoteReferencePickerField,
   selectField,
+  SelectOption,
   STRING_VALIDATOR,
   textField,
   useForm,
@@ -15,7 +17,21 @@ import {
   DECIMAL_VALIDATOR,
   USER_STRING_VALIDATOR,
 } from "../../../components/table-fields/validators";
-import { FieldDetailsType, FieldDetailsUnionInput } from "../../../generated";
+import {
+  FieldDetailsType,
+  FieldDetailsUnionInput,
+  FindDefinitionFormulaFieldMixDocument,
+  FindDefinitionFormulaFieldMixQuery,
+  FindFormulaDocument,
+  FindFormulaQuery,
+  QueryFindDefinitionFormulaFieldMixArgs,
+  QueryFindFormulaArgs,
+} from "../../../generated";
+import { useServices } from "../../../services-def";
+import {
+  useApolloFetchItem,
+  useApolloPageFetch,
+} from "../../../shared/async-cursor";
 import { nodeFormLabels } from "../form-definitions";
 import { StaticChoiceForm } from "./static-choice-form";
 import { UnitSelector } from "./unit-selector-form";
@@ -25,6 +41,7 @@ interface ConfigFormProps {
   path: string[];
   fieldDetails: FieldDetailsUnionInput;
   labels: typeof nodeFormLabels["fieldConfig"];
+  projectDefinitionId: string;
 }
 
 export function FieldConfig({
@@ -32,10 +49,39 @@ export function FieldConfig({
   path,
   fieldDetails,
   labels,
+  projectDefinitionId,
 }: ConfigFormProps) {
   const { t } = useTranslation();
+  const { apollo, loader } = useServices();
   const { formPath } = useForm({ name, parentPath: path });
   const { value, id: configTypeId } = useFormFieldValueRef(fieldDetails.kind);
+  const formulaNodeFetcher = useApolloPageFetch<
+    SelectOption,
+    FindDefinitionFormulaFieldMixQuery,
+    QueryFindDefinitionFormulaFieldMixArgs
+  >({
+    apollo,
+    document: FindDefinitionFormulaFieldMixDocument,
+    onError: loader.onError,
+    variables: {
+      projectDefinitionId,
+    },
+  });
+
+  const fetchFormulabyId = useApolloFetchItem<
+    SelectOption,
+    FindFormulaQuery,
+    QueryFindFormulaArgs,
+    "formulaId"
+  >({
+    apollo,
+    document: FindFormulaDocument,
+    onError: loader.onError,
+    variables: {
+      projectDefinitionId,
+    },
+    idKey: "formulaId",
+  });
 
   return (
     <FormSection>
@@ -124,7 +170,7 @@ export function FieldConfig({
       {value === FieldDetailsType.STRING_FIELD_CONFIG && (
         <Field
           validator={USER_STRING_VALIDATOR}
-          defaultValue={fieldDetails.string?.text}
+          defaultValue={fieldDetails.string?.text || labels.string.defaultValue}
           path={formPath}
           name={labels.string.name}
           key={labels.string.name}
@@ -142,6 +188,20 @@ export function FieldConfig({
           key={labels.staticChoice.name}
           labels={labels.staticChoice}
           t={t}
+        />
+      )}
+      {value === FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG && (
+        <Field
+          validator={true}
+          defaultValue={""}
+          path={formPath}
+          name={labels.string.name}
+          key={labels.string.name}
+          label={labels.string.label}
+          t={t}
+          component={remoteReferencePickerField}
+          fetchPage={formulaNodeFetcher}
+          findById={fetchFormulabyId}
         />
       )}
     </FormSection>

@@ -37,7 +37,7 @@ export function textField({
       }
       id={id}
       value={value}
-      onChange={onChange}
+      onChange={(e) => onChange(e.target.value)}
       helperText={errors
         ?.filter((e) => e.message !== undefined)
         .map((e, index) => (

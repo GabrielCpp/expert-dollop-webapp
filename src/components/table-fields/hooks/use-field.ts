@@ -1,5 +1,4 @@
 import { AnySchema } from "ajv";
-import { isBoolean } from "lodash";
 import { useCallback } from "react";
 import { useServices } from "../../../services-def";
 import { useId, useTableRecord } from "../../../shared/redux-db";
@@ -76,26 +75,16 @@ export function useField({
   );
 
   const onChange = useCallback(
-    (e: any) => {
-      let value: unknown
-      let viewValue: unknown
-
-      if (!isBoolean(validator) && validator.type === "boolean") {
-        value =  valueToFormModel(e.target.checked, componentId, record);
-        viewValue = formatter(value,record)
-      }
-      else {
-        value =  valueToFormModel(e.target.value, componentId, record);
-        viewValue = formatter(value, record)
-      }
-
+    (viewValue: unknown) => {
+      const newValue =  valueToFormModel(viewValue, componentId, record);
+      const newViewValue = formatter(newValue, record)
       const validate = ajv.forSchema(validator);
-      validate(value);
+      validate(newValue);
 
       const newRecord = {
         ...record,
-        value,
-        viewValue,
+        value: newValue,
+        viewValue: newViewValue,
         errors: validate.errors || [],
       }
 

@@ -48,7 +48,6 @@ export function EditContainerView({ completeAction }: EditContainerViewProps) {
   const level = levelMapping[nodePath.length];
 
   async function onSubmit(data: ProjectDefinitionNodeCreationInput) {
-    console.log(data);
     await updateNode({
       variables: {
         projectDefinitionId,
@@ -83,7 +82,15 @@ export function EditContainerView({ completeAction }: EditContainerViewProps) {
     translated: x.translated,
   };
 
-  return <NodeForm level={level} role="edit" node={node} onSubmit={onSubmit} />;
+  return (
+    <NodeForm
+      level={level}
+      role="edit"
+      node={node}
+      onSubmit={onSubmit}
+      projectDefinitionId={projectDefinitionId}
+    />
+  );
 }
 
 type BuildFieldDetailsUnionInput = (

@@ -25,8 +25,6 @@ export function AddContainerView({ completeAction }: AddContainerFormProps) {
   const [addNode] = useAddProjectDefinitionNodeMutation();
 
   async function onSubmit(data: ProjectDefinitionNodeCreationInput) {
-    console.log(data);
-
     await addNode({
       variables: {
         projectDefinitionId,
@@ -69,5 +67,13 @@ export function AddContainerView({ completeAction }: AddContainerFormProps) {
     translated: [],
   };
 
-  return <NodeForm role="add" level={level} node={node} onSubmit={onSubmit} />;
+  return (
+    <NodeForm
+      role="add"
+      level={level}
+      node={node}
+      onSubmit={onSubmit}
+      projectDefinitionId={projectDefinitionId}
+    />
+  );
 }

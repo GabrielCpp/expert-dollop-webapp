@@ -63,6 +63,26 @@ export type ComputedValue = {
   value: FieldWrapper<FieldValue>;
 };
 
+export type CoreDefinitionNode = {
+  __typename?: "CoreDefinitionNode";
+  id: FieldWrapper<Scalars["ID"]>;
+  name: FieldWrapper<Scalars["String"]>;
+  path: Array<FieldWrapper<Scalars["String"]>>;
+  projectDefinitionId: FieldWrapper<Scalars["String"]>;
+};
+
+export type CoreDefinitionNodeConnection = {
+  __typename?: "CoreDefinitionNodeConnection";
+  edges: Array<FieldWrapper<CoreDefinitionNodeEdge>>;
+  pageInfo: FieldWrapper<PageInfo>;
+};
+
+export type CoreDefinitionNodeEdge = {
+  __typename?: "CoreDefinitionNodeEdge";
+  cursor: FieldWrapper<Scalars["String"]>;
+  node: FieldWrapper<CoreDefinitionNode>;
+};
+
 export type Datasheet = {
   __typename?: "Datasheet";
   elements: FieldWrapper<DatasheetElementConnection>;
@@ -469,7 +489,7 @@ export type ProjectDefinitionNode = {
   projectDefinitionId: FieldWrapper<Scalars["String"]>;
   translated: Array<FieldWrapper<Translation>>;
   translations: FieldWrapper<TranslationConfig>;
-  triggers: Array<Maybe<FieldWrapper<Trigger>>>;
+  triggers: Array<FieldWrapper<Trigger>>;
   validator?: Maybe<FieldWrapper<Scalars["JsonSchema"]>>;
 };
 
@@ -483,7 +503,7 @@ export type ProjectDefinitionNodeCreationInput = {
   path: Array<Scalars["String"]>;
   translated: Array<TranslationInput>;
   translations: TranslationConfigInput;
-  triggers: Array<Maybe<TriggerInput>>;
+  triggers: Array<TriggerInput>;
 };
 
 export type ProjectDefinitionNodeTree = {
@@ -577,8 +597,10 @@ export type Query = {
   findDatasheet: FieldWrapper<Datasheet>;
   findDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
   findDatasheets: FieldWrapper<DatasheetConnection>;
+  findDefinitionFormulaFieldMix: FieldWrapper<CoreDefinitionNodeConnection>;
   findDistributableItems: Array<FieldWrapper<DistributableItem>>;
   findDistributables: Array<FieldWrapper<ReportDefinition>>;
+  findFormula?: Maybe<FieldWrapper<Formula>>;
   findProjectDefinition: FieldWrapper<ProjectDefinition>;
   findProjectDefinitionFormContent: FieldWrapper<ProjectDefinitionNodeTree>;
   findProjectDefinitionFormulas: FieldWrapper<FormulaConnection>;
@@ -596,7 +618,6 @@ export type Query = {
   findReportDefinition: FieldWrapper<ReportDefinition>;
   findReportDefinitions: Array<FieldWrapper<ReportDefinition>>;
   findRessourceTranslation: FieldWrapper<TranslationConnection>;
-  queryDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
   units: Array<FieldWrapper<Unit>>;
 };
 
@@ -608,11 +629,19 @@ export type QueryFindDatasheetDefinitionElementsArgs = {
   after?: Maybe<Scalars["String"]>;
   first: Scalars["Int"];
   projectDefinitionId: Scalars["ID"];
+  query: Scalars["String"];
 };
 
 export type QueryFindDatasheetsArgs = {
   after?: Maybe<Scalars["String"]>;
   first: Scalars["Int"];
+  query: Scalars["String"];
+};
+
+export type QueryFindDefinitionFormulaFieldMixArgs = {
+  after?: Maybe<Scalars["String"]>;
+  first: Scalars["Int"];
+  projectDefinitionId: Scalars["ID"];
   query: Scalars["String"];
 };
 
@@ -623,6 +652,11 @@ export type QueryFindDistributableItemsArgs = {
 
 export type QueryFindDistributablesArgs = {
   projectId: Scalars["ID"];
+};
+
+export type QueryFindFormulaArgs = {
+  formulaId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
 };
 
 export type QueryFindProjectDefinitionArgs = {
@@ -706,13 +740,6 @@ export type QueryFindReportDefinitionsArgs = {
 export type QueryFindRessourceTranslationArgs = {
   language: Scalars["String"];
   ressourceId: Scalars["ID"];
-};
-
-export type QueryQueryDatasheetDefinitionElementsArgs = {
-  after?: Maybe<Scalars["String"]>;
-  first: Scalars["Int"];
-  projectDefinitionId: Scalars["ID"];
-  query: Scalars["String"];
 };
 
 export type ReferenceId = {
@@ -1416,19 +1443,17 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
     | "validator"
   > & {
       triggers: Array<
-        Maybe<
-          { __typename?: "Trigger" } & Pick<
-            Trigger,
-            "action" | "targetTypeId"
-          > & {
-              params: Array<
-                { __typename?: "TriggerParam" } & Pick<
-                  TriggerParam,
-                  "name" | "value"
-                >
-              >;
-            }
-        >
+        { __typename?: "Trigger" } & Pick<
+          Trigger,
+          "action" | "targetTypeId"
+        > & {
+            params: Array<
+              { __typename?: "TriggerParam" } & Pick<
+                TriggerParam,
+                "name" | "value"
+              >
+            >;
+          }
       >;
       translations: { __typename?: "TranslationConfig" } & Pick<
         TranslationConfig,
@@ -1486,19 +1511,17 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
           | "path"
         > & {
             triggers: Array<
-              Maybe<
-                { __typename?: "Trigger" } & Pick<
-                  Trigger,
-                  "action" | "targetTypeId"
-                > & {
-                    params: Array<
-                      { __typename?: "TriggerParam" } & Pick<
-                        TriggerParam,
-                        "name" | "value"
-                      >
-                    >;
-                  }
-              >
+              { __typename?: "Trigger" } & Pick<
+                Trigger,
+                "action" | "targetTypeId"
+              > & {
+                  params: Array<
+                    { __typename?: "TriggerParam" } & Pick<
+                      TriggerParam,
+                      "name" | "value"
+                    >
+                  >;
+                }
             >;
             translations: { __typename?: "TranslationConfig" } & Pick<
               TranslationConfig,
@@ -1556,19 +1579,17 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
               | "path"
             > & {
                 triggers: Array<
-                  Maybe<
-                    { __typename?: "Trigger" } & Pick<
-                      Trigger,
-                      "action" | "targetTypeId"
-                    > & {
-                        params: Array<
-                          { __typename?: "TriggerParam" } & Pick<
-                            TriggerParam,
-                            "name" | "value"
-                          >
-                        >;
-                      }
-                  >
+                  { __typename?: "Trigger" } & Pick<
+                    Trigger,
+                    "action" | "targetTypeId"
+                  > & {
+                      params: Array<
+                        { __typename?: "TriggerParam" } & Pick<
+                          TriggerParam,
+                          "name" | "value"
+                        >
+                      >;
+                    }
                 >;
                 translations: { __typename?: "TranslationConfig" } & Pick<
                   TranslationConfig,
@@ -1637,19 +1658,17 @@ export type FindProjectDefinitionNodeQuery = { __typename?: "Query" } & {
     | "validator"
   > & {
       triggers: Array<
-        Maybe<
-          { __typename?: "Trigger" } & Pick<
-            Trigger,
-            "action" | "targetTypeId"
-          > & {
-              params: Array<
-                { __typename?: "TriggerParam" } & Pick<
-                  TriggerParam,
-                  "name" | "value"
-                >
-              >;
-            }
-        >
+        { __typename?: "Trigger" } & Pick<
+          Trigger,
+          "action" | "targetTypeId"
+        > & {
+            params: Array<
+              { __typename?: "TriggerParam" } & Pick<
+                TriggerParam,
+                "name" | "value"
+              >
+            >;
+          }
       >;
       translations: { __typename?: "TranslationConfig" } & Pick<
         TranslationConfig,
@@ -1732,6 +1751,46 @@ export type UnitsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type UnitsQuery = { __typename?: "Query" } & {
   units: Array<{ __typename?: "Unit" } & Pick<Unit, "id">>;
+};
+
+export type FindDefinitionFormulaFieldMixQueryVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  query: Scalars["String"];
+  first: Scalars["Int"];
+  after?: Maybe<Scalars["String"]>;
+}>;
+
+export type FindDefinitionFormulaFieldMixQuery = { __typename?: "Query" } & {
+  results: { __typename?: "CoreDefinitionNodeConnection" } & {
+    edges: Array<
+      { __typename?: "CoreDefinitionNodeEdge" } & Pick<
+        CoreDefinitionNodeEdge,
+        "cursor"
+      > & {
+          node: { __typename?: "CoreDefinitionNode" } & Pick<
+            CoreDefinitionNode,
+            "id"
+          > & { label: CoreDefinitionNode["name"] };
+        }
+    >;
+    pageInfo: { __typename?: "PageInfo" } & Pick<
+      PageInfo,
+      "hasNextPage" | "endCursor" | "totalCount"
+    >;
+  };
+};
+
+export type FindFormulaQueryVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  formulaId: Scalars["ID"];
+}>;
+
+export type FindFormulaQuery = { __typename?: "Query" } & {
+  result?: Maybe<
+    { __typename?: "Formula" } & Pick<Formula, "id"> & {
+        label: Formula["name"];
+      }
+  >;
 };
 
 export type CreateProjectMutationVariables = Exact<{
@@ -3932,6 +3991,149 @@ export type UnitsLazyQueryHookResult = ReturnType<typeof useUnitsLazyQuery>;
 export type UnitsQueryResult = Apollo.QueryResult<
   UnitsQuery,
   UnitsQueryVariables
+>;
+export const FindDefinitionFormulaFieldMixDocument = gql`
+  query findDefinitionFormulaFieldMix(
+    $projectDefinitionId: ID!
+    $query: String!
+    $first: Int!
+    $after: String
+  ) {
+    results: findDefinitionFormulaFieldMix(
+      projectDefinitionId: $projectDefinitionId
+      query: $query
+      first: $first
+      after: $after
+    ) {
+      edges {
+        node {
+          id
+          label: name
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+        totalCount
+      }
+    }
+  }
+`;
+
+/**
+ * __useFindDefinitionFormulaFieldMixQuery__
+ *
+ * To run a query within a React component, call `useFindDefinitionFormulaFieldMixQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindDefinitionFormulaFieldMixQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindDefinitionFormulaFieldMixQuery({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useFindDefinitionFormulaFieldMixQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    FindDefinitionFormulaFieldMixQuery,
+    FindDefinitionFormulaFieldMixQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    FindDefinitionFormulaFieldMixQuery,
+    FindDefinitionFormulaFieldMixQueryVariables
+  >(FindDefinitionFormulaFieldMixDocument, options);
+}
+export function useFindDefinitionFormulaFieldMixLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    FindDefinitionFormulaFieldMixQuery,
+    FindDefinitionFormulaFieldMixQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    FindDefinitionFormulaFieldMixQuery,
+    FindDefinitionFormulaFieldMixQueryVariables
+  >(FindDefinitionFormulaFieldMixDocument, options);
+}
+export type FindDefinitionFormulaFieldMixQueryHookResult = ReturnType<
+  typeof useFindDefinitionFormulaFieldMixQuery
+>;
+export type FindDefinitionFormulaFieldMixLazyQueryHookResult = ReturnType<
+  typeof useFindDefinitionFormulaFieldMixLazyQuery
+>;
+export type FindDefinitionFormulaFieldMixQueryResult = Apollo.QueryResult<
+  FindDefinitionFormulaFieldMixQuery,
+  FindDefinitionFormulaFieldMixQueryVariables
+>;
+export const FindFormulaDocument = gql`
+  query findFormula($projectDefinitionId: ID!, $formulaId: ID!) {
+    result: findFormula(
+      projectDefinitionId: $projectDefinitionId
+      formulaId: $formulaId
+    ) {
+      id
+      label: name
+    }
+  }
+`;
+
+/**
+ * __useFindFormulaQuery__
+ *
+ * To run a query within a React component, call `useFindFormulaQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindFormulaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindFormulaQuery({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      formulaId: // value for 'formulaId'
+ *   },
+ * });
+ */
+export function useFindFormulaQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    FindFormulaQuery,
+    FindFormulaQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<FindFormulaQuery, FindFormulaQueryVariables>(
+    FindFormulaDocument,
+    options
+  );
+}
+export function useFindFormulaLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    FindFormulaQuery,
+    FindFormulaQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<FindFormulaQuery, FindFormulaQueryVariables>(
+    FindFormulaDocument,
+    options
+  );
+}
+export type FindFormulaQueryHookResult = ReturnType<typeof useFindFormulaQuery>;
+export type FindFormulaLazyQueryHookResult = ReturnType<
+  typeof useFindFormulaLazyQuery
+>;
+export type FindFormulaQueryResult = Apollo.QueryResult<
+  FindFormulaQuery,
+  FindFormulaQueryVariables
 >;
 export const CreateProjectDocument = gql`
   mutation createProject($projectDetails: ProjectDetailsInput!) {

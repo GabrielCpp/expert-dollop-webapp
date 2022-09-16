@@ -2,7 +2,7 @@ import { DatabaseTable } from "./database-table";
 import { Query } from "./query";
 import { Table } from "./table";
 import { TableRecord } from "./table-record";
-import { getQueryFootprint, QueryEngine, QueryExecutor } from "./query-engine";
+import { QueryEngine, QueryExecutor } from "./query-engine";
 import { Unsubscribe } from "./table-record-change-emitter";
 import { OnQueryChange } from "./query-change-emitter";
 import { Transaction } from "./transaction";
@@ -30,7 +30,7 @@ export class ReduxDatabase {
   }
 
   public query<T extends TableRecord>(query: Query): T[] {
-    const queryFootprint = getQueryFootprint(query);
+    const queryFootprint = JSON.stringify(query);
     const queryExecutor = this._queries.get(queryFootprint);
 
     if (queryExecutor !== undefined) {
@@ -44,7 +44,7 @@ export class ReduxDatabase {
     query: Query,
     onChange: OnQueryChange<T>
   ): [T[], Unsubscribe] {
-    const queryFootprint = getQueryFootprint(query);
+    const queryFootprint = JSON.stringify(query);
     let queryExecutor = this._queries.get(queryFootprint);
 
     if (queryExecutor === undefined) {

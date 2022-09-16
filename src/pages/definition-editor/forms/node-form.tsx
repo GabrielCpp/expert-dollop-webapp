@@ -26,9 +26,16 @@ interface ContainerFormProps {
   role: FormRole;
   node: ProjectDefinitionNodeCreationInput;
   onSubmit: (data: ProjectDefinitionNodeCreationInput) => Promise<void>;
+  projectDefinitionId: string;
 }
 
-export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
+export function NodeForm({
+  projectDefinitionId,
+  level,
+  role,
+  node,
+  onSubmit,
+}: ContainerFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm();
   const nameId = useId();
@@ -145,6 +152,7 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
             name={labels.fieldConfig.name}
             labels={labels.fieldConfig}
             fieldDetails={node.fieldDetails}
+            projectDefinitionId={projectDefinitionId}
           />
         )}
       {level === "section" && (
@@ -161,6 +169,7 @@ export function NodeForm({ level, role, node, onSubmit }: ContainerFormProps) {
         name={labels.triggers.name}
         key={labels.triggers.name}
         labels={labels.triggers}
+        triggers={node.triggers}
       />
     </Form>
   );

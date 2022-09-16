@@ -26,7 +26,7 @@ export function checkboxField({
         control={
           <Checkbox
             checked={Boolean(value)}
-            onChange={onChange}
+            onChange={(e) => onChange(e.target.checked)}
             name={name}
             color="primary"
             sx={{ paddingTop: theme.spacing(0.5) }}

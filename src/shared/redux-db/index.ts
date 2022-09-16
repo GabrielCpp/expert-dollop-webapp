@@ -15,3 +15,4 @@ export {
 export type { Query } from "./query";
 export type { Unsubscribe, WatchEvent } from "./table-record-change-emitter";
 export type { TableRecord } from "./table-record";
+export { wrapEmitterInObservable, ObservableValue } from './observables'

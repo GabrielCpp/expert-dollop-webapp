@@ -145,6 +145,7 @@ export const nodeFormLabels = {
     string: {
       name: 'string',
       label: "definition_editor.node_form.field_string_default_value",
+      defaultValue: "",
     },
     staticChoice: {
       name: 'staticChoice',

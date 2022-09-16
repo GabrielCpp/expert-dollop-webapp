@@ -41,7 +41,7 @@ export function selectField({
       </InputLabel>
       <Select
         value={isValueInOptions ? value : DefaultEmptyId}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         label={t(label)}
         labelId={id}
         id={id}

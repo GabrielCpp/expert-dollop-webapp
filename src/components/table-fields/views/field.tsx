@@ -21,8 +21,7 @@ export interface FieldProps<T extends FieldChildren> {
   componentId?: string;
   sideEffect?: (r: FormFieldRecord) => void;
   t: Translator;
-  component?: (props: T) => JSX.Element;
-  children?: (props: T) => JSX.Element;
+  component: (props: T) => JSX.Element;
   formatter?: ViewValueFormatter;
   valueToFormModel?: ValueToFormModel;
 }
@@ -35,7 +34,6 @@ export function Field<T extends FieldChildren>({
   component,
   t,
   id,
-  children,
   metadata,
   formatter = identity,
   valueToFormModel = selectValueToFormModel(validator),
@@ -73,10 +71,6 @@ export function Field<T extends FieldChildren>({
   if (component !== undefined) {
     const Component = component;
     return <Component {...(childProps as T)} />;
-  }
-
-  if (children !== undefined) {
-    return children(childProps as T);
   }
 
   return null;

@@ -15,7 +15,6 @@
     "ajv-formats": "^2.1.1",
     "apollo3-cache-persist": "^0.14.1",
     "build-url": "^6.0.1",
-    "crypto-js": "^4.0.0",
     "fbemitter": "^3.0.0",
     "graphql": "^15.5.0",
     "graphql-tag": "^2.0.0",

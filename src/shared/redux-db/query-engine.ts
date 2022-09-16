@@ -19,7 +19,6 @@ import {
 import { Query, FilterNode, QuerySort } from "./query";
 import { Table } from "./table";
 import { getPk, PrimaryKey, TableRecord } from "./table-record";
-import CryptoJS, { SHA256 } from "crypto-js";
 import { Unsubscribe } from "./table-record-change-emitter";
 import { QueryChangeEmitter } from "./query-change-emitter";
 
@@ -161,10 +160,6 @@ function buildSortCompareFn(
 
     return 0;
   };
-}
-
-export function getQueryFootprint(query: Query): string {
-  return SHA256(JSON.stringify(query)).toString(CryptoJS.enc.Hex);
 }
 
 interface Layer {
