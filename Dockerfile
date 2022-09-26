@@ -7,6 +7,11 @@ RUN yarn install
 COPY tsconfig.json tsconfig.json
 COPY src src
 COPY public public
+
+ARG REACT_APP_AUTH0_DOMAIN
+ARG REACT_APP_AUTH0_CLIENT_ID
+ARG REACT_APP_AUTH0_AUDIENCE
+ARG REACT_APP_AUTH0_REDIRECT_URI
 RUN yarn build
 
 FROM build as test
