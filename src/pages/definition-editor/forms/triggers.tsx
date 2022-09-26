@@ -73,6 +73,7 @@ export function Triggers({ name, path, labels, triggers }: TriggersProps) {
             >
               <Grid
                 item
+                container
                 direction="row"
                 justifyContent="center"
                 alignItems="center"

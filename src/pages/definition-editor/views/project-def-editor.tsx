@@ -12,7 +12,7 @@ import {
 } from "../../../components/snackbar-display";
 import { useDynamicTranlation } from "../../../components/translation";
 import { useServices } from "../../../services-def";
-import { MatchingRoutes } from "../../../shared/named-routes";
+import { RouteBinding } from "../../../shared/named-routes";
 import { useId } from "../../../shared/redux-db";
 import { FormDefinitionEditor } from "../components/form-editor";
 import { RootSectionBar } from "../components/root-section-bar";
@@ -50,10 +50,7 @@ export function EditorLayout() {
   }
 
   return (
-    <MatchingRoutes
-      tag="project-definition-view"
-      completeAction={completeAction}
-    >
+    <RouteBinding tag="project-definition-view" completeAction={completeAction}>
       <Route path={routes.getUrl(PROJECT_DEFINITION_EDITOR_MAIN)} exact={true}>
         <Grid container direction="row" spacing={1}>
           <Grid item>
@@ -91,6 +88,6 @@ export function EditorLayout() {
           </Grid>
         </Grid>
       </Route>
-    </MatchingRoutes>
+    </RouteBinding>
   );
 }

@@ -35,18 +35,33 @@
     }
   },
   "definition_editor": {
+    "drawers": {
+      "index_link_name": "Project Templates"
+    },
     "shared": {
       "empty_placeholder": "<empty>"
     },
     "edit_formulas": {
-      "button_edit": "Edit formulas"
+      "formulas": "Formulas"
+    },
+    "access_labels_editor_toolbar": {
+      "labels": "labels"
+    },
+    "delete_node_toolbar": {
+      "delete_node": "Delete {{name}}"
+    },
+    "root_section_actions_toolbar": {
+      "edit_root_section": "Edit root section",
+      "add_root_section": "Add root section",
+      "remove_root_section": "Remove root section"
     },
     "side_panel": {
       "add_new_form": "Add new form",
       "add_new_sub_section": "Add new sub section"
     },
     "form_editor": {
-      "add_new_section": "Add new section"
+      "add_new_section": "Add new section",
+      "add_new_field": "Add new field"
     },
     "node_form": {
       "is_collapsible": "Is collapsible",

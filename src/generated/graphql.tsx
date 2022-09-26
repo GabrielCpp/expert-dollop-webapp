@@ -334,6 +334,7 @@ export type Mutation = {
   createProject: FieldWrapper<ProjectDetails>;
   createSingleUserOrganization: FieldWrapper<User>;
   deleteProjectCollection: FieldWrapper<ProjectNode>;
+  deleteProjectDefinitionNode: FieldWrapper<Scalars["ID"]>;
   updateProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
@@ -347,7 +348,7 @@ export type MutationAddProjectCollectionItemArgs = {
 
 export type MutationAddProjectDefinitionNodeArgs = {
   node: ProjectDefinitionNodeCreationInput;
-  projectDefinitionId: Scalars["String"];
+  projectDefinitionId: Scalars["ID"];
 };
 
 export type MutationCloneProjectCollectionArgs = {
@@ -372,10 +373,15 @@ export type MutationDeleteProjectCollectionArgs = {
   projectId: Scalars["ID"];
 };
 
+export type MutationDeleteProjectDefinitionNodeArgs = {
+  nodeId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
+};
+
 export type MutationUpdateProjectDefinitionNodeArgs = {
   node: ProjectDefinitionNodeCreationInput;
-  nodeId: Scalars["String"];
-  projectDefinitionId: Scalars["String"];
+  nodeId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
 };
 
 export type MutationUpdateProjectFieldArgs = {
@@ -1103,7 +1109,7 @@ export type FindDatasheetsQuery = { __typename?: "Query" } & {
 };
 
 export type AddProjectDefinitionNodeMutationVariables = Exact<{
-  projectDefinitionId: Scalars["String"];
+  projectDefinitionId: Scalars["ID"];
   node: ProjectDefinitionNodeCreationInput;
 }>;
 
@@ -1152,8 +1158,8 @@ export type AddProjectDefinitionNodeMutation = { __typename?: "Mutation" } & {
 };
 
 export type UpdateProjectDefinitionNodeMutationVariables = Exact<{
-  projectDefinitionId: Scalars["String"];
-  nodeId: Scalars["String"];
+  projectDefinitionId: Scalars["ID"];
+  nodeId: Scalars["ID"];
   node: ProjectDefinitionNodeCreationInput;
 }>;
 
@@ -1202,6 +1208,15 @@ export type UpdateProjectDefinitionNodeMutation = {
       >;
     };
 };
+
+export type DeleteProjectDefinitionNodeMutationVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  nodeId: Scalars["ID"];
+}>;
+
+export type DeleteProjectDefinitionNodeMutation = {
+  __typename?: "Mutation";
+} & Pick<Mutation, "deleteProjectDefinitionNode">;
 
 export type FindProjectDefinitionFormulasQueryVariables = Exact<{
   projectDefinitionId: Scalars["ID"];
@@ -2963,7 +2978,7 @@ export type FindDatasheetsQueryResult = Apollo.QueryResult<
 >;
 export const AddProjectDefinitionNodeDocument = gql`
   mutation addProjectDefinitionNode(
-    $projectDefinitionId: String!
+    $projectDefinitionId: ID!
     $node: ProjectDefinitionNodeCreationInput!
   ) {
     addProjectDefinitionNode(
@@ -3056,8 +3071,8 @@ export type AddProjectDefinitionNodeMutationOptions =
   >;
 export const UpdateProjectDefinitionNodeDocument = gql`
   mutation updateProjectDefinitionNode(
-    $projectDefinitionId: String!
-    $nodeId: String!
+    $projectDefinitionId: ID!
+    $nodeId: ID!
     $node: ProjectDefinitionNodeCreationInput!
   ) {
     updateProjectDefinitionNode(
@@ -3149,6 +3164,62 @@ export type UpdateProjectDefinitionNodeMutationOptions =
   Apollo.BaseMutationOptions<
     UpdateProjectDefinitionNodeMutation,
     UpdateProjectDefinitionNodeMutationVariables
+  >;
+export const DeleteProjectDefinitionNodeDocument = gql`
+  mutation deleteProjectDefinitionNode(
+    $projectDefinitionId: ID!
+    $nodeId: ID!
+  ) {
+    deleteProjectDefinitionNode(
+      projectDefinitionId: $projectDefinitionId
+      nodeId: $nodeId
+    )
+  }
+`;
+export type DeleteProjectDefinitionNodeMutationFn = Apollo.MutationFunction<
+  DeleteProjectDefinitionNodeMutation,
+  DeleteProjectDefinitionNodeMutationVariables
+>;
+
+/**
+ * __useDeleteProjectDefinitionNodeMutation__
+ *
+ * To run a mutation, you first call `useDeleteProjectDefinitionNodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteProjectDefinitionNodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteProjectDefinitionNodeMutation, { data, loading, error }] = useDeleteProjectDefinitionNodeMutation({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      nodeId: // value for 'nodeId'
+ *   },
+ * });
+ */
+export function useDeleteProjectDefinitionNodeMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteProjectDefinitionNodeMutation,
+    DeleteProjectDefinitionNodeMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    DeleteProjectDefinitionNodeMutation,
+    DeleteProjectDefinitionNodeMutationVariables
+  >(DeleteProjectDefinitionNodeDocument, options);
+}
+export type DeleteProjectDefinitionNodeMutationHookResult = ReturnType<
+  typeof useDeleteProjectDefinitionNodeMutation
+>;
+export type DeleteProjectDefinitionNodeMutationResult =
+  Apollo.MutationResult<DeleteProjectDefinitionNodeMutation>;
+export type DeleteProjectDefinitionNodeMutationOptions =
+  Apollo.BaseMutationOptions<
+    DeleteProjectDefinitionNodeMutation,
+    DeleteProjectDefinitionNodeMutationVariables
   >;
 export const FindProjectDefinitionFormulasDocument = gql`
   query findProjectDefinitionFormulas(

@@ -81,6 +81,7 @@ export function useProjectDefPath(
     splitPath(selectedPath);
   const [path, setPath] = useState<(string | undefined)[]>([]);
   const loading = useRef(true);
+  const error = useRef<Error | undefined>(undefined);
 
   useEffect(() => {
     loading.current = true;
@@ -96,6 +97,7 @@ export function useProjectDefPath(
         setPath(path);
       })
       .catch((e) => {
+        error.current = e;
         loading.current = false;
         setPath([]);
       });
@@ -107,5 +109,5 @@ export function useProjectDefPath(
     apollo,
   ]);
 
-  return { loading: loading.current, path };
+  return { loading: loading.current, error: error.current, path };
 }

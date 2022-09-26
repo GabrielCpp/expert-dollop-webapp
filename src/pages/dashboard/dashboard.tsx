@@ -9,12 +9,9 @@ import Link from "@mui/material/Link";
 import List from "@mui/material/List";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { Route } from "react-router-dom";
-import { useObservable } from "react-use";
 import { ActionToolbar } from "../../components/custom-styles";
 import { useLocaleSelector } from "../../components/translation/use-translation-scope";
-import { useServices } from "../../services-def";
-import { MatchingRoutes, useComponentMatcher } from "../../shared/named-routes";
+import { RouteBinding } from "../../shared/named-routes";
 import { theme } from "../../theme";
 
 const drawerWidth = 220;
@@ -167,7 +164,32 @@ export function Dashboard() {
         </FlexToolbar>
       </AppBarWithDrawer>
 
-      <RoutedDrawer />
+      <RouteBinding
+        tag="main-drawer"
+        displayWhenNoMatch={false}
+        overlay={({ children }) => (
+          <Drawer
+            sx={{
+              width: drawerWidth,
+              flexShrink: 0,
+              "& .MuiDrawer-paper": {
+                width: drawerWidth,
+                boxSizing: "border-box",
+              },
+            }}
+            variant="permanent"
+            anchor="left"
+          >
+            <ToolbarSpacer />
+            <List>{children}</List>
+          </Drawer>
+        )}
+        wrapComponent={(c, n) => (
+          <Grid item key={c.name}>
+            {n}
+          </Grid>
+        )}
+      />
 
       <Box
         sx={{
@@ -182,10 +204,26 @@ export function Dashboard() {
 
         <Grid container direction="column" spacing={1}>
           <Grid item xl={12}>
-            <RouterToolbar />
+            <RouteBinding
+              tag="main-toolbar"
+              displayWhenNoMatch={false}
+              overlay={({ children }) => (
+                <ActionToolbar
+                  container
+                  columnSpacing={{ xs: 1, sm: 1, md: 1 }}
+                >
+                  {children}
+                </ActionToolbar>
+              )}
+              wrapComponent={(c, n) => (
+                <Grid item key={c.name}>
+                  {n}
+                </Grid>
+              )}
+            />
           </Grid>
           <Grid item xl={12}>
-            <MatchingRoutes tag="main-content" firstMatch={true} />
+            <RouteBinding tag="main-content" firstMatch={true} />
           </Grid>
           <Grid item>
             <Copyright />
@@ -193,64 +231,5 @@ export function Dashboard() {
         </Grid>
       </Box>
     </Box>
-  );
-}
-
-function RoutedDrawer() {
-  const { auth0 } = useServices();
-  const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
-  const { hasMatch, matchingComponents } = useComponentMatcher(
-    "main-drawer",
-    user.permissions
-  );
-
-  if (!hasMatch) {
-    return null;
-  }
-
-  return (
-    <Drawer
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: drawerWidth,
-          boxSizing: "border-box",
-        },
-      }}
-      variant="permanent"
-      anchor="left"
-    >
-      <ToolbarSpacer />
-      <List>{matchingComponents.map((m) => m.component({}))}</List>
-    </Drawer>
-  );
-}
-
-function RouterToolbar() {
-  const { auth0 } = useServices();
-  const user = useObservable(auth0.observeCurrentUser(), auth0.currentUser);
-  const { hasMatch, matchingComponents } = useComponentMatcher(
-    "main-toolbar",
-    user.permissions
-  );
-
-  if (!hasMatch) {
-    return null;
-  }
-
-  return (
-    <ActionToolbar container columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
-      {matchingComponents.map((m) => {
-        const Component = m.component;
-        return (
-          <Grid item key={m.name}>
-            <Route path={m.path}>
-              <Component />
-            </Route>
-          </Grid>
-        );
-      })}
-    </ActionToolbar>
   );
 }

@@ -1,3 +1,5 @@
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import {
   Card,
   CardContent,
@@ -11,23 +13,24 @@ import {
   ListItemText,
   Tooltip,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import React, { Fragment, useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import {
-  FindProjectDefinitionRootSectionContainersQuery,
-  useFindProjectDefinitionRootSectionContainersQuery,
-} from "../../../generated/graphql";
-import { useServices } from "../../../services-def";
+  AddButtonLinkFullWidth,
+  EditIconButtonLink,
+} from "../../../components/buttons";
+import { ListRoot, NestedListItem } from "../../../components/custom-styles";
 import {
   RefectGroup,
   useLoaderEffect,
   useSharedRefetch,
 } from "../../../components/loading-frame";
+import {
+  FindProjectDefinitionRootSectionContainersQuery,
+  useFindProjectDefinitionRootSectionContainersQuery,
+} from "../../../generated/graphql";
+import { useServices } from "../../../services-def";
 import { useDbTranslation } from "../hooks/db-trans";
 import {
   buildAddNodeParams,
@@ -36,7 +39,6 @@ import {
   PROJECT_DEFINITION_EDITOR_NODE_ADD,
   PROJECT_DEFINITION_EDITOR_NODE_EDIT,
 } from "../routes";
-import { ListRoot, NestedListItem } from "../../../components/custom-styles";
 
 const boldListItem: React.CSSProperties = {
   fontWeight: "bold",
@@ -58,7 +60,7 @@ export function SidePanel({
   refectGroup,
 }: SidePanelProps) {
   const { routes } = useServices();
-  const { t, dbTrans } = useDbTranslation(projectDefinitionId);
+  const { dbTrans } = useDbTranslation(projectDefinitionId);
   const [expanded, setExpanded] = useState<string | undefined>(subSectionDefId);
 
   const { data, loading, error, refetch } =
@@ -92,27 +94,27 @@ export function SidePanel({
             subSections.map((subSection) => (
               <Fragment key={subSection.definition.name}>
                 <ListItem>
+                  <EditIconButtonLink
+                    size="small"
+                    title="shared.buttons.edit"
+                    to={routes.render(
+                      PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+                      buildEditNodeParams(
+                        projectDefinitionId,
+                        subSection.definition.path,
+                        subSection.definition.id
+                      )
+                    )}
+                  />
                   <Tooltip
                     title={dbTrans(
                       subSection.definition.translations.helpTextName
                     )}
                   >
                     <ListItemText
-                      primary={
-                        <Link
-                          component={RouterLink}
-                          to={routes.render(
-                            PROJECT_DEFINITION_EDITOR_NODE_EDIT,
-                            buildEditNodeParams(
-                              projectDefinitionId,
-                              subSection.definition.path,
-                              subSection.definition.id
-                            )
-                          )}
-                        >
-                          {dbTrans(subSection.definition.translations.label)}
-                        </Link>
-                      }
+                      primary={dbTrans(
+                        subSection.definition.translations.label
+                      )}
                     />
                   </Tooltip>
 
@@ -150,26 +152,13 @@ export function SidePanel({
               </Fragment>
             ))}
           <ListItem>
-            <ListItemText>
-              {t("definition_editor.side_panel.add_new_sub_section")}
-            </ListItemText>
-            <ListItemSecondaryAction>
-              <Tooltip
-                title={t("button.add") as string}
-                aria-label={t("button.add")}
-              >
-                <IconButton
-                  size="small"
-                  component={RouterLink}
-                  to={routes.render(
-                    PROJECT_DEFINITION_EDITOR_NODE_ADD,
-                    buildAddNodeParams(projectDefinitionId, [rootSectionDefId])
-                  )}
-                >
-                  <AddIcon />
-                </IconButton>
-              </Tooltip>
-            </ListItemSecondaryAction>
+            <AddButtonLinkFullWidth
+              label="definition_editor.side_panel.add_new_sub_section"
+              to={routes.render(
+                PROJECT_DEFINITION_EDITOR_NODE_ADD,
+                buildAddNodeParams(projectDefinitionId, [rootSectionDefId])
+              )}
+            />
           </ListItem>
         </ListRoot>
       </CardContent>
@@ -191,7 +180,7 @@ function FormLinkList({
   subSection,
 }: FormLinkListProps) {
   const { routes } = useServices();
-  const { t, dbTrans } = useDbTranslation(projectDefinitionId);
+  const { dbTrans } = useDbTranslation(projectDefinitionId);
 
   return (
     <List component="div" disablePadding>
@@ -203,11 +192,10 @@ function FormLinkList({
             >
               <ListItemText
                 primaryTypographyProps={{
-                  style: {
-                    ...(formNode.definition.id !== formId
+                  style:
+                    formNode.definition.id === formId
                       ? boldListItem
-                      : undefined),
-                  },
+                      : undefined,
                 }}
                 primary={
                   formNode.definition.id === formId ? (
@@ -229,54 +217,34 @@ function FormLinkList({
               />
             </Tooltip>
             <ListItemSecondaryAction>
-              <Tooltip
-                title={t("button.edit") as string}
-                aria-label={t("button.edit")}
-              >
-                <IconButton
-                  aria-label="edit"
-                  size="small"
-                  component={RouterLink}
-                  to={routes.render(
-                    PROJECT_DEFINITION_EDITOR_NODE_EDIT,
-                    buildEditNodeParams(
-                      projectDefinitionId,
-                      formNode.definition.path,
-                      formNode.definition.id
-                    )
-                  )}
-                >
-                  <EditIcon fontSize="inherit" />
-                </IconButton>
-              </Tooltip>
+              <EditIconButtonLink
+                size="small"
+                title="shared.buttons.edit"
+                to={routes.render(
+                  PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+                  buildEditNodeParams(
+                    projectDefinitionId,
+                    formNode.definition.path,
+                    formNode.definition.id
+                  )
+                )}
+              />
             </ListItemSecondaryAction>
           </NestedListItem>
         </Fragment>
       ))}
       <NestedListItem>
-        <ListItemText>
-          {t("definition_editor.side_panel.add_new_form")}
-        </ListItemText>
-        <ListItemSecondaryAction>
-          <Tooltip
-            title={t("button.add") as string}
-            aria-label={t("button.add")}
-          >
-            <IconButton
-              size="small"
-              component={RouterLink}
-              to={routes.render(
-                PROJECT_DEFINITION_EDITOR_NODE_ADD,
-                buildAddNodeParams(projectDefinitionId, [
-                  ...subSection.definition.path,
-                  subSection.definition.id,
-                ])
-              )}
-            >
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
-        </ListItemSecondaryAction>
+        <AddButtonLinkFullWidth
+          label="definition_editor.side_panel.add_new_form"
+          title="shared.buttons.add"
+          to={routes.render(
+            PROJECT_DEFINITION_EDITOR_NODE_ADD,
+            buildAddNodeParams(projectDefinitionId, [
+              ...subSection.definition.path,
+              subSection.definition.id,
+            ])
+          )}
+        />
       </NestedListItem>
     </List>
   );

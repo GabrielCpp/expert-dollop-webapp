@@ -1,9 +1,6 @@
 import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   Card,
-  CardActions,
   CardHeader,
   Collapse,
   Grid,
@@ -15,9 +12,9 @@ import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import EditIcon from "@mui/icons-material/Edit";
+import { AddButtonLinkFullWidth } from "../../../components/buttons";
 import {
   ExpandIconButton,
-  LeftSideButton,
   UnpadCardContent,
 } from "../../../components/custom-styles";
 import {
@@ -177,6 +174,7 @@ function FormField({ node }: FormProps): JSX.Element {
 }
 
 function FormSection({ node }: FormProps): JSX.Element {
+  const { routes } = useServices();
   const valueType = node.definition
     .fieldDetails as CollapsibleContainerFieldConfig;
   const [expanded, setExpanded] = useState(!valueType.isCollapsible);
@@ -223,20 +221,21 @@ function FormSection({ node }: FormProps): JSX.Element {
                 <FormField node={child} />
               </Grid>
             ))}
+            <Grid item key="add">
+              <AddButtonLinkFullWidth
+                label="definition_editor.form_editor.add_new_field"
+                to={routes.render(
+                  PROJECT_DEFINITION_EDITOR_NODE_ADD,
+                  buildAddNodeParams(node.definition.projectDefinitionId, [
+                    ...node.definition.path,
+                    node.definition.id,
+                  ])
+                )}
+              />
+            </Grid>
           </Grid>
         </UnpadCardContent>
       </Collapse>
-      {/* TODO: extract those to a reusable component */}
-      <CardActions disableSpacing>
-        <LeftSideButton>
-          <IconButton>
-            <AddIcon />
-          </IconButton>
-          <IconButton>
-            <MoreVertIcon />
-          </IconButton>
-        </LeftSideButton>
-      </CardActions>
     </Card>
   );
 }
@@ -252,7 +251,7 @@ export function FormDefinitionEditor({
   formDefId,
   refectGroup,
 }: FormDefinitionEditorProps) {
-  const { t, dbTrans } = useDbTranslation(projectDefinitionId);
+  const { dbTrans } = useDbTranslation(projectDefinitionId);
   const { routes } = useServices();
   const { loading, data, error, refetch } =
     useFindProjectDefinitionFormContentQuery({
@@ -287,29 +286,16 @@ export function FormDefinitionEditor({
             ))}
           {formNode && (
             <Grid item>
-              <Card variant="outlined">
-                <CardHeader
-                  action={
-                    <IconButton
-                      component={RouterLink}
-                      to={routes.render(
-                        PROJECT_DEFINITION_EDITOR_NODE_ADD,
-                        buildAddNodeParams(projectDefinitionId, [
-                          ...formNode.path,
-                          formNode.id,
-                        ])
-                      )}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  }
-                  title={
-                    <Typography variant="h5" component="h5" gutterBottom>
-                      {t("definition_editor.form_editor.add_new_section")}
-                    </Typography>
-                  }
-                />
-              </Card>
+              <AddButtonLinkFullWidth
+                label="definition_editor.form_editor.add_new_section"
+                to={routes.render(
+                  PROJECT_DEFINITION_EDITOR_NODE_ADD,
+                  buildAddNodeParams(projectDefinitionId, [
+                    ...formNode.path,
+                    formNode.id,
+                  ])
+                )}
+              />
             </Grid>
           )}
         </Grid>

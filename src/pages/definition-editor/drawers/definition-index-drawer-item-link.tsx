@@ -3,9 +3,11 @@ import { Link as RouterLink } from "react-router-dom";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import { useServices } from "../../../services-def";
 import { PROJECT_DEFINITION_INDEX } from "../routes";
+import { useTranslation } from "react-i18next";
 
 export function DefinitionIndexDrawerItemLink() {
   const { routes } = useServices();
+  const { t } = useTranslation();
 
   return (
     <ListItem
@@ -17,7 +19,7 @@ export function DefinitionIndexDrawerItemLink() {
       <ListItemIcon>
         <AccountTreeIcon />
       </ListItemIcon>
-      <ListItemText primary={"Project Templates"} />
+      <ListItemText primary={t("definition_editor.drawers.index_link_name")} />
     </ListItem>
   );
 }

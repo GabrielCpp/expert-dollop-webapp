@@ -1,34 +1,141 @@
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { ExtendButtonBase, IconButton, IconButtonTypeMap } from "@mui/material";
+import { Button, IconButton, Tooltip, styled } from "@mui/material";
+import { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
 
-export function AddIconButton(
-  props: ExtendButtonBase<IconButtonTypeMap<{}, "button">>
-) {
-  return (
-    <IconButton {...props}>
-      <AddIcon />
-    </IconButton>
-  );
+const ButtonFullWidth = styled(Button)({
+  width: "100%",
+});
+
+type ButtonProps = Parameters<typeof Button>[0];
+interface ButtonLinkProps extends ButtonProps {
+  label?: string;
+  to?: string;
+  title?: string;
 }
 
-export function DeleteIconButton(
-  props: ExtendButtonBase<IconButtonTypeMap<{}, "button">>
-) {
-  return (
-    <IconButton {...props}>
-      <DeleteIcon />
-    </IconButton>
-  );
+export function AddIconButton(props: ButtonLinkProps) {
+  const { t } = useTranslation();
+  return buildButton(IconButton, {
+    ...props,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+    label: <AddIcon fontSize="inherit" />,
+  });
 }
 
-export function EditIconButton(
-  props: ExtendButtonBase<IconButtonTypeMap<{}, "button">>
+export function DeleteIconButton(props: ButtonLinkProps) {
+  const { t } = useTranslation();
+  return buildButton(IconButton, {
+    ...props,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+    label: <DeleteIcon fontSize="inherit" />,
+  });
+}
+
+export function EditIconButtonLink(props: ButtonLinkProps): JSX.Element {
+  const { t } = useTranslation();
+  return buildButton(IconButton, {
+    ...props,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+    label: <EditIcon fontSize="inherit" />,
+  });
+}
+
+export function AddButtonLinkFullWidth(props: ButtonLinkProps): JSX.Element {
+  const { t } = useTranslation();
+  return buildButton(ButtonFullWidth, {
+    ...props,
+    variant: "outlined",
+    startIcon: <AddIcon />,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+  });
+}
+
+export function EditButtonLink(props: ButtonLinkProps): JSX.Element {
+  const { t } = useTranslation();
+  return buildButton(Button, {
+    ...props,
+    variant: "outlined",
+    startIcon: <EditIcon />,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+  });
+}
+
+export function DeleteButtonLink(props: ButtonLinkProps): JSX.Element {
+  const { t } = useTranslation();
+  return buildButton(Button, {
+    ...props,
+    variant: "outlined",
+    startIcon: <DeleteIcon />,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+  });
+}
+
+export function AddButtonLink(props: ButtonLinkProps): JSX.Element {
+  const { t } = useTranslation();
+  return buildButton(Button, {
+    ...props,
+    variant: "outlined",
+    startIcon: <AddIcon />,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+  });
+}
+
+export function OutlinedButtonLink(props: ButtonLinkProps) {
+  const { t } = useTranslation();
+  return buildButton(Button, {
+    ...props,
+    variant: "outlined",
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+  });
+}
+
+function buildButton(
+  ButtonNode: (
+    p: Omit<ButtonLinkProps, "label" | "title"> & { component?: unknown }
+  ) => any,
+  {
+    label,
+    title,
+    ...other
+  }: Omit<ButtonLinkProps, "label" | "title"> & {
+    component?: unknown;
+    label?: ReactNode;
+    title?: ReactNode;
+  }
 ) {
-  return (
-    <IconButton {...props}>
-      <EditIcon />
-    </IconButton>
-  );
+  let button: JSX.Element = <ButtonNode {...other}>{label}</ButtonNode>;
+
+  if (title) {
+    button = <Tooltip title={title}>{button}</Tooltip>;
+  }
+
+  return button;
+}
+
+function getLinkProps(props: ButtonLinkProps) {
+  return props.to === undefined
+    ? {}
+    : {
+        component: RouterLink,
+        to: props.to,
+      };
+}
+
+function getTranslations(t: (k: string) => ReactNode, props: ButtonLinkProps) {
+  return {
+    label: props.label ? t(props.label) : "",
+    title: props.title ? t(props.title) : undefined,
+  };
 }

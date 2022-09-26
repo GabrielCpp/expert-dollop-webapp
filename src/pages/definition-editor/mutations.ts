@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const ADD_PROJECT_DEFINITION_NODE = gql`
-  mutation addProjectDefinitionNode($projectDefinitionId: String!, $node: ProjectDefinitionNodeCreationInput!) {
+  mutation addProjectDefinitionNode($projectDefinitionId: ID!, $node: ProjectDefinitionNodeCreationInput!) {
     addProjectDefinitionNode(projectDefinitionId: $projectDefinitionId, node: $node) {
       id
       projectDefinitionId
@@ -45,7 +45,7 @@ export const ADD_PROJECT_DEFINITION_NODE = gql`
 
 
 export const UPDATE_PROJECT_DEFINITION_NODE = gql`
-  mutation updateProjectDefinitionNode($projectDefinitionId: String!, $nodeId: String! $node: ProjectDefinitionNodeCreationInput!) {
+  mutation updateProjectDefinitionNode($projectDefinitionId: ID!, $nodeId: ID! $node: ProjectDefinitionNodeCreationInput!) {
     updateProjectDefinitionNode(projectDefinitionId: $projectDefinitionId, nodeId: $nodeId, node: $node) {
       id
       projectDefinitionId
@@ -86,3 +86,9 @@ export const UPDATE_PROJECT_DEFINITION_NODE = gql`
     }
   }
 `;
+
+export const DELETE_PROJECT_DEFINITION_NODE = gql`
+mutation deleteProjectDefinitionNode($projectDefinitionId: ID!, $nodeId: ID!) {
+	deleteProjectDefinitionNode(projectDefinitionId: $projectDefinitionId, nodeId: $nodeId)
+}
+`

@@ -1,19 +1,30 @@
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ButtonGroup from "@mui/material/ButtonGroup";
 import Button from "@mui/material/Button";
 import Menu, { MenuProps } from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { alpha, styled } from "@mui/material/styles";
-import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { ReactNode, useRef, useState } from "react";
+import { Link as RouterLink, useHistory } from "react-router-dom";
+import {
+  ClickAwayListener,
+  Grow,
+  MenuList,
+  Paper,
+  Popper,
+} from "@mui/material";
 
 export interface DropdownItem {
   label: () => JSX.Element;
   key: string;
   link: string;
+  buttonProps?: ButtonProps;
 }
 
-export interface DropdownButtonProps {
-  label: string;
+type ButtonProps = Parameters<typeof Button>[0];
+export interface DropdownButtonProps extends ButtonProps {
+  label: ReactNode;
+  link?: string;
   items: DropdownItem[];
 }
 
@@ -60,9 +71,15 @@ const StyledMenu = styled((props: MenuProps) => (
   },
 }));
 
-export function DropdownButton({ label, items }: DropdownButtonProps) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+export function DropdownButton({
+  label,
+  items,
+  link,
+  ...others
+}: DropdownButtonProps) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement | SVGSVGElement>(
+    null
+  );
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -71,6 +88,16 @@ export function DropdownButton({ label, items }: DropdownButtonProps) {
     setAnchorEl(null);
   };
 
+  const linkProps = link
+    ? {
+        component: RouterLink,
+        to: link,
+        endIcon: (
+          <ArrowDropDownIcon onClick={(e) => setAnchorEl(e.currentTarget)} />
+        ),
+      }
+    : { onClick: handleClick, endIcon: <ArrowDropDownIcon /> };
+
   return (
     <>
       <Button
@@ -78,20 +105,125 @@ export function DropdownButton({ label, items }: DropdownButtonProps) {
         aria-expanded={open ? "true" : undefined}
         variant="contained"
         disableElevation
-        onClick={handleClick}
-        endIcon={<KeyboardArrowDownIcon />}
+        {...linkProps}
+        {...others}
       >
         {label}
       </Button>
       <StyledMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
         {items.map(({ label: ItemLabel, key, link }) => (
-          <MenuItem key={key} onClick={handleClose} disableRipple>
-            <RouterLink to={link}>
-              <ItemLabel />
-            </RouterLink>
+          <MenuItem
+            key={key}
+            onClick={handleClose}
+            disableRipple
+            component={RouterLink}
+            to={link}
+          >
+            <ItemLabel />
           </MenuItem>
         ))}
       </StyledMenu>
+    </>
+  );
+}
+
+export interface DefaultDropdownButtonProps {
+  mainActions: DropdownItem[];
+  subActions: DropdownItem[];
+}
+
+export function DefaultDropdownButton({
+  mainActions,
+  subActions,
+}: DefaultDropdownButtonProps) {
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const history = useHistory();
+  const [open, setOpen] = useState(false);
+  const handleToggle = () => {
+    setOpen((prevOpen) => !prevOpen);
+  };
+  const handleClose = (event: any) => {
+    if (
+      anchorRef.current &&
+      anchorRef.current.contains(event.target as HTMLElement)
+    ) {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const doMainAction = (link: string) => () => {
+    history.push(link);
+  };
+
+  return (
+    <>
+      <ButtonGroup variant="contained" ref={anchorRef}>
+        {mainActions.map((item) => (
+          <Button
+            {...item.buttonProps}
+            onClick={doMainAction(item.link)}
+            key={item.key}
+          >
+            <item.label />
+          </Button>
+        ))}
+
+        <Button
+          size="small"
+          aria-controls={open ? "split-button-menu" : undefined}
+          aria-expanded={open ? "true" : undefined}
+          aria-label="select merge strategy"
+          aria-haspopup="menu"
+          onClick={handleToggle}
+        >
+          <ArrowDropDownIcon />
+        </Button>
+      </ButtonGroup>
+      <Popper
+        sx={{
+          zIndex: 1,
+        }}
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        transition
+        disablePortal
+      >
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === "bottom" ? "center top" : "center bottom",
+              zIndex: "999",
+              width:
+                anchorRef.current === null
+                  ? undefined
+                  : anchorRef.current.clientWidth,
+            }}
+          >
+            <Paper>
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList autoFocusItem>
+                  {subActions.map(({ label: ItemLabel, key, link }) => (
+                    <MenuItem
+                      key={key}
+                      onClick={handleClose}
+                      disableRipple
+                      component={RouterLink}
+                      to={link}
+                    >
+                      <ItemLabel />
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
     </>
   );
 }

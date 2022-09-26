@@ -5,6 +5,5 @@ export type {
   ComponentRouteMatching,
 } from "./named-route";
 export { NamedRoutes } from "./named-route";
-export { renderNamedRoute, MatchingRoutes } from "./route-component-view";
-export { useComponentMatcher } from "./hooks/use-component-matcher";
+export { RouteBinding } from "./route-component-view";
 export { useUrlQueryParams, getSearchParams } from "./hooks/use-url-query-params";
