@@ -9,6 +9,9 @@ COPY src src
 COPY public public
 RUN yarn build
 
+FROM build as test
+ENTRYPOINT [ "yarn", "test" ]
+
 FROM build as staging
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 ARG BACKEND_URL

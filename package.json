@@ -62,7 +62,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
     "g:s": "graphql-codegen --config codegen.yml",
     "prettify": "yarn prettier --write src",
