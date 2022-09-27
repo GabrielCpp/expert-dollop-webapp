@@ -1,102 +1,27 @@
 steps:
-  # Export
-  - name: "gcr.io/cloud-builders/gcloud"
-    id: export
+  - name: gcr.io/cloud-builders/yarn
+    id: install-test-build
     entrypoint: "bash"
     args:
       - -ceux
       - |
-        # Must follow LOCATION-docker.pkg.dev/PROJECT-ID/REPOSITORY/IMAGE
-        export BUILD_IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY_NAME/$_REPOSITORY_NAME"
-        export BUILD_CI_TAG=ci-build
-        export BUILD_CI_IMAGE=$$BUILD_IMAGE:$$BUILD_CI_TAG
-        export BUILD_CI_TEST_TAG=ci-test
-        export BUILD_CI_TEST_IMAGE=$$BUILD_IMAGE:$$BUILD_CI_TEST_TAG
-        export BUILD_CACHE_TAGS=$(gcloud container images list-tags $$BUILD_IMAGE --filter="ci-build" --quiet --format=json | sed 's/ *$//g')
-
-        if [ -z "$BRANCH_NAME" ]; then
-          export BUILD_BRANCH_NAME="main"
-        else
-          export BUILD_BRANCH_NAME="$BRANCH_NAME"
-        fi
-
-        if [ -z "$COMMIT_SHA" ]; then
-          export BUILD_TAG="$BUILD_ID"
-        else
-          export BUILD_TAG="$COMMIT_SHA"
-        fi
-
-        env | grep "^BUILD_" > /workspace/build_vars
-  # Build cache
-  - name: "gcr.io/cloud-builders/docker"
-    id: build_cache
-    entrypoint: "bash"
-    args:
-      - -ceux
-      - |
-        source /workspace/build_vars
-
-        if [ "$$BUILD_CACHE_TAGS" == "[]" ]; then
-          docker build --target=build -t $$BUILD_CI_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 .
-        else 
-          docker pull $$BUILD_CI_IMAGE
-          docker build --target=build -t $$BUILD_CI_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $$BUILD_CI_IMAGE . 
-        fi
-
-        docker image push $$BUILD_CI_IMAGE
-    env:
-      - "DOCKER_BUILDKIT=1"
-
-    # Test
-  - name: "gcr.io/cloud-builders/docker"
-    id: test
-    entrypoint: "bash"
-    args:
-      - -ceux
-      - |
-        source /workspace/build_vars
-        docker pull $$BUILD_CI_IMAGE
-        docker build --target=test -t $$BUILD_CI_TEST_IMAGE --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $$BUILD_CI_IMAGE .
-        docker run $$BUILD_CI_TEST_IMAGE
-    env:
-      - "DOCKER_BUILDKIT=1"
-
-    # Build
-  - name: "gcr.io/cloud-builders/docker"
-    id: build
-    waitFor: ["test"]
-    entrypoint: "bash"
-    args:
-      - -ceux
-      - |
-        source /workspace/build_vars
+        yarn install
+        yarn test
 
         export REACT_APP_AUTH0_DOMAIN="$_REACT_APP_AUTH0_DOMAIN"
         export REACT_APP_AUTH0_CLIENT_ID="$_REACT_APP_AUTH0_CLIENT_ID"
         export REACT_APP_AUTH0_AUDIENCE="$_REACT_APP_AUTH0_AUDIENCE"
         export REACT_APP_AUTH0_REDIRECT_URI="$_REACT_APP_AUTH0_REDIRECT_URI"
+        yarn build
 
-        docker pull -q $$BUILD_CI_IMAGE
-        docker build --target=release -t $$BUILD_IMAGE:$$BUILD_TAG --cache-from $$BUILD_CI_IMAGE --build-arg REACT_APP_AUTH0_DOMAIN=$$REACT_APP_AUTH0_DOMAIN --build-arg REACT_APP_AUTH0_CLIENT_ID=$$REACT_APP_AUTH0_CLIENT_ID --build-arg REACT_APP_AUTH0_AUDIENCE=$$REACT_APP_AUTH0_AUDIENCE --build-arg  REACT_APP_AUTH0_REDIRECT_URI=$$REACT_APP_AUTH0_REDIRECT_URI . 
-        docker push $$BUILD_IMAGE:$$BUILD_TAG
-
-        if [ "$$BUILD_BRANCH_NAME" != "main" ]; then exit 0; fi
-        docker pull $$BUILD_IMAGE:$$BUILD_TAG
-        docker tag $$BUILD_IMAGE:$$BUILD_TAG $$BUILD_IMAGE:latest
-        docker image push $$BUILD_IMAGE:latest
-    env:
-      - "DOCKER_BUILDKIT=1"
-
-  # Deploy
-  - name: "gcr.io/cloud-builders/gcloud"
-    id: deploy
-    waitFor: ["build"]
-    entrypoint: bash
+  - name: us-central1-docker.pkg.dev/predyktv2/expert-dollup-common/firebase-deploy:latest
     args:
       - -ceux
       - |
-        source /workspace/build_vars
-        gcloud run deploy $_SERVICE_NAME --image $$BUILD_IMAGE:$$BUILD_TAG --region $_REGION
+        cp build /opt/firebase/build
+        cd /opt/firebase
+        firebase deploy --only hosting --project predyktv2
+
 logsBucket: $_LOGS_BUCKET_NAME
 options:
   logging: GCS_ONLY
