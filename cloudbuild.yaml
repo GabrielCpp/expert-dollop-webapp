@@ -14,13 +14,12 @@ steps:
         export REACT_APP_AUTH0_REDIRECT_URI="$_REACT_APP_AUTH0_REDIRECT_URI"
         yarn build
 
-  - name: us-central1-docker.pkg.dev/predyktv2/expert-dollup-common/firebase-deploy:latest
+  - name: us-central1-docker.pkg.dev/$PROJECT_ID/expert-dollup-common/firebase-deploy:latest
     args:
       - -ceux
       - |
-        cp build /opt/firebase/build
-        cd /opt/firebase
-        firebase deploy --only hosting --project predyktv2
+        cp /opt/firebase/firebase.json ./firebase.json
+        firebase deploy --only hosting --project $PROJECT_ID
 
 logsBucket: $_LOGS_BUCKET_NAME
 options:
