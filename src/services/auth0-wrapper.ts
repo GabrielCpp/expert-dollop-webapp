@@ -72,7 +72,7 @@ export class Auth0Wrapper implements Auth0Context {
     return token;
   }
 
-  private async reloadUser(token: string | undefined) {
+  async reloadUser(token: string | undefined): Promise<void> {
     let headers = {}
     let newUser: User = EmptyUser
 

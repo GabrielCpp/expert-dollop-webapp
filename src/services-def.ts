@@ -25,6 +25,7 @@ export interface Auth0Context {
   setContext(auht0: Auth0ContextInterface<User> | undefined): void;
   getToken(): Promise<string | undefined>;
   observeCurrentUser(): { subscribe: (listener: (value: User) => void) => { unsubscribe: () => void } }
+  reloadUser(token: string | undefined): Promise<void>
   currentUser: User
 }
 

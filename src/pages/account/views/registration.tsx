@@ -25,7 +25,7 @@ export function Registration({
   completeAction,
 }: RegistrationProps): JSX.Element {
   const { t } = useTranslation();
-  const { routes, loader } = useServices();
+  const { routes, loader, auth0 } = useServices();
   const history = useHistory();
   const { formPath } = useForm({ name: "registration" });
   const [createUser, { loading, error }] =
@@ -35,6 +35,7 @@ export function Registration({
           await loader.waitOnPromise(completeAction());
         }
 
+        await auth0.reloadUser(await auth0.getToken());
         history.push(routes.render(PROJECT_INDEX));
       },
     });
