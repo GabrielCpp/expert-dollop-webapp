@@ -92,3 +92,13 @@ mutation deleteProjectDefinitionNode($projectDefinitionId: ID!, $nodeId: ID!) {
 	deleteProjectDefinitionNode(projectDefinitionId: $projectDefinitionId, nodeId: $nodeId)
 }
 `
+
+export const CREATE_DEFINITION = gql`
+mutation addProjectDefinition($definitionInput: DefinitionInput!) {
+  addProjectDefinition(definitionInput: $definitionInput) {
+    id
+    name
+    defaultDatasheetId
+  }
+}
+`

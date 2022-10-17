@@ -5,6 +5,7 @@ import { LeftSideButton } from "../../../components/custom-styles";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { usePopupMenu } from "../../../components/menus";
 import {
+  ALERT_NOTIFICATION,
   scrollTop,
   useNotification,
 } from "../../../components/snackbar-display";
@@ -18,7 +19,6 @@ import { NodePicker, useNodePickerState } from "./node-picker";
 
 interface FormFieldCardProps {
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number]["nodes"][number]["children"][number];
-  snackbarId: string;
   projectId: string;
   parentNodeId: string;
   refetch: () => Promise<unknown>;
@@ -26,12 +26,11 @@ interface FormFieldCardProps {
 
 export function FormField({
   node,
-  snackbarId,
   projectId,
   parentNodeId,
   refetch,
 }: FormFieldCardProps) {
-  const { success, catchError } = useNotification(snackbarId);
+  const { success, catchError } = useNotification(ALERT_NOTIFICATION);
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(
     node.nodes[0]?.node.id
   );

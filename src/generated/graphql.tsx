@@ -212,6 +212,10 @@ export type DecimalFieldValueInput = {
   numeric: Scalars["Float"];
 };
 
+export type DefinitionInput = {
+  name: Scalars["String"];
+};
+
 export type DistributableItem = {
   __typename?: "DistributableItem";
   columns: Array<FieldWrapper<ComputedValue>>;
@@ -328,13 +332,14 @@ export type IntFieldValueInput = {
 export type Mutation = {
   __typename?: "Mutation";
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
+  addProjectDefinition: FieldWrapper<ProjectDefinition>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   cloneProjectCollection: Array<FieldWrapper<ProjectNode>>;
   createDatasheet: FieldWrapper<Datasheet>;
   createProject: FieldWrapper<ProjectDetails>;
   createSingleUserOrganization: FieldWrapper<User>;
   deleteProjectCollection: FieldWrapper<ProjectNode>;
-  deleteProjectDefinitionNode: FieldWrapper<Scalars["ID"]>;
+  deleteProjectDefinitionNode: FieldWrapper<Scalars["String"]>;
   updateProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
@@ -344,6 +349,10 @@ export type Mutation = {
 export type MutationAddProjectCollectionItemArgs = {
   collectionTarget: ProjectNodeCollectionTargetInput;
   projectId: Scalars["ID"];
+};
+
+export type MutationAddProjectDefinitionArgs = {
+  definitionInput: DefinitionInput;
 };
 
 export type MutationAddProjectDefinitionNodeArgs = {
@@ -1917,6 +1926,17 @@ export type DeleteProjectCollectionMutation = { __typename?: "Mutation" } & {
   deleteProjectCollection: { __typename?: "ProjectNode" } & Pick<
     ProjectNode,
     "id" | "path"
+  >;
+};
+
+export type AddProjectDefinitionMutationVariables = Exact<{
+  definitionInput: DefinitionInput;
+}>;
+
+export type AddProjectDefinitionMutation = { __typename?: "Mutation" } & {
+  addProjectDefinition: { __typename?: "ProjectDefinition" } & Pick<
+    ProjectDefinition,
+    "id" | "name" | "defaultDatasheetId"
   >;
 };
 
@@ -4537,6 +4557,58 @@ export type DeleteProjectCollectionMutationResult =
 export type DeleteProjectCollectionMutationOptions = Apollo.BaseMutationOptions<
   DeleteProjectCollectionMutation,
   DeleteProjectCollectionMutationVariables
+>;
+export const AddProjectDefinitionDocument = gql`
+  mutation addProjectDefinition($definitionInput: DefinitionInput!) {
+    addProjectDefinition(definitionInput: $definitionInput) {
+      id
+      name
+      defaultDatasheetId
+    }
+  }
+`;
+export type AddProjectDefinitionMutationFn = Apollo.MutationFunction<
+  AddProjectDefinitionMutation,
+  AddProjectDefinitionMutationVariables
+>;
+
+/**
+ * __useAddProjectDefinitionMutation__
+ *
+ * To run a mutation, you first call `useAddProjectDefinitionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectDefinitionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectDefinitionMutation, { data, loading, error }] = useAddProjectDefinitionMutation({
+ *   variables: {
+ *      definitionInput: // value for 'definitionInput'
+ *   },
+ * });
+ */
+export function useAddProjectDefinitionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddProjectDefinitionMutation,
+    AddProjectDefinitionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddProjectDefinitionMutation,
+    AddProjectDefinitionMutationVariables
+  >(AddProjectDefinitionDocument, options);
+}
+export type AddProjectDefinitionMutationHookResult = ReturnType<
+  typeof useAddProjectDefinitionMutation
+>;
+export type AddProjectDefinitionMutationResult =
+  Apollo.MutationResult<AddProjectDefinitionMutation>;
+export type AddProjectDefinitionMutationOptions = Apollo.BaseMutationOptions<
+  AddProjectDefinitionMutation,
+  AddProjectDefinitionMutationVariables
 >;
 export const FindProjectsDocument = gql`
   query findProjects($query: String!, $first: Int!, $after: String) {

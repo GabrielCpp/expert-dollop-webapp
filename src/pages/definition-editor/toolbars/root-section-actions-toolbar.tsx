@@ -32,22 +32,6 @@ export function RootSectionActionsToolbar() {
   const [rootSectionDefId] = path || [];
   useLoaderEffect(error, loading);
 
-  if (loading || rootSectionDefId === undefined) {
-    return null;
-  }
-
-  const subActions: DropdownItem[] = [
-    {
-      label: () =>
-        t("definition_editor.root_section_actions_toolbar.edit_root_section"),
-      link: routes.render(
-        PROJECT_DEFINITION_EDITOR_NODE_EDIT,
-        buildEditNodeParams(projectDefinitionId, [], rootSectionDefId)
-      ),
-      key: "edit",
-    },
-  ];
-
   const mainActions: DropdownItem[] = [
     {
       label: () =>
@@ -60,6 +44,22 @@ export function RootSectionActionsToolbar() {
       buttonProps: {
         startIcon: <AddIcon />,
       },
+    },
+  ];
+
+  if (loading || rootSectionDefId === undefined) {
+    return <DefaultDropdownButton mainActions={mainActions} subActions={[]} />;
+  }
+
+  const subActions: DropdownItem[] = [
+    {
+      label: () =>
+        t("definition_editor.root_section_actions_toolbar.edit_root_section"),
+      link: routes.render(
+        PROJECT_DEFINITION_EDITOR_NODE_EDIT,
+        buildEditNodeParams(projectDefinitionId, [], rootSectionDefId)
+      ),
+      key: "edit",
     },
   ];
 

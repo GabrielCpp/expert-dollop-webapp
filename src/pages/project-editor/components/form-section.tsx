@@ -20,6 +20,7 @@ import {
 import { useLoaderEffect } from "../../../components/loading-frame";
 import { usePopupMenu } from "../../../components/menus";
 import {
+  ALERT_NOTIFICATION,
   scrollTop,
   useNotification,
 } from "../../../components/snackbar-display";
@@ -44,7 +45,6 @@ const LeftSideButton = styled("span")(() => ({
 interface FormSectionProps {
   parentNodeId: string;
   projectId: string;
-  snackbarId: string;
   refetch: () => Promise<unknown>;
   node: FindProjectFormContentQuery["findProjectFormContent"]["roots"][number];
 }
@@ -53,13 +53,12 @@ export function FormSection({
   node,
   projectId,
   parentNodeId,
-  snackbarId,
   refetch,
 }: FormSectionProps): JSX.Element {
   const collapsibleConfig = node.definition
     .fieldDetails as CollapsibleContainerFieldConfig;
   const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
-  const { success, catchError } = useNotification(snackbarId);
+  const { success, catchError } = useNotification(ALERT_NOTIFICATION);
   const [expanded, setExpanded] = useState(!collapsibleConfig.isCollapsible);
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(
     node.nodes[0]?.node.id
@@ -160,7 +159,6 @@ export function FormSection({
                 <FieldRow key={x.definition.name}>
                   <FormField
                     node={x}
-                    snackbarId={snackbarId}
                     refetch={refetch}
                     projectId={projectId}
                     parentNodeId={currentNodeId}

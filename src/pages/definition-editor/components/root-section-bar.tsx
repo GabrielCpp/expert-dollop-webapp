@@ -9,6 +9,7 @@ import {
 import { useFindProjectDefinitionRootSectionsQuery } from "../../../generated/graphql";
 import { useDbTranslation } from "../hooks/db-trans";
 import { buildLinkFor } from "../routes";
+import { head } from "lodash";
 
 interface RootSectionBarProps {
   projectDefinitionId: string;
@@ -25,6 +26,7 @@ export function RootSectionBar({
   const { dbTrans } = useDbTranslation(projectDefinitionId);
   const { loading, data, error, refetch } =
     useFindProjectDefinitionRootSectionsQuery({
+      fetchPolicy: "network-only",
       variables: {
         id: projectDefinitionId,
       },
@@ -43,9 +45,12 @@ export function RootSectionBar({
     return null;
   }
 
+  const existingRootSectionDef =
+    roots.find((def) => def.definition.id === rootSectionDefId) || head(roots);
+
   return (
     <Tabs
-      value={rootSectionDefId}
+      value={existingRootSectionDef?.definition?.id}
       onChange={onChange}
       variant="scrollable"
       scrollButtons="auto"

@@ -143,7 +143,7 @@ export const nodeFormLabels = {
       label: "definition_editor.node_form.field_numeric_default_value",
     },
     string: {
-      name: 'string',
+      name: 'text',
       label: "definition_editor.node_form.field_string_default_value",
       defaultValue: "",
     },

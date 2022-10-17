@@ -10,6 +10,7 @@ import {
   useSharedRefetch,
 } from "../../../components/loading-frame";
 import {
+  ALERT_NOTIFICATION,
   scrollTop,
   useNotification,
 } from "../../../components/snackbar-display";
@@ -121,19 +122,17 @@ function createTooSectionPopover(
 interface RootSectionBarProps {
   projectId: string;
   rootSectionId: string;
-  snackbarId: string;
   refectGroup: RefectGroup;
 }
 
 export function RootSectionBar({
   projectId,
   rootSectionId,
-  snackbarId,
   refectGroup,
 }: RootSectionBarProps) {
   const history = useHistory();
   const { dbTrans } = useDbTranslation(rootSectionId);
-  const { success, catchError } = useNotification(snackbarId);
+  const { success, catchError } = useNotification(ALERT_NOTIFICATION);
   const { loading, data, error, refetch } = useFindProjectRootSectionsQuery({
     variables: {
       projectId,

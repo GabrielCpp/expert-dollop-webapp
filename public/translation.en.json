@@ -9,7 +9,8 @@
       "cancel": "Cancel",
       "save": "Save",
       "clone": "Clone",
-      "view_all": "View all"
+      "view_all": "View all",
+      "create": "Create"
     },
     "forms": {
       "saved": "Changes were saved.",
@@ -35,6 +36,10 @@
     }
   },
   "definition_editor": {
+    "toolbars": {
+      "create_definition_button": "Template",
+      "create_root_node_button": "Root node"
+    },
     "drawers": {
       "index_link_name": "Project Templates"
     },
@@ -48,7 +53,8 @@
       "labels": "labels"
     },
     "delete_node_toolbar": {
-      "delete_node": "Delete {{name}}"
+      "delete_node": "Delete {{name}}",
+      "deletion_suceed": "Node {{name}} was deleted sucessfully"
     },
     "root_section_actions_toolbar": {
       "edit_root_section": "Edit root section",
@@ -115,6 +121,10 @@
     },
     "unit_selection_form": {
       "option_no_unit_selected": "Field does not habe an unit"
+    },
+    "create_definiton": {
+      "name": "Name",
+      "header": "Create definition"
     }
   },
   "project_reports": {

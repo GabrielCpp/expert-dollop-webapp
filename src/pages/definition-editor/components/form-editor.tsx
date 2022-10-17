@@ -25,6 +25,7 @@ import {
 import {
   checkboxField,
   Field,
+  patchFormFields,
   radioField,
   textField,
 } from "../../../components/table-fields";
@@ -43,6 +44,7 @@ import {
   PROJECT_DEFINITION_EDITOR_NODE_EDIT,
 } from "../routes";
 import { EditButton } from "./edit-button";
+import { compact, head, pick, values } from "lodash";
 
 interface FormProps {
   node: ProjectDefinitionTreeNode;
@@ -82,11 +84,11 @@ function FormField({ node }: FormProps): JSX.Element {
   if (fieldType === "StringFieldConfig") {
     return (
       <Field
+        id={node.definition.id}
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
         defaultValue={node.definition.fieldDetails.text}
-        id={node.definition.id}
         label={node.definition.name}
         t={dbTrans}
         component={textField}
@@ -98,11 +100,11 @@ function FormField({ node }: FormProps): JSX.Element {
   if (fieldType === "IntFieldConfig") {
     return (
       <Field
+        id={node.definition.id}
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
         defaultValue={node.definition.fieldDetails.integer}
-        id={node.definition.id}
         label={node.definition.name}
         t={dbTrans}
         component={textField}
@@ -114,11 +116,11 @@ function FormField({ node }: FormProps): JSX.Element {
   if (fieldType === "DecimalFieldConfig") {
     return (
       <Field
+        id={node.definition.id}
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
         defaultValue={node.definition.fieldDetails.numeric}
-        id={node.definition.id}
         label={node.definition.name}
         t={dbTrans}
         component={textField}
@@ -130,11 +132,11 @@ function FormField({ node }: FormProps): JSX.Element {
   if (fieldType === "BoolFieldConfig") {
     return (
       <Field
+        id={node.definition.id}
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
         defaultValue={node.definition.fieldDetails.enabled}
-        id={node.definition.id}
         label={node.definition.name}
         t={dbTrans}
         component={checkboxField}
@@ -147,12 +149,12 @@ function FormField({ node }: FormProps): JSX.Element {
     const choices = node.definition.fieldDetails as StaticChoiceFieldConfig;
     return (
       <Field
+        id={node.definition.id}
         options={choices.options}
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
         defaultValue={node.definition.fieldDetails.selected}
-        id={node.definition.id}
         label={node.definition.translations.label}
         t={dbTrans}
         component={radioField}
@@ -252,12 +254,30 @@ export function FormDefinitionEditor({
   refectGroup,
 }: FormDefinitionEditorProps) {
   const { dbTrans } = useDbTranslation(projectDefinitionId);
-  const { routes } = useServices();
+  const { routes, reduxDb } = useServices();
   const { loading, data, error, refetch } =
     useFindProjectDefinitionFormContentQuery({
       variables: {
         id: projectDefinitionId,
         formId: formDefId,
+      },
+      fetchPolicy: "network-only",
+      onCompleted: (result) => {
+        const patchs: Record<string, unknown> = {};
+        result.findProjectDefinitionFormContent.roots.forEach((r) =>
+          r.children.forEach((c) => {
+            const items = pick(c.definition.fieldDetails, [
+              "text",
+              "enabled",
+              "numeric",
+              "integer",
+            ]);
+
+            patchs[c.definition.id] = head(compact(values(items)));
+          })
+        );
+
+        patchFormFields(reduxDb, patchs);
       },
     });
 

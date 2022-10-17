@@ -7,7 +7,7 @@ import {
   QueryBuilder,
   queryParam,
   recordParam,
-  TableRecord
+  TableRecord,
 } from "../../shared/redux-db";
 import { ReduxDatabase } from "../../shared/redux-db/database";
 
@@ -37,8 +37,8 @@ export interface FormFieldRecord extends TableRecord {
   viewValue: unknown;
   errors: FormFieldError[];
   jsonSchemaValidator: AnySchema;
-  fullPath: string[]
-  metadata?: unknown
+  fullPath: string[];
+  metadata: Record<string, unknown>;
 }
 
 export function setupFormTables(database: ReduxDatabase): void {
@@ -53,7 +53,7 @@ export function createFormFieldRecord(
   viewValue: unknown,
   id: string,
   errors: FormFieldError[],
-  metadata?: unknown
+  metadata?: Record<string, unknown>
 ): FormFieldRecord {
   return {
     jsonSchemaValidator,
@@ -64,7 +64,7 @@ export function createFormFieldRecord(
     viewValue,
     errors,
     fullPath: [...path, id],
-    metadata
+    metadata: metadata || {},
   };
 }
 
@@ -126,10 +126,10 @@ export function getFieldValue(
   id: string,
   defaultValue?: unknown
 ): unknown {
-  const record = database.getTable(FormFieldTableName).findRecord(id)
+  const record = database.getTable(FormFieldTableName).findRecord(id);
 
-  if(record === undefined) {
-    return defaultValue
+  if (record === undefined) {
+    return defaultValue;
   }
 
   return record.value;
@@ -140,13 +140,43 @@ export function patchFormField(
   id: string,
   patchRecord: Partial<FormFieldRecord>
 ): void {
-  const record = database.getTable(FormFieldTableName).findRecord(id)
+  const record = database.getTable(FormFieldTableName).findRecord(id);
 
-  if(record !== undefined) {
-    database.getTable(FormFieldTableName).upsertMany([{...record, ...patchRecord}])
+  if (record !== undefined) {
+    database
+      .getTable(FormFieldTableName)
+      .upsertMany([{ ...record, ...patchRecord }]);
   }
+}
 
+export function patchFormFields(
+  database: ReduxDatabase,
+  patchs: Record<string, unknown>
+): void {
+  const records: TableRecord[] = [];
 
+  Object.entries(patchs).forEach(([id, value]) => {
+    const record = database.getTable(FormFieldTableName).findRecord(id);
+
+    if (record !== undefined) {
+      records.push({
+        ...record,
+        value,
+      });
+    }
+  });
+
+  database.getTable(FormFieldTableName).upsertMany(records);
+}
+
+export function resetForm(database: ReduxDatabase, rootPath: string[]) {
+  const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
+  const updates = records
+    .filter((record) => record.metadata.defaultValue !== undefined)
+    .map((record) => ({ ...record, value: record.metadata.defaultValue }));
+
+  console.log(updates);
+  database.getTable(FormFieldTableName).upsertMany(updates);
 }
 
 export function deleteFormFieldRecords(
@@ -189,46 +219,55 @@ export function buildFormMapById(
   return fields;
 }
 
-export const hydrateForm = <T>(database: ReduxDatabase, rootPath: string[]): T => {
-    function getPathLength(x: [string[], unknown]): number {
-      return x[0].length;
-    }
-    function getOrdinal(metadata?: unknown): number[] {
-      const withOrdinal = metadata as { ordinal: number} | undefined
+export const hydrateForm = <T>(
+  database: ReduxDatabase,
+  rootPath: string[]
+): T => {
+  function getPathLength(x: [string[], unknown]): number {
+    return x[0].length;
+  }
+  function getOrdinal(metadata?: unknown): number[] {
+    const withOrdinal = metadata as { ordinal: number } | undefined;
 
-      if(withOrdinal?.ordinal === undefined) {
-        return []
-      }
-
-      return [withOrdinal.ordinal]
-    }
-
-    function makeAssignationPath(record: FormFieldRecord): Array<string | number> {
-      return [
-        ...flatten(tail(record.path).map(id => idToName.get(id) || [])),
-        ...(idToName.get(record.id) || [])
-      ]
+    if (withOrdinal?.ordinal === undefined) {
+      return [];
     }
 
-    const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-    const idToName = new Map<string, readonly (string | number)[]>(records.map(record => [record.id, [record.name, ...getOrdinal(record.metadata)]]))
+    return [withOrdinal.ordinal];
+  }
 
-    const targetValues: [Array<string | number>, unknown][] = records.map((record) => [
-      makeAssignationPath(record),
-      record.value,
+  function makeAssignationPath(
+    record: FormFieldRecord
+  ): Array<string | number> {
+    return [
+      ...flatten(tail(record.path).map((id) => idToName.get(id) || [])),
+      ...(idToName.get(record.id) || []),
+    ];
+  }
+
+  const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
+  const idToName = new Map<string, readonly (string | number)[]>(
+    records.map((record) => [
+      record.id,
+      [record.name, ...getOrdinal(record.metadata)],
     ])
-    const valuePaths = sortBy(
-      targetValues,
-      getPathLength
-    ) as [Array<string | number>, unknown][];
+  );
 
-    const result = {};
-    for (const [path, value] of valuePaths) {
-      set(result, path, value);
-    }
+  const targetValues: [Array<string | number>, unknown][] = records.map(
+    (record) => [makeAssignationPath(record), record.value]
+  );
+  const valuePaths = sortBy(targetValues, getPathLength) as [
+    Array<string | number>,
+    unknown
+  ][];
 
-    return result as T;
-  };
+  const result = {};
+  for (const [path, value] of valuePaths) {
+    set(result, path, value);
+  }
+
+  return result as T;
+};
 
 export const validateForm =
   (database: ReduxDatabase, ajvFactory: AjvFactory) =>

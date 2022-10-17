@@ -7,6 +7,7 @@ import {
   TableRecord,
 } from "../../shared/redux-db";
 
+export const ALERT_NOTIFICATION = "ALERT_NOTIFICATION"
 export const SnackbarTableName = "snackbars";
 export type NotificationKind = "success" | "failure";
 

@@ -10,7 +10,9 @@ export {
   deleteChildFormFieldRecords,
   buildFormMapById,
   getFieldValue,
-  patchFormField
+  patchFormField,
+  resetForm,
+  patchFormFields,
 } from "./form-field-record";
 export * from './validators'
 export * from "./views";

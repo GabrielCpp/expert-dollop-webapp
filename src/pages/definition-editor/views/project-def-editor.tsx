@@ -1,4 +1,5 @@
 import { Grid } from "@mui/material";
+import { compact } from "lodash";
 import { useEffect } from "react";
 import { Route, useHistory, useParams } from "react-router-dom";
 import {
@@ -7,17 +8,18 @@ import {
 } from "../../../components/loading-frame";
 import {
   AlertContainer,
+  ALERT_NOTIFICATION,
   scrollTop,
   useNotification,
 } from "../../../components/snackbar-display";
 import { useDynamicTranlation } from "../../../components/translation";
 import { useServices } from "../../../services-def";
 import { RouteBinding } from "../../../shared/named-routes";
-import { useId } from "../../../shared/redux-db";
 import { FormDefinitionEditor } from "../components/form-editor";
 import { RootSectionBar } from "../components/root-section-bar";
 import { SidePanel } from "../components/side-panel";
 import { useProjectDefPath } from "../hooks/project-def-path";
+import { NODE_DELETED_TOPIC } from "../messages";
 import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 
 interface EditorLayoutParams extends Record<string, string> {
@@ -26,12 +28,11 @@ interface EditorLayoutParams extends Record<string, string> {
 }
 
 export function EditorLayout() {
-  const snackbarId = useId();
-  const { success, clear } = useNotification(snackbarId);
-  const { routes } = useServices();
+  const { success, clear } = useNotification(ALERT_NOTIFICATION);
+  const { routes, messaging } = useServices();
   const params = useParams<EditorLayoutParams>();
   const { projectDefinitionId, selectedPath } = params;
-  const { loading, path } = useProjectDefPath(
+  const { loading, path, refetch } = useProjectDefPath(
     projectDefinitionId,
     selectedPath
   );
@@ -41,12 +42,20 @@ export function EditorLayout() {
   const history = useHistory();
   useLoaderEffect(error, isLoading || loading);
   useEffect(clear, [clear, formDefId]);
+  useEffect(() => {
+    return messaging.listenFor({
+      recipient: compact([rootSectionDefId, subSectionDefId, formDefId]),
+      handler: () => refetch(),
+      topic: NODE_DELETED_TOPIC,
+    });
+  }, [refetch, messaging, rootSectionDefId, subSectionDefId, formDefId]);
 
   async function completeAction() {
+    await refetch();
+    await refectGroup.refetchAll();
     history.push(routes.render(PROJECT_DEFINITION_EDITOR_MAIN, params));
-    refectGroup.refetchAll();
-    success("shared.forms.saved");
     scrollTop();
+    success("shared.forms.saved");
   }
 
   return (
@@ -62,11 +71,11 @@ export function EditorLayout() {
           </Grid>
 
           <Grid item xs={12} md={12} xl={12}>
-            <AlertContainer id={snackbarId}></AlertContainer>
+            <AlertContainer></AlertContainer>
           </Grid>
 
           <Grid item xs={12} md={4} xl={4} style={{ minWidth: "4em" }}>
-            {rootSectionDefId && subSectionDefId && formDefId && (
+            {rootSectionDefId && (
               <SidePanel
                 projectDefinitionId={projectDefinitionId}
                 rootSectionDefId={rootSectionDefId}

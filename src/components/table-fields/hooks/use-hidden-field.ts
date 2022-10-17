@@ -22,7 +22,7 @@ interface UseHiddenFieldParams {
   path: string[],
   value: any,
   id?: string;
-  metadata?: unknown
+  metadata?: Record<string, unknown>
   watch?: string[]
   makeValue?: (...values: unknown[]) => unknown
 }

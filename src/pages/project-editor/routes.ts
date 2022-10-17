@@ -1,6 +1,6 @@
 import { NamedRouteDefinition } from "../../shared/named-routes";
 import { ProjectIndexDrawerItemLink } from "./drawers/project-index-drawer-item-link";
-import { HomeToolbar } from "./toolbars/home-toolbar";
+import { HomeToolbar } from "./toolbars/create-project-toolbar";
 import { AddProjectView } from "./views/add-project-view";
 import { ProjectSearchHome } from "./views/home";
 import { ProjectEditor } from "./views/project-editor";

@@ -1,5 +1,9 @@
-import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { useEffect, useRef, useState } from "react";
+import {
+  ApolloCache,
+  ApolloClient,
+  NormalizedCacheObject,
+} from "@apollo/client";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   FindProjectDefinitionRootSectionContainersDocument,
@@ -25,6 +29,7 @@ async function buildPathCache(
       FindProjectDefinitionRootSectionsQueryVariables
     >({
       query: FindProjectDefinitionRootSectionsDocument,
+      fetchPolicy: "network-only",
       variables: {
         id: projectDefinitionId,
       },
@@ -37,6 +42,7 @@ async function buildPathCache(
       FindProjectDefinitionRootSectionContainersQueryVariables
     >({
       query: FindProjectDefinitionRootSectionContainersDocument,
+      fetchPolicy: "network-only",
       variables: {
         id: projectDefinitionId,
         rootSectionId: rootSectionDefId,
@@ -72,26 +78,70 @@ async function buildPathCache(
   return [rootSectionDefId, subSectionDefId, formDefId];
 }
 
+const EMPTY_PATH: (string | undefined)[] = [];
+
+function isNodeExists(
+  cache: ApolloCache<NormalizedCacheObject>,
+  id: string
+): boolean {
+  const result = cache.identify({
+    id,
+    __typename: "ProjectDefinitionNode",
+  });
+  return result === undefined;
+}
+
 export function useProjectDefPath(
   projectDefinitionId: string,
   selectedPath: string
 ) {
   const { apollo } = useServices();
-  const [rootSectionDefId, subSectionDefId, formDefId] =
-    splitPath(selectedPath);
-  const [path, setPath] = useState<(string | undefined)[]>([]);
+  let [rootSectionDefId, subSectionDefId, formDefId] = splitPath(selectedPath);
+  const [path, setPath] = useState<(string | undefined)[]>(EMPTY_PATH);
   const loading = useRef(true);
   const error = useRef<Error | undefined>(undefined);
 
-  useEffect(() => {
+  const refetch = useCallback(() => {
     loading.current = true;
-    buildPathCache(
-      apollo,
-      projectDefinitionId,
-      rootSectionDefId,
-      subSectionDefId,
-      formDefId
-    )
+    error.current = undefined;
+    let promise = null;
+
+    if (!isNodeExists(apollo.cache, rootSectionDefId)) {
+      setPath(EMPTY_PATH);
+      promise = buildPathCache(
+        apollo,
+        projectDefinitionId,
+        undefined,
+        undefined,
+        undefined
+      );
+    } else if (!isNodeExists(apollo.cache, subSectionDefId)) {
+      promise = buildPathCache(
+        apollo,
+        projectDefinitionId,
+        rootSectionDefId,
+        undefined,
+        undefined
+      );
+    } else if (!isNodeExists(apollo.cache, formDefId)) {
+      promise = buildPathCache(
+        apollo,
+        projectDefinitionId,
+        rootSectionDefId,
+        subSectionDefId,
+        undefined
+      );
+    } else {
+      promise = buildPathCache(
+        apollo,
+        projectDefinitionId,
+        rootSectionDefId,
+        subSectionDefId,
+        formDefId
+      );
+    }
+
+    return promise
       .then((path) => {
         loading.current = false;
         setPath(path);
@@ -109,5 +159,31 @@ export function useProjectDefPath(
     apollo,
   ]);
 
-  return { loading: loading.current, error: error.current, path };
+  useEffect(() => {
+    buildPathCache(
+      apollo,
+      projectDefinitionId,
+      rootSectionDefId,
+      subSectionDefId,
+      formDefId
+    )
+      .then((path) => {
+        loading.current = false;
+        setPath(path);
+      })
+      .catch((e) => {
+        error.current = e;
+        loading.current = false;
+        setPath([]);
+      });
+  }, [
+    apollo,
+    loading,
+    projectDefinitionId,
+    rootSectionDefId,
+    subSectionDefId,
+    formDefId,
+  ]);
+
+  return { loading: loading.current, error: error.current, path, refetch };
 }

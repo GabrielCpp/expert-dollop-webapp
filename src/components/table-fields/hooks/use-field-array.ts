@@ -1,7 +1,7 @@
 import { useCallback, useReducer } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-export interface OrdinalMetadata {
+export interface OrdinalMetadata extends Record<string, unknown> {
   ordinal: number;
 }
 

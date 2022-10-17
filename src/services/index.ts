@@ -7,6 +7,7 @@ import { Services } from "../services-def";
 import { Auth0Wrapper } from "./auth0-wrapper";
 import { HttpApi } from "./api-service";
 import { HttpFetchService } from "./http-service";
+import { MessageEmitter } from "./messaging";
 
 export async function createServices(): Promise<Services> {
   const getServices = () => services
@@ -19,6 +20,7 @@ export async function createServices(): Promise<Services> {
     ajv: new AjvWithError(),
     loader: new LoaderService(),
     http: new HttpFetchService(getServices),
+    messaging: new MessageEmitter()
   };
 
   return services;

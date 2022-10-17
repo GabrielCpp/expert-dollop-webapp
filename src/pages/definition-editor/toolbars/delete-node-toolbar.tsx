@@ -1,13 +1,18 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { DeleteButtonLink } from "../../../components/buttons";
 import { useLoaderEffect } from "../../../components/loading-frame";
+import {
+  ALERT_NOTIFICATION,
+  useNavigateTransition,
+} from "../../../components/snackbar-display";
 import {
   useDeleteProjectDefinitionNodeMutation,
   useFindProjectDefinitionNodeQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
+import { createNodeDeletionMessage } from "../messages";
 import { renderMainViewUrl } from "../routes";
 
 interface DeleteNodeToolbarParams {
@@ -17,9 +22,9 @@ interface DeleteNodeToolbarParams {
 
 export function DeleteNodeToolbar() {
   const { t } = useTranslation();
-  const { routes } = useServices();
-  const history = useHistory();
+  const { routes, messaging } = useServices();
   const { projectDefinitionId, nodeId } = useParams<DeleteNodeToolbarParams>();
+  const { navigateTo } = useNavigateTransition({ feed: ALERT_NOTIFICATION });
   const { data, error, loading } = useFindProjectDefinitionNodeQuery({
     variables: {
       nodeId,
@@ -37,6 +42,7 @@ export function DeleteNodeToolbar() {
         id: nodeId,
         __typename: "ProjectDefinitionNode",
       });
+      messaging.send(createNodeDeletionMessage(nodeId));
       cache.evict({ id: normalizedId });
       cache.gc();
     },
@@ -52,15 +58,19 @@ export function DeleteNodeToolbar() {
           projectDefinitionId,
         },
       });
-      history.push(
-        renderMainViewUrl(
+
+      await navigateTo({
+        message: t("definition_editor.delete_node_toolbar.deletion_suceed", {
+          name: data.findProjectDefinitionNode.name,
+        }),
+        to: renderMainViewUrl(
           routes,
           projectDefinitionId,
           data.findProjectDefinitionNode.path
-        )
-      );
+        ),
+      });
     }
-  }, [routes, removeNode, history, data, projectDefinitionId, nodeId]);
+  }, [routes, t, removeNode, navigateTo, data, projectDefinitionId, nodeId]);
 
   if (data === undefined) {
     return null;

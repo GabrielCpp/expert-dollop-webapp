@@ -9,6 +9,8 @@ import { DefinitionIndexDrawerItemLink } from "./drawers/definition-index-drawer
 import { RootSectionActionsToolbar } from "./toolbars/root-section-actions-toolbar";
 import { DeleteNodeToolbar } from "./toolbars/delete-node-toolbar";
 import { AccessLabelsEditorToolbar } from "./toolbars/access-labels-editor-toolbar";
+import { CreateDefinition } from "./views/create-definition";
+import { CreateProjectDefinitionToolbar } from "./toolbars/create-project-definition-toolbar";
 
 export const PROJECT_DEFINITION_INDEX = "PROJECT_DEFINITION_EDITOR_HOME";
 export const PROJECT_DEFINITION_EDITOR_MAIN = "PROJECT_DEFINITION_EDITOR_MAIN";
@@ -23,6 +25,7 @@ export const PROJECT_DEFINITION_EDITOR_FORMULA_EDIT =
   "PROJECT_DEFINITION_EDITOR_FORMULA_EDIT";
 export const DEFINITION_EDITION_LABELS_EDITION =
   "DEFINITION_EDITION_LABELS_EDITION";
+export const DEFINITION_ADD = "DEFINITION_ADD";
 
 export const routes: NamedRouteDefinition[] = [
   {
@@ -38,7 +41,19 @@ export const routes: NamedRouteDefinition[] = [
     path: "/project_definitions",
     components: [
       { component: ProjectDefinitionHome, exact: true, tags: ["main-content"] },
+      {
+        component: CreateProjectDefinitionToolbar,
+        exact: true,
+        tags: ["main-toolbar"],
+      },
     ],
+  },
+  {
+    name: DEFINITION_ADD,
+    path: "/project_definitions/add",
+    components: [
+      {component: CreateDefinition, exact: true, tags: ["main-content"] }
+    ]
   },
   {
     name: PROJECT_DEFINITION_EDITOR_MAIN,
@@ -112,9 +127,7 @@ export const routes: NamedRouteDefinition[] = [
   {
     name: DEFINITION_EDITION_LABELS_EDITION,
     path: "/project_definitions/:projectDefinitionId/labels",
-    components: [
-
-    ],
+    components: [],
   },
 ];
 
@@ -124,17 +137,16 @@ export function buildLinkFor(projectDefinitionId: string, ...path: string[]) {
 }
 
 export function renderMainViewUrl(
-  router: NamedRoutes, 
+  router: NamedRoutes,
   projectDefinitionId: string,
   path: string[]
 ) {
   const selectedPath = encodeURI(`~${path.join("~")}`);
-  return router.render(PROJECT_DEFINITION_EDITOR_MAIN,{
+  return router.render(PROJECT_DEFINITION_EDITOR_MAIN, {
     projectDefinitionId,
     selectedPath,
   });
 }
-
 
 export function buildAddNodeParams(
   projectDefinitionId: string,

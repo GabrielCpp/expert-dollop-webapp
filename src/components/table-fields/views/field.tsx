@@ -17,7 +17,7 @@ export interface FieldProps<T extends FieldChildren> {
   name: string;
   defaultValue: unknown;
   validator: AnySchema;
-  metadata?: unknown;
+  metadata?: Record<string, unknown>;
   componentId?: string;
   sideEffect?: (r: FormFieldRecord) => void;
   t: Translator;

@@ -42,6 +42,18 @@ export interface HttpRequestService {
   post(url: string, body: BodyInit): Promise<Response>;
 }
 
+export interface Message {
+  topic: string 
+  recipient: string 
+  payload: Record<string, unknown>
+}
+
+
+export interface Messaging {
+  send(message: Message): Promise<void>
+  listenFor(options: { topic: string, recipient?: string[], handler: (message: Message) => Promise<void> }): () => void
+}
+
 export interface Services {
   apollo: ApolloClient<NormalizedCacheObject>;
   api: ApiService;
@@ -51,6 +63,7 @@ export interface Services {
   loader: LoaderNotifier;
   auth0: Auth0Context;
   http: HttpRequestService;
+  messaging: Messaging
 }
 
 let useAuth0Wrapper: () => Auth0ContextInterface<User> | undefined = useAuth0;

@@ -1,13 +1,13 @@
 import { useCallback, useEffect } from "react";
 import { useServices } from "../../../services-def";
 import { useId, useTableRecord } from "../../../shared/redux-db";
-import { createFormFieldRecord, FormFieldRecord, FormFieldTableName } from "../form-field-record";
+import { createFormFieldRecord, deleteChildFormFieldRecords, FormFieldRecord, FormFieldTableName } from "../form-field-record";
 
 export interface UseFormParams {
   name?: string;
   parentPath?: string | string[]
   id?: string
-  metadata?: unknown
+  metadata?: Record<string, unknown>
   value?: unknown
 }
 
@@ -54,7 +54,7 @@ export function useForm({name, parentPath, id, metadata, value }: UseFormParams 
   
   useEffect(() => {
       return () => {
-        reduxDb.getTable(FormFieldTableName).removeManyByKey([formId]);
+        deleteChildFormFieldRecords(reduxDb, [formId])
       };
   }, [reduxDb, formId]);
 
@@ -62,4 +62,16 @@ export function useForm({name, parentPath, id, metadata, value }: UseFormParams 
     formId,
     formPath: record.fullPath,
   };
+}
+
+export function useRootForm(props: UseFormParams = {}): UseFormHook {
+  const { reduxDb } = useServices();
+  const form = useForm(props)
+  useEffect(() => {
+    return () => {
+      deleteChildFormFieldRecords(reduxDb, [form.formId])
+    }
+  })
+
+  return form
 }

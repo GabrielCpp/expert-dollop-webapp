@@ -65,6 +65,7 @@ export function SidePanel({
 
   const { data, loading, error, refetch } =
     useFindProjectDefinitionRootSectionContainersQuery({
+      fetchPolicy: "network-only",
       variables: {
         id: projectDefinitionId,
         rootSectionId: rootSectionDefId,

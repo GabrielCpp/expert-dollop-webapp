@@ -6,6 +6,7 @@ import {
   useSharedRefetch,
 } from "../../../components/loading-frame";
 import {
+  ALERT_NOTIFICATION,
   scrollTop,
   useNotification,
 } from "../../../components/snackbar-display";
@@ -28,7 +29,6 @@ interface FormEditorProps {
   rootSectionId: string;
   formId: string;
   projectId: string;
-  snackbarId: string;
   refectGroup: RefectGroup;
 }
 
@@ -36,11 +36,10 @@ export function FormEditor({
   projectId,
   rootSectionId,
   formId,
-  snackbarId,
   refectGroup,
 }: FormEditorProps) {
   const { dbTrans } = useDbTranslation(projectId);
-  const { success, catchError, clear } = useNotification(snackbarId);
+  const { success, catchError, clear } = useNotification(ALERT_NOTIFICATION);
   const { loading, data, error, refetch } = useFindProjectFormContentQuery({
     defaultOptions: {
       fetchPolicy: "cache-and-network",
@@ -74,7 +73,7 @@ export function FormEditor({
         nodeId,
         value: convertToFieldValue(
           record.value,
-          record.metadata as WrappedFieldKind
+          record.metadata.typename as WrappedFieldKind
         ),
       });
     }
@@ -112,7 +111,6 @@ export function FormEditor({
         projectId={projectId}
         parentNodeId={formId}
         node={node}
-        snackbarId={snackbarId}
         refetch={refetch}
       />
     )),

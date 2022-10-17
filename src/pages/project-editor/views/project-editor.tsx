@@ -4,15 +4,14 @@ import {
   useLoaderEffect,
   useRefetchGroup,
 } from "../../../components/loading-frame";
+import { AlertContainer } from "../../../components/snackbar-display";
 import { useDynamicTranlation } from "../../../components/translation";
 import { useServices } from "../../../services-def";
 import { FormEditor } from "../components/form-editor";
+import { RootSectionBar } from "../components/root-section-bar";
 import { useProjectPath } from "../hooks/project-path";
 import { PROJECT_EDITOR } from "../routes";
-import { RootSectionBar } from "../components/root-section-bar";
 import { SidePanel } from "./side-panel";
-import { useId } from "../../../shared/redux-db";
-import { AlertContainer } from "../../../components/snackbar-display";
 
 interface ProjectEditorParams extends Record<string, string> {
   projectId: string;
@@ -20,7 +19,6 @@ interface ProjectEditorParams extends Record<string, string> {
 }
 
 export function ProjectEditor() {
-  const snackbarId = useId();
   const { routes } = useServices();
   const { projectId, selectedPath } = useParams<ProjectEditorParams>();
   const { loading, path } = useProjectPath(projectId, selectedPath);
@@ -42,13 +40,12 @@ export function ProjectEditor() {
               <RootSectionBar
                 projectId={projectId}
                 rootSectionId={rootSectionId}
-                snackbarId={snackbarId}
                 refectGroup={refectGroup}
               />
             </Grid>
 
             <Grid item xs={12} md={12} xl={12}>
-              <AlertContainer id={snackbarId}></AlertContainer>
+              <AlertContainer></AlertContainer>
             </Grid>
 
             <Grid item xs={12} md={4} xl={4} style={{ minWidth: "4em" }}>
@@ -66,7 +63,6 @@ export function ProjectEditor() {
             <Grid item xs={12} md={8} xl={6}>
               {formId && (
                 <FormEditor
-                  snackbarId={snackbarId}
                   projectId={projectId}
                   rootSectionId={rootSectionId}
                   formId={formId}
