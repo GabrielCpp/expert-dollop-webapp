@@ -31,6 +31,9 @@
   },
   "project_editor": {
     "unamed": "<unammed>",
+    "toolbars": {
+      "create_project": "Project"
+    },
     "root_section_node_picker": {
       "selection_required": "Select a section"
     }

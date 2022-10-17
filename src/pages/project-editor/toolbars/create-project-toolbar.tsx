@@ -7,7 +7,7 @@ export function HomeToolbar() {
 
   return (
     <AddButtonLink
-      label="definition_editor.toolbar.create_root_node_button"
+      label="project_editor.toolbars.create_project"
       to={routes.render(ADD_PROJECT_VIEW)}
     />
   );

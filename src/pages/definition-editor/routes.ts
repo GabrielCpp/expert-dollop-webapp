@@ -69,7 +69,8 @@ export const routes: NamedRouteDefinition[] = [
         component: AccessLabelsEditorToolbar,
         exact: true,
         tags: ["main-toolbar"],
-      }
+      },
+      { component: EditFormulas, tags: ["main-toolbar"], exact: true }
     ],
   },
   {
@@ -118,15 +119,8 @@ export const routes: NamedRouteDefinition[] = [
     ],
   },
   {
-    name: "add_formulas_toobar",
-    path: "/project_definitions/:projectDefinitionId/:selectedPath",
-    components: [
-      { component: EditFormulas, tags: ["main-toolbar"], exact: true },
-    ],
-  },
-  {
     name: DEFINITION_EDITION_LABELS_EDITION,
-    path: "/project_definitions/:projectDefinitionId/labels",
+    path: "/project_definitions/:projectDefinitionId/:selectedPath/labels",
     components: [],
   },
 ];
