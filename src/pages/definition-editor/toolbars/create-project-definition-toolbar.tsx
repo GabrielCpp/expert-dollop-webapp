@@ -7,7 +7,7 @@ export function CreateProjectDefinitionToolbar() {
 
   return (
     <AddButtonLink
-      label="definition_editor.edit_formulas.formulas"
+      label="definition_editor.toolbars.create_definition_button"
       to={routes.render(DEFINITION_ADD)}
     />
   );
