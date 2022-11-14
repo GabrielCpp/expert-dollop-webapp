@@ -7,7 +7,6 @@ export const FIND_PROJECTS = gql`
         node {
           id
           name
-          isStaged
           projectDefinitionId
           datasheetId
         }
@@ -32,7 +31,7 @@ export const FIND_PROJECT_ROOT_SECTIONS = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -116,7 +115,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -187,7 +186,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
               name
               isCollection
               instanciateByDefault
-              orderIndex
+              ordinal
               validator
               translations {
                 helpTextName
@@ -269,7 +268,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
         name
         isCollection
         instanciateByDefault
-        orderIndex
+        ordinal
         validator
         fieldDetails {
           __typename
@@ -323,7 +322,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -398,7 +397,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
               name
               isCollection
               instanciateByDefault
-              orderIndex
+              ordinal
               validator
               translations {
                 helpTextName
@@ -481,3 +480,52 @@ export const FIND_PROJECT_DEFINITION_ID = gql`
     }
   }
 `;
+
+export const FIND_DEFINITION_AGGREGATE_COLLECTIONS = gql`
+query findDefinitionAggregateCollections($projectDefinitionId: ID!) {
+	findDefinitionAggregateCollections(
+		projectDefinitionId: $projectDefinitionId
+	) {
+		id
+		projectDefinitionId
+		name
+		isAbstract
+		attributesSchema {
+			name
+			details {
+				__typename
+				... on IntFieldConfig {
+					unit
+					integer
+				}
+				... on DecimalFieldConfig {
+					unit
+					precision
+					numeric
+				}
+				... on StringFieldConfig {
+					transforms
+					text
+				}
+				... on BoolFieldConfig {
+					enabled
+				}
+				... on StaticChoiceFieldConfig {
+					selected
+					options {
+						id
+						label
+						helpText
+					}
+				}
+				... on AggregateReferenceConfig {
+					fromCollection
+				}
+				... on NodeReferenceConfig {
+					nodeType
+				}
+			}
+		}
+	}
+}
+`

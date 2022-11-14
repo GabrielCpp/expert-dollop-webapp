@@ -20,12 +20,115 @@ export type Scalars = {
   Int: number;
   Float: number;
   JsonSchema: any;
+  UUID: any;
+};
+
+export type Aggregate = {
+  __typename?: "Aggregate";
+  attributes: Array<FieldWrapper<AggregateAttribute>>;
+  collectionId: FieldWrapper<Scalars["String"]>;
+  id: FieldWrapper<Scalars["ID"]>;
+  isExtendable: FieldWrapper<Scalars["Boolean"]>;
+  name: FieldWrapper<Scalars["String"]>;
+  ordinal: FieldWrapper<Scalars["Int"]>;
+  projectDefinitionId: FieldWrapper<Scalars["String"]>;
+};
+
+export type AggregateAttribute = {
+  __typename?: "AggregateAttribute";
+  isReadonly: FieldWrapper<Scalars["Boolean"]>;
+  name: FieldWrapper<Scalars["String"]>;
+  value: FieldWrapper<PrimitiveWithReferenceUnion>;
+};
+
+export type AggregateAttributeInput = {
+  isReadonly: Scalars["Boolean"];
+  name: Scalars["String"];
+  value: FieldValueInput;
+};
+
+export type AggregateAttributeSchema = {
+  __typename?: "AggregateAttributeSchema";
+  details: FieldWrapper<AttributeDetailsUnion>;
+  name: FieldWrapper<Scalars["String"]>;
+};
+
+export type AggregateAttributeSchemaInput = {
+  details: AttributeDetailsUnionInput;
+  name: Scalars["String"];
+};
+
+export type AggregateCollection = {
+  __typename?: "AggregateCollection";
+  attributesSchema: Array<FieldWrapper<AggregateAttributeSchema>>;
+  id: FieldWrapper<Scalars["String"]>;
+  isAbstract: FieldWrapper<Scalars["Boolean"]>;
+  name: FieldWrapper<Scalars["String"]>;
+  projectDefinitionId: FieldWrapper<Scalars["String"]>;
+};
+
+export type AggregateCollectionInput = {
+  attributesSchema: Array<AggregateAttributeSchemaInput>;
+  isAbstract: Scalars["Boolean"];
+  name: Scalars["String"];
+};
+
+export type AggregateInput = {
+  attributes: Array<AggregateAttributeInput>;
+  isExtendable: Scalars["Boolean"];
+  name: Scalars["String"];
+  ordinal: Scalars["Int"];
+};
+
+export type AggregateReferenceConfig = {
+  __typename?: "AggregateReferenceConfig";
+  fromCollection: FieldWrapper<Scalars["String"]>;
+};
+
+export type AggregateReferenceConfigInput = {
+  fromCollection: Scalars["String"];
+};
+
+export type Attribute = {
+  __typename?: "Attribute";
+  name: FieldWrapper<Scalars["String"]>;
+  value?: Maybe<FieldWrapper<PrimitiveWithReferenceUnion>>;
 };
 
 export type AttributeBucket = {
   __typename?: "AttributeBucket";
   attributeName: FieldWrapper<Scalars["String"]>;
   bucketName: FieldWrapper<Scalars["String"]>;
+};
+
+export enum AttributeDetailsEnum {
+  AGGREGATE_REFERENCE_CONFIG = "AGGREGATE_REFERENCE_CONFIG",
+  BOOL_FIELD_CONFIG = "BOOL_FIELD_CONFIG",
+  DECIMAL_FIELD_CONFIG = "DECIMAL_FIELD_CONFIG",
+  INT_FIELD_CONFIG = "INT_FIELD_CONFIG",
+  NODE_REFERENCE_CONFIG = "NODE_REFERENCE_CONFIG",
+  STATIC_CHOICE_FIELD_CONFIG = "STATIC_CHOICE_FIELD_CONFIG",
+  STRING_FIELD_CONFIG = "STRING_FIELD_CONFIG",
+}
+
+export type AttributeDetailsUnion =
+  | AggregateReferenceConfig
+  | BoolFieldConfig
+  | DecimalFieldConfig
+  | IntFieldConfig
+  | NodeReferenceConfig
+  | StaticChoiceFieldConfig
+  | StringFieldConfig;
+
+export type AttributeDetailsUnionInput = {
+  aggregateReference?: Maybe<AggregateReferenceConfigInput>;
+  bool?: Maybe<BoolFieldConfigInput>;
+  decimal?: Maybe<DecimalFieldConfigInput>;
+  int?: Maybe<IntFieldConfigInput>;
+  kind: AttributeDetailsEnum;
+  nodeReference?: Maybe<NodeReferenceConfigInput>;
+  staticChoice?: Maybe<StaticChoiceFieldConfigInput>;
+  string?: Maybe<StringFieldConfigInput>;
 };
 
 export type BoolFieldConfig = {
@@ -60,7 +163,7 @@ export type ComputedValue = {
   isVisible: FieldWrapper<Scalars["Boolean"]>;
   label: FieldWrapper<Scalars["String"]>;
   unit?: Maybe<FieldWrapper<Scalars["String"]>>;
-  value: FieldWrapper<FieldValue>;
+  value: FieldWrapper<PrimitiveWithReferenceUnion>;
 };
 
 export type CoreDefinitionNode = {
@@ -86,9 +189,8 @@ export type CoreDefinitionNodeEdge = {
 export type Datasheet = {
   __typename?: "Datasheet";
   elements: FieldWrapper<DatasheetElementConnection>;
-  fromDatasheetId?: Maybe<FieldWrapper<Scalars["String"]>>;
+  fromDatasheetId: FieldWrapper<Scalars["String"]>;
   id: FieldWrapper<Scalars["ID"]>;
-  isStaged: FieldWrapper<Scalars["Boolean"]>;
   name: FieldWrapper<Scalars["String"]>;
   projectDefinitionId: FieldWrapper<Scalars["String"]>;
 };
@@ -104,57 +206,6 @@ export type DatasheetConnection = {
   pageInfo: FieldWrapper<PageInfo>;
 };
 
-export type DatasheetDefinitionElement = {
-  __typename?: "DatasheetDefinitionElement";
-  creationDateUtc: FieldWrapper<Scalars["String"]>;
-  defaultProperties: Array<
-    FieldWrapper<DatasheetDefinitionElementPropertyDict>
-  >;
-  id: FieldWrapper<Scalars["ID"]>;
-  isCollection: FieldWrapper<Scalars["Boolean"]>;
-  name: FieldWrapper<Scalars["String"]>;
-  orderIndex: FieldWrapper<Scalars["Int"]>;
-  projectDefinition?: Maybe<FieldWrapper<ProjectDefinition>>;
-  projectDefinitionId: FieldWrapper<Scalars["String"]>;
-  tags: Array<FieldWrapper<Scalars["String"]>>;
-  unitId: FieldWrapper<Scalars["String"]>;
-};
-
-export type DatasheetDefinitionElementConnection = {
-  __typename?: "DatasheetDefinitionElementConnection";
-  edges: Array<FieldWrapper<DatasheetDefinitionElementEdge>>;
-  pageInfo: FieldWrapper<PageInfo>;
-};
-
-export type DatasheetDefinitionElementEdge = {
-  __typename?: "DatasheetDefinitionElementEdge";
-  cursor: FieldWrapper<Scalars["String"]>;
-  node: FieldWrapper<DatasheetDefinitionElement>;
-};
-
-export type DatasheetDefinitionElementProperty = {
-  __typename?: "DatasheetDefinitionElementProperty";
-  isReadonly: FieldWrapper<Scalars["Boolean"]>;
-  value: FieldWrapper<Scalars["String"]>;
-};
-
-export type DatasheetDefinitionElementPropertyDict = {
-  __typename?: "DatasheetDefinitionElementPropertyDict";
-  name: FieldWrapper<Scalars["String"]>;
-  property: FieldWrapper<DatasheetDefinitionElementProperty>;
-};
-
-export type DatasheetDefinitionPropertySchema = {
-  __typename?: "DatasheetDefinitionPropertySchema";
-  valueValidator: FieldWrapper<Scalars["JsonSchema"]>;
-};
-
-export type DatasheetDefinitionPropertySchemaDict = {
-  __typename?: "DatasheetDefinitionPropertySchemaDict";
-  name: FieldWrapper<Scalars["String"]>;
-  schema: FieldWrapper<DatasheetDefinitionPropertySchema>;
-};
-
 export type DatasheetEdge = {
   __typename?: "DatasheetEdge";
   cursor: FieldWrapper<Scalars["String"]>;
@@ -163,13 +214,14 @@ export type DatasheetEdge = {
 
 export type DatasheetElement = {
   __typename?: "DatasheetElement";
-  childElementReference: FieldWrapper<Scalars["ID"]>;
+  aggregateId: FieldWrapper<Scalars["String"]>;
+  attributes: Array<FieldWrapper<Attribute>>;
   creationDateUtc: FieldWrapper<Scalars["String"]>;
   datasheetId: FieldWrapper<Scalars["String"]>;
-  elementDefId: FieldWrapper<Scalars["String"]>;
-  elementDefinition: FieldWrapper<DatasheetDefinitionElement>;
+  id: FieldWrapper<Scalars["ID"]>;
   originalDatasheetId: FieldWrapper<Scalars["String"]>;
-  properties: FieldWrapper<Scalars["String"]>;
+  originalOwnerOrganizationId: FieldWrapper<Scalars["String"]>;
+  schema: FieldWrapper<InstanceSchema>;
 };
 
 export type DatasheetElementConnection = {
@@ -266,18 +318,12 @@ export type FieldUpdateInput = {
   value: FieldValueInput;
 };
 
-export type FieldValue =
-  | BoolFieldValue
-  | DecimalFieldValue
-  | IntFieldValue
-  | ReferenceId
-  | StringFieldValue;
-
 export type FieldValueInput = {
   bool?: Maybe<BoolFieldValueInput>;
   decimal?: Maybe<DecimalFieldValueInput>;
   int?: Maybe<IntFieldValueInput>;
   kind: FieldValueType;
+  reference?: Maybe<ReferenceFieldValueInput>;
   string?: Maybe<StringFieldValueInput>;
 };
 
@@ -285,6 +331,7 @@ export enum FieldValueType {
   BOOL_FIELD_VALUE = "BOOL_FIELD_VALUE",
   DECIMAL_FIELD_VALUE = "DECIMAL_FIELD_VALUE",
   INT_FIELD_VALUE = "INT_FIELD_VALUE",
+  REFERENCE_FIELD_VALUE = "REFERENCE_FIELD_VALUE",
   STRING_FIELD_VALUE = "STRING_FIELD_VALUE",
 }
 
@@ -309,6 +356,13 @@ export type FormulaEdge = {
   node: FieldWrapper<Formula>;
 };
 
+export type InstanceSchema = {
+  __typename?: "InstanceSchema";
+  attributesSchema: Array<FieldWrapper<AggregateAttribute>>;
+  id: FieldWrapper<Scalars["ID"]>;
+  isExtendable: FieldWrapper<Scalars["Boolean"]>;
+};
+
 export type IntFieldConfig = {
   __typename?: "IntFieldConfig";
   integer: FieldWrapper<Scalars["Int"]>;
@@ -331,6 +385,8 @@ export type IntFieldValueInput = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  addAggregate: FieldWrapper<AggregateCollection>;
+  addAggregateCollection: FieldWrapper<AggregateCollection>;
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   addProjectDefinition: FieldWrapper<ProjectDefinition>;
   addProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
@@ -338,12 +394,26 @@ export type Mutation = {
   createDatasheet: FieldWrapper<Datasheet>;
   createProject: FieldWrapper<ProjectDetails>;
   createSingleUserOrganization: FieldWrapper<User>;
+  deleteAggregate: FieldWrapper<Scalars["String"]>;
+  deleteAggregateCollection: FieldWrapper<Scalars["String"]>;
   deleteProjectCollection: FieldWrapper<ProjectNode>;
   deleteProjectDefinitionNode: FieldWrapper<Scalars["String"]>;
+  updateAggregate: FieldWrapper<AggregateCollection>;
+  updateAggregateCollection: FieldWrapper<AggregateCollection>;
   updateProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
   updateProjectFields: Array<Maybe<FieldWrapper<ProjectNode>>>;
   updateTranslations: Array<FieldWrapper<Translation>>;
+};
+
+export type MutationAddAggregateArgs = {
+  aggregate: AggregateInput;
+  projectDefinitionId: Scalars["ID"];
+};
+
+export type MutationAddAggregateCollectionArgs = {
+  collection: AggregateCollectionInput;
+  projectDefinitionId: Scalars["ID"];
 };
 
 export type MutationAddProjectCollectionItemArgs = {
@@ -377,6 +447,17 @@ export type MutationCreateSingleUserOrganizationArgs = {
   singleUserOrganization: NewSingleUserOrganizationInput;
 };
 
+export type MutationDeleteAggregateArgs = {
+  aggregateId: Scalars["ID"];
+  collectionId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
+};
+
+export type MutationDeleteAggregateCollectionArgs = {
+  collectionId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
+};
+
 export type MutationDeleteProjectCollectionArgs = {
   collectionNodeId: Scalars["ID"];
   projectId: Scalars["ID"];
@@ -384,6 +465,18 @@ export type MutationDeleteProjectCollectionArgs = {
 
 export type MutationDeleteProjectDefinitionNodeArgs = {
   nodeId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
+};
+
+export type MutationUpdateAggregateArgs = {
+  aggregate: AggregateInput;
+  collectionId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
+};
+
+export type MutationUpdateAggregateCollectionArgs = {
+  collection: AggregateCollectionInput;
+  collectionId: Scalars["ID"];
   projectDefinitionId: Scalars["ID"];
 };
 
@@ -422,6 +515,24 @@ export type NodeMetaConfigInput = {
   isVisible: Scalars["Boolean"];
 };
 
+export type NodeReferenceConfig = {
+  __typename?: "NodeReferenceConfig";
+  nodeType: FieldWrapper<NodeType>;
+};
+
+export type NodeReferenceConfigInput = {
+  nodeType: NodeType;
+};
+
+export enum NodeType {
+  FIELD = "FIELD",
+  FORM = "FORM",
+  FORMULA = "FORMULA",
+  ROOT_SECTION = "ROOT_SECTION",
+  SECTION = "SECTION",
+  SUB_SECTION = "SUB_SECTION",
+}
+
 export type Organization = {
   __typename?: "Organization";
   email: FieldWrapper<Scalars["String"]>;
@@ -436,6 +547,13 @@ export type PageInfo = {
   totalCount: FieldWrapper<Scalars["Int"]>;
 };
 
+export type PrimitiveWithReferenceUnion =
+  | BoolFieldValue
+  | DecimalFieldValue
+  | IntFieldValue
+  | ReferenceId
+  | StringFieldValue;
+
 export type ProjectConnection = {
   __typename?: "ProjectConnection";
   edges: Array<FieldWrapper<ProjectEdge>>;
@@ -444,38 +562,19 @@ export type ProjectConnection = {
 
 export type ProjectDefinition = {
   __typename?: "ProjectDefinition";
-  defaultDatasheet: FieldWrapper<Datasheet>;
-  defaultDatasheetId: FieldWrapper<Scalars["String"]>;
-  elementsDefinition?: Maybe<
-    FieldWrapper<DatasheetDefinitionElementConnection>
-  >;
   formContent: FieldWrapper<ProjectDefinitionNodeTree>;
   id: FieldWrapper<Scalars["ID"]>;
   name: FieldWrapper<Scalars["String"]>;
-  projectDefinition: FieldWrapper<ProjectDefinition>;
-  projectDefinitionId: FieldWrapper<Scalars["String"]>;
-  properties: Array<FieldWrapper<DatasheetDefinitionPropertySchemaDict>>;
   rootSectionContainers: FieldWrapper<ProjectDefinitionNodeTree>;
   rootSections: FieldWrapper<ProjectDefinitionNodeTree>;
 };
 
-export type ProjectDefinitionElementsDefinitionArgs = {
-  after?: Maybe<Scalars["String"]>;
-  first: Scalars["Int"];
-};
-
 export type ProjectDefinitionFormContentArgs = {
   formId: Scalars["ID"];
-  projectDefinitionId: Scalars["ID"];
 };
 
 export type ProjectDefinitionRootSectionContainersArgs = {
-  projectDefinitionId: Scalars["ID"];
   rootSectionId: Scalars["ID"];
-};
-
-export type ProjectDefinitionRootSectionsArgs = {
-  projectDefinitionId: Scalars["ID"];
 };
 
 export type ProjectDefinitionConnection = {
@@ -499,7 +598,7 @@ export type ProjectDefinitionNode = {
   isCollection: FieldWrapper<Scalars["Boolean"]>;
   meta: FieldWrapper<NodeMetaConfig>;
   name: FieldWrapper<Scalars["String"]>;
-  orderIndex: FieldWrapper<Scalars["Int"]>;
+  ordinal: FieldWrapper<Scalars["Int"]>;
   path: Array<FieldWrapper<Scalars["String"]>>;
   projectDefinitionId: FieldWrapper<Scalars["String"]>;
   translated: Array<FieldWrapper<Translation>>;
@@ -514,7 +613,7 @@ export type ProjectDefinitionNodeCreationInput = {
   isCollection: Scalars["Boolean"];
   meta: NodeMetaConfigInput;
   name: Scalars["String"];
-  orderIndex: Scalars["Int"];
+  ordinal: Scalars["Int"];
   path: Array<Scalars["String"]>;
   translated: Array<TranslationInput>;
   translations: TranslationConfigInput;
@@ -537,7 +636,6 @@ export type ProjectDetails = {
   datasheet: FieldWrapper<Datasheet>;
   datasheetId: FieldWrapper<Scalars["String"]>;
   id: FieldWrapper<Scalars["ID"]>;
-  isStaged?: Maybe<FieldWrapper<Scalars["Boolean"]>>;
   name: FieldWrapper<Scalars["String"]>;
   projectDefinition: FieldWrapper<ProjectDefinition>;
   projectDefinitionId: FieldWrapper<Scalars["String"]>;
@@ -566,7 +664,7 @@ export type ProjectNode = {
   typeId: FieldWrapper<Scalars["String"]>;
   typeName: FieldWrapper<Scalars["String"]>;
   typePath: Array<FieldWrapper<Scalars["String"]>>;
-  value?: Maybe<FieldWrapper<FieldValue>>;
+  value?: Maybe<FieldWrapper<PrimitiveWithReferenceUnion>>;
 };
 
 export type ProjectNodeCollectionTargetInput = {
@@ -609,9 +707,10 @@ export type ProjectNodeTreeTypeNode = {
 export type Query = {
   __typename?: "Query";
   currentUser?: Maybe<FieldWrapper<User>>;
+  findAggregation: FieldWrapper<AggregateCollection>;
   findDatasheet: FieldWrapper<Datasheet>;
-  findDatasheetDefinitionElements: FieldWrapper<DatasheetDefinitionElementConnection>;
   findDatasheets: FieldWrapper<DatasheetConnection>;
+  findDefinitionAggregateCollections: Array<FieldWrapper<AggregateCollection>>;
   findDefinitionFormulaFieldMix: FieldWrapper<CoreDefinitionNodeConnection>;
   findDistributableItems: Array<FieldWrapper<DistributableItem>>;
   findDistributables: Array<FieldWrapper<ReportDefinition>>;
@@ -636,21 +735,23 @@ export type Query = {
   units: Array<FieldWrapper<Unit>>;
 };
 
-export type QueryFindDatasheetArgs = {
-  id: Scalars["ID"];
+export type QueryFindAggregationArgs = {
+  collectionId: Scalars["ID"];
+  projectDefinitionId: Scalars["ID"];
 };
 
-export type QueryFindDatasheetDefinitionElementsArgs = {
-  after?: Maybe<Scalars["String"]>;
-  first: Scalars["Int"];
-  projectDefinitionId: Scalars["ID"];
-  query: Scalars["String"];
+export type QueryFindDatasheetArgs = {
+  id: Scalars["ID"];
 };
 
 export type QueryFindDatasheetsArgs = {
   after?: Maybe<Scalars["String"]>;
   first: Scalars["Int"];
   query: Scalars["String"];
+};
+
+export type QueryFindDefinitionAggregateCollectionsArgs = {
+  projectDefinitionId: Scalars["ID"];
 };
 
 export type QueryFindDefinitionFormulaFieldMixArgs = {
@@ -755,6 +856,10 @@ export type QueryFindReportDefinitionsArgs = {
 export type QueryFindRessourceTranslationArgs = {
   language: Scalars["String"];
   ressourceId: Scalars["ID"];
+};
+
+export type ReferenceFieldValueInput = {
+  uuid: Scalars["String"];
 };
 
 export type ReferenceId = {
@@ -1086,7 +1191,7 @@ export type CreateDatasheetMutationVariables = Exact<{
 export type CreateDatasheetMutation = { __typename?: "Mutation" } & {
   createDatasheet: { __typename?: "Datasheet" } & Pick<
     Datasheet,
-    "id" | "name" | "isStaged" | "projectDefinitionId" | "fromDatasheetId"
+    "id" | "name" | "projectDefinitionId" | "fromDatasheetId"
   >;
 };
 
@@ -1106,11 +1211,7 @@ export type FindDatasheetsQuery = { __typename?: "Query" } & {
       { __typename?: "DatasheetEdge" } & Pick<DatasheetEdge, "cursor"> & {
           node: { __typename?: "Datasheet" } & Pick<
             Datasheet,
-            | "id"
-            | "name"
-            | "isStaged"
-            | "projectDefinitionId"
-            | "fromDatasheetId"
+            "id" | "name" | "projectDefinitionId" | "fromDatasheetId"
           >;
         }
     >;
@@ -1130,7 +1231,7 @@ export type AddProjectDefinitionNodeMutation = { __typename?: "Mutation" } & {
     | "name"
     | "isCollection"
     | "instanciateByDefault"
-    | "orderIndex"
+    | "ordinal"
   > & {
       fieldDetails?: Maybe<
         | ({ __typename: "BoolFieldConfig" } & Pick<BoolFieldConfig, "enabled">)
@@ -1182,7 +1283,7 @@ export type UpdateProjectDefinitionNodeMutation = {
     | "name"
     | "isCollection"
     | "instanciateByDefault"
-    | "orderIndex"
+    | "ordinal"
   > & {
       fieldDetails?: Maybe<
         | ({ __typename: "BoolFieldConfig" } & Pick<BoolFieldConfig, "enabled">)
@@ -1227,6 +1328,73 @@ export type DeleteProjectDefinitionNodeMutation = {
   __typename?: "Mutation";
 } & Pick<Mutation, "deleteProjectDefinitionNode">;
 
+export type AddProjectDefinitionMutationVariables = Exact<{
+  definitionInput: DefinitionInput;
+}>;
+
+export type AddProjectDefinitionMutation = { __typename?: "Mutation" } & {
+  addProjectDefinition: { __typename?: "ProjectDefinition" } & Pick<
+    ProjectDefinition,
+    "id" | "name"
+  >;
+};
+
+export type AddAggregateCollectionMutationVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  collection: AggregateCollectionInput;
+}>;
+
+export type AddAggregateCollectionMutation = { __typename?: "Mutation" } & {
+  addAggregateCollection: { __typename?: "AggregateCollection" } & Pick<
+    AggregateCollection,
+    "id" | "projectDefinitionId" | "name" | "isAbstract"
+  > & {
+      attributesSchema: Array<
+        { __typename?: "AggregateAttributeSchema" } & Pick<
+          AggregateAttributeSchema,
+          "name"
+        > & {
+            details:
+              | ({ __typename: "AggregateReferenceConfig" } & Pick<
+                  AggregateReferenceConfig,
+                  "fromCollection"
+                >)
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
+                  "enabled"
+                >)
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
+                >)
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "NodeReferenceConfig" } & Pick<
+                  NodeReferenceConfig,
+                  "nodeType"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
+                >);
+          }
+      >;
+    };
+};
+
 export type FindProjectDefinitionFormulasQueryVariables = Exact<{
   projectDefinitionId: Scalars["ID"];
   query: Scalars["String"];
@@ -1270,7 +1438,7 @@ export type FindProjectDefinitionRootSectionsQuery = {
           | "name"
           | "isCollection"
           | "instanciateByDefault"
-          | "orderIndex"
+          | "ordinal"
           | "validator"
           | "path"
         > & {
@@ -1341,7 +1509,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
           | "name"
           | "isCollection"
           | "instanciateByDefault"
-          | "orderIndex"
+          | "ordinal"
           | "validator"
           | "path"
         > & {
@@ -1396,7 +1564,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
               | "name"
               | "isCollection"
               | "instanciateByDefault"
-              | "orderIndex"
+              | "ordinal"
               | "validator"
               | "path"
             > & {
@@ -1462,7 +1630,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
     | "name"
     | "isCollection"
     | "instanciateByDefault"
-    | "orderIndex"
+    | "ordinal"
     | "path"
     | "validator"
   > & {
@@ -1530,7 +1698,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
           | "name"
           | "isCollection"
           | "instanciateByDefault"
-          | "orderIndex"
+          | "ordinal"
           | "validator"
           | "path"
         > & {
@@ -1598,7 +1766,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
               | "name"
               | "isCollection"
               | "instanciateByDefault"
-              | "orderIndex"
+              | "ordinal"
               | "validator"
               | "path"
             > & {
@@ -1677,7 +1845,7 @@ export type FindProjectDefinitionNodeQuery = { __typename?: "Query" } & {
     | "name"
     | "isCollection"
     | "instanciateByDefault"
-    | "orderIndex"
+    | "ordinal"
     | "path"
     | "validator"
   > & {
@@ -1760,7 +1928,7 @@ export type FindProjectDefintionsQuery = { __typename?: "Query" } & {
       > & {
           node: { __typename?: "ProjectDefinition" } & Pick<
             ProjectDefinition,
-            "id" | "name" | "defaultDatasheetId"
+            "id" | "name"
           >;
         }
     >;
@@ -1824,7 +1992,7 @@ export type CreateProjectMutationVariables = Exact<{
 export type CreateProjectMutation = { __typename?: "Mutation" } & {
   createProject: { __typename?: "ProjectDetails" } & Pick<
     ProjectDetails,
-    "id" | "name" | "isStaged" | "projectDefinitionId" | "datasheetId"
+    "id" | "name" | "projectDefinitionId" | "datasheetId"
   >;
 };
 
@@ -1929,17 +2097,6 @@ export type DeleteProjectCollectionMutation = { __typename?: "Mutation" } & {
   >;
 };
 
-export type AddProjectDefinitionMutationVariables = Exact<{
-  definitionInput: DefinitionInput;
-}>;
-
-export type AddProjectDefinitionMutation = { __typename?: "Mutation" } & {
-  addProjectDefinition: { __typename?: "ProjectDefinition" } & Pick<
-    ProjectDefinition,
-    "id" | "name" | "defaultDatasheetId"
-  >;
-};
-
 export type FindProjectsQueryVariables = Exact<{
   query: Scalars["String"];
   first: Scalars["Int"];
@@ -1952,7 +2109,7 @@ export type FindProjectsQuery = { __typename?: "Query" } & {
       { __typename?: "ProjectEdge" } & Pick<ProjectEdge, "cursor"> & {
           node: { __typename?: "ProjectDetails" } & Pick<
             ProjectDetails,
-            "id" | "name" | "isStaged" | "projectDefinitionId" | "datasheetId"
+            "id" | "name" | "projectDefinitionId" | "datasheetId"
           >;
         }
     >;
@@ -1978,7 +2135,7 @@ export type FindProjectRootSectionsQuery = { __typename?: "Query" } & {
           | "name"
           | "isCollection"
           | "instanciateByDefault"
-          | "orderIndex"
+          | "ordinal"
           | "validator"
         > & {
             translations: { __typename?: "TranslationConfig" } & Pick<
@@ -2073,7 +2230,7 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
           | "name"
           | "isCollection"
           | "instanciateByDefault"
-          | "orderIndex"
+          | "ordinal"
           | "validator"
         > & {
             translations: { __typename?: "TranslationConfig" } & Pick<
@@ -2154,7 +2311,7 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
                   | "name"
                   | "isCollection"
                   | "instanciateByDefault"
-                  | "orderIndex"
+                  | "ordinal"
                   | "validator"
                 > & {
                     translations: { __typename?: "TranslationConfig" } & Pick<
@@ -2256,7 +2413,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
         | "name"
         | "isCollection"
         | "instanciateByDefault"
-        | "orderIndex"
+        | "ordinal"
         | "validator"
         | "path"
       > & {
@@ -2317,7 +2474,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
           | "name"
           | "isCollection"
           | "instanciateByDefault"
-          | "orderIndex"
+          | "ordinal"
           | "validator"
         > & {
             translations: { __typename?: "TranslationConfig" } & Pick<
@@ -2401,7 +2558,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                   | "name"
                   | "isCollection"
                   | "instanciateByDefault"
-                  | "orderIndex"
+                  | "ordinal"
                   | "validator"
                 > & {
                     translations: { __typename?: "TranslationConfig" } & Pick<
@@ -2497,6 +2654,65 @@ export type FindProjectDefinitionIdQuery = { __typename?: "Query" } & {
   findProjectDetails: { __typename?: "ProjectDetails" } & Pick<
     ProjectDetails,
     "projectDefinitionId"
+  >;
+};
+
+export type FindDefinitionAggregateCollectionsQueryVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+}>;
+
+export type FindDefinitionAggregateCollectionsQuery = {
+  __typename?: "Query";
+} & {
+  findDefinitionAggregateCollections: Array<
+    { __typename?: "AggregateCollection" } & Pick<
+      AggregateCollection,
+      "id" | "projectDefinitionId" | "name" | "isAbstract"
+    > & {
+        attributesSchema: Array<
+          { __typename?: "AggregateAttributeSchema" } & Pick<
+            AggregateAttributeSchema,
+            "name"
+          > & {
+              details:
+                | ({ __typename: "AggregateReferenceConfig" } & Pick<
+                    AggregateReferenceConfig,
+                    "fromCollection"
+                  >)
+                | ({ __typename: "BoolFieldConfig" } & Pick<
+                    BoolFieldConfig,
+                    "enabled"
+                  >)
+                | ({ __typename: "DecimalFieldConfig" } & Pick<
+                    DecimalFieldConfig,
+                    "unit" | "precision" | "numeric"
+                  >)
+                | ({ __typename: "IntFieldConfig" } & Pick<
+                    IntFieldConfig,
+                    "unit" | "integer"
+                  >)
+                | ({ __typename: "NodeReferenceConfig" } & Pick<
+                    NodeReferenceConfig,
+                    "nodeType"
+                  >)
+                | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                    StaticChoiceFieldConfig,
+                    "selected"
+                  > & {
+                      options: Array<
+                        { __typename?: "StaticChoiceOption" } & Pick<
+                          StaticChoiceOption,
+                          "id" | "label" | "helpText"
+                        >
+                      >;
+                    })
+                | ({ __typename: "StringFieldConfig" } & Pick<
+                    StringFieldConfig,
+                    "transforms" | "text"
+                  >);
+            }
+        >;
+      }
   >;
 };
 
@@ -2873,7 +3089,6 @@ export const CreateDatasheetDocument = gql`
     createDatasheet(datasheet: $datasheet) {
       id
       name
-      isStaged
       projectDefinitionId
       fromDatasheetId
     }
@@ -2934,7 +3149,6 @@ export const FindDatasheetsDocument = gql`
         node {
           id
           name
-          isStaged
           projectDefinitionId
           fromDatasheetId
         }
@@ -3010,7 +3224,7 @@ export const AddProjectDefinitionNodeDocument = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       fieldDetails {
         __typename
         ... on IntFieldConfig {
@@ -3105,7 +3319,7 @@ export const UpdateProjectDefinitionNodeDocument = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       fieldDetails {
         __typename
         ... on IntFieldConfig {
@@ -3241,6 +3455,153 @@ export type DeleteProjectDefinitionNodeMutationOptions =
     DeleteProjectDefinitionNodeMutation,
     DeleteProjectDefinitionNodeMutationVariables
   >;
+export const AddProjectDefinitionDocument = gql`
+  mutation addProjectDefinition($definitionInput: DefinitionInput!) {
+    addProjectDefinition(definitionInput: $definitionInput) {
+      id
+      name
+    }
+  }
+`;
+export type AddProjectDefinitionMutationFn = Apollo.MutationFunction<
+  AddProjectDefinitionMutation,
+  AddProjectDefinitionMutationVariables
+>;
+
+/**
+ * __useAddProjectDefinitionMutation__
+ *
+ * To run a mutation, you first call `useAddProjectDefinitionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectDefinitionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectDefinitionMutation, { data, loading, error }] = useAddProjectDefinitionMutation({
+ *   variables: {
+ *      definitionInput: // value for 'definitionInput'
+ *   },
+ * });
+ */
+export function useAddProjectDefinitionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddProjectDefinitionMutation,
+    AddProjectDefinitionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddProjectDefinitionMutation,
+    AddProjectDefinitionMutationVariables
+  >(AddProjectDefinitionDocument, options);
+}
+export type AddProjectDefinitionMutationHookResult = ReturnType<
+  typeof useAddProjectDefinitionMutation
+>;
+export type AddProjectDefinitionMutationResult =
+  Apollo.MutationResult<AddProjectDefinitionMutation>;
+export type AddProjectDefinitionMutationOptions = Apollo.BaseMutationOptions<
+  AddProjectDefinitionMutation,
+  AddProjectDefinitionMutationVariables
+>;
+export const AddAggregateCollectionDocument = gql`
+  mutation addAggregateCollection(
+    $projectDefinitionId: ID!
+    $collection: AggregateCollectionInput!
+  ) {
+    addAggregateCollection(
+      projectDefinitionId: $projectDefinitionId
+      collection: $collection
+    ) {
+      id
+      projectDefinitionId
+      name
+      isAbstract
+      attributesSchema {
+        name
+        details {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
+          }
+          ... on StringFieldConfig {
+            transforms
+            text
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            selected
+            options {
+              id
+              label
+              helpText
+            }
+          }
+          ... on AggregateReferenceConfig {
+            fromCollection
+          }
+          ... on NodeReferenceConfig {
+            nodeType
+          }
+        }
+      }
+    }
+  }
+`;
+export type AddAggregateCollectionMutationFn = Apollo.MutationFunction<
+  AddAggregateCollectionMutation,
+  AddAggregateCollectionMutationVariables
+>;
+
+/**
+ * __useAddAggregateCollectionMutation__
+ *
+ * To run a mutation, you first call `useAddAggregateCollectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAggregateCollectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAggregateCollectionMutation, { data, loading, error }] = useAddAggregateCollectionMutation({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      collection: // value for 'collection'
+ *   },
+ * });
+ */
+export function useAddAggregateCollectionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddAggregateCollectionMutation,
+    AddAggregateCollectionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddAggregateCollectionMutation,
+    AddAggregateCollectionMutationVariables
+  >(AddAggregateCollectionDocument, options);
+}
+export type AddAggregateCollectionMutationHookResult = ReturnType<
+  typeof useAddAggregateCollectionMutation
+>;
+export type AddAggregateCollectionMutationResult =
+  Apollo.MutationResult<AddAggregateCollectionMutation>;
+export type AddAggregateCollectionMutationOptions = Apollo.BaseMutationOptions<
+  AddAggregateCollectionMutation,
+  AddAggregateCollectionMutationVariables
+>;
 export const FindProjectDefinitionFormulasDocument = gql`
   query findProjectDefinitionFormulas(
     $projectDefinitionId: ID!
@@ -3334,7 +3695,7 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -3448,7 +3809,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -3498,7 +3859,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
             name
             isCollection
             instanciateByDefault
-            orderIndex
+            ordinal
             validator
             translations {
               helpTextName
@@ -3605,7 +3966,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       path
       validator
       triggers {
@@ -3667,7 +4028,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           triggers {
             action
@@ -3725,7 +4086,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
             name
             isCollection
             instanciateByDefault
-            orderIndex
+            ordinal
             validator
             triggers {
               action
@@ -3844,7 +4205,7 @@ export const FindProjectDefinitionNodeDocument = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       path
       validator
       triggers {
@@ -3971,7 +4332,6 @@ export const FindProjectDefintionsDocument = gql`
         node {
           id
           name
-          defaultDatasheetId
         }
         cursor
       }
@@ -4231,7 +4591,6 @@ export const CreateProjectDocument = gql`
     createProject(projectDetails: $projectDetails) {
       id
       name
-      isStaged
       projectDefinitionId
       datasheetId
     }
@@ -4558,58 +4917,6 @@ export type DeleteProjectCollectionMutationOptions = Apollo.BaseMutationOptions<
   DeleteProjectCollectionMutation,
   DeleteProjectCollectionMutationVariables
 >;
-export const AddProjectDefinitionDocument = gql`
-  mutation addProjectDefinition($definitionInput: DefinitionInput!) {
-    addProjectDefinition(definitionInput: $definitionInput) {
-      id
-      name
-      defaultDatasheetId
-    }
-  }
-`;
-export type AddProjectDefinitionMutationFn = Apollo.MutationFunction<
-  AddProjectDefinitionMutation,
-  AddProjectDefinitionMutationVariables
->;
-
-/**
- * __useAddProjectDefinitionMutation__
- *
- * To run a mutation, you first call `useAddProjectDefinitionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddProjectDefinitionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addProjectDefinitionMutation, { data, loading, error }] = useAddProjectDefinitionMutation({
- *   variables: {
- *      definitionInput: // value for 'definitionInput'
- *   },
- * });
- */
-export function useAddProjectDefinitionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddProjectDefinitionMutation,
-    AddProjectDefinitionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    AddProjectDefinitionMutation,
-    AddProjectDefinitionMutationVariables
-  >(AddProjectDefinitionDocument, options);
-}
-export type AddProjectDefinitionMutationHookResult = ReturnType<
-  typeof useAddProjectDefinitionMutation
->;
-export type AddProjectDefinitionMutationResult =
-  Apollo.MutationResult<AddProjectDefinitionMutation>;
-export type AddProjectDefinitionMutationOptions = Apollo.BaseMutationOptions<
-  AddProjectDefinitionMutation,
-  AddProjectDefinitionMutationVariables
->;
 export const FindProjectsDocument = gql`
   query findProjects($query: String!, $first: Int!, $after: String) {
     results: findProjects(query: $query, first: $first, after: $after) {
@@ -4617,7 +4924,6 @@ export const FindProjectsDocument = gql`
         node {
           id
           name
-          isStaged
           projectDefinitionId
           datasheetId
         }
@@ -4694,7 +5000,7 @@ export const FindProjectRootSectionsDocument = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -4828,7 +5134,7 @@ export const FindProjectRootSectionContainersDocument = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -4899,7 +5205,7 @@ export const FindProjectRootSectionContainersDocument = gql`
               name
               isCollection
               instanciateByDefault
-              orderIndex
+              ordinal
               validator
               translations {
                 helpTextName
@@ -5032,7 +5338,7 @@ export const FindProjectFormContentDocument = gql`
         name
         isCollection
         instanciateByDefault
-        orderIndex
+        ordinal
         validator
         fieldDetails {
           __typename
@@ -5086,7 +5392,7 @@ export const FindProjectFormContentDocument = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -5161,7 +5467,7 @@ export const FindProjectFormContentDocument = gql`
               name
               isCollection
               instanciateByDefault
-              orderIndex
+              ordinal
               validator
               translations {
                 helpTextName
@@ -5345,6 +5651,105 @@ export type FindProjectDefinitionIdLazyQueryHookResult = ReturnType<
 export type FindProjectDefinitionIdQueryResult = Apollo.QueryResult<
   FindProjectDefinitionIdQuery,
   FindProjectDefinitionIdQueryVariables
+>;
+export const FindDefinitionAggregateCollectionsDocument = gql`
+  query findDefinitionAggregateCollections($projectDefinitionId: ID!) {
+    findDefinitionAggregateCollections(
+      projectDefinitionId: $projectDefinitionId
+    ) {
+      id
+      projectDefinitionId
+      name
+      isAbstract
+      attributesSchema {
+        name
+        details {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
+          }
+          ... on StringFieldConfig {
+            transforms
+            text
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            selected
+            options {
+              id
+              label
+              helpText
+            }
+          }
+          ... on AggregateReferenceConfig {
+            fromCollection
+          }
+          ... on NodeReferenceConfig {
+            nodeType
+          }
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * __useFindDefinitionAggregateCollectionsQuery__
+ *
+ * To run a query within a React component, call `useFindDefinitionAggregateCollectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindDefinitionAggregateCollectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindDefinitionAggregateCollectionsQuery({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *   },
+ * });
+ */
+export function useFindDefinitionAggregateCollectionsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    FindDefinitionAggregateCollectionsQuery,
+    FindDefinitionAggregateCollectionsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    FindDefinitionAggregateCollectionsQuery,
+    FindDefinitionAggregateCollectionsQueryVariables
+  >(FindDefinitionAggregateCollectionsDocument, options);
+}
+export function useFindDefinitionAggregateCollectionsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    FindDefinitionAggregateCollectionsQuery,
+    FindDefinitionAggregateCollectionsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    FindDefinitionAggregateCollectionsQuery,
+    FindDefinitionAggregateCollectionsQueryVariables
+  >(FindDefinitionAggregateCollectionsDocument, options);
+}
+export type FindDefinitionAggregateCollectionsQueryHookResult = ReturnType<
+  typeof useFindDefinitionAggregateCollectionsQuery
+>;
+export type FindDefinitionAggregateCollectionsLazyQueryHookResult = ReturnType<
+  typeof useFindDefinitionAggregateCollectionsLazyQuery
+>;
+export type FindDefinitionAggregateCollectionsQueryResult = Apollo.QueryResult<
+  FindDefinitionAggregateCollectionsQuery,
+  FindDefinitionAggregateCollectionsQueryVariables
 >;
 export const FindProjectReportWithDefinitionDocument = gql`
   query findProjectReportWithDefinition(

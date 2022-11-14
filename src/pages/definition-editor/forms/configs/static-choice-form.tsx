@@ -1,8 +1,8 @@
 import { Card, CardActions, CardContent, CardHeader } from "@mui/material";
 import { head } from "lodash";
 import { useCallback, useLayoutEffect, useRef } from "react";
-import { AdditionRemovalActionGroup } from "../../../components/buttons";
-import { LeftSideButton } from "../../../components/custom-styles";
+import { AdditionRemovalActionGroup } from "../../../../components/buttons";
+import { LeftSideButton } from "../../../../components/custom-styles";
 import {
   Field,
   FieldArrayElement,
@@ -19,13 +19,19 @@ import {
   useForm,
   useHiddenField,
   useNodePickerState,
-} from "../../../components/table-fields";
-import { StaticChoiceOptionInput } from "../../../generated";
-import { useServices } from "../../../services-def";
-import { useId } from "../../../shared/redux-db";
-import { MultiLanguageField } from "./multi-language-field";
+} from "../../../../components/table-fields";
+import {
+  StaticChoiceFieldConfigInput,
+  StaticChoiceOptionInput,
+} from "../../../../generated";
+import { useServices } from "../../../../services-def";
+import { useId } from "../../../../shared/redux-db";
+import { MultiLanguageField } from "../multi-language-field";
 
 interface StaticChoiceFormLabels {
+  form: {
+    name: string;
+  };
   selected: {
     name: string;
     label: string;
@@ -79,26 +85,22 @@ interface StaticChoiceFormLabels {
 
 interface StaticChoiceFormProps {
   parentPath: string[];
-  name: string;
-  defaultValue?: string | null;
-  options?: StaticChoiceOptionInput[];
+  staticChoice?: StaticChoiceFieldConfigInput | null;
   t: Translator;
   labels: StaticChoiceFormLabels;
 }
 
 export function StaticChoiceForm({
   parentPath,
-  name,
   labels,
-  defaultValue,
-  options = [],
+  staticChoice,
   t,
 }: StaticChoiceFormProps) {
   const { reduxDb } = useServices();
-  const { formPath } = useForm({ parentPath, name });
+  const { formPath } = useForm({ parentPath, name: labels.form.name });
   const { push, remove, elements } = useFieldArray<StaticOptionArrayValue>(
     makeDefaultOption,
-    getDefaultOptions(options)
+    getDefaultOptions(staticChoice?.options || [])
   );
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(
     head(elements)?.id
@@ -140,7 +142,7 @@ export function StaticChoiceForm({
         const e = elements.find((e) => e.value.optionValueId === current);
 
         if (e === undefined) {
-          return defaultValue || head(elements)?.value.option.id;
+          return staticChoice?.selected || head(elements)?.value.option.id;
         }
 
         optionValueId = current;
@@ -168,7 +170,7 @@ export function StaticChoiceForm({
 
   useLayoutEffect(() => {
     modelView.current.update();
-  }, [getLabel, elements, defaultValue, currentElementValue]);
+  }, [getLabel, elements, staticChoice, currentElementValue]);
 
   return (
     <FormSection>
@@ -185,7 +187,7 @@ export function StaticChoiceForm({
           elements.find(
             (e) =>
               e.value.option.id ===
-              (defaultValue || head(elements)?.value.option.id)
+              (staticChoice?.selected || head(elements)?.value.option.id)
           )?.value.optionValueId
         }
         fallbackSelection={{ label: labels.selected.fallbackLabel }}

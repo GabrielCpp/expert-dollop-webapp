@@ -11,6 +11,9 @@ import { DeleteNodeToolbar } from "./toolbars/delete-node-toolbar";
 import { AccessLabelsEditorToolbar } from "./toolbars/access-labels-editor-toolbar";
 import { CreateDefinition } from "./views/create-definition";
 import { CreateProjectDefinitionToolbar } from "./toolbars/create-project-definition-toolbar";
+import { LabelEditionView } from "./views/collection-view";
+import { CollectionCreationView } from "./views/collection-creation";
+
 
 export const PROJECT_DEFINITION_INDEX = "PROJECT_DEFINITION_EDITOR_HOME";
 export const PROJECT_DEFINITION_EDITOR_MAIN = "PROJECT_DEFINITION_EDITOR_MAIN";
@@ -26,6 +29,7 @@ export const PROJECT_DEFINITION_EDITOR_FORMULA_EDIT =
 export const DEFINITION_EDITION_LABELS_EDITION =
   "DEFINITION_EDITION_LABELS_EDITION";
 export const DEFINITION_ADD = "DEFINITION_ADD";
+export const DEFINITION_AGGREGATE_COLLECTION_ADD = "DEFINITION_AGGREGATE_COLLECTION_ADD";
 
 export const routes: NamedRouteDefinition[] = [
   {
@@ -120,8 +124,17 @@ export const routes: NamedRouteDefinition[] = [
   },
   {
     name: DEFINITION_EDITION_LABELS_EDITION,
-    path: "/project_definitions/:projectDefinitionId/:selectedPath/labels",
-    components: [],
+    path: "/project_definitions/:projectDefinitionId/:selectedPath/collections",
+    components: [
+      { tags: ["project-definition-view"], exact: true, component: LabelEditionView },
+    ],
+  },
+  {
+    name: DEFINITION_AGGREGATE_COLLECTION_ADD,
+    path: "/project_definitions/:projectDefinitionId/:selectedPath/collections/add",
+    components: [
+      { tags: ["project-definition-view"], exact: true, component: CollectionCreationView },
+    ],
   },
 ];
 

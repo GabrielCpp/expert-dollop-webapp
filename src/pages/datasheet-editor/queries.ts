@@ -12,7 +12,6 @@ export const FIND_DATASHEETS = gql`
         node {
           id
           name
-          isStaged
           projectDefinitionId
           fromDatasheetId
         }

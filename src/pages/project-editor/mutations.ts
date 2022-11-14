@@ -5,7 +5,6 @@ export const CREATE_PROJECT = gql`
     createProject(projectDetails: $projectDetails) {
       id
       name
-      isStaged
       projectDefinitionId
       datasheetId
     }

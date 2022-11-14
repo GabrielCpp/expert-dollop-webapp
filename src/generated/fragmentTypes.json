@@ -1,5 +1,14 @@
 {
   "possibleTypes": {
+    "AttributeDetailsUnion": [
+      "AggregateReferenceConfig",
+      "BoolFieldConfig",
+      "DecimalFieldConfig",
+      "IntFieldConfig",
+      "NodeReferenceConfig",
+      "StaticChoiceFieldConfig",
+      "StringFieldConfig"
+    ],
     "FieldDetailsUnion": [
       "BoolFieldConfig",
       "CollapsibleContainerFieldConfig",
@@ -9,7 +18,7 @@
       "StaticNumberFieldConfig",
       "StringFieldConfig"
     ],
-    "FieldValue": [
+    "PrimitiveWithReferenceUnion": [
       "BoolFieldValue",
       "DecimalFieldValue",
       "IntFieldValue",

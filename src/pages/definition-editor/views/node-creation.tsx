@@ -57,7 +57,7 @@ export function AddContainerView({ completeAction }: AddContainerFormProps) {
       isVisible: true,
     },
     name: "",
-    orderIndex: 1,
+    ordinal: 1,
     path: nodePath,
     translations: {
       helpTextName: "",

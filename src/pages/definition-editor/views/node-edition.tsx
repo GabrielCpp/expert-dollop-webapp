@@ -75,7 +75,7 @@ export function EditContainerView({ completeAction }: EditContainerViewProps) {
     isCollection: x.isCollection,
     meta: x.meta,
     name: x.name,
-    orderIndex: x.orderIndex,
+    ordinal: x.ordinal,
     path: x.path,
     translations: x.translations,
     triggers: x.triggers,

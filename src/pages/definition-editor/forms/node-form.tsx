@@ -21,7 +21,7 @@ import { MultiLanguageField } from "./multi-language-field";
 import { SectionConfig } from "./section-config";
 import { Triggers } from "./triggers";
 
-interface ContainerFormProps {
+interface NodeFormProps {
   level: NodeLevel;
   role: FormRole;
   node: ProjectDefinitionNodeCreationInput;
@@ -35,7 +35,7 @@ export function NodeForm({
   role,
   node,
   onSubmit,
-}: ContainerFormProps) {
+}: NodeFormProps) {
   const { t } = useTranslation();
   const { formPath } = useForm();
   const nameId = useId();
@@ -114,10 +114,10 @@ export function NodeForm({
       <Field
         validator={INT_VALIDATOR}
         path={formPath}
-        defaultValue={node.orderIndex}
-        key={labels.orderIndex.name}
-        name={labels.orderIndex.name}
-        label={t(labels.orderIndex.label)}
+        defaultValue={node.ordinal}
+        key={labels.ordinal.name}
+        name={labels.ordinal.name}
+        label={t(labels.ordinal.label)}
         t={t}
         component={textField}
       />

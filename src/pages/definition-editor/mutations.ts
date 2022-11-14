@@ -8,7 +8,7 @@ export const ADD_PROJECT_DEFINITION_NODE = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       fieldDetails {
         __typename
         ... on IntFieldConfig {
@@ -52,7 +52,7 @@ export const UPDATE_PROJECT_DEFINITION_NODE = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       fieldDetails {
         __typename
         ... on IntFieldConfig {
@@ -98,7 +98,59 @@ mutation addProjectDefinition($definitionInput: DefinitionInput!) {
   addProjectDefinition(definitionInput: $definitionInput) {
     id
     name
-    defaultDatasheetId
   }
+}
+`
+
+export const ADD_AGGREGATE_COLLECTION = gql`
+mutation addAggregateCollection(
+	$projectDefinitionId: ID!
+	$collection: AggregateCollectionInput!
+) {
+	addAggregateCollection(
+		projectDefinitionId: $projectDefinitionId
+		collection: $collection
+	) {
+		id
+		projectDefinitionId
+		name
+		isAbstract
+		attributesSchema {
+			name
+			details {
+				__typename
+				... on IntFieldConfig {
+					unit
+					integer
+				}
+				... on DecimalFieldConfig {
+					unit
+					precision
+					numeric
+				}
+				... on StringFieldConfig {
+					transforms
+					text
+				}
+				... on BoolFieldConfig {
+					enabled
+				}
+				... on StaticChoiceFieldConfig {
+					selected
+					options {
+						id
+						label
+						helpText
+					}
+				}
+				... on AggregateReferenceConfig {
+					fromCollection
+				}
+				... on NodeReferenceConfig {
+					nodeType
+				}
+			}
+		}
+	}
 }
 `

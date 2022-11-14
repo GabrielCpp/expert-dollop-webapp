@@ -40,7 +40,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -104,7 +104,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           translations {
             helpTextName
@@ -154,7 +154,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
             name
             isCollection
             instanciateByDefault
-            orderIndex
+            ordinal
             validator
             translations {
               helpTextName
@@ -211,7 +211,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       path
       validator
       triggers {
@@ -274,7 +274,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
           name
           isCollection
           instanciateByDefault
-          orderIndex
+          ordinal
           validator
           triggers {
             action
@@ -332,7 +332,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
             name
             isCollection
             instanciateByDefault
-            orderIndex
+            ordinal
             validator
             triggers {
               action
@@ -400,7 +400,7 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
       name
       isCollection
       instanciateByDefault
-      orderIndex
+      ordinal
       path
       validator
       triggers {
@@ -476,7 +476,6 @@ export const FIND_PROJECT_DEFINTIONS = gql`
         node {
           id
           name
-          defaultDatasheetId
         }
         cursor
       }

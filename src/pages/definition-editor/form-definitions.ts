@@ -41,9 +41,9 @@ export const nodeFormLabels = {
     label: "definition_editor.node_form.field_instanciate_by_default",
     name: "instanciateByDefault",
   },
-  orderIndex: {
+  ordinal: {
     label: "definition_editor.node_form.field_order",
-    name: "orderIndex",
+    name: "ordinal",
   },
   meta: {
     name: 'meta',
@@ -148,8 +148,10 @@ export const nodeFormLabels = {
       defaultValue: "",
     },
     staticChoice: {
-      name: 'staticChoice',
-      label: "definition_editor.node_form.field_static_choice",
+      form: {
+        name: 'staticChoice',
+        label: "definition_editor.node_form.field_static_choice",
+      },
       selected: {
         name: "selected",
         label: "definition_editor.node_form.static_choice_default_selection",
@@ -240,3 +242,140 @@ export const nodeFormLabels = {
     }
   }
 };
+
+export const collectionLabels = {
+  title: new KeyMapping<FormRole>({
+    add: "definition_editor.node_form.title_root_section_edit",
+    edit: "definition_editor.node_form.title_sub_section_edit"
+  }),
+  name: {
+    label: "definition_editor.node_form.field_name",
+    name: "name",
+  },
+  isAbstract: {
+    label: "definition_editor.node_form.field_is_collection",
+    name: "isAbstract",
+  },
+  attributesSchema: {
+    name: "attributesSchema",
+    formTitle: "definition_editor.node_form.field_is_collection",
+    schema: {
+      name: {
+        name: 'name',
+        label: "definition_editor.node_form.field_static_choice",
+      },
+      configType: {
+        name: 'configType',
+        label: "definition_editor.node_form.field_static_choice",
+        options: [
+          {
+            id: FieldDetailsType.STRING_FIELD_CONFIG,
+            label: "definition_editor.node_form.field_type_option_string",
+          },
+          {
+            id: FieldDetailsType.INT_FIELD_CONFIG,
+            label: "definition_editor.node_form.field_type_option_integer",
+          },
+          {
+            id: FieldDetailsType.DECIMAL_FIELD_CONFIG,
+            label: "definition_editor.node_form.field_type_option_decimal",
+          },
+          {
+            id: FieldDetailsType.BOOL_FIELD_CONFIG,
+            label: "definition_editor.node_form.field_type_option_boolean",
+          },
+          {
+            id: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
+            label: "definition_editor.node_form.field_type_option_choice",
+          },
+          {
+            id: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG,
+            label: "definition_editor.node_form.field_type_option_computation",
+          },
+        ]
+      },
+      bool: {
+        name: 'enabled',
+        label: "definition_editor.node_form.field_bool_default_value",
+      },
+      int: {
+        name: 'integer',
+        label: "definition_editor.node_form.field_int_default_value",
+      },
+      decimal: {
+        name: 'numeric',
+        label: "definition_editor.node_form.field_numeric_default_value",
+      },
+      string: {
+        name: 'text',
+        label: "definition_editor.node_form.field_string_default_value",
+        defaultValue: "",
+      },
+      unit: {
+        name: 'unit',
+        label: "definition_editor.node_form.field_unit",
+      },
+      precision: {
+        name: 'precision',
+        label: "definition_editor.node_form.field_precision",
+        defaultPrecision: 3,
+        defaultValue: 0
+      },
+      staticChoice: {
+        form: {
+          name: 'staticChoice',
+          label: "definition_editor.node_form.field_static_choice",
+        },
+        selected: {
+          name: "selected",
+          label: "definition_editor.node_form.static_choice_default_selection",
+          fallbackLabel: "definition_editor.node_form.static_choice_no_choice_available"
+        },
+        optionCardHeader: {
+          label: "definition_editor.node_form.static_choice_option_card_header_title"
+        },
+        options: {
+          formElement: {
+            name: "options"
+          },
+          id: {
+            name: "id",
+            label: "definition_editor.node_form.static_choice_option_id"
+          },
+          label: {
+            name: "label",
+            label: "definition_editor.node_form.static_choice_option_label"
+          },
+          helpText: {
+            name: "helpText",
+            label: "definition_editor.node_form.static_choice_option_help_text"
+          },
+          tabs: {
+            name: "translated",
+            defaultOne: "fr",
+            body: {
+              label: {
+                name: "value",
+                label: "definition_editor.node_form.field_label"
+              },
+              helpText: {
+                name: "value",
+                label: "definition_editor.node_form.field_help_text"
+              }
+            },
+            fr: {
+              label: "definition_editor.node_form.tab_french",
+              name: "fr",
+              locale: 'fr-CA'
+            },
+            en: {
+              label: "definition_editor.node_form.tab_english",
+              name: "en",
+              locale: 'en-US'
+            },
+          }
+        }
+      }
+    }
+  }
+}

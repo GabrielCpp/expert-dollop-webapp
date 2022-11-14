@@ -1,0 +1,267 @@
+import { CardHeader, Card, CardContent, CardActions } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { head } from "lodash";
+import {
+  AddIconButton,
+  AdditionRemovalActionGroup,
+} from "../../../components/buttons";
+import { LeftSideButton } from "../../../components/custom-styles";
+import {
+  useForm,
+  useFieldArray,
+  FormSection,
+  IdGenerator,
+  FieldArrayElement,
+  useFormFieldValueRef,
+  Field,
+  STRING_VALIDATOR,
+  selectField,
+  FieldArrayElementPicker,
+  textField,
+  useNodePickerState,
+  getFieldValue,
+  useFieldWatch,
+} from "../../../components/table-fields";
+import {
+  AggregateAttributeSchemaInput,
+  AggregateCollectionInput,
+  AttributeDetailsEnum,
+  FieldDetailsType,
+} from "../../../generated";
+import { collectionLabels } from "../form-definitions";
+import { NAME_VALIDATOR } from "../validators";
+import { BoolFieldConfigForm } from "./configs/bool-field-config-form";
+import { DecimalFieldConfigForm } from "./configs/decimal-field-config-form";
+import { IntFieldConfigForm } from "./configs/int-field-config-form";
+import { StaticChoiceForm } from "./configs/static-choice-form";
+import { StringFieldConfigForm } from "./configs/string-field-config-form";
+import { useCallback } from "react";
+import { useServices } from "../../../services-def";
+
+interface CollectionAttributesSchemaProps {
+  path: string[];
+  projectDefinitionId: string;
+  name: string;
+  labels: typeof collectionLabels.attributesSchema;
+  attributesSchema: AggregateCollectionInput["attributesSchema"];
+}
+
+export function CollectionAttributesSchema({
+  name,
+  path,
+  labels,
+  attributesSchema,
+}: CollectionAttributesSchemaProps) {
+  const { t } = useTranslation();
+  const { reduxDb } = useServices();
+  const { formPath } = useForm({ name: name, parentPath: path, value: [] });
+  const { push, remove, elements } = useFieldArray(
+    makeDefaultattributeSchema,
+    getAttributeSchemas(attributesSchema)
+  );
+  const { currentNodeId, setCurrentNodeId } = useNodePickerState(
+    head(elements)?.id
+  );
+  const { value: currentElementValue } = useFieldWatch(
+    elements.find((e) => e.id === currentNodeId)?.value.schemaId
+  );
+
+  const removeCurrentElement = useCallback(() => {
+    if (currentNodeId) {
+      remove(currentNodeId);
+    }
+
+    setCurrentNodeId(elements.find((e) => e.id !== currentNodeId)?.id);
+  }, [remove, setCurrentNodeId, elements, currentNodeId]);
+
+  const addElement = useCallback(() => {
+    push({ onAdded: (e) => setCurrentNodeId(e.id) });
+  }, [push, setCurrentNodeId]);
+
+  const getLabel = useCallback(
+    (e?: FieldArrayElement<AggregateAttributeSchema>) =>
+      e === undefined
+        ? ""
+        : (getFieldValue(
+            reduxDb,
+            e.value.schemaId,
+            e.value.schema.name
+          ) as string),
+    [reduxDb]
+  );
+
+  return (
+    <Card>
+      <CardHeader title={t(labels.formTitle)} />
+      <CardContent>
+        <FormSection spacing={0}>
+          {elements.map((element) => (
+            <div
+              key={element.id}
+              style={{
+                display: element.id === currentNodeId ? "block" : "none",
+              }}
+            >
+              <CollectionAttributeSchema
+                key={element.id}
+                parentPath={formPath}
+                element={element}
+                labels={labels.schema}
+                active={element.id === currentNodeId}
+              />
+            </div>
+          ))}
+        </FormSection>
+      </CardContent>
+      <CardActions disableSpacing>
+        <FieldArrayElementPicker
+          elements={elements}
+          current={currentNodeId}
+          currentLabel={currentElementValue as string}
+          onChange={setCurrentNodeId}
+          getLabel={getLabel}
+        />
+
+        <LeftSideButton>
+          <AdditionRemovalActionGroup
+            addAction={addElement}
+            deleteAction={
+              currentNodeId === undefined ? undefined : removeCurrentElement
+            }
+          />
+        </LeftSideButton>
+      </CardActions>
+    </Card>
+  );
+}
+
+interface AggregateAttributeSchema {
+  schemaId: string;
+  schema: AggregateAttributeSchemaInput;
+}
+
+function makeDefaultattributeSchema(
+  makeId: () => string
+): AggregateAttributeSchema {
+  return {
+    schemaId: makeId(),
+    schema: {
+      name: "",
+      details: {
+        kind: AttributeDetailsEnum.DECIMAL_FIELD_CONFIG,
+        decimal: {
+          numeric: 0.0,
+          precision: 3,
+        },
+      },
+    },
+  };
+}
+
+const getAttributeSchemas =
+  (attributeSchema: AggregateAttributeSchemaInput[]) =>
+  (makeId: IdGenerator) =>
+  (): FieldArrayElement<AggregateAttributeSchema>[] => {
+    return attributeSchema.map((schema, index) => ({
+      id: makeId(),
+      metadata: {
+        ordinal: index,
+      },
+      value: {
+        schemaId: makeId(),
+        schema,
+      },
+    }));
+  };
+
+interface CollectionAttributeSchemaProps {
+  parentPath: string[];
+  active: boolean;
+  element: FieldArrayElement<AggregateAttributeSchema>;
+  labels: typeof collectionLabels["attributesSchema"]["schema"];
+}
+
+function CollectionAttributeSchema({
+  parentPath,
+  element,
+  labels,
+}: CollectionAttributeSchemaProps) {
+  const { t } = useTranslation();
+  const { formPath } = useForm({
+    parentPath,
+    id: element.id,
+    name: labels.configType.name,
+    metadata: element.metadata,
+  });
+  const details = element.value.schema.details;
+  const { value, id: configTypeId } = useFormFieldValueRef(details.kind);
+
+  return (
+    <FormSection>
+      <Field
+        id={element.value.schemaId}
+        validator={NAME_VALIDATOR}
+        path={formPath}
+        defaultValue={element.value.schema.name}
+        key={labels.name.name}
+        name={labels.name.name}
+        label={labels.name.label}
+        t={t}
+        component={textField}
+      />
+      <Field
+        id={configTypeId}
+        validator={STRING_VALIDATOR}
+        defaultValue={value}
+        path={formPath}
+        name={labels.configType.name}
+        key={labels.configType.name}
+        label={labels.configType.label}
+        t={t}
+        component={selectField}
+        options={labels.configType.options}
+      />
+      {value === FieldDetailsType.INT_FIELD_CONFIG && (
+        <IntFieldConfigForm
+          name={"int"}
+          parentPath={formPath}
+          labels={labels}
+          config={details.int}
+        />
+      )}
+      {value === FieldDetailsType.DECIMAL_FIELD_CONFIG && (
+        <DecimalFieldConfigForm
+          name={"decimal"}
+          parentPath={formPath}
+          labels={labels}
+          config={details.decimal}
+        />
+      )}
+      {value === FieldDetailsType.BOOL_FIELD_CONFIG && (
+        <BoolFieldConfigForm
+          name={"bool"}
+          parentPath={formPath}
+          labels={labels}
+          config={details.bool}
+        />
+      )}
+      {value === FieldDetailsType.STRING_FIELD_CONFIG && (
+        <StringFieldConfigForm
+          name={"string"}
+          parentPath={formPath}
+          labels={labels}
+          config={details.string}
+        />
+      )}
+      {value === FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG && (
+        <StaticChoiceForm
+          staticChoice={details.staticChoice}
+          parentPath={formPath}
+          key={labels.staticChoice.form.name}
+          labels={labels.staticChoice}
+          t={t}
+        />
+      )}
+    </FormSection>
+  );
+}
