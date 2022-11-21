@@ -1,3 +1,4 @@
+import FilterListIcon from "@mui/icons-material/FilterList";
 import { debounce, styled, TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import Paper from "@mui/material/Paper";
@@ -11,15 +12,10 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import { noop } from "lodash";
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ApolloClient,
-  DocumentNode,
-  NormalizedCacheObject,
-} from "@apollo/client";
+import { PageFetcher, PageInfo } from "../../shared/async-cursor";
 
 export interface HeadCell<Data> {
   disablePadding: boolean;
@@ -158,72 +154,19 @@ const TableWithMinWidth = styled(Table)(() => ({
   minWidth: 750,
 }));
 
-export function apolloClientFetch<Data>(
-  apollo: ApolloClient<NormalizedCacheObject>,
-  document: DocumentNode,
-  onError: (error?: Error) => void,
-  variables?: Record<string, unknown>
-) {
-  return (
-    query: string,
-    first: number,
-    nextPageToken?: string
-  ): Promise<ResultSet<Data>> => {
-    return apollo
-      .query<{ results: ResultSet<Data> }>({
-        query: document,
-        variables: {
-          ...variables,
-          query,
-          first,
-          after: nextPageToken,
-        },
-      })
-      .then((resultset) => resultset.data.results)
-      .catch((error) => {
-        onError(error);
-        return {
-          edges: [],
-          pageInfo: {
-            totalCount: 0,
-            endCursor: "",
-            hasNextPage: false,
-          },
-        };
-      });
-  };
+export interface Identified {
+  id: string;
 }
 
-export interface PageInfo {
-  hasNextPage: boolean;
-  endCursor: string | undefined;
-  totalCount: number;
-}
-
-export interface Edge<Data> {
-  node: Data;
-  cursor: string;
-}
-
-export interface ResultSet<Data> {
-  edges: Edge<Data>[];
-  pageInfo: PageInfo;
-}
-
-export type GridFetchData<Data> = (
-  query: string,
-  first: number,
-  nextPageToken?: string
-) => Promise<ResultSet<Data>>;
-export interface PaginatedDataGridProps<Data> {
-  fetch: GridFetchData<Data>;
+export interface PaginatedDataGridProps<Data extends Identified> {
+  fetch: PageFetcher<Data>;
   headers: HeadCell<Data>[];
   globalActions?: (props: { selected: string[] }) => JSX.Element | null;
   defaultRowsPerPage?: number;
   rowsPerPageOptions?: number[];
 }
 
-export function PaginatedDataGrid<Data>({
+export function PaginatedDataGrid<Data extends Identified>({
   headers,
   fetch,
   globalActions = undefined,
@@ -244,7 +187,7 @@ export function PaginatedDataGrid<Data>({
     totalCount: 0,
   });
   const lastCursors = useRef<(string | undefined)[]>([]);
-  const [rows, setResults] = useState<Edge<Data>[]>([]);
+  const [rows, setResults] = useState<Data[]>([]);
 
   function fetchResults(
     query: string,
@@ -254,7 +197,7 @@ export function PaginatedDataGrid<Data>({
     return fetch(query, limit, nextPageToken).then((resultset) => {
       pageInfo.current = resultset.pageInfo;
       lastCursors.current.push(nextPageToken);
-      setResults(resultset.edges);
+      setResults(resultset.results);
     });
   }
 
@@ -276,7 +219,7 @@ export function PaginatedDataGrid<Data>({
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.cursor);
+      const newSelecteds = rows.map((n) => n.id);
       setSelected(newSelecteds);
     } else {
       setSelected([]);
@@ -353,7 +296,7 @@ export function PaginatedDataGrid<Data>({
             />
             <TableBody>
               {rows.map((row, index) => {
-                const isItemSelected = isSelected(row.cursor);
+                const isItemSelected = isSelected(row.id);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
@@ -362,12 +305,12 @@ export function PaginatedDataGrid<Data>({
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.cursor}
+                    key={row.id}
                     selected={isItemSelected}
                   >
                     <TableCell
                       padding="checkbox"
-                      onClick={(event) => handleClick(event, row.cursor)}
+                      onClick={(event) => handleClick(event, row.id)}
                     >
                       <Checkbox
                         checked={isItemSelected}
@@ -385,7 +328,7 @@ export function PaginatedDataGrid<Data>({
                           padding="none"
                           key={String(id)}
                         >
-                          <Component data={row.node} />
+                          <Component data={row} />
                         </TableCell>
                       );
                     })}

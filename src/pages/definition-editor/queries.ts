@@ -261,7 +261,6 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
           unit
         }
       }
-      
     }
     findProjectDefinitionFormContent(
       projectDefinitionId: $id
@@ -416,11 +415,11 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
         label
       }
       meta {
-				isVisible
-			}
+        isVisible
+      }
       fieldDetails {
         __typename
-        ... on IntFieldConfig  {
+        ... on IntFieldConfig {
           unit
           integer
         }
@@ -429,7 +428,7 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
           precision
           numeric
         }
-        ... on StringFieldConfig  {
+        ... on StringFieldConfig {
           transforms
           text
         }
@@ -488,49 +487,151 @@ export const FIND_PROJECT_DEFINTIONS = gql`
   }
 `;
 
-
 export const UNITS = gql`
-query units {
-  units {
-    id
+  query units {
+    units {
+      id
+    }
   }
-}
-`
+`;
 
 export const FIND_DEFINITION_FORMULA_FIELD_MIX = gql`
-query findDefinitionFormulaFieldMix(
-	$projectDefinitionId: ID!
-	$query: String!
-	$first: Int!
-	$after: String
-) {
-	results: findDefinitionFormulaFieldMix(
-		projectDefinitionId: $projectDefinitionId
-		query: $query
-		first: $first
-		after: $after
-	) {
-		edges {
-			node {
-				id
-				label: name
-			}
-			cursor
-		}
-		pageInfo {
-			hasNextPage
-			endCursor
-			totalCount
-		}
-	}
-}
-`
+  query findDefinitionFormulaFieldMix(
+    $projectDefinitionId: ID!
+    $query: String!
+    $first: Int!
+    $after: String
+  ) {
+    results: findDefinitionFormulaFieldMix(
+      projectDefinitionId: $projectDefinitionId
+      query: $query
+      first: $first
+      after: $after
+    ) {
+      edges {
+        node {
+          id
+          label: name
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+        totalCount
+      }
+    }
+  }
+`;
 
 export const FIND_FORMULA = gql`
-query findFormula($projectDefinitionId: ID!, $formulaId: ID!) {
-	result: findFormula(projectDefinitionId: $projectDefinitionId, formulaId: $formulaId) {
-		id
-		label: name
-	}
-}
-`
+  query findFormula($projectDefinitionId: ID!, $formulaId: ID!) {
+    result: findFormula(
+      projectDefinitionId: $projectDefinitionId
+      formulaId: $formulaId
+    ) {
+      id
+      label: name
+    }
+  }
+`;
+
+export const FIND_AGGREGATES = gql`
+  query findAggregates(
+    $projectDefinitionId: ID!
+    $collectionId: ID!
+    $query: String!
+    $first: Int!
+    $after: String
+  ) {
+    results: findAggregates(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+      query: $query
+      first: $first
+      after: $after
+    ) {
+      edges {
+        node {
+          id
+          projectDefinitionId
+          collectionId
+          name
+          ordinal
+          isExtendable
+          attributes {
+            name
+            isReadonly
+            value {
+              __typename
+            }
+          }
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+        totalCount
+      }
+    }
+  }
+`;
+
+export const FIND_AGGREGATE_COLLECTION = gql`
+  query findAggregateCollection($projectDefinitionId: ID!, $collectionId: ID!) {
+    findAggregateCollection(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+    ) {
+      id
+      projectDefinitionId
+      name
+      isAbstract
+      translated {
+        id
+        ressourceId
+        locale
+        scope
+        name
+        value
+      }
+      attributesSchema {
+        name
+        details {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
+          }
+          ... on StringFieldConfig {
+            transforms
+            text
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            selected
+            options {
+              id
+              label
+              helpText
+            }
+          }
+          ... on AggregateReferenceConfig {
+            fromCollection
+          }
+          ... on NodeReferenceConfig {
+            nodeType
+          }
+        }
+      }
+    }
+  }
+`;

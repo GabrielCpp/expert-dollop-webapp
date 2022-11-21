@@ -13,6 +13,7 @@ import { CreateDefinition } from "./views/create-definition";
 import { CreateProjectDefinitionToolbar } from "./toolbars/create-project-definition-toolbar";
 import { LabelEditionView } from "./views/collection-view";
 import { CollectionCreationView } from "./views/collection-creation";
+import { CollectionEditionView } from "./views/collection-edition-view";
 
 
 export const PROJECT_DEFINITION_INDEX = "PROJECT_DEFINITION_EDITOR_HOME";
@@ -30,6 +31,7 @@ export const DEFINITION_EDITION_LABELS_EDITION =
   "DEFINITION_EDITION_LABELS_EDITION";
 export const DEFINITION_ADD = "DEFINITION_ADD";
 export const DEFINITION_AGGREGATE_COLLECTION_ADD = "DEFINITION_AGGREGATE_COLLECTION_ADD";
+export const DEFINITION_AGGREGATE_COLLECTION_EDIT = "DEFINITION_AGGREGATE_COLLECTION_EDIT"
 
 export const routes: NamedRouteDefinition[] = [
   {
@@ -134,6 +136,13 @@ export const routes: NamedRouteDefinition[] = [
     path: "/project_definitions/:projectDefinitionId/:selectedPath/collections/add",
     components: [
       { tags: ["project-definition-view"], exact: true, component: CollectionCreationView },
+    ],
+  },
+  {
+    name: DEFINITION_AGGREGATE_COLLECTION_EDIT,
+    path: "/project_definitions/:projectDefinitionId/:selectedPath/collections/edit/:collectionId",
+    components: [
+      { tags: ["project-definition-view"], exact: true, component: CollectionEditionView },
     ],
   },
 ];

@@ -51,6 +51,7 @@ export type AggregateAttributeSchema = {
   __typename?: "AggregateAttributeSchema";
   details: FieldWrapper<AttributeDetailsUnion>;
   name: FieldWrapper<Scalars["String"]>;
+  translations: FieldWrapper<TranslationConfig>;
 };
 
 export type AggregateAttributeSchemaInput = {
@@ -65,12 +66,25 @@ export type AggregateCollection = {
   isAbstract: FieldWrapper<Scalars["Boolean"]>;
   name: FieldWrapper<Scalars["String"]>;
   projectDefinitionId: FieldWrapper<Scalars["String"]>;
+  translated: Array<FieldWrapper<Translation>>;
 };
 
 export type AggregateCollectionInput = {
   attributesSchema: Array<AggregateAttributeSchemaInput>;
   isAbstract: Scalars["Boolean"];
   name: Scalars["String"];
+};
+
+export type AggregateConnection = {
+  __typename?: "AggregateConnection";
+  edges: Array<FieldWrapper<AggregateEdge>>;
+  pageInfo: FieldWrapper<PageInfo>;
+};
+
+export type AggregateEdge = {
+  __typename?: "AggregateEdge";
+  cursor: FieldWrapper<Scalars["String"]>;
+  node: FieldWrapper<Aggregate>;
 };
 
 export type AggregateInput = {
@@ -385,7 +399,7 @@ export type IntFieldValueInput = {
 
 export type Mutation = {
   __typename?: "Mutation";
-  addAggregate: FieldWrapper<AggregateCollection>;
+  addAggregate: FieldWrapper<Aggregate>;
   addAggregateCollection: FieldWrapper<AggregateCollection>;
   addProjectCollectionItem: Array<FieldWrapper<ProjectNode>>;
   addProjectDefinition: FieldWrapper<ProjectDefinition>;
@@ -398,7 +412,7 @@ export type Mutation = {
   deleteAggregateCollection: FieldWrapper<Scalars["String"]>;
   deleteProjectCollection: FieldWrapper<ProjectNode>;
   deleteProjectDefinitionNode: FieldWrapper<Scalars["String"]>;
-  updateAggregate: FieldWrapper<AggregateCollection>;
+  updateAggregate: FieldWrapper<Aggregate>;
   updateAggregateCollection: FieldWrapper<AggregateCollection>;
   updateProjectDefinitionNode: FieldWrapper<ProjectDefinitionNode>;
   updateProjectField: FieldWrapper<ProjectNode>;
@@ -408,6 +422,7 @@ export type Mutation = {
 
 export type MutationAddAggregateArgs = {
   aggregate: AggregateInput;
+  collectionId: Scalars["ID"];
   projectDefinitionId: Scalars["ID"];
 };
 
@@ -469,9 +484,10 @@ export type MutationDeleteProjectDefinitionNodeArgs = {
 };
 
 export type MutationUpdateAggregateArgs = {
-  aggregate: AggregateInput;
+  aggregateId: Scalars["ID"];
   collectionId: Scalars["ID"];
   projectDefinitionId: Scalars["ID"];
+  replacement: AggregateInput;
 };
 
 export type MutationUpdateAggregateCollectionArgs = {
@@ -707,7 +723,8 @@ export type ProjectNodeTreeTypeNode = {
 export type Query = {
   __typename?: "Query";
   currentUser?: Maybe<FieldWrapper<User>>;
-  findAggregation: FieldWrapper<AggregateCollection>;
+  findAggregateCollection: FieldWrapper<AggregateCollection>;
+  findAggregates: FieldWrapper<AggregateConnection>;
   findDatasheet: FieldWrapper<Datasheet>;
   findDatasheets: FieldWrapper<DatasheetConnection>;
   findDefinitionAggregateCollections: Array<FieldWrapper<AggregateCollection>>;
@@ -735,9 +752,17 @@ export type Query = {
   units: Array<FieldWrapper<Unit>>;
 };
 
-export type QueryFindAggregationArgs = {
+export type QueryFindAggregateCollectionArgs = {
   collectionId: Scalars["ID"];
   projectDefinitionId: Scalars["ID"];
+};
+
+export type QueryFindAggregatesArgs = {
+  after?: Maybe<Scalars["String"]>;
+  collectionId: Scalars["ID"];
+  first: Scalars["Int"];
+  projectDefinitionId: Scalars["ID"];
+  query: Scalars["String"];
 };
 
 export type QueryFindDatasheetArgs = {
@@ -1395,6 +1420,63 @@ export type AddAggregateCollectionMutation = { __typename?: "Mutation" } & {
     };
 };
 
+export type UpdateAggregateCollectionMutationVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  collectionId: Scalars["ID"];
+  collection: AggregateCollectionInput;
+}>;
+
+export type UpdateAggregateCollectionMutation = { __typename?: "Mutation" } & {
+  updateAggregateCollection: { __typename?: "AggregateCollection" } & Pick<
+    AggregateCollection,
+    "id" | "projectDefinitionId" | "name" | "isAbstract"
+  > & {
+      attributesSchema: Array<
+        { __typename?: "AggregateAttributeSchema" } & Pick<
+          AggregateAttributeSchema,
+          "name"
+        > & {
+            details:
+              | ({ __typename: "AggregateReferenceConfig" } & Pick<
+                  AggregateReferenceConfig,
+                  "fromCollection"
+                >)
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
+                  "enabled"
+                >)
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
+                >)
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "NodeReferenceConfig" } & Pick<
+                  NodeReferenceConfig,
+                  "nodeType"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
+                >);
+          }
+      >;
+    };
+};
+
 export type FindProjectDefinitionFormulasQueryVariables = Exact<{
   projectDefinitionId: Scalars["ID"];
   query: Scalars["String"];
@@ -1983,6 +2065,112 @@ export type FindFormulaQuery = { __typename?: "Query" } & {
         label: Formula["name"];
       }
   >;
+};
+
+export type FindAggregatesQueryVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  collectionId: Scalars["ID"];
+  query: Scalars["String"];
+  first: Scalars["Int"];
+  after?: Maybe<Scalars["String"]>;
+}>;
+
+export type FindAggregatesQuery = { __typename?: "Query" } & {
+  results: { __typename?: "AggregateConnection" } & {
+    edges: Array<
+      { __typename?: "AggregateEdge" } & Pick<AggregateEdge, "cursor"> & {
+          node: { __typename?: "Aggregate" } & Pick<
+            Aggregate,
+            | "id"
+            | "projectDefinitionId"
+            | "collectionId"
+            | "name"
+            | "ordinal"
+            | "isExtendable"
+          > & {
+              attributes: Array<
+                { __typename?: "AggregateAttribute" } & Pick<
+                  AggregateAttribute,
+                  "name" | "isReadonly"
+                > & {
+                    value:
+                      | { __typename: "BoolFieldValue" }
+                      | { __typename: "DecimalFieldValue" }
+                      | { __typename: "IntFieldValue" }
+                      | { __typename: "ReferenceId" }
+                      | { __typename: "StringFieldValue" };
+                  }
+              >;
+            };
+        }
+    >;
+    pageInfo: { __typename?: "PageInfo" } & Pick<
+      PageInfo,
+      "hasNextPage" | "endCursor" | "totalCount"
+    >;
+  };
+};
+
+export type FindAggregateCollectionQueryVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  collectionId: Scalars["ID"];
+}>;
+
+export type FindAggregateCollectionQuery = { __typename?: "Query" } & {
+  findAggregateCollection: { __typename?: "AggregateCollection" } & Pick<
+    AggregateCollection,
+    "id" | "projectDefinitionId" | "name" | "isAbstract"
+  > & {
+      translated: Array<
+        { __typename?: "Translation" } & Pick<
+          Translation,
+          "id" | "ressourceId" | "locale" | "scope" | "name" | "value"
+        >
+      >;
+      attributesSchema: Array<
+        { __typename?: "AggregateAttributeSchema" } & Pick<
+          AggregateAttributeSchema,
+          "name"
+        > & {
+            details:
+              | ({ __typename: "AggregateReferenceConfig" } & Pick<
+                  AggregateReferenceConfig,
+                  "fromCollection"
+                >)
+              | ({ __typename: "BoolFieldConfig" } & Pick<
+                  BoolFieldConfig,
+                  "enabled"
+                >)
+              | ({ __typename: "DecimalFieldConfig" } & Pick<
+                  DecimalFieldConfig,
+                  "unit" | "precision" | "numeric"
+                >)
+              | ({ __typename: "IntFieldConfig" } & Pick<
+                  IntFieldConfig,
+                  "unit" | "integer"
+                >)
+              | ({ __typename: "NodeReferenceConfig" } & Pick<
+                  NodeReferenceConfig,
+                  "nodeType"
+                >)
+              | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                  StaticChoiceFieldConfig,
+                  "selected"
+                > & {
+                    options: Array<
+                      { __typename?: "StaticChoiceOption" } & Pick<
+                        StaticChoiceOption,
+                        "id" | "label" | "helpText"
+                      >
+                    >;
+                  })
+              | ({ __typename: "StringFieldConfig" } & Pick<
+                  StringFieldConfig,
+                  "transforms" | "text"
+                >);
+          }
+      >;
+    };
 };
 
 export type CreateProjectMutationVariables = Exact<{
@@ -3602,6 +3790,106 @@ export type AddAggregateCollectionMutationOptions = Apollo.BaseMutationOptions<
   AddAggregateCollectionMutation,
   AddAggregateCollectionMutationVariables
 >;
+export const UpdateAggregateCollectionDocument = gql`
+  mutation updateAggregateCollection(
+    $projectDefinitionId: ID!
+    $collectionId: ID!
+    $collection: AggregateCollectionInput!
+  ) {
+    updateAggregateCollection(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+      collection: $collection
+    ) {
+      id
+      projectDefinitionId
+      name
+      isAbstract
+      attributesSchema {
+        name
+        details {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
+          }
+          ... on StringFieldConfig {
+            transforms
+            text
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            selected
+            options {
+              id
+              label
+              helpText
+            }
+          }
+          ... on AggregateReferenceConfig {
+            fromCollection
+          }
+          ... on NodeReferenceConfig {
+            nodeType
+          }
+        }
+      }
+    }
+  }
+`;
+export type UpdateAggregateCollectionMutationFn = Apollo.MutationFunction<
+  UpdateAggregateCollectionMutation,
+  UpdateAggregateCollectionMutationVariables
+>;
+
+/**
+ * __useUpdateAggregateCollectionMutation__
+ *
+ * To run a mutation, you first call `useUpdateAggregateCollectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAggregateCollectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAggregateCollectionMutation, { data, loading, error }] = useUpdateAggregateCollectionMutation({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      collectionId: // value for 'collectionId'
+ *      collection: // value for 'collection'
+ *   },
+ * });
+ */
+export function useUpdateAggregateCollectionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateAggregateCollectionMutation,
+    UpdateAggregateCollectionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateAggregateCollectionMutation,
+    UpdateAggregateCollectionMutationVariables
+  >(UpdateAggregateCollectionDocument, options);
+}
+export type UpdateAggregateCollectionMutationHookResult = ReturnType<
+  typeof useUpdateAggregateCollectionMutation
+>;
+export type UpdateAggregateCollectionMutationResult =
+  Apollo.MutationResult<UpdateAggregateCollectionMutation>;
+export type UpdateAggregateCollectionMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateAggregateCollectionMutation,
+    UpdateAggregateCollectionMutationVariables
+  >;
 export const FindProjectDefinitionFormulasDocument = gql`
   query findProjectDefinitionFormulas(
     $projectDefinitionId: ID!
@@ -4585,6 +4873,211 @@ export type FindFormulaLazyQueryHookResult = ReturnType<
 export type FindFormulaQueryResult = Apollo.QueryResult<
   FindFormulaQuery,
   FindFormulaQueryVariables
+>;
+export const FindAggregatesDocument = gql`
+  query findAggregates(
+    $projectDefinitionId: ID!
+    $collectionId: ID!
+    $query: String!
+    $first: Int!
+    $after: String
+  ) {
+    results: findAggregates(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+      query: $query
+      first: $first
+      after: $after
+    ) {
+      edges {
+        node {
+          id
+          projectDefinitionId
+          collectionId
+          name
+          ordinal
+          isExtendable
+          attributes {
+            name
+            isReadonly
+            value {
+              __typename
+            }
+          }
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+        totalCount
+      }
+    }
+  }
+`;
+
+/**
+ * __useFindAggregatesQuery__
+ *
+ * To run a query within a React component, call `useFindAggregatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAggregatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindAggregatesQuery({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      collectionId: // value for 'collectionId'
+ *      query: // value for 'query'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useFindAggregatesQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    FindAggregatesQuery,
+    FindAggregatesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<FindAggregatesQuery, FindAggregatesQueryVariables>(
+    FindAggregatesDocument,
+    options
+  );
+}
+export function useFindAggregatesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    FindAggregatesQuery,
+    FindAggregatesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<FindAggregatesQuery, FindAggregatesQueryVariables>(
+    FindAggregatesDocument,
+    options
+  );
+}
+export type FindAggregatesQueryHookResult = ReturnType<
+  typeof useFindAggregatesQuery
+>;
+export type FindAggregatesLazyQueryHookResult = ReturnType<
+  typeof useFindAggregatesLazyQuery
+>;
+export type FindAggregatesQueryResult = Apollo.QueryResult<
+  FindAggregatesQuery,
+  FindAggregatesQueryVariables
+>;
+export const FindAggregateCollectionDocument = gql`
+  query findAggregateCollection($projectDefinitionId: ID!, $collectionId: ID!) {
+    findAggregateCollection(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+    ) {
+      id
+      projectDefinitionId
+      name
+      isAbstract
+      translated {
+        id
+        ressourceId
+        locale
+        scope
+        name
+        value
+      }
+      attributesSchema {
+        name
+        details {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
+          }
+          ... on StringFieldConfig {
+            transforms
+            text
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            selected
+            options {
+              id
+              label
+              helpText
+            }
+          }
+          ... on AggregateReferenceConfig {
+            fromCollection
+          }
+          ... on NodeReferenceConfig {
+            nodeType
+          }
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * __useFindAggregateCollectionQuery__
+ *
+ * To run a query within a React component, call `useFindAggregateCollectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAggregateCollectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindAggregateCollectionQuery({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      collectionId: // value for 'collectionId'
+ *   },
+ * });
+ */
+export function useFindAggregateCollectionQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    FindAggregateCollectionQuery,
+    FindAggregateCollectionQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    FindAggregateCollectionQuery,
+    FindAggregateCollectionQueryVariables
+  >(FindAggregateCollectionDocument, options);
+}
+export function useFindAggregateCollectionLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    FindAggregateCollectionQuery,
+    FindAggregateCollectionQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    FindAggregateCollectionQuery,
+    FindAggregateCollectionQueryVariables
+  >(FindAggregateCollectionDocument, options);
+}
+export type FindAggregateCollectionQueryHookResult = ReturnType<
+  typeof useFindAggregateCollectionQuery
+>;
+export type FindAggregateCollectionLazyQueryHookResult = ReturnType<
+  typeof useFindAggregateCollectionLazyQuery
+>;
+export type FindAggregateCollectionQueryResult = Apollo.QueryResult<
+  FindAggregateCollectionQuery,
+  FindAggregateCollectionQueryVariables
 >;
 export const CreateProjectDocument = gql`
   mutation createProject($projectDetails: ProjectDetailsInput!) {

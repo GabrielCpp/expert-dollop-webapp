@@ -1,16 +1,19 @@
+import { ResultSet } from "../../shared/async-cursor";
 import {
   PaginatedDataGrid,
   PaginatedDataGridProps,
-  ResultSet,
+  Identified,
 } from "./paginated-data-grid";
 
-export interface InMemoryDataGridProps<Data>
+export interface InMemoryDataGridProps<Data extends Identified>
   extends Omit<PaginatedDataGridProps<Data>, "fetch"> {
   rows: Data[];
   searchRow: (query: string, x: Data) => boolean;
 }
 
-export function InMemoryDataGrid<Data>(props: InMemoryDataGridProps<Data>) {
+export function InMemoryDataGrid<Data extends Identified>(
+  props: InMemoryDataGridProps<Data>
+) {
   const { rows, searchRow } = props;
 
   function fetch(
@@ -21,15 +24,8 @@ export function InMemoryDataGrid<Data>(props: InMemoryDataGridProps<Data>) {
     const startOffset = Number(nextPageToken || 0);
     const queries = rows.filter((x) => searchRow(query, x) || query === "");
 
-    const edges = queries
-      .slice(startOffset, startOffset + limit)
-      .map((node, index) => ({
-        node,
-        cursor: String(index),
-      }));
-
     return Promise.resolve({
-      edges,
+      results: queries.slice(startOffset, startOffset + limit),
       pageInfo: {
         endCursor: String(startOffset + limit),
         hasNextPage: startOffset + limit < 1000,

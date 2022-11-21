@@ -26,13 +26,9 @@ import {
   useState,
 } from "react";
 import { useObservable, usePreviousDistinct } from "react-use";
-import {
-  FetchedPage,
-  makeDefaultEmptyPage,
-  PageFetcher,
-  PageInfo,
-} from "../../../shared/async-cursor";
+import { PageFetcher, PageInfo } from "../../../shared/async-cursor";
 import { ObservableValue } from "../../../shared/redux-db";
+import { ResultSet, createEmptyPage } from "../../../shared/async-cursor";
 import { FieldChildren, SelectOption } from "../form-field-record";
 
 interface RemoteReferencePickerFieldProps extends FieldChildren {
@@ -79,7 +75,7 @@ function useSearch({
   const lastQuery = useRef("");
   const [loading, setLoading] = useState(false);
   const [fetchedPage, setFetchedPage] =
-    useState<FetchedPage<SelectOption>>(makeDefaultEmptyPage);
+    useState<ResultSet<SelectOption>>(createEmptyPage);
   const lastCursor = usePreviousDistinct(fetchedPage.pageInfo.endCursor);
   const page = useRef<ObservableValue<ExtendedPageInfo>>();
   if (page.current === undefined) {
@@ -105,7 +101,7 @@ function useSearch({
       lastQuery.current = newQuery;
       page.current?.next({
         ...newFetchedPage.pageInfo,
-        options: newFetchedPage.edges.map((edge) => edge.node),
+        options: newFetchedPage.results,
         pageIndex: isSameQuery
           ? getPage(page.current?.value.pageIndex || 0)
           : 0,

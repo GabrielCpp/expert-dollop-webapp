@@ -1,23 +1,23 @@
 import { useTranslation } from "react-i18next";
 import {
-  useForm,
-  SelectOption,
   Field,
   remoteReferencePickerField,
+  SelectOption,
+  useForm,
 } from "../../../../components/table-fields";
 import {
-  FindDefinitionFormulaFieldMixQuery,
-  QueryFindDefinitionFormulaFieldMixArgs,
   FindDefinitionFormulaFieldMixDocument,
-  FindFormulaQuery,
-  QueryFindFormulaArgs,
+  FindDefinitionFormulaFieldMixQuery,
   FindFormulaDocument,
+  FindFormulaQuery,
+  QueryFindDefinitionFormulaFieldMixArgs,
+  QueryFindFormulaArgs,
   StaticNumberFieldConfig,
 } from "../../../../generated";
 import { useServices } from "../../../../services-def";
 import {
-  useApolloPageFetch,
   useApolloFetchItem,
+  useApolloPageFetch,
 } from "../../../../shared/async-cursor";
 
 interface StaticNumberFieldConfigProps {

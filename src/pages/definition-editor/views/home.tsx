@@ -1,16 +1,14 @@
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { HeadCell, PaginatedDataGrid } from "../../../components/data-grid";
-import { apolloClientFetch } from "../../../components/data-grid/paginated-data-grid";
 import { useLoadingNotifier } from "../../../components/loading-frame";
 import {
   FindProjectDefintionsDocument,
   FindProjectDefintionsQuery,
+  FindProjectDefintionsQueryVariables,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
+import { useApolloPageFetch } from "../../../shared/async-cursor";
 import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
-
-type Result = FindProjectDefintionsQuery["results"]["edges"][number]["node"];
 
 const headers: HeadCell<Result>[] = [
   {
@@ -36,14 +34,20 @@ function ProjectDefinitionLink({ data }: { data: Result }) {
   );
 }
 
+type Result = FindProjectDefintionsQuery["results"]["edges"][number]["node"];
+
 export function ProjectDefinitionHome() {
   const { apollo } = useServices();
   const { onError } = useLoadingNotifier();
-  const fetch = useMemo(
-    () =>
-      apolloClientFetch<Result>(apollo, FindProjectDefintionsDocument, onError),
-    [apollo, onError]
-  );
+  const fetch = useApolloPageFetch<
+    Result,
+    FindProjectDefintionsQuery,
+    FindProjectDefintionsQueryVariables
+  >({
+    apollo,
+    onError,
+    document: FindProjectDefintionsDocument,
+  });
 
-  return <PaginatedDataGrid fetch={fetch} headers={headers} />;
+  return <PaginatedDataGrid<Result> fetch={fetch} headers={headers} />;
 }

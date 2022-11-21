@@ -175,7 +175,6 @@ export function resetForm(database: ReduxDatabase, rootPath: string[]) {
     .filter((record) => record.metadata.defaultValue !== undefined)
     .map((record) => ({ ...record, value: record.metadata.defaultValue }));
 
-  console.log(updates);
   database.getTable(FormFieldTableName).upsertMany(updates);
 }
 
@@ -252,7 +251,6 @@ export const hydrateForm = <T>(
       [record.name, ...getOrdinal(record.metadata)],
     ])
   );
-
   const targetValues: [Array<string | number>, unknown][] = records.map(
     (record) => [makeAssignationPath(record), record.value]
   );

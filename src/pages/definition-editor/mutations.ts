@@ -154,3 +154,58 @@ mutation addAggregateCollection(
 	}
 }
 `
+
+export const UPDATE_AGGREGATE_COLLECTION = gql`
+mutation updateAggregateCollection(
+	$projectDefinitionId: ID!
+	$collectionId: ID!
+	$collection: AggregateCollectionInput!
+) {
+	updateAggregateCollection(
+		projectDefinitionId: $projectDefinitionId
+		collectionId: $collectionId
+		collection: $collection
+	) {
+		id
+		projectDefinitionId
+		name
+		isAbstract
+		attributesSchema {
+			name
+			details {
+				__typename
+				... on IntFieldConfig {
+					unit
+					integer
+				}
+				... on DecimalFieldConfig {
+					unit
+					precision
+					numeric
+				}
+				... on StringFieldConfig {
+					transforms
+					text
+				}
+				... on BoolFieldConfig {
+					enabled
+				}
+				... on StaticChoiceFieldConfig {
+					selected
+					options {
+						id
+						label
+						helpText
+					}
+				}
+				... on AggregateReferenceConfig {
+					fromCollection
+				}
+				... on NodeReferenceConfig {
+					nodeType
+				}
+			}
+		}
+	}
+}
+`

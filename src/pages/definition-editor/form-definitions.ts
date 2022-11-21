@@ -260,12 +260,15 @@ export const collectionLabels = {
     name: "attributesSchema",
     formTitle: "definition_editor.node_form.field_is_collection",
     schema: {
+      details: {
+        name: "details"
+      },
       name: {
         name: 'name',
         label: "definition_editor.node_form.field_static_choice",
       },
       configType: {
-        name: 'configType',
+        name: 'kind',
         label: "definition_editor.node_form.field_static_choice",
         options: [
           {
@@ -287,10 +290,6 @@ export const collectionLabels = {
           {
             id: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
             label: "definition_editor.node_form.field_type_option_choice",
-          },
-          {
-            id: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG,
-            label: "definition_editor.node_form.field_type_option_computation",
           },
         ]
       },

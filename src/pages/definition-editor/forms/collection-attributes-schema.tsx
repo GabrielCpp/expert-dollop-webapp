@@ -1,10 +1,7 @@
 import { CardHeader, Card, CardContent, CardActions } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { head } from "lodash";
-import {
-  AddIconButton,
-  AdditionRemovalActionGroup,
-} from "../../../components/buttons";
+import { AdditionRemovalActionGroup } from "../../../components/buttons";
 import { LeftSideButton } from "../../../components/custom-styles";
 import {
   useForm,
@@ -54,7 +51,6 @@ export function CollectionAttributesSchema({
 }: CollectionAttributesSchemaProps) {
   const { t } = useTranslation();
   const { reduxDb } = useServices();
-  const { formPath } = useForm({ name: name, parentPath: path, value: [] });
   const { push, remove, elements } = useFieldArray(
     makeDefaultattributeSchema,
     getAttributeSchemas(attributesSchema)
@@ -65,7 +61,6 @@ export function CollectionAttributesSchema({
   const { value: currentElementValue } = useFieldWatch(
     elements.find((e) => e.id === currentNodeId)?.value.schemaId
   );
-
   const removeCurrentElement = useCallback(() => {
     if (currentNodeId) {
       remove(currentNodeId);
@@ -104,9 +99,9 @@ export function CollectionAttributesSchema({
             >
               <CollectionAttributeSchema
                 key={element.id}
-                parentPath={formPath}
+                parentPath={path}
                 element={element}
-                labels={labels.schema}
+                labels={labels}
                 active={element.id === currentNodeId}
               />
             </div>
@@ -178,7 +173,7 @@ interface CollectionAttributeSchemaProps {
   parentPath: string[];
   active: boolean;
   element: FieldArrayElement<AggregateAttributeSchema>;
-  labels: typeof collectionLabels["attributesSchema"]["schema"];
+  labels: typeof collectionLabels["attributesSchema"];
 }
 
 function CollectionAttributeSchema({
@@ -190,8 +185,12 @@ function CollectionAttributeSchema({
   const { formPath } = useForm({
     parentPath,
     id: element.id,
-    name: labels.configType.name,
+    name: labels.name,
     metadata: element.metadata,
+  });
+  const { formPath: detailsPath } = useForm({
+    parentPath: formPath,
+    name: labels.schema.details.name,
   });
   const details = element.value.schema.details;
   const { value, id: configTypeId } = useFormFieldValueRef(details.kind);
@@ -203,9 +202,9 @@ function CollectionAttributeSchema({
         validator={NAME_VALIDATOR}
         path={formPath}
         defaultValue={element.value.schema.name}
-        key={labels.name.name}
-        name={labels.name.name}
-        label={labels.name.label}
+        key={labels.schema.name.name}
+        name={labels.schema.name.name}
+        label={labels.schema.name.label}
         t={t}
         component={textField}
       />
@@ -213,52 +212,52 @@ function CollectionAttributeSchema({
         id={configTypeId}
         validator={STRING_VALIDATOR}
         defaultValue={value}
-        path={formPath}
-        name={labels.configType.name}
-        key={labels.configType.name}
-        label={labels.configType.label}
+        path={detailsPath}
+        name={labels.schema.configType.name}
+        key={labels.schema.configType.name}
+        label={labels.schema.configType.label}
         t={t}
         component={selectField}
-        options={labels.configType.options}
+        options={labels.schema.configType.options}
       />
       {value === FieldDetailsType.INT_FIELD_CONFIG && (
         <IntFieldConfigForm
           name={"int"}
-          parentPath={formPath}
-          labels={labels}
+          parentPath={detailsPath}
+          labels={labels.schema}
           config={details.int}
         />
       )}
       {value === FieldDetailsType.DECIMAL_FIELD_CONFIG && (
         <DecimalFieldConfigForm
           name={"decimal"}
-          parentPath={formPath}
-          labels={labels}
+          parentPath={detailsPath}
+          labels={labels.schema}
           config={details.decimal}
         />
       )}
       {value === FieldDetailsType.BOOL_FIELD_CONFIG && (
         <BoolFieldConfigForm
           name={"bool"}
-          parentPath={formPath}
-          labels={labels}
+          parentPath={detailsPath}
+          labels={labels.schema}
           config={details.bool}
         />
       )}
       {value === FieldDetailsType.STRING_FIELD_CONFIG && (
         <StringFieldConfigForm
           name={"string"}
-          parentPath={formPath}
-          labels={labels}
+          parentPath={detailsPath}
+          labels={labels.schema}
           config={details.string}
         />
       )}
       {value === FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG && (
         <StaticChoiceForm
           staticChoice={details.staticChoice}
-          parentPath={formPath}
-          key={labels.staticChoice.form.name}
-          labels={labels.staticChoice}
+          parentPath={detailsPath}
+          key={labels.schema.staticChoice.form.name}
+          labels={labels.schema.staticChoice}
           t={t}
         />
       )}
