@@ -12,10 +12,8 @@ import { PROJECT_DEFINITION_EDITOR_MAIN } from "../routes";
 
 const headers: HeadCell<Result>[] = [
   {
-    disablePadding: false,
     id: "name",
     label: "name",
-    numeric: false,
     render: ProjectDefinitionLink,
   },
 ];

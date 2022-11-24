@@ -17,10 +17,8 @@ interface ProjectDefinitionItem {
 
 const headers: HeadCell<ProjectDefinitionItem>[] = [
   {
-    disablePadding: false,
     id: "name",
     label: "name",
-    numeric: false,
     render: ProjectLink,
   },
 ];

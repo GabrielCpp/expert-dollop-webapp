@@ -32,7 +32,7 @@ export function Registration({
     useCreateSingleUserOrganizationMutation({
       onCompleted: async () => {
         if (completeAction) {
-          await loader.waitOnPromise(completeAction());
+          await loader.waitFor(completeAction);
         }
 
         await auth0.reloadUser(await auth0.getToken());

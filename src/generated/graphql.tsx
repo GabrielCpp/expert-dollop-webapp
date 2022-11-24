@@ -1477,6 +1477,95 @@ export type UpdateAggregateCollectionMutation = { __typename?: "Mutation" } & {
     };
 };
 
+export type AddAggregateMutationVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  collectionId: Scalars["ID"];
+  aggregate: AggregateInput;
+}>;
+
+export type AddAggregateMutation = { __typename?: "Mutation" } & {
+  addAggregate: { __typename?: "Aggregate" } & Pick<
+    Aggregate,
+    | "id"
+    | "projectDefinitionId"
+    | "collectionId"
+    | "name"
+    | "ordinal"
+    | "isExtendable"
+  > & {
+      attributes: Array<
+        { __typename?: "AggregateAttribute" } & Pick<
+          AggregateAttribute,
+          "name" | "isReadonly"
+        > & {
+            value:
+              | ({ __typename: "BoolFieldValue" } & Pick<
+                  BoolFieldValue,
+                  "enabled"
+                >)
+              | ({ __typename: "DecimalFieldValue" } & Pick<
+                  DecimalFieldValue,
+                  "numeric"
+                >)
+              | ({ __typename: "IntFieldValue" } & Pick<
+                  IntFieldValue,
+                  "integer"
+                >)
+              | ({ __typename: "ReferenceId" } & Pick<ReferenceId, "uuid">)
+              | ({ __typename: "StringFieldValue" } & Pick<
+                  StringFieldValue,
+                  "text"
+                >);
+          }
+      >;
+    };
+};
+
+export type UpdateAggregateMutationVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  collectionId: Scalars["ID"];
+  aggregateId: Scalars["ID"];
+  aggregate: AggregateInput;
+}>;
+
+export type UpdateAggregateMutation = { __typename?: "Mutation" } & {
+  updateAggregate: { __typename?: "Aggregate" } & Pick<
+    Aggregate,
+    | "id"
+    | "projectDefinitionId"
+    | "collectionId"
+    | "name"
+    | "ordinal"
+    | "isExtendable"
+  > & {
+      attributes: Array<
+        { __typename?: "AggregateAttribute" } & Pick<
+          AggregateAttribute,
+          "name" | "isReadonly"
+        > & {
+            value:
+              | ({ __typename: "BoolFieldValue" } & Pick<
+                  BoolFieldValue,
+                  "enabled"
+                >)
+              | ({ __typename: "DecimalFieldValue" } & Pick<
+                  DecimalFieldValue,
+                  "numeric"
+                >)
+              | ({ __typename: "IntFieldValue" } & Pick<
+                  IntFieldValue,
+                  "integer"
+                >)
+              | ({ __typename: "ReferenceId" } & Pick<ReferenceId, "uuid">)
+              | ({ __typename: "StringFieldValue" } & Pick<
+                  StringFieldValue,
+                  "text"
+                >);
+          }
+      >;
+    };
+};
+
 export type FindProjectDefinitionFormulasQueryVariables = Exact<{
   projectDefinitionId: Scalars["ID"];
   query: Scalars["String"];
@@ -2094,11 +2183,26 @@ export type FindAggregatesQuery = { __typename?: "Query" } & {
                   "name" | "isReadonly"
                 > & {
                     value:
-                      | { __typename: "BoolFieldValue" }
-                      | { __typename: "DecimalFieldValue" }
-                      | { __typename: "IntFieldValue" }
-                      | { __typename: "ReferenceId" }
-                      | { __typename: "StringFieldValue" };
+                      | ({ __typename: "BoolFieldValue" } & Pick<
+                          BoolFieldValue,
+                          "enabled"
+                        >)
+                      | ({ __typename: "DecimalFieldValue" } & Pick<
+                          DecimalFieldValue,
+                          "numeric"
+                        >)
+                      | ({ __typename: "IntFieldValue" } & Pick<
+                          IntFieldValue,
+                          "integer"
+                        >)
+                      | ({ __typename: "ReferenceId" } & Pick<
+                          ReferenceId,
+                          "uuid"
+                        >)
+                      | ({ __typename: "StringFieldValue" } & Pick<
+                          StringFieldValue,
+                          "text"
+                        >);
                   }
               >;
             };
@@ -3890,6 +3994,183 @@ export type UpdateAggregateCollectionMutationOptions =
     UpdateAggregateCollectionMutation,
     UpdateAggregateCollectionMutationVariables
   >;
+export const AddAggregateDocument = gql`
+  mutation addAggregate(
+    $projectDefinitionId: ID!
+    $collectionId: ID!
+    $aggregate: AggregateInput!
+  ) {
+    addAggregate(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+      aggregate: $aggregate
+    ) {
+      id
+      projectDefinitionId
+      collectionId
+      name
+      ordinal
+      isExtendable
+      attributes {
+        name
+        isReadonly
+        value {
+          __typename
+          ... on IntFieldValue {
+            integer
+          }
+          ... on DecimalFieldValue {
+            numeric
+          }
+          ... on StringFieldValue {
+            text
+          }
+          ... on BoolFieldValue {
+            enabled
+          }
+          ... on ReferenceId {
+            uuid
+          }
+        }
+      }
+    }
+  }
+`;
+export type AddAggregateMutationFn = Apollo.MutationFunction<
+  AddAggregateMutation,
+  AddAggregateMutationVariables
+>;
+
+/**
+ * __useAddAggregateMutation__
+ *
+ * To run a mutation, you first call `useAddAggregateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAggregateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAggregateMutation, { data, loading, error }] = useAddAggregateMutation({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      collectionId: // value for 'collectionId'
+ *      aggregate: // value for 'aggregate'
+ *   },
+ * });
+ */
+export function useAddAggregateMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddAggregateMutation,
+    AddAggregateMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddAggregateMutation,
+    AddAggregateMutationVariables
+  >(AddAggregateDocument, options);
+}
+export type AddAggregateMutationHookResult = ReturnType<
+  typeof useAddAggregateMutation
+>;
+export type AddAggregateMutationResult =
+  Apollo.MutationResult<AddAggregateMutation>;
+export type AddAggregateMutationOptions = Apollo.BaseMutationOptions<
+  AddAggregateMutation,
+  AddAggregateMutationVariables
+>;
+export const UpdateAggregateDocument = gql`
+  mutation updateAggregate(
+    $projectDefinitionId: ID!
+    $collectionId: ID!
+    $aggregateId: ID!
+    $aggregate: AggregateInput!
+  ) {
+    updateAggregate(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+      aggregateId: $aggregateId
+      replacement: $aggregate
+    ) {
+      id
+      projectDefinitionId
+      collectionId
+      name
+      ordinal
+      isExtendable
+      attributes {
+        name
+        isReadonly
+        value {
+          __typename
+          ... on IntFieldValue {
+            integer
+          }
+          ... on DecimalFieldValue {
+            numeric
+          }
+          ... on StringFieldValue {
+            text
+          }
+          ... on BoolFieldValue {
+            enabled
+          }
+          ... on ReferenceId {
+            uuid
+          }
+        }
+      }
+    }
+  }
+`;
+export type UpdateAggregateMutationFn = Apollo.MutationFunction<
+  UpdateAggregateMutation,
+  UpdateAggregateMutationVariables
+>;
+
+/**
+ * __useUpdateAggregateMutation__
+ *
+ * To run a mutation, you first call `useUpdateAggregateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAggregateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAggregateMutation, { data, loading, error }] = useUpdateAggregateMutation({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      collectionId: // value for 'collectionId'
+ *      aggregateId: // value for 'aggregateId'
+ *      aggregate: // value for 'aggregate'
+ *   },
+ * });
+ */
+export function useUpdateAggregateMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateAggregateMutation,
+    UpdateAggregateMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateAggregateMutation,
+    UpdateAggregateMutationVariables
+  >(UpdateAggregateDocument, options);
+}
+export type UpdateAggregateMutationHookResult = ReturnType<
+  typeof useUpdateAggregateMutation
+>;
+export type UpdateAggregateMutationResult =
+  Apollo.MutationResult<UpdateAggregateMutation>;
+export type UpdateAggregateMutationOptions = Apollo.BaseMutationOptions<
+  UpdateAggregateMutation,
+  UpdateAggregateMutationVariables
+>;
 export const FindProjectDefinitionFormulasDocument = gql`
   query findProjectDefinitionFormulas(
     $projectDefinitionId: ID!
@@ -4902,6 +5183,21 @@ export const FindAggregatesDocument = gql`
             isReadonly
             value {
               __typename
+              ... on IntFieldValue {
+                integer
+              }
+              ... on DecimalFieldValue {
+                numeric
+              }
+              ... on StringFieldValue {
+                text
+              }
+              ... on BoolFieldValue {
+                enabled
+              }
+              ... on ReferenceId {
+                uuid
+              }
             }
           }
         }

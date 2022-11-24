@@ -564,6 +564,21 @@ export const FIND_AGGREGATES = gql`
             isReadonly
             value {
               __typename
+              ... on IntFieldValue {
+                integer
+              }
+              ... on DecimalFieldValue {
+                numeric
+              }
+              ... on StringFieldValue {
+                text
+              }
+              ... on BoolFieldValue {
+                enabled
+              }
+              ... on ReferenceId {
+                uuid
+              }
             }
           }
         }

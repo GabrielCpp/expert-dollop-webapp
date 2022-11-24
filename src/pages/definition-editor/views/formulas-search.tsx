@@ -21,17 +21,13 @@ type Result =
 
 const headers: HeadCell<Result>[] = [
   {
-    disablePadding: false,
     id: "name",
     label: "name",
-    numeric: false,
     render: FormulaLink,
   },
   {
-    disablePadding: false,
     id: "expression",
     label: "expression",
-    numeric: false,
     render: ({ data }) => <Typography>{data.expression}</Typography>,
   },
 ];

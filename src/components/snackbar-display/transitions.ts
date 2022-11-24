@@ -27,7 +27,7 @@ export function useNavigateTransition({ feed, completeAction }: UseNavigateBackP
 
   async function navigateTo({ message, to }: { message: string, to?: string }): Promise<void> {
     if (completeAction) {
-      await loader.waitOnPromise(completeAction());
+      await loader.waitFor(completeAction);
     }
     
     success(message);

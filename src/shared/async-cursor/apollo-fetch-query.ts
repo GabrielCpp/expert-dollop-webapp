@@ -62,6 +62,7 @@ export function useApolloPageFetch<Data, Query extends QuerySchema<Data>, Args e
         .query<Query, Args>({
           query: document,
           variables: v as Args,
+          fetchPolicy: "network-only"
         })
         .then((resultset) => mapQueryResult(resultset.data))
         .catch((error) => {

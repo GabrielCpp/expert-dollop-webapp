@@ -37,7 +37,7 @@ export function useNotification(feedName: string) {
     (error?: Error) => {
       if (error) {
         failure(error.name);
-        loader.onLoading(id, false, error);
+        loader.onError(error, id);
       }
     },
     [failure, loader, id]

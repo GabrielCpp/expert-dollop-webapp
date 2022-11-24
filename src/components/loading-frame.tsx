@@ -22,23 +22,23 @@ export class LoadingFrame extends React.Component<
   constructor(props: LoadingSpinnerProps) {
     super(props);
     this.state = {
-      isLoading: props.loader.lastLoadingState,
+      isLoading: props.loader.loading,
       lastError: undefined,
     };
     props.loader.addHandler(this.onLoading.bind(this));
   }
 
-  onLoading(_: boolean, error?: Error): void {
+  onLoading(loading: boolean, error?: Error): void {
     if (error) {
       console.error(error);
       this.setState({
         lastError: error,
-        isLoading: this.props.loader.lastLoadingState,
+        isLoading: loading,
       });
     } else {
       this.setState({
         lastError: undefined,
-        isLoading: this.props.loader.lastLoadingState,
+        isLoading: loading,
       });
     }
   }
@@ -76,18 +76,21 @@ export class LoadingFrame extends React.Component<
 
 export function useLoaderEffect(
   error: Error | undefined,
-  ...loading: boolean[]
+  ...loaders: boolean[]
 ): boolean {
-  const id = useId();
   const { loader } = useServices();
-  const isLoading = loading.some((x) => x === true);
+  const id = useId();
+  const loading = loaders.some((x) => x === true);
 
   useEffect(() => {
-    loader.onLoading(id, isLoading, error);
-    return () => loader.deleteEmitter(id);
-  }, [error, isLoading, loader, id]);
+    return loader.onLoading(id, loading);
+  }, [error, loading, loader, id]);
 
-  return isLoading;
+  useEffect(() => {
+    loader.onError(error, id);
+  }, [loader, error, id]);
+
+  return loading;
 }
 
 interface LoaderDetails {
@@ -100,15 +103,13 @@ export function useLoadingNotifier(): LoaderDetails {
   const { loader } = useServices();
   const onLoading = useCallback(
     (loading: boolean) => {
-      loader.onLoading(id, loading, undefined);
+      loader.onLoading(id, loading);
     },
     [loader, id]
   );
   const onError = useCallback(
     (error?: Error) => {
-      if (error) {
-        loader.onLoading(id, false, error);
-      }
+      loader.onError(error, id);
     },
     [loader, id]
   );

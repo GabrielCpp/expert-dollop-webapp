@@ -14,10 +14,8 @@ type Result = FindDatasheetsQuery["results"]["edges"][number]["node"];
 
 const headers: HeadCell<Result>[] = [
   {
-    disablePadding: false,
     id: "name",
     label: "name",
-    numeric: false,
     render: DatasheetLink,
   },
 ];

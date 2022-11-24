@@ -11,14 +11,14 @@ export interface AjvFactory {
 }
 
 export interface LoaderNotifier {
-  lastLoadingState: boolean;
-  lastErrorState?: Error;
+  loading: boolean;
+  pageFailed: boolean;
+  errors: Error[]
   addHandler(handler: (isLoading: boolean, error?: Error) => void): () => void;
-  onLoading(id: string, isLoading: boolean, error?: Error): void;
-  onError(error?: Error): void;
+  onLoading(id: string, isLoading: boolean): () => void;
+  onError(error?: Error, id?: string): void
   notify(): void;
-  deleteEmitter(id: string): void;
-  waitOnPromise<T>(p: Promise<T>): Promise<void | T>;
+  waitFor<T>(c: () => Promise<T>): Promise<void | T>;
 }
 
 export interface Auth0Context {

@@ -16,6 +16,8 @@ import {
   AttributeDetailsUnionInput,
   FindAggregateCollectionQuery,
   NodeReferenceConfig,
+  FieldValueInput,
+  FieldValueType,
 } from "../../../generated";
 
 export function mapFieldDetailsToUnion(
@@ -32,7 +34,8 @@ export function mapFieldDetailsToUnion(
 }
 
 export function mapAttributeSchemaDetails(
-  details: Details, allTranslations: Translation[]
+  details: Details,
+  allTranslations: Translation[]
 ): AttributeDetailsUnionInput {
   const handler = handlers.get(details.__typename);
 
@@ -167,8 +170,6 @@ const handlers = new Map<
   ],
 ]);
 
-
-
 function mapStaticChoiceFieldConfigInput(
   x: StaticChoiceFieldConfig,
   allTranslations: Translation[]
@@ -183,3 +184,66 @@ function mapStaticChoiceFieldConfigInput(
     })),
   };
 }
+
+export const CONFIG_INSTANCIATIONS: Record<
+  | "AggregateReferenceConfig"
+  | "BoolFieldConfig"
+  | "DecimalFieldConfig"
+  | "IntFieldConfig"
+  | "NodeReferenceConfig"
+  | "StaticChoiceFieldConfig"
+  | "StringFieldConfig",
+  (
+    c:
+      | AggregateReferenceConfig
+      | BoolFieldConfig
+      | DecimalFieldConfig
+      | IntFieldConfig
+      | NodeReferenceConfig
+      | StaticChoiceFieldConfig
+      | StringFieldConfig
+  ) => FieldValueInput
+> = {
+  AggregateReferenceConfig: (c) => ({
+    kind: FieldValueType.REFERENCE_FIELD_VALUE,
+    reference: {
+      uuid: "",
+    },
+  }),
+  BoolFieldConfig: (c) => ({
+    kind: FieldValueType.BOOL_FIELD_VALUE,
+    bool: {
+      enabled: (c as BoolFieldConfig).enabled,
+    },
+  }),
+  DecimalFieldConfig: (c) => ({
+    kind: FieldValueType.DECIMAL_FIELD_VALUE,
+    decimal: {
+      numeric: (c as DecimalFieldConfig).numeric,
+    },
+  }),
+  IntFieldConfig: (c) => ({
+    kind: FieldValueType.INT_FIELD_VALUE,
+    int: {
+      integer: (c as IntFieldConfig).integer,
+    },
+  }),
+  NodeReferenceConfig: (c) => ({
+    kind: FieldValueType.REFERENCE_FIELD_VALUE,
+    reference: {
+      uuid: "",
+    },
+  }),
+  StaticChoiceFieldConfig: (c) => ({
+    kind: FieldValueType.STRING_FIELD_VALUE,
+    string: {
+      text: (c as StaticChoiceFieldConfig).selected,
+    },
+  }),
+  StringFieldConfig: (c) => ({
+    kind: FieldValueType.STRING_FIELD_VALUE,
+    string: {
+      text: (c as StringFieldConfig).text,
+    },
+  }),
+};
