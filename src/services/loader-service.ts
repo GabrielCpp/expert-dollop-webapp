@@ -87,7 +87,6 @@ export class LoaderService implements LoaderNotifier {
     }
     
     this.timeoutId = setTimeout(() => {
-      console.log(this.loading)
       this.timeoutId  = null
       if (someIsLoading === this.loading) {
         this.triggerEmitter.emit("fire", this.loading, head(this.errors));

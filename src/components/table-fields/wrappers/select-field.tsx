@@ -10,8 +10,8 @@ import { FieldChildren, SelectOption } from "../form-field-record";
 import { DefaultEmptyId } from "../hooks/use-field";
 
 interface SelectProps extends FieldChildren {
-  label: string;
   options: SelectOption[];
+  label?: string;
   title?: string;
   fallbackSelection?: Omit<SelectOption, "id">;
 }

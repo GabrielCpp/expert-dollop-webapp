@@ -1,4 +1,8 @@
-export type { FormFieldRecord, Translator, SelectOption } from "./form-field-record";
+export type {
+  FormFieldRecord,
+  Translator,
+  SelectOption,
+} from "./form-field-record";
 export {
   setupFormTables,
   queryDirectChildrenOf,
@@ -13,9 +17,15 @@ export {
   patchFormField,
   resetForm,
   patchFormFields,
+  findFormRecordByName,
 } from "./form-field-record";
-export * from './validators'
+export * from "./validators";
 export * from "./views";
 export * from "./hooks";
 export * from "./wrappers";
-export { KeyNamespace, KeyMapping, getJsxElements, fallbackWhenEmpty } from './helpers'
+export {
+  KeyNamespace,
+  KeyMapping,
+  getJsxElements,
+  fallbackWhenEmpty,
+} from "./helpers";

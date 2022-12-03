@@ -54,7 +54,7 @@ export function NodeForm({
 
   useHiddenField({
     name: "label",
-    path: translationConfigPath,
+    parentPath: translationConfigPath,
     value: latestLabelTranslationKeyName,
   });
 
@@ -67,7 +67,7 @@ export function NodeForm({
 
   useHiddenField({
     name: "helpTextName",
-    path: translationConfigPath,
+    parentPath: translationConfigPath,
     value: latestHelpTextTranslationKeyName,
   });
 

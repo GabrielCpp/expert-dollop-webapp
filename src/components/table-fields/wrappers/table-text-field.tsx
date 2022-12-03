@@ -1,12 +1,14 @@
 import { InputAdornment, TextField, Typography, Tooltip } from "@mui/material";
 import { ReactNode } from "react";
 import { FieldChildren } from "../form-field-record";
+import { FieldLabel } from "../views";
 
 export interface TextFieldProps extends FieldChildren {
   label?: string;
   title?: string;
   unit?: string;
   startAdornment?: ReactNode;
+  textProps?: Parameters<typeof TextField>[0];
 }
 
 export function textField({
@@ -20,22 +22,14 @@ export function textField({
   unit,
   startAdornment,
   t,
+  textProps,
 }: TextFieldProps): JSX.Element {
   return (
     <TextField
-      style={{ width: "100%" }}
-      InputLabelProps={{ style: { pointerEvents: "auto" }, shrink: true }}
-      type="text"
-      label={
-        title !== undefined ? (
-          <Tooltip title={t(title)}>
-            <Typography>{t(label)}</Typography>
-          </Tooltip>
-        ) : (
-          t(label)
-        )
-      }
       id={id}
+      name={name}
+      type="text"
+      label={label && <FieldLabel title={title} label={label} t={t} />}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       helperText={errors
@@ -47,6 +41,9 @@ export function textField({
           </span>
         ))}
       error={errors?.length > 0}
+      {...textProps}
+      style={{ width: "100%" }}
+      InputLabelProps={{ style: { pointerEvents: "auto" }, shrink: true }}
       InputProps={{
         endAdornment: unit && (
           <InputAdornment position="end">{t(unit)}</InputAdornment>

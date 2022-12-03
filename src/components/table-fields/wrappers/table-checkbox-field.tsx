@@ -2,11 +2,13 @@ import { Checkbox, FormControlLabel, Typography, Tooltip } from "@mui/material";
 import { ReactNode } from "react";
 import { theme } from "../../../theme";
 import { FieldChildren } from "../form-field-record";
+import { FieldLabel } from "../views";
 
 interface CheckboxFieldProps extends FieldChildren {
-  label: string;
+  label?: string;
   title?: string;
   endAdornment?: ReactNode;
+  checkboxProps?: Parameters<typeof Checkbox>[0];
 }
 
 export function checkboxField({
@@ -19,32 +21,27 @@ export function checkboxField({
   endAdornment,
   onChange,
   t,
+  checkboxProps,
 }: CheckboxFieldProps) {
   return (
     <>
       <FormControlLabel
         control={
           <Checkbox
+            id={id}
+            name={name}
             checked={Boolean(value)}
             onChange={(e) => onChange(e.target.checked)}
-            name={name}
             color="primary"
+            {...checkboxProps}
             sx={{ paddingTop: theme.spacing(0.5) }}
           />
         }
         label={
-          title !== undefined ? (
-            <Tooltip title={t(title)}>
-              <Typography>
-                {t(label)}
-                {endAdornment}
-              </Typography>
-            </Tooltip>
-          ) : (
-            <Typography>
-              {t(label)}
+          label && (
+            <FieldLabel title={title} label={label} t={t}>
               {endAdornment}
-            </Typography>
+            </FieldLabel>
           )
         }
       />

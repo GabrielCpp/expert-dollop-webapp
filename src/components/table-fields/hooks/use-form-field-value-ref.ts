@@ -72,7 +72,7 @@ export function useFieldWatch(id?: string): { value: unknown } {
 
 interface UseFieldsWatchCallackParams<T> {
   ids: string | string[];
-  defaultValue: T;
+  defaultValue?: T;
   callback?: (...values: unknown[]) => T;
 }
 
@@ -86,7 +86,14 @@ export function useFieldsWatchCallack<T=unknown>({
   callback = identity,
 }: UseFieldsWatchCallackParams<T>): UseFieldsWatchCallackResult<T> {
   const { reduxDb } = useServices();
-  const [value, setValue] = useState(defaultValue);
+  const [value, setValue] = useState(() => {
+    if(defaultValue === undefined) {
+      const idsAsArray = Array.isArray(ids) ? ids : [ids]
+      return callback(...idsAsArray.map((id) => getFieldValue(reduxDb, id)))
+    }
+    
+    return defaultValue
+  });
 
   useEffect(() => {
     const idsAsArray = Array.isArray(ids) ? ids : [ids]

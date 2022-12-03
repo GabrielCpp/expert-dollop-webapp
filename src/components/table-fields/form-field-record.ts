@@ -1,5 +1,5 @@
 import { ErrorObject, AnySchema } from "ajv";
-import { flatten, isEqual, set, sortBy, startsWith, tail } from "lodash";
+import { flatten, head, isEqual, set, sortBy, startsWith, tail } from "lodash";
 import { AjvFactory } from "../../services-def";
 import {
   ops,
@@ -177,6 +177,20 @@ export function resetForm(database: ReduxDatabase, rootPath: string[]) {
 
   database.getTable(FormFieldTableName).upsertMany(updates);
 }
+
+export function findFormRecordByName(
+  database: ReduxDatabase,
+  prefix: string[],
+  name: string
+): FormFieldRecord | undefined {
+  const table = database.getTable(FormFieldTableName);
+  const records = table.where<FormFieldRecord>((record) =>
+    startsWith(record.path.join("."), prefix.join(".")) && record.name === name
+  );
+
+  return head(records)
+}
+
 
 export function deleteFormFieldRecords(
   database: ReduxDatabase,

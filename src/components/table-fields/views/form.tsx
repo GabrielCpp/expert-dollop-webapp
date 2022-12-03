@@ -1,13 +1,12 @@
-import { Button, Card, CardContent, Grid, CardHeader } from "@mui/material";
-import { FormEvent, useCallback } from "react";
+import { Button, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useServices } from "../../../services-def";
 import { ReduxDatabase } from "../../../shared/redux-db";
-import { hydrateForm, validateForm } from "../form-field-record";
+import { hydrateForm } from "../form-field-record";
 import { getJsxElements, MixedChildren } from "../helpers";
+import { useSaveForm } from "../hooks/use-save-form";
 
 interface FormProps<T> {
-  formPath: string[];
+  formPath: string | string[];
   label: string;
   save: (data: T) => Promise<void>;
   children: MixedChildren;
@@ -30,24 +29,7 @@ export function Form<T>({
   spacing = 1,
 }: FormProps<T>): JSX.Element {
   const { t } = useTranslation();
-  const { reduxDb, ajv, loader } = useServices();
-  const handleSubmit = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const formData = buildForm(reduxDb, formPath);
-
-      try {
-        if (validateForm(reduxDb, ajv)(formPath) === false) {
-          return;
-        }
-
-        await save(formData);
-      } catch (e) {
-        loader.onError(e as Error);
-      }
-    },
-    [reduxDb, ajv, loader, formPath, save, buildForm]
-  );
+  const handleSubmit = useSaveForm(formPath, save, buildForm);
 
   const fields = getJsxElements(children).map((c) => (
     <Grid item key={c.key}>

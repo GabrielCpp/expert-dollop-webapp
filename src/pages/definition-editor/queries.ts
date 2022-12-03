@@ -559,6 +559,14 @@ export const FIND_AGGREGATES = gql`
           name
           ordinal
           isExtendable
+          translated {
+            id
+            ressourceId
+            locale
+            scope
+            name
+            value
+          }
           attributes {
             name
             isReadonly

@@ -9,7 +9,8 @@ import {
   Typography,
 } from "@mui/material";
 import { head } from "lodash";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
   AddButtonLinkFullWidth,
@@ -22,19 +23,41 @@ import {
 } from "../../../components/data-grid/paginated-data-grid";
 import { useLoadingNotifier } from "../../../components/loading-frame";
 import {
+  BOOLEAN_VALIDATOR,
+  checkboxField,
+  Field,
+  HiddenField,
+  hydrateForm,
+  INT_VALIDATOR,
+  NamedFormSection,
+  textField,
+  USER_STRING_VALIDATOR,
+  switchField,
+  getFieldValue,
+  findFormRecordByName,
+  saveForm,
+} from "../../../components/table-fields";
+import {
   AggregateInput,
   FindAggregatesDocument,
   FindAggregatesQuery,
   FindAggregatesQueryVariables,
   FindDefinitionAggregateCollectionsQuery,
   useAddAggregateMutation,
+  useDeleteAggregateMutation,
   useFindDefinitionAggregateCollectionsQuery,
   useUpdateAggregateMutation,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
 import { useApolloPageFetch } from "../../../shared/async-cursor";
+import { MULTI_LANGUAGE_FIELD } from "../form-definitions";
+import { MultiLanguageField } from "../forms/multi-language-field";
 import { CONFIG_INSTANCIATIONS } from "../mappings/config-mapping";
-import { FIELD_VALUE_TO_INPUT } from "../mappings/field-value-mapping";
+import {
+  FIELD_VALUE_TO_INPUT,
+  VALUE_FORM_COMPONENT_FACTORIES,
+  VALUE_COMPONENT_FACTORIES,
+} from "../mappings/field-value-mapping";
 import {
   DEFINITION_AGGREGATE_COLLECTION_ADD,
   DEFINITION_AGGREGATE_COLLECTION_EDIT,
@@ -72,14 +95,14 @@ export function LabelEditionView() {
 
   return (
     <Grid container direction="row" spacing={1}>
-      <Grid item xs={12} md={4} xl={4} style={{ minWidth: "4em" }}>
+      <Grid item xs={4} md={2} xl={2} style={{ minWidth: "4em" }}>
         <AggregateCollectionList
           collections={data}
           params={params}
           setCurrentCollection={setCurrentCollection}
         />
       </Grid>
-      <Grid item xs={12} md={8} xl={6}>
+      <Grid item xs={12} md={10} xl={10}>
         {currentCollection && (
           <AggregatesTable
             projectDefinitionId={params.projectDefinitionId}
@@ -102,7 +125,8 @@ function AggregatesTable({
   projectDefinitionId,
   collection,
 }: AggregatesTableProps) {
-  const { apollo, routes } = useServices();
+  const { t } = useTranslation();
+  const { apollo, reduxDb, ajv, loader } = useServices();
   const { onError } = useLoadingNotifier();
   const fetch = useApolloPageFetch<
     Result,
@@ -119,34 +143,57 @@ function AggregatesTable({
   });
 
   const [addAggregate] = useAddAggregateMutation();
-
-  async function addAggregateFromTable(aggregate: AggregateInput) {
-    await addAggregate({
-      variables: {
-        projectDefinitionId,
-        collectionId: collection.id,
-        aggregate,
-      },
-    });
-  }
+  const addAggregateFromTable = useCallback(
+    (id: string) =>
+      saveForm(
+        { reduxDb, ajv, loader },
+        id,
+        async (aggregate: AggregateInput) => {
+          await addAggregate({
+            variables: {
+              projectDefinitionId,
+              collectionId: collection.id,
+              aggregate,
+            },
+          });
+        }
+      ),
+    [reduxDb, ajv, loader, addAggregate]
+  );
 
   const [updateAggregate] = useUpdateAggregateMutation();
-
-  async function updateAggregateFromTable(
-    aggregateId: string,
-    aggregate: AggregateInput
-  ) {
-    await updateAggregate({
-      variables: {
-        projectDefinitionId,
-        collectionId: collection.id,
+  const updateAggregateFromTable = useCallback(
+    (aggregateId: string) =>
+      saveForm(
+        { reduxDb, ajv, loader },
         aggregateId,
-        aggregate,
-      },
-    });
-  }
+        async (aggregate: AggregateInput) => {
+          await updateAggregate({
+            variables: {
+              projectDefinitionId,
+              collectionId: collection.id,
+              aggregateId,
+              aggregate,
+            },
+          });
+        }
+      ),
+    [reduxDb, ajv, loader, updateAggregate]
+  );
 
-  async function deleteAggregatesFromTable(ids: string[]) {}
+  const [deleteAggregate] = useDeleteAggregateMutation();
+
+  async function deleteAggregatesFromTable(ids: string[]) {
+    for (const aggregateId of ids) {
+      await deleteAggregate({
+        variables: {
+          projectDefinitionId,
+          collectionId: collection.id,
+          aggregateId,
+        },
+      });
+    }
+  }
 
   const headers: HeadCell<Result>[] = [
     {
@@ -155,6 +202,23 @@ function AggregatesTable({
       render: ({ data }) => <Typography>{data.name}</Typography>,
     },
     {
+      id: "translated",
+      label: "translated",
+      render: ({ id, data }) => {
+        return (
+          <ul>
+            {data.translated.map((translation) => (
+              <li>
+                <Typography key={translation.id}>
+                  {translation.locale}:{translation.value}
+                </Typography>
+              </li>
+            ))}
+          </ul>
+        );
+      },
+    },
+    {
       id: "ordinal",
       label: "ordinal",
       render: ({ data }) => <Typography>{data.ordinal}</Typography>,
@@ -167,11 +231,11 @@ function AggregatesTable({
     ...collection.attributesSchema.map((c) => ({
       id: c.name,
       label: c.name,
-      render: ({ data }: { data: Result }) => (
-        <Typography>
-          {data.attributes.find((x) => x.name === c.name)?.value.__typename}
-        </Typography>
-      ),
+      render: ({ data }: { data: Result }) =>
+        VALUE_COMPONENT_FACTORIES[c.details.__typename](
+          data.attributes.find((x) => x.name === c.name)?.value || null,
+          c.details
+        ),
     })),
   ];
 
@@ -179,25 +243,106 @@ function AggregatesTable({
     {
       id: "name",
       label: "name",
-      render: ({ data }) => <Typography>{data.name}</Typography>,
+      render: ({ id, data }) => (
+        <Field
+          id={`${id}-name`}
+          validator={USER_STRING_VALIDATOR}
+          defaultValue={data.name}
+          path={[id]}
+          name="name"
+          t={t}
+          component={textField}
+          textProps={{
+            size: "small",
+          }}
+        />
+      ),
+    },
+    {
+      id: "translated",
+      label: "translated",
+      render: ({ id, data }) => {
+        return (
+          <MultiLanguageField
+            parentPath={[id]}
+            name="translated"
+            nameId={`${id}-name`}
+            translations={data.translated}
+            labels={MULTI_LANGUAGE_FIELD}
+            t={t}
+          />
+        );
+      },
     },
     {
       id: "ordinal",
       label: "ordinal",
-      render: ({ data }) => <Typography>{data.ordinal}</Typography>,
+      render: ({ id, data }) => (
+        <Field
+          validator={INT_VALIDATOR}
+          defaultValue={data.ordinal}
+          path={[id]}
+          name="ordinal"
+          t={t}
+          component={textField}
+          textProps={{
+            size: "small",
+          }}
+        />
+      ),
     },
     {
       id: "isExtendable",
       label: "isExtendable",
-      render: ({ data }) => <Typography>{data.isExtendable}</Typography>,
+      render: ({ id, data }) => (
+        <Field
+          validator={BOOLEAN_VALIDATOR}
+          defaultValue={data.isExtendable}
+          path={[id]}
+          name="isExtendable"
+          t={t}
+          component={checkboxField}
+          checkboxProps={{
+            size: "small",
+          }}
+        />
+      ),
     },
-    ...collection.attributesSchema.map((c) => ({
+    ...collection.attributesSchema.map((c, index) => ({
       id: c.name,
       label: c.name,
-      render: ({ data }: { data: AggregateInput }) => (
-        <Typography>
-          {data.attributes.find((x) => x.name === c.name)?.value.kind}
-        </Typography>
+      render: ({ id, data }: { id: string; data: AggregateInput }) => (
+        <NamedFormSection
+          name="attributes"
+          ordinal={index}
+          parentPath={id}
+          spacing={0}
+          padding={0}
+        >
+          {(p) => [
+            VALUE_FORM_COMPONENT_FACTORIES[c.details.__typename](
+              p,
+              data.attributes.find((x) => x.name === c.name)?.value || null,
+              c.details
+            ),
+            <HiddenField
+              name="name"
+              key="name"
+              parentPath={p}
+              value={c.name}
+            />,
+            <Field
+              validator={BOOLEAN_VALIDATOR}
+              defaultValue={false}
+              path={p}
+              name="isReadonly"
+              key="isReadonly"
+              label="isReadonly"
+              t={t}
+              component={switchField}
+            />,
+          ]}
+        </NamedFormSection>
       ),
     })),
   ];
@@ -207,6 +352,7 @@ function AggregatesTable({
       isExtendable: false,
       name: "",
       ordinal: 0,
+      translated: [],
       attributes: collection.attributesSchema.map((a) => ({
         isReadonly: false,
         name: a.name,
@@ -230,6 +376,7 @@ function AggregatesTable({
         isExtendable: d.isExtendable,
         name: d.name,
         ordinal: d.ordinal,
+        translated: [],
         attributes: d.attributes.map((a) => ({
           isReadonly: a.isReadonly,
           name: a.name,

@@ -1,6 +1,7 @@
 import { noop } from "lodash";
 import {
   FieldArrayElement,
+  getFieldValue,
   IdGenerator,
   StaticTabs,
   Translator,
@@ -10,6 +11,7 @@ import {
   useHiddenField,
 } from "../../../components/table-fields";
 import { TranslationInput } from "../../../generated";
+import { useServices } from "../../../services-def";
 import { FieldTranslation } from "./field-translation";
 
 interface MultiLanguageFieldProps {
@@ -17,9 +19,9 @@ interface MultiLanguageFieldProps {
   parentPath: string[];
   name: string;
   translations: TranslationInput[];
-  labelTranslationKeyName: string;
-  helpTextTranslationKeyName: string;
   nameId: string;
+  labelTranslationKeyName?: string;
+  helpTextTranslationKeyName?: string;
   active?: boolean;
   labels: {
     name: string;
@@ -91,23 +93,23 @@ export function MultiLanguageField({
 
   useHiddenField({
     name: "name",
-    path: frLabelPath,
+    parentPath: frLabelPath,
     value: latestLabelTranslationKeyName,
   });
   useHiddenField({
     name: "locale",
-    path: frLabelPath,
+    parentPath: frLabelPath,
     value: labels.fr.locale,
   });
 
   useHiddenField({
     name: "name",
-    path: frHelpTextPath,
+    parentPath: frHelpTextPath,
     value: latestHelpTextTranslationKeyName,
   });
   useHiddenField({
     name: "locale",
-    path: frHelpTextPath,
+    parentPath: frHelpTextPath,
     value: labels.fr.locale,
   });
 
@@ -129,23 +131,23 @@ export function MultiLanguageField({
 
   useHiddenField({
     name: "name",
-    path: enLabelPath,
+    parentPath: enLabelPath,
     value: latestLabelTranslationKeyName,
   });
   useHiddenField({
     name: "locale",
-    path: enLabelPath,
+    parentPath: enLabelPath,
     value: labels.en.locale,
   });
 
   useHiddenField({
     name: "name",
-    path: enHelpTextPath,
+    parentPath: enHelpTextPath,
     value: latestHelpTextTranslationKeyName,
   });
   useHiddenField({
     name: "locale",
-    path: enHelpTextPath,
+    parentPath: enHelpTextPath,
     value: labels.en.locale,
   });
 

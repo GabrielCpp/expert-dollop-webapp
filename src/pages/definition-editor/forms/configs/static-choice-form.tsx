@@ -311,13 +311,13 @@ function SelectOptionForm({
   const option = element.value.option;
 
   useHiddenField({
-    path,
+    parentPath: path,
     name: labels.label.name,
     value: option.label,
   });
 
   useHiddenField({
-    path,
+    parentPath: path,
     name: labels.helpText.name,
     value: option.helpText,
   });

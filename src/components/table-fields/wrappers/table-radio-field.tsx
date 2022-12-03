@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { ReactNode } from "react";
 import { FieldChildren, SelectOption } from "../form-field-record";
+import { FieldLabel } from "../views";
 
 interface RadiodProps extends FieldChildren {
   options: SelectOption[];
@@ -35,7 +36,13 @@ export function radioField({
       {translatedLabel !== "" && (
         <legend>
           {startAdornment}
-          <FormLabel>{translatedLabel}</FormLabel>
+          <FieldLabel
+            title={title}
+            label={translatedLabel}
+            t={t}
+            translated={true}
+            component={FormLabel}
+          />
         </legend>
       )}
       <RadioGroup
@@ -50,17 +57,22 @@ export function radioField({
             value={option.id}
             control={<Radio />}
             label={
-              option.title === undefined ? (
-                <Typography>{t(option.label)}</Typography>
-              ) : (
-                <Tooltip title={t(option.title)}>
-                  <Typography>{t(option.label)}</Typography>
-                </Tooltip>
+              option.label && (
+                <FieldLabel title={option.title} label={option.label} t={t} />
               )
             }
           />
         ))}
       </RadioGroup>
+      {errors?.length > 0 &&
+        errors
+          ?.filter((e) => e.message !== undefined)
+          .map((e, index) => (
+            <span key={index}>
+              {t(e.message as string)}
+              <br />
+            </span>
+          ))}
     </fieldset>
   );
 }

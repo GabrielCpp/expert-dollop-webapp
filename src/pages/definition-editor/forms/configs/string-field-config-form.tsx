@@ -34,7 +34,7 @@ export function StringFieldConfigForm({
   useHiddenField({
     name: "transforms",
     value: DEFAULT_TRANSFORMS,
-    path: formPath,
+    parentPath: formPath,
   });
 
   return (

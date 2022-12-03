@@ -32,6 +32,7 @@ export type Aggregate = {
   name: FieldWrapper<Scalars["String"]>;
   ordinal: FieldWrapper<Scalars["Int"]>;
   projectDefinitionId: FieldWrapper<Scalars["String"]>;
+  translated: Array<FieldWrapper<Translation>>;
 };
 
 export type AggregateAttribute = {
@@ -92,6 +93,7 @@ export type AggregateInput = {
   isExtendable: Scalars["Boolean"];
   name: Scalars["String"];
   ordinal: Scalars["Int"];
+  translated: Array<TranslationInput>;
 };
 
 export type AggregateReferenceConfig = {
@@ -1493,6 +1495,12 @@ export type AddAggregateMutation = { __typename?: "Mutation" } & {
     | "ordinal"
     | "isExtendable"
   > & {
+      translated: Array<
+        { __typename?: "Translation" } & Pick<
+          Translation,
+          "id" | "ressourceId" | "locale" | "scope" | "name" | "value"
+        >
+      >;
       attributes: Array<
         { __typename?: "AggregateAttribute" } & Pick<
           AggregateAttribute,
@@ -1538,6 +1546,12 @@ export type UpdateAggregateMutation = { __typename?: "Mutation" } & {
     | "ordinal"
     | "isExtendable"
   > & {
+      translated: Array<
+        { __typename?: "Translation" } & Pick<
+          Translation,
+          "id" | "ressourceId" | "locale" | "scope" | "name" | "value"
+        >
+      >;
       attributes: Array<
         { __typename?: "AggregateAttribute" } & Pick<
           AggregateAttribute,
@@ -1565,6 +1579,17 @@ export type UpdateAggregateMutation = { __typename?: "Mutation" } & {
       >;
     };
 };
+
+export type DeleteAggregateMutationVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+  collectionId: Scalars["ID"];
+  aggregateId: Scalars["ID"];
+}>;
+
+export type DeleteAggregateMutation = { __typename?: "Mutation" } & Pick<
+  Mutation,
+  "deleteAggregate"
+>;
 
 export type FindProjectDefinitionFormulasQueryVariables = Exact<{
   projectDefinitionId: Scalars["ID"];
@@ -2177,6 +2202,12 @@ export type FindAggregatesQuery = { __typename?: "Query" } & {
             | "ordinal"
             | "isExtendable"
           > & {
+              translated: Array<
+                { __typename?: "Translation" } & Pick<
+                  Translation,
+                  "id" | "ressourceId" | "locale" | "scope" | "name" | "value"
+                >
+              >;
               attributes: Array<
                 { __typename?: "AggregateAttribute" } & Pick<
                   AggregateAttribute,
@@ -4011,6 +4042,14 @@ export const AddAggregateDocument = gql`
       name
       ordinal
       isExtendable
+      translated {
+        id
+        ressourceId
+        locale
+        scope
+        name
+        value
+      }
       attributes {
         name
         isReadonly
@@ -4100,6 +4139,14 @@ export const UpdateAggregateDocument = gql`
       name
       ordinal
       isExtendable
+      translated {
+        id
+        ressourceId
+        locale
+        scope
+        name
+        value
+      }
       attributes {
         name
         isReadonly
@@ -4170,6 +4217,64 @@ export type UpdateAggregateMutationResult =
 export type UpdateAggregateMutationOptions = Apollo.BaseMutationOptions<
   UpdateAggregateMutation,
   UpdateAggregateMutationVariables
+>;
+export const DeleteAggregateDocument = gql`
+  mutation deleteAggregate(
+    $projectDefinitionId: ID!
+    $collectionId: ID!
+    $aggregateId: ID!
+  ) {
+    deleteAggregate(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+      aggregateId: $aggregateId
+    )
+  }
+`;
+export type DeleteAggregateMutationFn = Apollo.MutationFunction<
+  DeleteAggregateMutation,
+  DeleteAggregateMutationVariables
+>;
+
+/**
+ * __useDeleteAggregateMutation__
+ *
+ * To run a mutation, you first call `useDeleteAggregateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAggregateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAggregateMutation, { data, loading, error }] = useDeleteAggregateMutation({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *      collectionId: // value for 'collectionId'
+ *      aggregateId: // value for 'aggregateId'
+ *   },
+ * });
+ */
+export function useDeleteAggregateMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteAggregateMutation,
+    DeleteAggregateMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    DeleteAggregateMutation,
+    DeleteAggregateMutationVariables
+  >(DeleteAggregateDocument, options);
+}
+export type DeleteAggregateMutationHookResult = ReturnType<
+  typeof useDeleteAggregateMutation
+>;
+export type DeleteAggregateMutationResult =
+  Apollo.MutationResult<DeleteAggregateMutation>;
+export type DeleteAggregateMutationOptions = Apollo.BaseMutationOptions<
+  DeleteAggregateMutation,
+  DeleteAggregateMutationVariables
 >;
 export const FindProjectDefinitionFormulasDocument = gql`
   query findProjectDefinitionFormulas(
@@ -5178,6 +5283,14 @@ export const FindAggregatesDocument = gql`
           name
           ordinal
           isExtendable
+          translated {
+            id
+            ressourceId
+            locale
+            scope
+            name
+            value
+          }
           attributes {
             name
             isReadonly

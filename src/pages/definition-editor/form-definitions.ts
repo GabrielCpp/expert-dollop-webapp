@@ -1,7 +1,12 @@
 import { KeyMapping, KeyNamespace } from "../../components/table-fields";
 import { FieldDetailsType } from "../../generated";
 
-export type NodeLevel = "rootSection" | "subSection" | "form" | "section" | "field";
+export type NodeLevel =
+  | "rootSection"
+  | "subSection"
+  | "form"
+  | "section"
+  | "field";
 export type FormRole = "edit" | "add";
 export const levelMapping: Record<string, NodeLevel> = {
   0: "rootSection",
@@ -11,6 +16,35 @@ export const levelMapping: Record<string, NodeLevel> = {
   4: "field",
 };
 
+export const MULTI_LANGUAGE_FIELD = {
+  name: "translated",
+  defaultOne: "fr",
+  body: {
+    label: {
+      name: "value",
+      label: "definition_editor.node_form.field_label",
+    },
+    helpText: {
+      name: "value",
+      label: "definition_editor.node_form.field_help_text",
+    },
+  },
+  fr: {
+    label: "definition_editor.node_form.tab_french",
+    name: "fr",
+    locale: "fr-CA",
+  },
+  en: {
+    label: "definition_editor.node_form.tab_english",
+    name: "en",
+    locale: "en-US",
+  },
+};
+
+export const BOOLEAN_VIEW_LABELS = {
+  enabledLabel: 'true',
+  disabledLabel: 'false'
+}
 
 export const nodeFormLabels = {
   title: new KeyNamespace<FormRole, NodeLevel>({
@@ -46,35 +80,14 @@ export const nodeFormLabels = {
     name: "ordinal",
   },
   meta: {
-    name: 'meta',
+    name: "meta",
     isVisible: {
-      name: 'isVisible',
-      label: 'definition_editor.node_form.meta_is_visible'
-    }
+      name: "isVisible",
+      label: "definition_editor.node_form.meta_is_visible",
+    },
   },
   tabs: {
-    name: "translated",
-    defaultOne: "fr",
-    body: {
-      label: {
-        name: "value",
-        label: "definition_editor.node_form.field_label"
-      },
-      helpText: {
-        name: "value",
-        label: "definition_editor.node_form.field_help_text"
-      }
-    },
-    fr: {
-      label: "definition_editor.node_form.tab_french",
-      name: "fr",
-      locale: 'fr-CA'
-    },
-    en: {
-      label: "definition_editor.node_form.tab_english",
-      name: "en",
-      locale: 'en-US'
-    },
+    ...MULTI_LANGUAGE_FIELD,
   },
   sectionConfig: {
     name: "fieldDetails",
@@ -84,7 +97,8 @@ export const nodeFormLabels = {
       options: [
         {
           id: FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG,
-          label: "definition_editor.node_form.section_config_types_collapsible_container_field_config",
+          label:
+            "definition_editor.node_form.section_config_types_collapsible_container_field_config",
         },
       ],
       defaultOption: FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG,
@@ -92,11 +106,12 @@ export const nodeFormLabels = {
     collapsibleContainer: {
       name: "collapsibleContainer",
       isCollapsible: {
-        name: 'isCollapsible',
-        label: 'definition_editor.node_form.section_config_field_collapsible_container',
+        name: "isCollapsible",
+        label:
+          "definition_editor.node_form.section_config_field_collapsible_container",
         defaultValue: false,
-      }
-    }
+      },
+    },
   },
   fieldConfig: {
     name: "fieldDetails",
@@ -128,53 +143,55 @@ export const nodeFormLabels = {
           id: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG,
           label: "definition_editor.node_form.field_type_option_computation",
         },
-      ]
+      ],
     },
     bool: {
-      name: 'enabled',
+      name: "enabled",
       label: "definition_editor.node_form.field_bool_default_value",
     },
     int: {
-      name: 'integer',
+      name: "integer",
       label: "definition_editor.node_form.field_int_default_value",
     },
     decimal: {
-      name: 'numeric',
+      name: "numeric",
       label: "definition_editor.node_form.field_numeric_default_value",
     },
     string: {
-      name: 'text',
+      name: "text",
       label: "definition_editor.node_form.field_string_default_value",
       defaultValue: "",
     },
     staticChoice: {
       form: {
-        name: 'staticChoice',
+        name: "staticChoice",
         label: "definition_editor.node_form.field_static_choice",
       },
       selected: {
         name: "selected",
         label: "definition_editor.node_form.static_choice_default_selection",
-        fallbackLabel: "definition_editor.node_form.static_choice_no_choice_available"
+        fallbackLabel:
+          "definition_editor.node_form.static_choice_no_choice_available",
       },
       optionCardHeader: {
-        label: "definition_editor.node_form.static_choice_option_card_header_title"
+        label:
+          "definition_editor.node_form.static_choice_option_card_header_title",
       },
       options: {
         formElement: {
-          name: "options"
+          name: "options",
         },
         id: {
           name: "id",
-          label: "definition_editor.node_form.static_choice_option_id"
+          label: "definition_editor.node_form.static_choice_option_id",
         },
         label: {
           name: "label",
-          label: "definition_editor.node_form.static_choice_option_label"
+          label: "definition_editor.node_form.static_choice_option_label",
         },
         helpText: {
           name: "helpText",
-          label: "definition_editor.node_form.static_choice_option_help_text"
+          label: "definition_editor.node_form.static_choice_option_help_text",
         },
         tabs: {
           name: "translated",
@@ -182,47 +199,48 @@ export const nodeFormLabels = {
           body: {
             label: {
               name: "value",
-              label: "definition_editor.node_form.field_label"
+              label: "definition_editor.node_form.field_label",
             },
             helpText: {
               name: "value",
-              label: "definition_editor.node_form.field_help_text"
-            }
+              label: "definition_editor.node_form.field_help_text",
+            },
           },
           fr: {
             label: "definition_editor.node_form.tab_french",
             name: "fr",
-            locale: 'fr-CA'
+            locale: "fr-CA",
           },
           en: {
             label: "definition_editor.node_form.tab_english",
             name: "en",
-            locale: 'en-US'
+            locale: "en-US",
           },
-        }
-      }
+        },
+      },
     },
     unit: {
-      name: 'unit',
+      name: "unit",
       label: "definition_editor.node_form.field_unit",
     },
     precision: {
-      name: 'precision',
+      name: "precision",
       label: "definition_editor.node_form.field_precision",
       defaultPrecision: 3,
-      defaultValue: 0
+      defaultValue: 0,
     },
   },
   triggers: {
     name: "triggers",
     formTitle: "definition_editor.node_form.triggers_header_title",
     blankSlates: {
-      noTriggerYetLabel: "definition_editor.node_form.triggers_blank_slate_none_created"
+      noTriggerYetLabel:
+        "definition_editor.node_form.triggers_blank_slate_none_created",
     },
     action: {
       name: "action",
       label: "definition_editor.node_form.triggers_action",
-      defaultValue:  "SET_VISIBILITY",
+      defaultValue: "SET_VISIBILITY",
       options: [
         {
           id: "CHANGE_NAME",
@@ -234,19 +252,19 @@ export const nodeFormLabels = {
           label:
             "definition_editor.node_form.triggers_action_option_set_visibility_option",
         },
-      ]
+      ],
     },
     targetTypeId: {
       name: "targetTypeId",
-      label: ""
-    }
-  }
+      label: "",
+    },
+  },
 };
 
 export const collectionLabels = {
   title: new KeyMapping<FormRole>({
     add: "definition_editor.node_form.title_root_section_edit",
-    edit: "definition_editor.node_form.title_sub_section_edit"
+    edit: "definition_editor.node_form.title_sub_section_edit",
   }),
   name: {
     label: "definition_editor.node_form.field_name",
@@ -261,14 +279,14 @@ export const collectionLabels = {
     formTitle: "definition_editor.node_form.field_is_collection",
     schema: {
       details: {
-        name: "details"
+        name: "details",
       },
       name: {
-        name: 'name',
+        name: "name",
         label: "definition_editor.node_form.field_static_choice",
       },
       configType: {
-        name: 'kind',
+        name: "kind",
         label: "definition_editor.node_form.field_static_choice",
         options: [
           {
@@ -291,63 +309,65 @@ export const collectionLabels = {
             id: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
             label: "definition_editor.node_form.field_type_option_choice",
           },
-        ]
+        ],
       },
       bool: {
-        name: 'enabled',
+        name: "enabled",
         label: "definition_editor.node_form.field_bool_default_value",
       },
       int: {
-        name: 'integer',
+        name: "integer",
         label: "definition_editor.node_form.field_int_default_value",
       },
       decimal: {
-        name: 'numeric',
+        name: "numeric",
         label: "definition_editor.node_form.field_numeric_default_value",
       },
       string: {
-        name: 'text',
+        name: "text",
         label: "definition_editor.node_form.field_string_default_value",
         defaultValue: "",
       },
       unit: {
-        name: 'unit',
+        name: "unit",
         label: "definition_editor.node_form.field_unit",
       },
       precision: {
-        name: 'precision',
+        name: "precision",
         label: "definition_editor.node_form.field_precision",
         defaultPrecision: 3,
-        defaultValue: 0
+        defaultValue: 0,
       },
       staticChoice: {
         form: {
-          name: 'staticChoice',
+          name: "staticChoice",
           label: "definition_editor.node_form.field_static_choice",
         },
         selected: {
           name: "selected",
           label: "definition_editor.node_form.static_choice_default_selection",
-          fallbackLabel: "definition_editor.node_form.static_choice_no_choice_available"
+          fallbackLabel:
+            "definition_editor.node_form.static_choice_no_choice_available",
         },
         optionCardHeader: {
-          label: "definition_editor.node_form.static_choice_option_card_header_title"
+          label:
+            "definition_editor.node_form.static_choice_option_card_header_title",
         },
         options: {
           formElement: {
-            name: "options"
+            name: "options",
           },
           id: {
             name: "id",
-            label: "definition_editor.node_form.static_choice_option_id"
+            label: "definition_editor.node_form.static_choice_option_id",
           },
           label: {
             name: "label",
-            label: "definition_editor.node_form.static_choice_option_label"
+            label: "definition_editor.node_form.static_choice_option_label",
           },
           helpText: {
             name: "helpText",
-            label: "definition_editor.node_form.static_choice_option_help_text"
+            label: "definition_editor.node_form.static_choice_option_help_text",
           },
           tabs: {
             name: "translated",
@@ -355,26 +375,26 @@ export const collectionLabels = {
             body: {
               label: {
                 name: "value",
-                label: "definition_editor.node_form.field_label"
+                label: "definition_editor.node_form.field_label",
               },
               helpText: {
                 name: "value",
-                label: "definition_editor.node_form.field_help_text"
-              }
+                label: "definition_editor.node_form.field_help_text",
+              },
             },
             fr: {
               label: "definition_editor.node_form.tab_french",
               name: "fr",
-              locale: 'fr-CA'
+              locale: "fr-CA",
             },
             en: {
               label: "definition_editor.node_form.tab_english",
               name: "en",
-              locale: 'en-US'
+              locale: "en-US",
             },
-          }
-        }
-      }
-    }
-  }
-}
+          },
+        },
+      },
+    },
+  },
+};

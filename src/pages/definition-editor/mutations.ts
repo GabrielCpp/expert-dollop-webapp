@@ -246,6 +246,14 @@ export const ADD_AGGREGATE = gql`
       name
       ordinal
       isExtendable
+      translated {
+        id
+        ressourceId
+        locale
+        scope
+        name
+        value
+      }
       attributes {
         name
         isReadonly
@@ -291,6 +299,14 @@ export const UPDATE_AGGREGATE = gql`
       name
       ordinal
       isExtendable
+      translated {
+        id
+        ressourceId
+        locale
+        scope
+        name
+        value
+      }
       attributes {
         name
         isReadonly
@@ -314,5 +330,19 @@ export const UPDATE_AGGREGATE = gql`
         }
       }
     }
+  }
+`;
+
+export const DELETE_AGGREGATE = gql`
+  mutation deleteAggregate(
+    $projectDefinitionId: ID!
+    $collectionId: ID!
+    $aggregateId: ID!
+  ) {
+    deleteAggregate(
+      projectDefinitionId: $projectDefinitionId
+      collectionId: $collectionId
+      aggregateId: $aggregateId
+    )
   }
 `;

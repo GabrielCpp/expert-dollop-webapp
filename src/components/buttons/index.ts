@@ -12,4 +12,5 @@ export {
   OutlinedButtonLink,
   AddButtonLinkFullWidth,
   CheckIconButton,
+  CloseIconButton,
 } from "./common-buttons";

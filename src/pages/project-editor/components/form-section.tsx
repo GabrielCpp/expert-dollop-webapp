@@ -18,7 +18,7 @@ import {
   UnpadCardContent,
 } from "../../../components/custom-styles";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { usePopupMenu } from "../../../components/menus";
+import { usePopupMenu } from "../../../components/global-loading/menus";
 import {
   ALERT_NOTIFICATION,
   scrollTop,

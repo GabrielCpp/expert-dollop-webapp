@@ -1,17 +1,14 @@
 import FilterListIcon from "@mui/icons-material/FilterList";
 import {
   Alert,
-  Box,
   ButtonGroup,
   debounce,
   Grid,
-  Stack,
   styled,
   TextField,
 } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import Paper from "@mui/material/Paper";
-import { lighten } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -22,23 +19,24 @@ import TableRow from "@mui/material/TableRow";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { last } from "lodash";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAsync, useMethods } from "react-use";
+import { v4 as uuidv4 } from "uuid";
 import { PageFetcher, ResultSet } from "../../shared/async-cursor";
+import { theme } from "../../theme";
 import {
   AddButtonLink,
   CheckIconButton,
+  CloseIconButton,
   DeleteButtonLink,
   EditButtonLink,
 } from "../buttons";
-import { v4 as uuidv4 } from "uuid";
-import { theme } from "../../theme";
 
 export interface HeadCell<Data> {
   id: string;
   label: string;
-  render: (props: { data: Data }) => JSX.Element;
+  render: (props: { id: string; data: Data }) => JSX.Element | null;
   align?: "inherit" | "left" | "right" | "center" | "justify" | undefined;
   padding?: "none" | "normal";
 }
@@ -57,10 +55,6 @@ export function createHeadCell<Data>(
     align,
     padding,
   };
-}
-
-interface MoreProps {
-  highlight: boolean;
 }
 
 const TitleTypography = styled(Typography)(() => ({
@@ -89,13 +83,13 @@ export interface CrudView<Data extends Identified, NewData> {
     label: string;
     makeDefaultRow: () => NewData;
     columns: HeadCell<NewData>[];
-    create: (data: NewData) => Promise<void>;
+    create: (id: string, data: NewData) => Promise<boolean>;
   };
 
   edition?: {
     label: string;
     columns: HeadCell<NewData>[];
-    update: (id: string, data: NewData) => Promise<void>;
+    update: (id: string, data: NewData) => Promise<boolean>;
     convertToEditable: (d: Data) => NewData;
   };
   deletion?: {
@@ -160,7 +154,8 @@ interface TableReducer<Data extends Identified, NewData> {
   }): PageModel<Data, NewData>;
   toogleSelection(id: string): PageModel<Data, NewData>;
   toogleSelectAll(allSelected: boolean): PageModel<Data, NewData>;
-  appendRowCreationView(data: NewData): PageModel<Data, NewData>;
+  prependRowCreationView(data: NewData): PageModel<Data, NewData>;
+  removes(ids: string[]): PageModel<Data, NewData>;
 }
 
 function createMethods<Data extends Identified, NewData>(
@@ -208,7 +203,7 @@ function createMethods<Data extends Identified, NewData>(
   }
 
   function popCursor(): string[] {
-    const { nextPageCursor, cursors } = state.page;
+    const { cursors } = state.page;
 
     if (cursors.length === 0) {
       return cursors;
@@ -360,10 +355,17 @@ function createMethods<Data extends Identified, NewData>(
     };
   }
 
-  function appendRowCreationView(data: NewData): PageModel<Data, NewData> {
+  function prependRowCreationView(data: NewData): PageModel<Data, NewData> {
     return {
       ...state,
       rows: preprendNewRow(data),
+    };
+  }
+
+  function removes(ids: string[]): PageModel<Data, NewData> {
+    return {
+      ...state,
+      rows: state.rows.filter((r) => !ids.includes(r.id)),
     };
   }
 
@@ -375,7 +377,8 @@ function createMethods<Data extends Identified, NewData>(
     switchViews,
     toogleSelection,
     toogleSelectAll,
-    appendRowCreationView,
+    prependRowCreationView,
+    removes,
   };
 }
 
@@ -429,14 +432,14 @@ export function PaginatedDataGrid<Data extends Identified, NewData = unknown>({
   const nextPage = useCallback(async () => {
     const result = await fetch(lastQuery, rowsPerPage, nextPageCursor);
     methods.nextPage(result);
-  }, [methods, fetch, headers, lastQuery, rowsPerPage, nextPageCursor]);
+  }, [methods, fetch, lastQuery, rowsPerPage, nextPageCursor]);
 
   const previousPage = useCallback(async () => {
     const lastCursor =
       cursors.length <= 1 ? undefined : cursors[cursors.length - 2];
     const result = await fetch(lastQuery, rowsPerPage, lastCursor);
     methods.previousPage(result);
-  }, [fetch, methods, headers, lastQuery, rowsPerPage, cursors]);
+  }, [fetch, methods, lastQuery, rowsPerPage, cursors]);
 
   const filterByQuery = useCallback(
     async (query: string) => {
@@ -447,7 +450,7 @@ export function PaginatedDataGrid<Data extends Identified, NewData = unknown>({
         rowsPerPage,
       });
     },
-    [fetch, methods, headers, rowsPerPage]
+    [fetch, methods, rowsPerPage]
   );
   const refetch = useCallback(
     async (newRowsPerPage?: number) => {
@@ -487,7 +490,7 @@ export function PaginatedDataGrid<Data extends Identified, NewData = unknown>({
           filterByQuery={filterByQuery}
           globalActions={globalActions}
           methods={methods}
-          appendRowCreationView={methods.appendRowCreationView}
+          prependRowCreationView={methods.prependRowCreationView}
           crud={crud}
         />
         <TableContainer>
@@ -500,7 +503,7 @@ export function PaginatedDataGrid<Data extends Identified, NewData = unknown>({
             <EnhancedTableBody<Data, NewData>
               rows={state.rows}
               columnsViews={state.columnsViews}
-              toogleSelection={methods.toogleSelection}
+              methods={methods}
               refetch={refetch}
               crud={crud}
             />
@@ -574,7 +577,7 @@ interface EnhancedTableToolbarProps<Data extends Identified, NewData> {
   selection: string[];
   refetch: () => Promise<void>;
   filterByQuery: (query: string) => Promise<void>;
-  appendRowCreationView: (newRow: NewData) => void;
+  prependRowCreationView: (newRow: NewData) => void;
   methods: TableReducer<Data, NewData>;
   globalActions?: GlobalActionComponent;
   crud?: CrudView<Data, NewData>;
@@ -585,14 +588,14 @@ function EnhancedTableToolbar<Data extends Identified, NewData>({
   selection,
   refetch,
   filterByQuery,
-  appendRowCreationView,
+  prependRowCreationView,
   methods,
   crud,
 }: EnhancedTableToolbarProps<Data, NewData>) {
   const [query, setQuery] = useState("");
   const debouncedFilterByQuery = useMemo(
     () => debounce(filterByQuery, 500),
-    [debounce, filterByQuery]
+    [filterByQuery]
   );
 
   const onQueryChange = useCallback(
@@ -606,9 +609,9 @@ function EnhancedTableToolbar<Data extends Identified, NewData>({
   const addRow = useCallback(() => {
     if (crud?.creation) {
       const newRow = crud.creation.makeDefaultRow();
-      appendRowCreationView(newRow);
+      prependRowCreationView(newRow);
     }
-  }, [appendRowCreationView, crud]);
+  }, [prependRowCreationView, crud]);
 
   const editRows = useCallback(() => {
     if (crud?.edition) {
@@ -618,7 +621,7 @@ function EnhancedTableToolbar<Data extends Identified, NewData>({
       });
       methods.toogleSelectAll(false);
     }
-  }, [appendRowCreationView, crud, selection]);
+  }, [methods, crud, selection]);
 
   const deleteRows = useCallback(async () => {
     if (crud?.deletion) {
@@ -626,7 +629,7 @@ function EnhancedTableToolbar<Data extends Identified, NewData>({
       methods.toogleSelectAll(false);
       await refetch();
     }
-  }, [crud, selection]);
+  }, [methods, refetch, crud, selection]);
 
   return (
     <Toolbar
@@ -729,14 +732,14 @@ function EnhancedTableHead<Data extends Identified, NewData>({
 interface TableBodyProps<Data extends Identified, NewData> {
   rows: PageModel<Data, NewData>["rows"];
   columnsViews: PageModel<Data, NewData>["columnsViews"];
-  toogleSelection: (id: string) => void;
+  methods: TableReducer<Data, NewData>;
   refetch: () => Promise<void>;
   crud?: CrudView<Data, NewData>;
 }
 
 function EnhancedTableBody<Data extends Identified, NewData>({
   rows,
-  toogleSelection,
+  methods,
   refetch,
   crud,
   columnsViews,
@@ -748,7 +751,7 @@ function EnhancedTableBody<Data extends Identified, NewData>({
           key={row.id}
           row={row}
           columnsViews={columnsViews}
-          toogleSelection={toogleSelection}
+          methods={methods}
           refetch={refetch}
           crud={crud}
         />
@@ -760,29 +763,39 @@ function EnhancedTableBody<Data extends Identified, NewData>({
 interface EnhancedTableRowProps<Data extends Identified, NewData> {
   row: PageModel<Data, NewData>["rows"][number];
   columnsViews: PageModel<Data, NewData>["columnsViews"];
-  toogleSelection: (id: string) => void;
+  methods: TableReducer<Data, NewData>;
   refetch: () => Promise<void>;
   crud?: CrudView<Data, NewData>;
 }
 
+type Row<Data extends Identified, NewData> = PageModel<
+  Data,
+  NewData
+>["rows"][number];
+
 function EnhancedTableRow<Data extends Identified, NewData>({
   row,
-  toogleSelection,
   refetch,
+  methods,
   crud,
   columnsViews,
 }: EnhancedTableRowProps<Data, NewData>) {
-  const completeCreation = async (
-    row: PageModel<Data, NewData>["rows"][number]
-  ) => {
-    await crud?.creation?.create(row.data as NewData);
+  const completeCreation = async (row: Row<Data, NewData>) => {
+    await crud?.creation?.create(row.id, row.data as NewData);
     await refetch();
   };
 
-  const completeEdition = async (
-    row: PageModel<Data, NewData>["rows"][number]
-  ) => {
+  const completeEdition = async (row: Row<Data, NewData>) => {
     await crud?.edition?.update(row.id, row.data as NewData);
+    methods.switchViews({ ids: [row.id], viewType: "view" });
+  };
+
+  const cancelAction = (row: Row<Data, NewData>) => {
+    if (row.viewType === "edition") {
+      methods.switchViews({ ids: [row.id], viewType: "view" });
+    } else if (row.viewType === "creation") {
+      methods.removes([row.id]);
+    }
   };
 
   const data: Data | NewData | undefined =
@@ -805,7 +818,7 @@ function EnhancedTableRow<Data extends Identified, NewData>({
         <TableCell
           key={row.viewType}
           padding="checkbox"
-          onClick={() => toogleSelection(row.id)}
+          onClick={() => methods.toogleSelection(row.id)}
         >
           <Checkbox checked={row.isSelected} />
         </TableCell>
@@ -814,18 +827,20 @@ function EnhancedTableRow<Data extends Identified, NewData>({
       {row.viewType === "creation" && (
         <TableCell key={row.viewType} padding="checkbox">
           <CheckIconButton onClick={() => completeCreation(row)} />
+          <CloseIconButton onClick={() => cancelAction(row)} />
         </TableCell>
       )}
 
       {row.viewType === "edition" && (
         <TableCell key={row.viewType} padding="checkbox">
           <CheckIconButton onClick={() => completeEdition(row)} />
+          <CloseIconButton onClick={() => cancelAction(row)} />
         </TableCell>
       )}
 
       {columnsViews[row.viewType].map(({ id, render: Component }) => (
         <TableCell scope="row" padding="none" key={id}>
-          <Component data={data as Data & NewData} />
+          <Component id={row.id} data={data as Data & NewData} />
         </TableCell>
       ))}
     </TableRow>

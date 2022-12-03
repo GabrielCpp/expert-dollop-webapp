@@ -2,6 +2,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 import { Button, IconButton, Tooltip, styled } from "@mui/material";
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,6 +26,15 @@ export function CheckIconButton(props: ButtonLinkProps) {
     ...getLinkProps(props),
     ...getTranslations(t, props),
     label: <CheckIcon fontSize="inherit" />,
+  });
+}
+export function CloseIconButton(props: ButtonLinkProps) {
+  const { t } = useTranslation();
+  return buildButton(IconButton, {
+    ...props,
+    ...getLinkProps(props),
+    ...getTranslations(t, props),
+    label: <CloseIcon fontSize="inherit" />,
   });
 }
 

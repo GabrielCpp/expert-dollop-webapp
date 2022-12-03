@@ -77,7 +77,7 @@ export class Table {
     const records: T[] = [];
 
     for (const record of this.primaryIndex.records.values()) {
-      if (predicate(record.value as T)) {
+      if (record.value && predicate(record.value as T)) {
         records.push(record.value as T);
       }
     }

@@ -19,22 +19,22 @@ interface UseHiddenFieldResult {
 
 interface UseHiddenFieldParams {
   name: string,
-  path: string[],
-  value: any,
+  parentPath: string[],
+  value: unknown,
   id?: string;
   metadata?: Record<string, unknown>
   watch?: string[]
   makeValue?: (...values: unknown[]) => unknown
 }
 
-export function useHiddenField({ name, path, value, id, metadata, watch = [], makeValue = identity }: UseHiddenFieldParams): UseHiddenFieldResult {
+export function useHiddenField({ name, parentPath, value, id, metadata, watch = [], makeValue = identity }: UseHiddenFieldParams): UseHiddenFieldResult {
   const { reduxDb } = useServices();
   const fieldId = useId(id);
   const makeRecord = useCallback(
     () =>
       createFormFieldRecord(
         true,
-        path,
+        parentPath,
         name,
         value,
         String(value),
@@ -42,7 +42,7 @@ export function useHiddenField({ name, path, value, id, metadata, watch = [], ma
         [],
         metadata
       ),
-    [path, name, value, fieldId, metadata]
+    [parentPath, name, value, fieldId, metadata]
   );
   const [record, setRecord] = useState(makeRecord);
   const updateRecord = useCallback((patchedRecord: Partial<FormFieldRecord>) => {

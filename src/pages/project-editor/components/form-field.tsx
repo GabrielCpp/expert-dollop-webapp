@@ -3,7 +3,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Card, CardActions, CardContent, IconButton } from "@mui/material";
 import { LeftSideButton } from "../../../components/custom-styles";
 import { useLoaderEffect } from "../../../components/loading-frame";
-import { usePopupMenu } from "../../../components/menus";
+import { usePopupMenu } from "../../../components/global-loading/menus";
 import {
   ALERT_NOTIFICATION,
   scrollTop,
