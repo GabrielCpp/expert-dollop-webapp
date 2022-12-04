@@ -20,8 +20,8 @@ interface MultiLanguageFieldProps {
   name: string;
   translations: TranslationInput[];
   nameId: string;
-  labelTranslationKeyName?: string;
-  helpTextTranslationKeyName?: string;
+  labelTranslationKeyName: string;
+  helpTextTranslationKeyName: string;
   active?: boolean;
   labels: {
     name: string;

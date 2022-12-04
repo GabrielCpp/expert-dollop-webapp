@@ -206,10 +206,10 @@ function AggregatesTable({
       label: "translated",
       render: ({ id, data }) => {
         return (
-          <ul>
+          <ul key={id}>
             {data.translated.map((translation) => (
-              <li>
-                <Typography key={translation.id}>
+              <li key={translation.id}>
+                <Typography>
                   {translation.locale}:{translation.value}
                 </Typography>
               </li>
@@ -269,6 +269,8 @@ function AggregatesTable({
             nameId={`${id}-name`}
             translations={data.translated}
             labels={MULTI_LANGUAGE_FIELD}
+            helpTextTranslationKeyName={`${data.name}_help_text`}
+            labelTranslationKeyName={data.name}
             t={t}
           />
         );

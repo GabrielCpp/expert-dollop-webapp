@@ -2,6 +2,9 @@ import { FormEvent, useCallback } from "react";
 import { Services, useServices } from "../../../services-def";
 import { ReduxDatabase } from "../../../shared/redux-db";
 import { hydrateForm, validateForm } from "../form-field-record";
+import bindDebug from 'debug'
+
+const debug = bindDebug('form')
 
 export function useSaveForm<T>(
   formPath: string | string[],
@@ -38,7 +41,7 @@ export async function saveForm<T>(
     if (validateForm(reduxDb, ajv)(path) === false) {
       return false;
     }
-    console.log(formData)
+    debug(formData)
     await save(formData);
   } catch (e) {
     loader.onError(e as Error);

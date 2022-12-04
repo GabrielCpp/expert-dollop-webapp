@@ -247,7 +247,6 @@ export const ADD_AGGREGATE = gql`
       ordinal
       isExtendable
       translated {
-        id
         ressourceId
         locale
         scope
@@ -300,7 +299,6 @@ export const UPDATE_AGGREGATE = gql`
       ordinal
       isExtendable
       translated {
-        id
         ressourceId
         locale
         scope

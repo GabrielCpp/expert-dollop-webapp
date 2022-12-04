@@ -1056,7 +1056,6 @@ export type TranslationInput = {
 };
 
 export type TranslationUpdateInput = {
-  id: Scalars["ID"];
   locale: Scalars["String"];
   name: Scalars["String"];
   ressourceId: Scalars["String"];
@@ -1498,7 +1497,7 @@ export type AddAggregateMutation = { __typename?: "Mutation" } & {
       translated: Array<
         { __typename?: "Translation" } & Pick<
           Translation,
-          "id" | "ressourceId" | "locale" | "scope" | "name" | "value"
+          "ressourceId" | "locale" | "scope" | "name" | "value"
         >
       >;
       attributes: Array<
@@ -1549,7 +1548,7 @@ export type UpdateAggregateMutation = { __typename?: "Mutation" } & {
       translated: Array<
         { __typename?: "Translation" } & Pick<
           Translation,
-          "id" | "ressourceId" | "locale" | "scope" | "name" | "value"
+          "ressourceId" | "locale" | "scope" | "name" | "value"
         >
       >;
       attributes: Array<
@@ -4043,7 +4042,6 @@ export const AddAggregateDocument = gql`
       ordinal
       isExtendable
       translated {
-        id
         ressourceId
         locale
         scope
@@ -4140,7 +4138,6 @@ export const UpdateAggregateDocument = gql`
       ordinal
       isExtendable
       translated {
-        id
         ressourceId
         locale
         scope
