@@ -10,6 +10,7 @@ import {
   TableRecord,
 } from "../../shared/redux-db";
 import { ReduxDatabase } from "../../shared/redux-db/database";
+import { FormTheme } from "./form-theme-context";
 
 export const FormFieldTableName = "form-field";
 export type FormFieldError = ErrorObject<string, Record<string, any>, unknown>;
@@ -22,6 +23,7 @@ export interface FieldChildren {
   errors: FormFieldError[];
   onChange: (value: unknown) => void;
   t: Translator;
+  formTheme: FormTheme
 }
 
 export interface SelectOption {

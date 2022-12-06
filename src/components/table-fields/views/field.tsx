@@ -1,14 +1,16 @@
 import { AnySchema } from "ajv";
 import { identity, isBoolean } from "lodash";
+import { useContext } from "react";
 import {
   FieldChildren,
   FormFieldRecord,
   Translator,
 } from "../form-field-record";
+import { FormThemeContext } from "../form-theme-context";
 import {
   useField,
-  ViewValueFormatter,
   ValueToFormModel,
+  ViewValueFormatter,
 } from "../hooks/use-field";
 
 export interface FieldProps<T extends FieldChildren> {
@@ -41,6 +43,7 @@ export function Field<T extends FieldChildren>({
   sideEffect,
   ...others
 }: FieldProps<T> & Omit<T, keyof FieldChildren>) {
+  const formTheme = useContext(FormThemeContext);
   const { onChange, record } = useField({
     path,
     name,
@@ -65,6 +68,7 @@ export function Field<T extends FieldChildren>({
     errors: record.errors,
     onChange,
     t,
+    formTheme,
     ...others,
   };
 

@@ -1,4 +1,5 @@
 import {
+  Box,
   Card,
   CardContent,
   Grid,
@@ -25,17 +26,16 @@ import { useLoadingNotifier } from "../../../components/loading-frame";
 import {
   BOOLEAN_VALIDATOR,
   checkboxField,
+  createFormTheme,
   Field,
+  FormThemeContext,
   HiddenField,
-  hydrateForm,
   INT_VALIDATOR,
   NamedFormSection,
+  saveForm,
+  switchField,
   textField,
   USER_STRING_VALIDATOR,
-  switchField,
-  getFieldValue,
-  findFormRecordByName,
-  saveForm,
 } from "../../../components/table-fields";
 import {
   AggregateInput,
@@ -55,8 +55,8 @@ import { MultiLanguageField } from "../forms/multi-language-field";
 import { CONFIG_INSTANCIATIONS } from "../mappings/config-mapping";
 import {
   FIELD_VALUE_TO_INPUT,
-  VALUE_FORM_COMPONENT_FACTORIES,
   VALUE_COMPONENT_FACTORIES,
+  VALUE_FORM_COMPONENT_FACTORIES,
 } from "../mappings/field-value-mapping";
 import {
   DEFINITION_AGGREGATE_COLLECTION_ADD,
@@ -125,6 +125,7 @@ function AggregatesTable({
   projectDefinitionId,
   collection,
 }: AggregatesTableProps) {
+  const [formTheme] = useState(() => createFormTheme({ size: "small" }));
   const { t } = useTranslation();
   const { apollo, reduxDb, ajv, loader } = useServices();
   const { onError } = useLoadingNotifier();
@@ -226,7 +227,11 @@ function AggregatesTable({
     {
       id: "isExtendable",
       label: "isExtendable",
-      render: ({ data }) => <Typography>{data.isExtendable}</Typography>,
+      render: ({ data }) => (
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <Typography>{data.isExtendable}</Typography>
+        </Box>
+      ),
     },
     ...collection.attributesSchema.map((c) => ({
       id: c.name,
@@ -263,16 +268,18 @@ function AggregatesTable({
       label: "translated",
       render: ({ id, data }) => {
         return (
-          <MultiLanguageField
-            parentPath={[id]}
-            name="translated"
-            nameId={`${id}-name`}
-            translations={data.translated}
-            labels={MULTI_LANGUAGE_FIELD}
-            helpTextTranslationKeyName={`${data.name}_help_text`}
-            labelTranslationKeyName={data.name}
-            t={t}
-          />
+          <Box sx={{ m: 0.5 }}>
+            <MultiLanguageField
+              parentPath={[id]}
+              name="translated"
+              nameId={`${id}-name`}
+              translations={data.translated}
+              labels={MULTI_LANGUAGE_FIELD}
+              helpTextTranslationKeyName={`${data.name}_help_text`}
+              labelTranslationKeyName={data.name}
+              t={t}
+            />
+          </Box>
         );
       },
     },
@@ -297,54 +304,58 @@ function AggregatesTable({
       id: "isExtendable",
       label: "isExtendable",
       render: ({ id, data }) => (
-        <Field
-          validator={BOOLEAN_VALIDATOR}
-          defaultValue={data.isExtendable}
-          path={[id]}
-          name="isExtendable"
-          t={t}
-          component={checkboxField}
-          checkboxProps={{
-            size: "small",
-          }}
-        />
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <Field
+            validator={BOOLEAN_VALIDATOR}
+            defaultValue={data.isExtendable}
+            path={[id]}
+            name="isExtendable"
+            t={t}
+            component={checkboxField}
+            checkboxProps={{
+              size: "small",
+            }}
+          />
+        </Box>
       ),
     },
     ...collection.attributesSchema.map((c, index) => ({
       id: c.name,
       label: c.name,
       render: ({ id, data }: { id: string; data: AggregateInput }) => (
-        <NamedFormSection
-          name="attributes"
-          ordinal={index}
-          parentPath={id}
-          spacing={0}
-          padding={0}
-        >
-          {(p) => [
-            VALUE_FORM_COMPONENT_FACTORIES[c.details.__typename](
-              p,
-              data.attributes.find((x) => x.name === c.name)?.value || null,
-              c.details
-            ),
-            <HiddenField
-              name="name"
-              key="name"
-              parentPath={p}
-              value={c.name}
-            />,
-            <Field
-              validator={BOOLEAN_VALIDATOR}
-              defaultValue={false}
-              path={p}
-              name="isReadonly"
-              key="isReadonly"
-              label="isReadonly"
-              t={t}
-              component={switchField}
-            />,
-          ]}
-        </NamedFormSection>
+        <Box sx={{ m: 0.5 }}>
+          <NamedFormSection
+            name="attributes"
+            ordinal={index}
+            parentPath={id}
+            spacing={0}
+            padding={0}
+          >
+            {(p) => [
+              VALUE_FORM_COMPONENT_FACTORIES[c.details.__typename](
+                p,
+                data.attributes.find((x) => x.name === c.name)?.value || null,
+                c.details
+              ),
+              <HiddenField
+                name="name"
+                key="name"
+                parentPath={p}
+                value={c.name}
+              />,
+              <Field
+                validator={BOOLEAN_VALIDATOR}
+                defaultValue={false}
+                path={p}
+                name="isReadonly"
+                key="isReadonly"
+                label="isReadonly"
+                t={t}
+                component={switchField}
+              />,
+            ]}
+          </NamedFormSection>
+        </Box>
       ),
     })),
   ];
@@ -393,11 +404,13 @@ function AggregatesTable({
   };
 
   return (
-    <PaginatedDataGrid<Result, AggregateInput>
-      fetch={fetch}
-      headers={headers}
-      crud={crudView}
-    />
+    <FormThemeContext.Provider value={formTheme}>
+      <PaginatedDataGrid<Result, AggregateInput>
+        fetch={fetch}
+        headers={headers}
+        crud={crudView}
+      />
+    </FormThemeContext.Provider>
   );
 }
 

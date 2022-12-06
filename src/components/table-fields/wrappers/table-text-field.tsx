@@ -1,6 +1,7 @@
 import { InputAdornment, TextField, Typography, Tooltip } from "@mui/material";
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import { FieldChildren } from "../form-field-record";
+import { FormThemeContext } from "../form-theme-context";
 import { FieldLabel } from "../views";
 
 export interface TextFieldProps extends FieldChildren {
@@ -23,6 +24,7 @@ export function textField({
   startAdornment,
   t,
   textProps,
+  formTheme,
 }: TextFieldProps): JSX.Element {
   return (
     <TextField
@@ -41,6 +43,7 @@ export function textField({
           </span>
         ))}
       error={errors?.length > 0}
+      size={formTheme.size}
       {...textProps}
       style={{ width: "100%" }}
       InputLabelProps={{ style: { pointerEvents: "auto" }, shrink: true }}

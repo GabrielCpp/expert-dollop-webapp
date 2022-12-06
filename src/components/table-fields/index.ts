@@ -29,3 +29,4 @@ export {
   getJsxElements,
   fallbackWhenEmpty,
 } from "./helpers";
+export { FormThemeContext, createFormTheme } from './form-theme-context'

@@ -27,6 +27,7 @@ export function selectField({
   onChange,
   t,
   options,
+  formTheme,
 }: SelectProps) {
   const isValueInOptions = options.some((o) => o.id === value);
 
@@ -45,6 +46,7 @@ export function selectField({
         label={t(label)}
         labelId={id}
         id={id}
+        size={formTheme.size}
       >
         {fallbackSelection && !isValueInOptions && (
           <MenuItem key={DefaultEmptyId} value={DefaultEmptyId}>
