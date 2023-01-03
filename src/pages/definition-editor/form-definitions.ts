@@ -42,9 +42,9 @@ export const MULTI_LANGUAGE_FIELD = {
 };
 
 export const BOOLEAN_VIEW_LABELS = {
-  enabledLabel: 'true',
-  disabledLabel: 'false'
-}
+  enabledLabel: "true",
+  disabledLabel: "false",
+};
 
 export const nodeFormLabels = {
   title: new KeyNamespace<FormRole, NodeLevel>({
@@ -263,31 +263,31 @@ export const nodeFormLabels = {
 
 export const collectionLabels = {
   title: new KeyMapping<FormRole>({
-    add: "definition_editor.node_form.title_root_section_edit",
-    edit: "definition_editor.node_form.title_sub_section_edit",
+    add: "definition_editor.collection_form.title_add",
+    edit: "definition_editor.collection_form.title_edit",
   }),
   name: {
-    label: "definition_editor.node_form.field_name",
+    label: "definition_editor.collection_form.name",
     name: "name",
   },
   isAbstract: {
-    label: "definition_editor.node_form.field_is_collection",
+    label: "definition_editor.collection_form.is_abstract",
     name: "isAbstract",
   },
   attributesSchema: {
     name: "attributesSchema",
-    formTitle: "definition_editor.node_form.field_is_collection",
+    formTitle: "definition_editor.collection_form.title_attribute",
     schema: {
       details: {
         name: "details",
       },
       name: {
         name: "name",
-        label: "definition_editor.node_form.field_static_choice",
+        label: "definition_editor.collection_form.name",
       },
       configType: {
         name: "kind",
-        label: "definition_editor.node_form.field_static_choice",
+        label: "definition_editor.collection_form.field_kind",
         options: [
           {
             id: FieldDetailsType.STRING_FIELD_CONFIG,

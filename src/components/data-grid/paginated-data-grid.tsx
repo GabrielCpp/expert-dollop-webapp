@@ -23,6 +23,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAsync, useMethods } from "react-use";
 import { v4 as uuidv4 } from "uuid";
+
 import { PageFetcher, ResultSet } from "../../shared/async-cursor";
 import { theme } from "../../theme";
 import {
@@ -156,6 +157,7 @@ interface TableReducer<Data extends Identified, NewData> {
   toogleSelectAll(allSelected: boolean): PageModel<Data, NewData>;
   prependRowCreationView(data: NewData): PageModel<Data, NewData>;
   removes(ids: string[]): PageModel<Data, NewData>;
+  setViewColumns(view: HeadCell<Data>[]): PageModel<Data, NewData>;
 }
 
 function createMethods<Data extends Identified, NewData>(
@@ -369,6 +371,16 @@ function createMethods<Data extends Identified, NewData>(
     };
   }
 
+  function setViewColumns(view: HeadCell<Data>[]): PageModel<Data, NewData> {
+    return {
+      ...state,
+      columnsViews: {
+        ...state.columnsViews,
+        view,
+      },
+    };
+  }
+
   return {
     reset,
     refetch,
@@ -379,6 +391,7 @@ function createMethods<Data extends Identified, NewData>(
     toogleSelectAll,
     prependRowCreationView,
     removes,
+    setViewColumns,
   };
 }
 
@@ -413,10 +426,15 @@ export function useTableReducer<Data extends Identified, NewData = unknown>(
   const [inititalState] = useState(() =>
     buildInitialState(defaultRowsPerPage, headers, crud)
   );
-  return useMethods<TableReducer<Data, NewData>, PageModel<Data, NewData>>(
-    createMethods,
-    inititalState
-  ) as [PageModel<Data, NewData>, TableReducer<Data, NewData>];
+  const reducers = useMethods<
+    TableReducer<Data, NewData>,
+    PageModel<Data, NewData>
+  >(createMethods, inititalState) as [
+    PageModel<Data, NewData>,
+    TableReducer<Data, NewData>
+  ];
+
+  return reducers;
 }
 
 export function PaginatedDataGrid<Data extends Identified, NewData = unknown>({
@@ -838,11 +856,13 @@ function EnhancedTableRow<Data extends Identified, NewData>({
         </TableCell>
       )}
 
-      {columnsViews[row.viewType].map(({ id, render: Component }) => (
-        <TableCell scope="row" padding="none" key={id}>
-          <Component id={row.id} data={data as Data & NewData} />
-        </TableCell>
-      ))}
+      {columnsViews[row.viewType].map(
+        ({ id, render: Component, padding, align }) => (
+          <TableCell scope="row" padding={padding} align={align} key={id}>
+            <Component id={row.id} data={data as Data & NewData} />
+          </TableCell>
+        )
+      )}
     </TableRow>
   );
 }

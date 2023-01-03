@@ -12,7 +12,7 @@ import {
   useFormFieldValueRef,
   Field,
   STRING_VALIDATOR,
-  selectField,
+  SelectField,
   FieldArrayElementPicker,
   textField,
   useNodePickerState,
@@ -51,10 +51,10 @@ export function CollectionAttributesSchema({
 }: CollectionAttributesSchemaProps) {
   const { t } = useTranslation();
   const { reduxDb } = useServices();
-  const { push, remove, elements } = useFieldArray(
-    makeDefaultattributeSchema,
-    getAttributeSchemas(attributesSchema)
-  );
+  const { insert, remove, elements } = useFieldArray({
+    createElement: makeDefaultattributeSchema,
+    initialState: getAttributeSchemas(attributesSchema),
+  });
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(
     head(elements)?.id
   );
@@ -70,8 +70,10 @@ export function CollectionAttributesSchema({
   }, [remove, setCurrentNodeId, elements, currentNodeId]);
 
   const addElement = useCallback(() => {
-    push({ onAdded: (e) => setCurrentNodeId(e.id) });
-  }, [push, setCurrentNodeId]);
+    insert({
+      after: (e) => setCurrentNodeId(e.id),
+    });
+  }, [insert, setCurrentNodeId]);
 
   const getLabel = useCallback(
     (e?: FieldArrayElement<AggregateAttributeSchema>) =>
@@ -155,8 +157,7 @@ function makeDefaultattributeSchema(
 
 const getAttributeSchemas =
   (attributeSchema: AggregateAttributeSchemaInput[]) =>
-  (makeId: IdGenerator) =>
-  (): FieldArrayElement<AggregateAttributeSchema>[] => {
+  (makeId: IdGenerator): FieldArrayElement<AggregateAttributeSchema>[] => {
     return attributeSchema.map((schema, index) => ({
       id: makeId(),
       metadata: {
@@ -217,7 +218,7 @@ function CollectionAttributeSchema({
         key={labels.schema.configType.name}
         label={labels.schema.configType.label}
         t={t}
-        component={selectField}
+        component={SelectField}
         options={labels.schema.configType.options}
       />
       {value === FieldDetailsType.INT_FIELD_CONFIG && (

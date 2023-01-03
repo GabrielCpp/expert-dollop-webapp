@@ -658,3 +658,117 @@ export const FIND_AGGREGATE_COLLECTION = gql`
     }
   }
 `;
+
+export const REPORT_VIEW = gql`
+  query reportView($projectDefinitionId: ID!) {
+    findDefinitionAggregateCollections(
+      projectDefinitionId: $projectDefinitionId
+    ) {
+      id
+      projectDefinitionId
+      name
+      isAbstract
+      translated {
+        id
+        id
+        locale
+        scope
+        name
+        value
+      }
+      attributesSchema {
+        name
+        details {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
+          }
+          ... on StringFieldConfig {
+            transforms
+            transforms
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            options {
+              id
+              label
+              helpText
+            }
+            selected
+          }
+          ... on AggregateReferenceConfig {
+            fromCollection
+          }
+          ... on NodeReferenceConfig {
+            nodeType
+          }
+        }
+        translations {
+          helpTextName
+          label
+        }
+      }
+    }
+    findReportDefinitions(projectDefinitionId: $projectDefinitionId) {
+      id
+      name
+      projectDefinitionId
+      structure {
+        selection {
+          fromCollectionId
+          fromAlias
+          joinsCache {
+            fromObjectName
+            fromPropertyName
+            joinOnCollection
+            joinOnAttribute
+            aliasName
+            warnAboutIdleItems
+            sameCardinality
+            allowDicardElement
+          }
+          formulaAttribute {
+            bucketName
+            attributeName
+          }
+          datasheetAttribute {
+            bucketName
+            bucketName
+          }
+        }
+        columns {
+          name
+          expression
+          unit {
+            __typename
+            ... on Unit {
+              id
+            }
+            ... on AttributeBucket {
+              bucketName
+              attributeName
+            }
+          }
+          isVisible
+        }
+        groupBy {
+          bucketName
+          attributeName
+        }
+        having
+        orderBy {
+          bucketName
+          attributeName
+        }
+      }
+    }
+  }
+`;

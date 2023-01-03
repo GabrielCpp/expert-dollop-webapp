@@ -5,19 +5,16 @@ export type {
 } from "./form-field-record";
 export {
   setupFormTables,
-  queryDirectChildrenOf,
   upsertFormFieldRecord,
   queryChildrenOf,
   hydrateForm,
   validateForm,
-  deleteFormFieldRecords,
   deleteChildFormFieldRecords,
   buildFormMapById,
   getFieldValue,
   patchFormField,
-  resetForm,
   patchFormFields,
-  findFormRecordByName,
+  queryFieldsByTag,
 } from "./form-field-record";
 export * from "./validators";
 export * from "./views";
@@ -29,4 +26,4 @@ export {
   getJsxElements,
   fallbackWhenEmpty,
 } from "./helpers";
-export { FormThemeContext, createFormTheme } from './form-theme-context'
+export { FormThemeContext, createFormTheme } from "./form-theme-context";

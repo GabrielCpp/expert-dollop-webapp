@@ -10,7 +10,7 @@ import {
   FormSection,
   getFieldValue,
   patchFormField,
-  selectField,
+  SelectField,
   STRING_VALIDATOR,
   textField,
   Translator,
@@ -98,18 +98,20 @@ export function StaticChoiceForm({
 }: StaticChoiceFormProps) {
   const { reduxDb } = useServices();
   const { formPath } = useForm({ parentPath, name: labels.form.name });
-  const { push, remove, elements } = useFieldArray<StaticOptionArrayValue>(
-    makeDefaultOption,
-    getDefaultOptions(staticChoice?.options || [])
-  );
+  const { insert, remove, elements } = useFieldArray<StaticOptionArrayValue>({
+    createElement: makeDefaultOption,
+    initialState: getDefaultOptions(staticChoice?.options || []),
+  });
   const { currentNodeId, setCurrentNodeId } = useNodePickerState(
     head(elements)?.id
   );
-
+  const push = useCallback(
+    () => insert({ after: (e) => setCurrentNodeId(e.id) }),
+    [insert, setCurrentNodeId]
+  );
   const { value: currentElementValue } = useFieldWatch(
     elements.find((e) => e.id === currentNodeId)?.value.optionValueId
   );
-
   const removeCurrentElement = useCallback(() => {
     if (currentNodeId) {
       remove(currentNodeId);
@@ -117,10 +119,6 @@ export function StaticChoiceForm({
 
     setCurrentNodeId(elements.find((e) => e.id !== currentNodeId)?.id);
   }, [remove, setCurrentNodeId, elements, currentNodeId]);
-
-  const addElement = useCallback(() => {
-    push({ onAdded: (e) => setCurrentNodeId(e.id) });
-  }, [push, setCurrentNodeId]);
 
   const getLabel = useCallback(
     (e) =>
@@ -181,7 +179,7 @@ export function StaticChoiceForm({
         key={labels.selected.name}
         label={labels.selected.label}
         validator={STRING_VALIDATOR}
-        component={selectField}
+        component={SelectField}
         t={t}
         defaultValue={
           elements.find(
@@ -233,7 +231,7 @@ export function StaticChoiceForm({
           />
           <LeftSideButton>
             <AdditionRemovalActionGroup
-              addAction={addElement}
+              addAction={push}
               deleteAction={
                 currentNodeId === undefined ? undefined : removeCurrentElement
               }
@@ -263,7 +261,7 @@ function makeDefaultOption(makeId: () => string): StaticOptionArrayValue {
 }
 
 const getDefaultOptions =
-  (options: StaticChoiceOptionInput[]) => (makeId: () => string) => () => {
+  (options: StaticChoiceOptionInput[]) => (makeId: () => string) => {
     const existingElements = options.map((o, index) => ({
       id: makeId(),
       value: {

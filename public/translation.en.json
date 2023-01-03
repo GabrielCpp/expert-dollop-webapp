@@ -1,5 +1,9 @@
 {
   "intlNumber": "{{val, number(minimumFractionDigits: 2)}}",
+  "intl": {
+    "bool_true": "True",
+    "bool_false": "False"
+  },
   "shared": {
     "buttons": {
       "edit": "Edit",
@@ -39,6 +43,14 @@
     }
   },
   "definition_editor": {
+    "collection_form": {
+      "title_add": "Add collection",
+      "title_edit": "Edit collection",
+      "name": "Name",
+      "is_abstract": "Is abstract?",
+      "title_attribute": "Attributes",
+      "field_kind": "Field type"
+    },
     "toolbars": {
       "create_definition_button": "Template",
       "create_root_node_button": "Root node"

@@ -10,7 +10,7 @@ export interface FormSectionProps {
 export function FormSection({
   children,
   padding,
-  spacing = 2,
+  spacing = 1,
 }: FormSectionProps) {
   return (
     <Grid container direction="column" spacing={spacing}>

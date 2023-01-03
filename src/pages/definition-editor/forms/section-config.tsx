@@ -4,7 +4,7 @@ import {
   checkboxField,
   Field,
   FormSection,
-  selectField,
+  SelectField,
   STRING_VALIDATOR,
   useForm,
   useFormFieldValueRef,
@@ -62,7 +62,7 @@ export function SectionConfig({
         label={labels.sectionConfigTypes.label}
         options={labels.sectionConfigTypes.options}
         t={t}
-        component={selectField}
+        component={SelectField}
       />
       {value === FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG && (
         <Field

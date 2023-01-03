@@ -23,7 +23,7 @@ export interface FieldChildren {
   errors: FormFieldError[];
   onChange: (value: unknown) => void;
   t: Translator;
-  formTheme: FormTheme
+  formTheme: FormTheme;
 }
 
 export interface SelectOption {
@@ -70,26 +70,11 @@ export function createFormFieldRecord(
   };
 }
 
-export function queryPathByName(name: string, path: string[]): Query {
+export function queryFieldsByTag(tag: string): Query {
   return QueryBuilder.fromTable(FormFieldTableName)
-    .where(
-      ops(
-        "and",
-        ops("isEqual", recordParam("path"), queryParam("path")),
-        ops("isEqual", recordParam("name"), queryParam("name"))
-      )
-    )
+    .where(ops("eq", recordParam("metadata.tag"), queryParam("tag")))
     .bindParameters({
-      path,
-      name,
-    }).query;
-}
-
-export function queryDirectChildrenOf(path: string[]): Query {
-  return QueryBuilder.fromTable(FormFieldTableName)
-    .where(ops("isEqual", recordParam("path"), queryParam("path")))
-    .bindParameters({
-      path,
+      tag,
     }).query;
 }
 
@@ -169,40 +154,6 @@ export function patchFormFields(
   });
 
   database.getTable(FormFieldTableName).upsertMany(records);
-}
-
-export function resetForm(database: ReduxDatabase, rootPath: string[]) {
-  const records = database.query<FormFieldRecord>(queryChildrenOf(rootPath));
-  const updates = records
-    .filter((record) => record.metadata.defaultValue !== undefined)
-    .map((record) => ({ ...record, value: record.metadata.defaultValue }));
-
-  database.getTable(FormFieldTableName).upsertMany(updates);
-}
-
-export function findFormRecordByName(
-  database: ReduxDatabase,
-  prefix: string[],
-  name: string
-): FormFieldRecord | undefined {
-  const table = database.getTable(FormFieldTableName);
-  const records = table.where<FormFieldRecord>((record) =>
-    startsWith(record.path.join("."), prefix.join(".")) && record.name === name
-  );
-
-  return head(records)
-}
-
-
-export function deleteFormFieldRecords(
-  database: ReduxDatabase,
-  path: string[]
-): void {
-  const table = database.getTable(FormFieldTableName);
-  const records = table.where<FormFieldRecord>((record) =>
-    startsWith(record.path.join("."), path.join("."))
-  );
-  table.removeMany(records);
 }
 
 export function deleteChildFormFieldRecords(

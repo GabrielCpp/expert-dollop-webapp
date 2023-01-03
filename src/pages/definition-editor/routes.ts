@@ -14,7 +14,8 @@ import { CreateProjectDefinitionToolbar } from "./toolbars/create-project-defini
 import { LabelEditionView } from "./views/collection-view";
 import { CollectionCreationView } from "./views/collection-creation";
 import { CollectionEditionView } from "./views/collection-edition-view";
-
+import { ReportsEditorToolbar } from "./toolbars/reports-editor-toolbar";
+import { ReportView } from "./views/reports-view";
 
 export const PROJECT_DEFINITION_INDEX = "PROJECT_DEFINITION_EDITOR_HOME";
 export const PROJECT_DEFINITION_EDITOR_MAIN = "PROJECT_DEFINITION_EDITOR_MAIN";
@@ -30,8 +31,11 @@ export const PROJECT_DEFINITION_EDITOR_FORMULA_EDIT =
 export const DEFINITION_EDITION_LABELS_EDITION =
   "DEFINITION_EDITION_LABELS_EDITION";
 export const DEFINITION_ADD = "DEFINITION_ADD";
-export const DEFINITION_AGGREGATE_COLLECTION_ADD = "DEFINITION_AGGREGATE_COLLECTION_ADD";
-export const DEFINITION_AGGREGATE_COLLECTION_EDIT = "DEFINITION_AGGREGATE_COLLECTION_EDIT"
+export const DEFINITION_AGGREGATE_COLLECTION_ADD =
+  "DEFINITION_AGGREGATE_COLLECTION_ADD";
+export const DEFINITION_AGGREGATE_COLLECTION_EDIT =
+  "DEFINITION_AGGREGATE_COLLECTION_EDIT";
+export const DEFINITION_REPORT_VIEW = "DEFINITION_REPORT_VIEW";
 
 export const routes: NamedRouteDefinition[] = [
   {
@@ -58,8 +62,8 @@ export const routes: NamedRouteDefinition[] = [
     name: DEFINITION_ADD,
     path: "/project_definitions/add",
     components: [
-      {component: CreateDefinition, exact: true, tags: ["main-content"] }
-    ]
+      { component: CreateDefinition, exact: true, tags: ["main-content"] },
+    ],
   },
   {
     name: PROJECT_DEFINITION_EDITOR_MAIN,
@@ -76,7 +80,8 @@ export const routes: NamedRouteDefinition[] = [
         exact: true,
         tags: ["main-toolbar"],
       },
-      { component: EditFormulas, tags: ["main-toolbar"], exact: true }
+      { component: EditFormulas, tags: ["main-toolbar"], exact: true },
+      { component: ReportsEditorToolbar, tags: ["main-toolbar"], exact: true },
     ],
   },
   {
@@ -128,21 +133,44 @@ export const routes: NamedRouteDefinition[] = [
     name: DEFINITION_EDITION_LABELS_EDITION,
     path: "/project_definitions/:projectDefinitionId/:selectedPath/collections",
     components: [
-      { tags: ["project-definition-view"], exact: true, component: LabelEditionView },
+      {
+        tags: ["project-definition-view"],
+        exact: true,
+        component: LabelEditionView,
+      },
     ],
   },
   {
     name: DEFINITION_AGGREGATE_COLLECTION_ADD,
     path: "/project_definitions/:projectDefinitionId/:selectedPath/collections/add",
     components: [
-      { tags: ["project-definition-view"], exact: true, component: CollectionCreationView },
+      {
+        tags: ["project-definition-view"],
+        exact: true,
+        component: CollectionCreationView,
+      },
     ],
   },
   {
     name: DEFINITION_AGGREGATE_COLLECTION_EDIT,
     path: "/project_definitions/:projectDefinitionId/:selectedPath/collections/edit/:collectionId",
     components: [
-      { tags: ["project-definition-view"], exact: true, component: CollectionEditionView },
+      {
+        tags: ["project-definition-view"],
+        exact: true,
+        component: CollectionEditionView,
+      },
+    ],
+  },
+  {
+    name: DEFINITION_REPORT_VIEW,
+    path: "/project_definitions/:projectDefinitionId/:selectedPath/reports",
+    components: [
+      {
+        tags: ["project-definition-view"],
+        exact: true,
+        component: ReportView,
+      },
     ],
   },
 ];

@@ -1,99 +1,51 @@
-import { AnySchema } from "ajv";
-import { identity, isBoolean } from "lodash";
-import { useContext } from "react";
-import {
-  FieldChildren,
-  FormFieldRecord,
-  Translator,
-} from "../form-field-record";
-import { FormThemeContext } from "../form-theme-context";
-import {
-  useField,
-  ValueToFormModel,
-  ViewValueFormatter,
-} from "../hooks/use-field";
+import { FieldChildren } from "../form-field-record";
+import { useField, UseFieldHookParams } from "../hooks/use-field";
 
 export interface FieldProps<T extends FieldChildren> {
-  id?: string;
-  path: string[];
-  name: string;
-  defaultValue: unknown;
-  validator: AnySchema;
-  metadata?: Record<string, unknown>;
-  componentId?: string;
-  sideEffect?: (r: FormFieldRecord) => void;
-  t: Translator;
   component: (props: T) => JSX.Element;
-  formatter?: ViewValueFormatter;
-  valueToFormModel?: ValueToFormModel;
 }
 
 export function Field<T extends FieldChildren>({
+  component: Component,
   path,
   name,
   defaultValue,
   validator,
-  component,
-  t,
+  formatter,
+  valueToFormModel,
   id,
   metadata,
-  formatter = identity,
-  valueToFormModel = selectValueToFormModel(validator),
   componentId,
   sideEffect,
-  ...others
-}: FieldProps<T> & Omit<T, keyof FieldChildren>) {
-  const formTheme = useContext(FormThemeContext);
-  const { onChange, record } = useField({
+  t,
+  ...props
+}: FieldProps<T> & UseFieldHookParams & Omit<T, keyof FieldChildren>) {
+  const { record, field } = useField({
     path,
     name,
     defaultValue,
     validator,
-    id,
     formatter,
     valueToFormModel,
+    id,
     metadata,
     componentId,
     sideEffect,
+    t,
   });
 
   if (record === undefined) {
     return null;
   }
 
-  const childProps: unknown = {
-    id: record.id,
-    name: record.name,
-    value: formatter !== identity ? record.viewValue : record.value,
-    errors: record.errors,
-    onChange,
-    t,
-    formTheme,
-    ...others,
+  const params: unknown = {
+    ...props,
+    ...field,
   };
 
-  if (component !== undefined) {
-    const Component = component;
-    return <Component {...(childProps as T)} />;
+  if (Component !== undefined) {
+    return <Component {...(params as T)} />;
   }
 
   return null;
-}
-
-const toNumber: ValueToFormModel = (c) => Number(c);
-const toBoolean: ValueToFormModel = (c) => Boolean(c);
-const toString: ValueToFormModel = (c) => String(c);
-
-function selectValueToFormModel(validator: AnySchema): ValueToFormModel {
-  const type = isBoolean(validator) ? "string" : validator.type;
-
-  if (type === "number" || type === "integer") {
-    return toNumber;
-  }
-
-  if (type === "boolean") {
-    return toBoolean;
-  }
-
-  return toString;
 }

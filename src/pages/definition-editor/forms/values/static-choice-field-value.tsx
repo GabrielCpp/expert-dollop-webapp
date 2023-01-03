@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {
   Field,
-  selectField,
+  SelectField,
   SelectOption,
   STRING_VALIDATOR,
   useForm,
@@ -43,7 +43,7 @@ export function StaticChoiceFieldValueForm({
       key="text"
       label={label}
       t={t}
-      component={selectField}
+      component={SelectField}
       options={options}
     />
   );

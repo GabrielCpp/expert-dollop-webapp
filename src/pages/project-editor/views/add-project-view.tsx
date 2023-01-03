@@ -7,7 +7,7 @@ import { useLoaderEffect } from "../../../components/loading-frame";
 import {
   Field,
   hydrateForm,
-  selectField,
+  SelectField,
   STRING_VALIDATOR,
   textField,
   useForm,
@@ -99,7 +99,7 @@ export function AddProjectView() {
               path={path}
               defaultValue={head(options)?.id}
               name="projectDefinitionId"
-              component={selectField}
+              component={SelectField}
               label={t("project_type")}
               options={options}
               t={t}

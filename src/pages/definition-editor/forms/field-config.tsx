@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import {
   Field,
   FormSection,
-  selectField,
+  SelectField,
   STRING_VALIDATOR,
   useForm,
   useFormFieldValueRef,
@@ -46,7 +46,7 @@ export function FieldConfig({
         key={labels.fieldConfigType.name}
         label={labels.fieldConfigType.label}
         t={t}
-        component={selectField}
+        component={SelectField}
         options={labels.fieldConfigType.options}
       />
       {value === FieldDetailsType.INT_FIELD_CONFIG && (

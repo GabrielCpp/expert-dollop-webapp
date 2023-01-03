@@ -1,11 +1,11 @@
 import { flatten } from "lodash";
 
 export type AcceptableChild = JSX.Element | JSX.Element[] | false | null;
-export type MixedChildren = AcceptableChild | AcceptableChild[]
+export type MixedChildren = AcceptableChild | AcceptableChild[];
 export function getJsxElements(children: MixedChildren): JSX.Element[] {
-  return (
-    Array.isArray(children) ? flatten(children) : [children]
-  ).filter((x) => Boolean(x)) as JSX.Element[];
+  return (Array.isArray(children) ? flatten(children) : [children]).filter(
+    (x) => Boolean(x)
+  ) as JSX.Element[];
 }
 
 export class KeyMapping<T extends string = string> {
@@ -53,13 +53,13 @@ export class KeyNamespace<Namespace extends string, K extends string> {
   }
 }
 
-const EmptyValues: unknown[] = [null, undefined, '']
+const EmptyValues: unknown[] = [null, undefined, ""];
 export function fallbackWhenEmpty<T>(...items: (T | undefined | null)[]): T {
-  for(const item of items) {
-    if(!EmptyValues.includes(item)) {
-      return item as T
+  for (const item of items) {
+    if (!EmptyValues.includes(item)) {
+      return item as T;
     }
   }
 
-  throw new Error('A non empty value must be provided')
+  throw new Error("A non empty value must be provided");
 }

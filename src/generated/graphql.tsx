@@ -908,7 +908,7 @@ export type ReportComputation = {
   expression: FieldWrapper<Scalars["String"]>;
   isVisible: FieldWrapper<Scalars["Boolean"]>;
   name: FieldWrapper<Scalars["String"]>;
-  unitId?: Maybe<FieldWrapper<Scalars["String"]>>;
+  unit?: Maybe<FieldWrapper<ReportUnitUnion>>;
 };
 
 export type ReportDefinition = {
@@ -922,8 +922,24 @@ export type ReportDefinition = {
 export type ReportDefinitionStructure = {
   __typename?: "ReportDefinitionStructure";
   columns: Array<FieldWrapper<ReportComputation>>;
-  datasheetAttribute: FieldWrapper<AttributeBucket>;
-  formulaAttribute: FieldWrapper<AttributeBucket>;
+  groupBy: Array<FieldWrapper<AttributeBucket>>;
+  having: FieldWrapper<Scalars["String"]>;
+  orderBy: Array<FieldWrapper<AttributeBucket>>;
+  reportSummary: Array<FieldWrapper<ReportComputation>>;
+  selection: FieldWrapper<Selection>;
+  stageSummary: FieldWrapper<StageSummary>;
+};
+
+export type ReportJoin = {
+  __typename?: "ReportJoin";
+  aliasName: FieldWrapper<Scalars["String"]>;
+  allowDicardElement: FieldWrapper<Scalars["Boolean"]>;
+  fromObjectName: FieldWrapper<Scalars["String"]>;
+  fromPropertyName: FieldWrapper<Scalars["String"]>;
+  joinOnAttribute: FieldWrapper<Scalars["String"]>;
+  joinOnCollection: FieldWrapper<Scalars["String"]>;
+  sameCardinality: FieldWrapper<Scalars["Boolean"]>;
+  warnAboutIdleItems: FieldWrapper<Scalars["Boolean"]>;
 };
 
 export type ReportRow = {
@@ -942,11 +958,28 @@ export type ReportStage = {
   summary: FieldWrapper<ComputedValue>;
 };
 
+export type ReportUnitUnion = AttributeBucket | Unit;
+
+export type Selection = {
+  __typename?: "Selection";
+  datasheetAttribute: FieldWrapper<AttributeBucket>;
+  formulaAttribute: FieldWrapper<AttributeBucket>;
+  fromAlias: FieldWrapper<Scalars["String"]>;
+  fromCollectionId: FieldWrapper<Scalars["String"]>;
+  joinsCache: Array<FieldWrapper<ReportJoin>>;
+};
+
 export type StageColumn = {
   __typename?: "StageColumn";
   isVisible: FieldWrapper<Scalars["Boolean"]>;
   label: FieldWrapper<Scalars["String"]>;
   unit?: Maybe<FieldWrapper<Scalars["String"]>>;
+};
+
+export type StageSummary = {
+  __typename?: "StageSummary";
+  label?: Maybe<FieldWrapper<AttributeBucket>>;
+  summary?: Maybe<FieldWrapper<ReportComputation>>;
 };
 
 export type StaticChoiceFieldConfig = {
@@ -2307,6 +2340,137 @@ export type FindAggregateCollectionQuery = { __typename?: "Query" } & {
     };
 };
 
+export type ReportViewQueryVariables = Exact<{
+  projectDefinitionId: Scalars["ID"];
+}>;
+
+export type ReportViewQuery = { __typename?: "Query" } & {
+  findDefinitionAggregateCollections: Array<
+    { __typename?: "AggregateCollection" } & Pick<
+      AggregateCollection,
+      "id" | "projectDefinitionId" | "name" | "isAbstract"
+    > & {
+        translated: Array<
+          { __typename?: "Translation" } & Pick<
+            Translation,
+            "id" | "locale" | "scope" | "name" | "value"
+          >
+        >;
+        attributesSchema: Array<
+          { __typename?: "AggregateAttributeSchema" } & Pick<
+            AggregateAttributeSchema,
+            "name"
+          > & {
+              details:
+                | ({ __typename: "AggregateReferenceConfig" } & Pick<
+                    AggregateReferenceConfig,
+                    "fromCollection"
+                  >)
+                | ({ __typename: "BoolFieldConfig" } & Pick<
+                    BoolFieldConfig,
+                    "enabled"
+                  >)
+                | ({ __typename: "DecimalFieldConfig" } & Pick<
+                    DecimalFieldConfig,
+                    "unit" | "precision" | "numeric"
+                  >)
+                | ({ __typename: "IntFieldConfig" } & Pick<
+                    IntFieldConfig,
+                    "unit" | "integer"
+                  >)
+                | ({ __typename: "NodeReferenceConfig" } & Pick<
+                    NodeReferenceConfig,
+                    "nodeType"
+                  >)
+                | ({ __typename: "StaticChoiceFieldConfig" } & Pick<
+                    StaticChoiceFieldConfig,
+                    "selected"
+                  > & {
+                      options: Array<
+                        { __typename?: "StaticChoiceOption" } & Pick<
+                          StaticChoiceOption,
+                          "id" | "label" | "helpText"
+                        >
+                      >;
+                    })
+                | ({ __typename: "StringFieldConfig" } & Pick<
+                    StringFieldConfig,
+                    "transforms"
+                  >);
+              translations: { __typename?: "TranslationConfig" } & Pick<
+                TranslationConfig,
+                "helpTextName" | "label"
+              >;
+            }
+        >;
+      }
+  >;
+  findReportDefinitions: Array<
+    { __typename?: "ReportDefinition" } & Pick<
+      ReportDefinition,
+      "id" | "name" | "projectDefinitionId"
+    > & {
+        structure: { __typename?: "ReportDefinitionStructure" } & Pick<
+          ReportDefinitionStructure,
+          "having"
+        > & {
+            selection: { __typename?: "Selection" } & Pick<
+              Selection,
+              "fromCollectionId" | "fromAlias"
+            > & {
+                joinsCache: Array<
+                  { __typename?: "ReportJoin" } & Pick<
+                    ReportJoin,
+                    | "fromObjectName"
+                    | "fromPropertyName"
+                    | "joinOnCollection"
+                    | "joinOnAttribute"
+                    | "aliasName"
+                    | "warnAboutIdleItems"
+                    | "sameCardinality"
+                    | "allowDicardElement"
+                  >
+                >;
+                formulaAttribute: { __typename?: "AttributeBucket" } & Pick<
+                  AttributeBucket,
+                  "bucketName" | "attributeName"
+                >;
+                datasheetAttribute: { __typename?: "AttributeBucket" } & Pick<
+                  AttributeBucket,
+                  "bucketName"
+                >;
+              };
+            columns: Array<
+              { __typename?: "ReportComputation" } & Pick<
+                ReportComputation,
+                "name" | "expression" | "isVisible"
+              > & {
+                  unit?: Maybe<
+                    | ({ __typename: "AttributeBucket" } & Pick<
+                        AttributeBucket,
+                        "bucketName" | "attributeName"
+                      >)
+                    | ({ __typename: "Unit" } & Pick<Unit, "id">)
+                  >;
+                }
+            >;
+            groupBy: Array<
+              { __typename?: "AttributeBucket" } & Pick<
+                AttributeBucket,
+                "bucketName" | "attributeName"
+              >
+            >;
+            orderBy: Array<
+              { __typename?: "AttributeBucket" } & Pick<
+                AttributeBucket,
+                "bucketName" | "attributeName"
+              >
+            >;
+          };
+      }
+  >;
+};
+
 export type CreateProjectMutationVariables = Exact<{
   projectDetails: ProjectDetailsInput;
 }>;
@@ -3155,15 +3319,25 @@ export type FindReportDefinitionsFromProjectDetailsQuery = {
         "id" | "name"
       > & {
           structure: { __typename?: "ReportDefinitionStructure" } & {
-            formulaAttribute: { __typename?: "AttributeBucket" } & Pick<
-              AttributeBucket,
-              "bucketName" | "attributeName"
-            >;
+            selection: { __typename?: "Selection" } & {
+              formulaAttribute: { __typename?: "AttributeBucket" } & Pick<
+                AttributeBucket,
+                "bucketName" | "attributeName"
+              >;
+            };
             columns: Array<
               { __typename?: "ReportComputation" } & Pick<
                 ReportComputation,
-                "name" | "isVisible" | "unitId"
-              >
+                "name" | "isVisible"
+              > & {
+                  unit?: Maybe<
+                    | ({ __typename: "AttributeBucket" } & Pick<
+                        AttributeBucket,
+                        "bucketName" | "attributeName"
+                      >)
+                    | ({ __typename: "Unit" } & Pick<Unit, "id">)
+                  >;
+                }
             >;
           };
         }
@@ -5485,6 +5659,168 @@ export type FindAggregateCollectionQueryResult = Apollo.QueryResult<
   FindAggregateCollectionQuery,
   FindAggregateCollectionQueryVariables
 >;
+export const ReportViewDocument = gql`
+  query reportView($projectDefinitionId: ID!) {
+    findDefinitionAggregateCollections(
+      projectDefinitionId: $projectDefinitionId
+    ) {
+      id
+      projectDefinitionId
+      name
+      isAbstract
+      translated {
+        id
+        id
+        locale
+        scope
+        name
+        value
+      }
+      attributesSchema {
+        name
+        details {
+          __typename
+          ... on IntFieldConfig {
+            unit
+            integer
+          }
+          ... on DecimalFieldConfig {
+            unit
+            precision
+            numeric
+          }
+          ... on StringFieldConfig {
+            transforms
+            transforms
+          }
+          ... on BoolFieldConfig {
+            enabled
+          }
+          ... on StaticChoiceFieldConfig {
+            options {
+              id
+              label
+              helpText
+            }
+            selected
+          }
+          ... on AggregateReferenceConfig {
+            fromCollection
+          }
+          ... on NodeReferenceConfig {
+            nodeType
+          }
+        }
+        translations {
+          helpTextName
+          label
+        }
+      }
+    }
+    findReportDefinitions(projectDefinitionId: $projectDefinitionId) {
+      id
+      name
+      projectDefinitionId
+      structure {
+        selection {
+          fromCollectionId
+          fromAlias
+          joinsCache {
+            fromObjectName
+            fromPropertyName
+            joinOnCollection
+            joinOnAttribute
+            aliasName
+            warnAboutIdleItems
+            sameCardinality
+            allowDicardElement
+          }
+          formulaAttribute {
+            bucketName
+            attributeName
+          }
+          datasheetAttribute {
+            bucketName
+            bucketName
+          }
+        }
+        columns {
+          name
+          expression
+          unit {
+            __typename
+            ... on Unit {
+              id
+            }
+            ... on AttributeBucket {
+              bucketName
+              attributeName
+            }
+          }
+          isVisible
+        }
+        groupBy {
+          bucketName
+          attributeName
+        }
+        having
+        orderBy {
+          bucketName
+          attributeName
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * __useReportViewQuery__
+ *
+ * To run a query within a React component, call `useReportViewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useReportViewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useReportViewQuery({
+ *   variables: {
+ *      projectDefinitionId: // value for 'projectDefinitionId'
+ *   },
+ * });
+ */
+export function useReportViewQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ReportViewQuery,
+    ReportViewQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ReportViewQuery, ReportViewQueryVariables>(
+    ReportViewDocument,
+    options
+  );
+}
+export function useReportViewLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ReportViewQuery,
+    ReportViewQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ReportViewQuery, ReportViewQueryVariables>(
+    ReportViewDocument,
+    options
+  );
+}
+export type ReportViewQueryHookResult = ReturnType<typeof useReportViewQuery>;
+export type ReportViewLazyQueryHookResult = ReturnType<
+  typeof useReportViewLazyQuery
+>;
+export type ReportViewQueryResult = Apollo.QueryResult<
+  ReportViewQuery,
+  ReportViewQueryVariables
+>;
 export const CreateProjectDocument = gql`
   mutation createProject($projectDetails: ProjectDetailsInput!) {
     createProject(projectDetails: $projectDetails) {
@@ -6792,18 +7128,25 @@ export const FindReportDefinitionsFromProjectDetailsDocument = gql`
         id
         name
         structure {
-          formulaAttribute {
-            bucketName
-            attributeName
-          }
-          formulaAttribute {
-            bucketName
-            attributeName
+          selection {
+            formulaAttribute {
+              bucketName
+              attributeName
+            }
           }
           columns {
             name
             isVisible
-            unitId
+            unit {
+              __typename
+              ... on Unit {
+                id
+              }
+              ... on AttributeBucket {
+                bucketName
+                attributeName
+              }
+            }
           }
         }
       }

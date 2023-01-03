@@ -91,18 +91,25 @@ export const FIND_REPORT_DEFINITIONS_FROM_PROJECT_DETAILS = gql`
         id
         name
         structure {
-          formulaAttribute {
-            bucketName
-            attributeName
-          }
-          formulaAttribute {
-            bucketName
-            attributeName
+          selection {
+            formulaAttribute {
+              bucketName
+              attributeName
+            }
           }
           columns {
             name
             isVisible
-            unitId
+            unit {
+              __typename
+              ... on Unit {
+                id
+              }
+              ... on AttributeBucket {
+                bucketName
+                attributeName
+              }
+            }
           }
         }
       }

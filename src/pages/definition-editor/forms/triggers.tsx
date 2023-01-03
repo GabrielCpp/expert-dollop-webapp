@@ -5,7 +5,7 @@ import {
   FieldArrayElement,
   FormSection,
   IdGenerator,
-  selectField,
+  SelectField,
   SelectOption,
   STRING_VALIDATOR,
   useFieldArray,
@@ -15,6 +15,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { TriggerAction, TriggerInput } from "../../../generated";
+import { useCallback } from "react";
 
 interface TriggersProps {
   path: string[];
@@ -41,16 +42,32 @@ interface TriggersProps {
 export function Triggers({ name, path, labels, triggers }: TriggersProps) {
   const { t } = useTranslation();
   const { formPath } = useForm({ name: name, parentPath: path, value: [] });
-  const { push, remove, elements } = useFieldArray(
-    makeDefaultTrigger,
-    getTriggers(triggers)
+  const remapTriggers = useCallback(
+    (makeId: IdGenerator): FieldArrayElement<TriggerInput>[] => {
+      return triggers.map((trigger, index) => ({
+        id: makeId(),
+        metadata: {
+          ordinal: index,
+        },
+        value: {
+          action: trigger.action,
+          params: trigger.params,
+          targetTypeId: trigger.targetTypeId,
+        },
+      }));
+    },
+    [triggers]
   );
+  const { insert, remove, elements } = useFieldArray({
+    createElement: makeDefaultTrigger,
+    initialState: remapTriggers,
+  });
 
   return (
     <Card>
       <CardHeader
         action={
-          <IconButton aria-label="settings" onClick={() => push()}>
+          <IconButton aria-label="settings" onClick={() => insert()}>
             <AddIcon />
           </IconButton>
         }
@@ -104,7 +121,7 @@ export function Triggers({ name, path, labels, triggers }: TriggersProps) {
                     label={labels.action.label}
                     options={labels.action.options}
                     t={t}
-                    component={selectField}
+                    component={SelectField}
                   />
                 </Grid>
               </Grid>
@@ -123,20 +140,3 @@ function makeDefaultTrigger() {
     targetTypeId: "",
   };
 }
-
-const getTriggers =
-  (triggers: TriggerInput[]) =>
-  (makeId: IdGenerator) =>
-  (): FieldArrayElement<TriggerInput>[] => {
-    return triggers.map((trigger, index) => ({
-      id: makeId(),
-      metadata: {
-        ordinal: index,
-      },
-      value: {
-        action: trigger.action,
-        params: trigger.params,
-        targetTypeId: trigger.targetTypeId,
-      },
-    }));
-  };

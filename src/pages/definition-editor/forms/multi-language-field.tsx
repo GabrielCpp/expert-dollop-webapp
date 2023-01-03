@@ -1,7 +1,6 @@
 import { noop } from "lodash";
 import {
   FieldArrayElement,
-  getFieldValue,
   IdGenerator,
   StaticTabs,
   Translator,
@@ -11,7 +10,6 @@ import {
   useHiddenField,
 } from "../../../components/table-fields";
 import { TranslationInput } from "../../../generated";
-import { useServices } from "../../../services-def";
 import { FieldTranslation } from "./field-translation";
 
 interface MultiLanguageFieldProps {
@@ -60,7 +58,10 @@ export function MultiLanguageField({
   t,
   active = true,
 }: MultiLanguageFieldProps) {
-  const { elements } = useFieldArray(noop, getDefaultValues);
+  const { elements } = useFieldArray({
+    createElement: noop,
+    initialState: getDefaultValues,
+  });
 
   const { value: latestLabelTranslationKeyName } =
     useFieldsWatchCallack<string>({
@@ -183,31 +184,30 @@ export function MultiLanguageField({
   );
 }
 
-const getDefaultValues =
-  (makeId: IdGenerator) => (): FieldArrayElement<unknown>[] => {
-    return [
-      {
-        id: makeId(),
-        value: undefined,
-        metadata: { ordinal: 0 },
-      },
-      {
-        id: makeId(),
-        value: undefined,
-        metadata: { ordinal: 1 },
-      },
-      {
-        id: makeId(),
-        value: undefined,
-        metadata: { ordinal: 2 },
-      },
-      {
-        id: makeId(),
-        value: undefined,
-        metadata: { ordinal: 3 },
-      },
-    ];
-  };
+function getDefaultValues(makeId: IdGenerator): FieldArrayElement<unknown>[] {
+  return [
+    {
+      id: makeId(),
+      value: undefined,
+      metadata: { ordinal: 0 },
+    },
+    {
+      id: makeId(),
+      value: undefined,
+      metadata: { ordinal: 1 },
+    },
+    {
+      id: makeId(),
+      value: undefined,
+      metadata: { ordinal: 2 },
+    },
+    {
+      id: makeId(),
+      value: undefined,
+      metadata: { ordinal: 3 },
+    },
+  ];
+}
 
 function buildTranslationKey(...name: unknown[]): string {
   return `${name[0] as string}_help_text`;

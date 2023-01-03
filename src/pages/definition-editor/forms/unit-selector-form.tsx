@@ -1,7 +1,7 @@
 import { useLoaderEffect } from "../../../components/loading-frame";
 import {
   Field,
-  selectField,
+  SelectField,
   SelectOption,
   makeEnumValidator,
   Translator,
@@ -52,7 +52,7 @@ export function UnitSelector({
         key={name}
         label={label}
         t={t}
-        component={selectField}
+        component={SelectField}
         options={units}
       />
     </>

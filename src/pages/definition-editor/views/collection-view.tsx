@@ -159,7 +159,7 @@ function AggregatesTable({
           });
         }
       ),
-    [reduxDb, ajv, loader, addAggregate]
+    [reduxDb, ajv, loader, addAggregate, projectDefinitionId, collection.id]
   );
 
   const [updateAggregate] = useUpdateAggregateMutation();
@@ -179,7 +179,7 @@ function AggregatesTable({
           });
         }
       ),
-    [reduxDb, ajv, loader, updateAggregate]
+    [reduxDb, ajv, loader, updateAggregate, projectDefinitionId, collection.id]
   );
 
   const [deleteAggregate] = useDeleteAggregateMutation();
@@ -200,7 +200,8 @@ function AggregatesTable({
     {
       id: "name",
       label: "name",
-      render: ({ data }) => <Typography>{data.name}</Typography>,
+      align: "center",
+      render: ({ data }) => <Typography>{String(data.name)}</Typography>,
     },
     {
       id: "translated",
@@ -211,7 +212,7 @@ function AggregatesTable({
             {data.translated.map((translation) => (
               <li key={translation.id}>
                 <Typography>
-                  {translation.locale}:{translation.value}
+                  {`${translation.locale}:${translation.value}`}
                 </Typography>
               </li>
             ))}
@@ -222,32 +223,42 @@ function AggregatesTable({
     {
       id: "ordinal",
       label: "ordinal",
-      render: ({ data }) => <Typography>{data.ordinal}</Typography>,
+      align: "center",
+      render: ({ data }) => <Typography>{String(data.ordinal)}</Typography>,
     },
     {
       id: "isExtendable",
       label: "isExtendable",
+      align: "center",
       render: ({ data }) => (
         <Box display="flex" justifyContent="center" alignItems="center">
-          <Typography>{data.isExtendable}</Typography>
+          <Typography>
+            {t("intl.bool", { context: String(data.isExtendable) })}
+          </Typography>
         </Box>
       ),
     },
-    ...collection.attributesSchema.map((c) => ({
-      id: c.name,
-      label: c.name,
-      render: ({ data }: { data: Result }) =>
-        VALUE_COMPONENT_FACTORIES[c.details.__typename](
-          data.attributes.find((x) => x.name === c.name)?.value || null,
-          c.details
-        ),
-    })),
+    ...collection.attributesSchema.map((c) => {
+      const r: HeadCell<Result> = {
+        id: c.name,
+        label: c.name,
+        align: "center",
+        render: ({ data }: { data: Result }) =>
+          VALUE_COMPONENT_FACTORIES[c.details.__typename](
+            data.attributes.find((x) => x.name === c.name)?.value || null,
+            c.details
+          ),
+      };
+
+      return r;
+    }),
   ];
 
   const creationHeaders: HeadCell<AggregateInput>[] = [
     {
       id: "name",
       label: "name",
+      align: "center",
       render: ({ id, data }) => (
         <Field
           id={`${id}-name`}
@@ -266,6 +277,7 @@ function AggregatesTable({
     {
       id: "translated",
       label: "translated",
+      align: "center",
       render: ({ id, data }) => {
         return (
           <Box sx={{ m: 0.5 }}>
@@ -286,6 +298,7 @@ function AggregatesTable({
     {
       id: "ordinal",
       label: "ordinal",
+      align: "center",
       render: ({ id, data }) => (
         <Field
           validator={INT_VALIDATOR}
@@ -303,6 +316,7 @@ function AggregatesTable({
     {
       id: "isExtendable",
       label: "isExtendable",
+      align: "center",
       render: ({ id, data }) => (
         <Box display="flex" justifyContent="center" alignItems="center">
           <Field
@@ -319,45 +333,50 @@ function AggregatesTable({
         </Box>
       ),
     },
-    ...collection.attributesSchema.map((c, index) => ({
-      id: c.name,
-      label: c.name,
-      render: ({ id, data }: { id: string; data: AggregateInput }) => (
-        <Box sx={{ m: 0.5 }}>
-          <NamedFormSection
-            name="attributes"
-            ordinal={index}
-            parentPath={id}
-            spacing={0}
-            padding={0}
-          >
-            {(p) => [
-              VALUE_FORM_COMPONENT_FACTORIES[c.details.__typename](
-                p,
-                data.attributes.find((x) => x.name === c.name)?.value || null,
-                c.details
-              ),
-              <HiddenField
-                name="name"
-                key="name"
-                parentPath={p}
-                value={c.name}
-              />,
-              <Field
-                validator={BOOLEAN_VALIDATOR}
-                defaultValue={false}
-                path={p}
-                name="isReadonly"
-                key="isReadonly"
-                label="isReadonly"
-                t={t}
-                component={switchField}
-              />,
-            ]}
-          </NamedFormSection>
-        </Box>
-      ),
-    })),
+    ...collection.attributesSchema.map((c, index) => {
+      const r: HeadCell<AggregateInput> = {
+        id: c.name,
+        label: c.name,
+        align: "center",
+        render: ({ id, data }) => (
+          <Box sx={{ m: 0.5 }}>
+            <NamedFormSection
+              name="attributes"
+              ordinal={index}
+              parentPath={id}
+              spacing={0}
+              padding={0}
+            >
+              {(p) => [
+                VALUE_FORM_COMPONENT_FACTORIES[c.details.__typename](
+                  p,
+                  data.attributes.find((x) => x.name === c.name)?.value || null,
+                  c.details
+                ),
+                <HiddenField
+                  name="name"
+                  key="name"
+                  parentPath={p}
+                  value={c.name}
+                />,
+                <Field
+                  validator={BOOLEAN_VALIDATOR}
+                  defaultValue={false}
+                  path={p}
+                  name="isReadonly"
+                  key="isReadonly"
+                  label="isReadonly"
+                  t={t}
+                  component={switchField}
+                />,
+              ]}
+            </NamedFormSection>
+          </Box>
+        ),
+      };
+
+      return r;
+    }),
   ];
 
   function makeDefaultRow(): AggregateInput {

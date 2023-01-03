@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { identity, noop } from "lodash";
 import { ReduxDatabase } from "./database";
@@ -32,26 +27,28 @@ export function buildPk(...items: string[]): string {
   return items.join(".");
 }
 
-
-type KeyOfObject<T> = { [key in keyof T]: string }
-interface UseMultipleIdResult<T> { idByName: KeyOfObject<T>, ids: string[] }
+type KeyOfObject<T> = { [key in keyof T]: string };
+interface UseMultipleIdResult<T> {
+  idByName: KeyOfObject<T>;
+  ids: string[];
+}
 
 export function useIds<T>(...names: (keyof T)[]): UseMultipleIdResult<T> {
   const refRef = useRef<UseMultipleIdResult<T> | undefined>();
 
   if (refRef.current === undefined) {
-    const idByName: Partial<KeyOfObject<T>> = {} 
-    const ids: string[] = []
-    for(const name of names) {
-      const id = uuidv4()
-      idByName[name] = id
-      ids.push(id)
+    const idByName: Partial<KeyOfObject<T>> = {};
+    const ids: string[] = [];
+    for (const name of names) {
+      const id = uuidv4();
+      idByName[name] = id;
+      ids.push(id);
     }
 
-    refRef.current = { idByName: idByName as KeyOfObject<T>, ids }
+    refRef.current = { idByName: idByName as KeyOfObject<T>, ids };
   }
 
-  return refRef.current as UseMultipleIdResult<T>
+  return refRef.current as UseMultipleIdResult<T>;
 }
 
 export function useTableRecord<T extends TableRecord>(
@@ -127,4 +124,16 @@ export function useTableLifetime<T>(
   }, [cleanup, state]);
 
   return [state];
+}
+
+export function useCallbackValue<T>(callback: () => T): T {
+  const value = useRef<T | undefined>(undefined);
+  const lastCallback = useRef<(() => T) | undefined>(undefined);
+
+  if (lastCallback.current !== callback) {
+    value.current = callback();
+    lastCallback.current = callback;
+  }
+
+  return value.current as T;
 }

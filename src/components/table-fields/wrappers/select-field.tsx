@@ -16,7 +16,7 @@ interface SelectProps extends FieldChildren {
   fallbackSelection?: Omit<SelectOption, "id">;
 }
 
-export function selectField({
+export function SelectField({
   id,
   value,
   name,
