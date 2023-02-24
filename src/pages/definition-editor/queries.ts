@@ -67,6 +67,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTIONS = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -131,6 +132,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -181,6 +183,7 @@ export const FIND_PROJECT_DEFINITION_ROOT_SECTION_CONTAINERS = gql`
               ... on StaticChoiceFieldConfig {
                 options {
                   id
+                  value: id
                   label
                   helpText
                 }
@@ -247,6 +250,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
         ... on StaticChoiceFieldConfig {
           options {
             id
+            value: id
             label
             helpText
           }
@@ -308,6 +312,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -366,6 +371,7 @@ export const FIND_PROJECT_DEFINITION_FORM_CONTENT = gql`
               ... on StaticChoiceFieldConfig {
                 options {
                   id
+                  value: id
                   label
                   helpText
                 }
@@ -439,6 +445,7 @@ export const FIND_PROJECT_DEFINITION_NODE = gql`
           selected
           options {
             id
+            value: id
             label
             helpText
           }
@@ -511,7 +518,9 @@ export const FIND_DEFINITION_FORMULA_FIELD_MIX = gql`
       edges {
         node {
           id
+          value: id
           label: name
+          query: name
         }
         cursor
       }
@@ -531,7 +540,9 @@ export const FIND_FORMULA = gql`
       formulaId: $formulaId
     ) {
       id
+      value: id
       label: name
+      query: name
     }
   }
 `;
@@ -643,6 +654,7 @@ export const FIND_AGGREGATE_COLLECTION = gql`
             selected
             options {
               id
+              value: id
               label
               helpText
             }
@@ -699,6 +711,7 @@ export const REPORT_VIEW = gql`
           ... on StaticChoiceFieldConfig {
             options {
               id
+              value: id
               label
               helpText
             }
@@ -726,14 +739,15 @@ export const REPORT_VIEW = gql`
           fromCollectionId
           fromAlias
           joinsCache {
-            fromObjectName
-            fromPropertyName
-            joinOnCollection
-            joinOnAttribute
-            aliasName
-            warnAboutIdleItems
-            sameCardinality
-            allowDicardElement
+            fromBucket {
+              bucketName
+              attributeName
+            }
+            onCollection {
+              bucketName
+              attributeName
+            }
+            alias
           }
           formulaAttribute {
             bucketName

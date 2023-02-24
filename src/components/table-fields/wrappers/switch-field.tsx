@@ -1,19 +1,11 @@
-import {
-  Checkbox,
-  FormControlLabel,
-  Typography,
-  Tooltip,
-  FormGroup,
-  Switch,
-} from "@mui/material";
+import { FormControlLabel, FormGroup, Switch } from "@mui/material";
 import { ReactNode } from "react";
-import { theme } from "../../../theme";
 import { FieldChildren } from "../form-field-record";
 import { FieldLabel } from "../views";
 
 interface SwitchFieldProps extends FieldChildren {
-  label?: string;
-  title?: string;
+  label?: ReactNode;
+  title?: ReactNode;
   switchProps?: Parameters<typeof Switch>[0];
 }
 

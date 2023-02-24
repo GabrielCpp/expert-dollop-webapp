@@ -5,7 +5,7 @@ import {
   Form,
   BOOLEAN_VALIDATOR,
   useForm,
-  textField,
+  InlineTextField,
   checkboxField,
 } from "../../../components/table-fields";
 import { AggregateCollectionInput } from "../../../generated";
@@ -46,7 +46,7 @@ export function CollectionForm({
         name={labels.name.name}
         label={labels.name.label}
         t={t}
-        component={textField}
+        component={InlineTextField}
       />
       <Field
         validator={BOOLEAN_VALIDATOR}

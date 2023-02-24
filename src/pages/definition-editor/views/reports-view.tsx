@@ -1,9 +1,8 @@
 import { Grid } from "@mui/material";
 import { head } from "lodash";
-import { useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { useMethods } from "react-use";
+import { resolveHookState } from "react-use/lib/misc/hookState";
 
 import { AddButtonLink, DeleteIconButton } from "../../../components/buttons";
 import {
@@ -12,31 +11,24 @@ import {
   Form,
   FormArray,
   FormSection,
-  IdGenerator,
-  queryFieldsByTag,
   SelectField,
-  SelectOption,
   STRING_VALIDATOR,
   switchField,
-  textField,
+  InlineTextField,
   useField,
-  useFieldTag,
   useForm,
 } from "../../../components/table-fields";
+import { FormFieldRecord } from "../../../components/table-fields/form-field-record";
 import { AcceptableChild } from "../../../components/table-fields/helpers";
+import { UseFieldArray } from "../../../components/table-fields/hooks/use-field-array";
+import { ReportJoin, useReportViewQuery } from "../../../generated";
 import {
-  FieldArrayElement,
-  OnInsert,
-  UseFieldArray,
-} from "../../../components/table-fields/hooks/use-field-array";
-import { TagMetadata } from "../../../components/table-fields/hooks/use-field-tag";
-import {
-  ReportComputation,
-  ReportJoin,
-  ReportViewQuery,
-  useReportViewQuery,
-} from "../../../generated";
-import { useTableQuery } from "../../../shared/redux-db";
+  Collections,
+  DefaultOption,
+  ReportViewReducerMethods,
+  ReportViewState,
+  useReportViewReducer,
+} from "../reducers/report-view-reducer";
 
 interface ReportViewParams extends Record<string, string> {
   projectDefinitionId: string;
@@ -68,7 +60,7 @@ export function ReportView() {
 
 interface ReportFormProps {
   formPath: string[];
-  collections: ReportViewQuery["findDefinitionAggregateCollections"];
+  collections: Collections;
 }
 
 const labels = {
@@ -99,135 +91,52 @@ const labels = {
   },
 };
 
-interface AttributeBucketOption extends SelectOption {
-  aggregateId: string;
-  aggregateName: string;
-  attributeName: string;
-}
-
-interface JoinOptionBucket {
-  fromOptions: AttributeBucketOption[];
-  onOptions: AttributeBucketOption[];
-}
-
-interface State {
-  availableBucket: JoinOptionBucket;
-  perFieldsOptions: Record<
-    string,
-    {
-      aggregateId: string;
-      attributeName: string;
-      bucket: JoinOptionBucket;
-    }
-  >;
-}
-
-type Collections = ReportViewQuery["findDefinitionAggregateCollections"];
-type Collection = Collections[number];
-
-function buildOption(collection?: Collection): AttributeBucketOption[] {
-  if (collection === undefined) {
-    return [];
-  }
-
-  return collection.attributesSchema.map((x) => ({
-    aggregateId: collection.id,
-    aggregateName: collection.name,
-    attributeName: x.name,
-    id: `${collection.name}.${x.name}`,
-    label: `${collection.name}.${x.name}`,
-  }));
-}
-
-function buildInitialState(
-  collections: Collections,
-  abstractAggregateId: string
-): State {
-  return {
-    availableBucket: {
-      fromOptions: buildOption(
-        collections.find((x) => x.id === abstractAggregateId)
-      ),
-      onOptions: collections
-        .filter((x) => !x.isAbstract)
-        .flatMap((x) => buildOption(x)),
-    },
-    perFieldsOptions: {},
-  };
-}
-
-interface Methods {
-  addJoin(elementId: string): void;
-}
-
-function createMethods(state: State) {
-  function addJoin(elementId: string): State {
-    return {
-      ...state,
-      perFieldsOptions: {
-        ...state.perFieldsOptions,
-        [elementId]: {
-          aggregateId: "",
-          attributeName: "",
-          bucket: state.availableBucket,
-        },
-      },
-    };
-  }
-
-  return {
-    addJoin,
-  };
-}
-
-export function useExclusiveOptions(
-  collections: Collections,
-  abstractAggregateId: string
-): [State, Methods] {
-  const [inititalState] = useState<State>(() =>
-    buildInitialState(collections, abstractAggregateId)
-  );
-  const reducers = useMethods(createMethods, inititalState);
-  return reducers;
-}
-
 function ReportForm({ formPath, collections }: ReportFormProps) {
+  const [state, methods] = useReportViewReducer(collections);
+
   return (
     <div>
-      <Selection parentPath={formPath} collections={collections} />
+      <Selection parentPath={formPath} state={state} methods={methods} />
     </div>
   );
 }
 
 interface SelectionProps {
   parentPath: string[];
-  collections: Collections;
+  state: ReportViewState;
+  methods: ReportViewReducerMethods;
 }
 
-function Selection({ collections, parentPath }: SelectionProps) {
-  const options: SelectOption[] = collections
-    .filter((x) => x.isAbstract)
-    .map((x) => ({
-      id: x.id,
-      label: x.name,
-    }));
-
+function Selection({ methods, state, parentPath }: SelectionProps) {
   const { formPath } = useForm({
     parentPath,
     name: labels.selection.joins.form.name,
   });
   const { field } = useField({
     validator: STRING_VALIDATOR,
-    defaultValue: head(options)?.id,
+    defaultValue: head(state.abstractCollection?.options)?.value,
     name: labels.selection.datasheetPicker.name,
     path: formPath,
+    sideEffect: methods.updateAbstractCollection as (p: {
+      value: unknown;
+    }) => void,
   });
 
-  const fromJoinTag = useFieldTag();
+  function makeDefaultReportJoin(): ReportJoin {
+    return {
+      alias: "",
+      fromBucket: {
+        attributeName: "",
+        bucketName: "",
+      },
+      onCollection: {
+        attributeName: "",
+        bucketName: "",
+      },
+    };
+  }
 
-  const collection = collections.find((x) => x.id === (field.value as string));
-
-  if (collection === undefined) {
+  if (state.abstractCollection === undefined) {
     return null;
   }
 
@@ -235,7 +144,7 @@ function Selection({ collections, parentPath }: SelectionProps) {
     <FormSection>
       <SelectField
         {...field}
-        options={options}
+        options={state.abstractCollection.options}
         label={labels.selection.datasheetPicker.label}
         key={field.name}
       />
@@ -243,23 +152,25 @@ function Selection({ collections, parentPath }: SelectionProps) {
         validator={STRING_VALIDATOR}
         path={formPath}
         name={labels.selection.alias.name}
-        defaultValue={labels.selection.alias.defaultValue}
+        defaultValue={state.abstractCollection.alias}
         label={labels.selection.alias.name}
         key={labels.selection.alias.name}
-        component={textField}
+        component={InlineTextField}
       />
       <FormArray<
         ReportJoin,
         {},
-        { collection: Collection; fromJoinTag: TagMetadata }
+        { state: ReportViewState; methods: ReportViewReducerMethods }
       >
         parentPath={formPath}
         elementTemplate={ReportJoinForm}
         frameTemplate={ItemListTemplate}
         key={labels.selection.joins.reportJoin.name}
         frameProps={{}}
-        elementProps={{ collection, fromJoinTag }}
+        elementProps={{ state, methods }}
         createElement={makeDefaultReportJoin}
+        afterInsert={methods.addJoin}
+        afterRemove={methods.removeJoin}
       ></FormArray>
     </FormSection>
   );
@@ -306,7 +217,7 @@ function ItemListTemplate<T>({
           </Grid>
           <Grid item xl={1} md={1} xs={1}>
             <DeleteIconButton
-              onClick={() => remove(element.props.children.id)}
+              onClick={() => remove({ id: String(element.key) })}
             />
           </Grid>
         </Grid>
@@ -329,15 +240,15 @@ function ItemListTemplate<T>({
 interface ReportJoinProps<T> {
   children: UseFieldArray<T>["elements"][number];
   parentPath: string[];
-  collection: Collection;
-  fromJoinTag: { tag: string };
+  state: ReportViewState;
+  methods: ReportViewReducerMethods;
 }
 
 function ReportJoinForm<T>({
   children: element,
   parentPath,
-  collection,
-  fromJoinTag,
+  state,
+  methods,
 }: ReportJoinProps<T>) {
   const { formPath } = useForm({
     name: labels.selection.joins.reportJoin.name,
@@ -345,57 +256,87 @@ function ReportJoinForm<T>({
     metadata: element.metadata,
   });
 
-  const results = useTableQuery(queryFieldsByTag(fromJoinTag.tag));
+  const bucket = state.elementOptions[element.id];
 
+  const updateAliasName = useCallback(
+    (record: FormFieldRecord) => {
+      methods.updateAliasName({
+        elementId: element.id,
+        alias: record.value as string,
+      });
+    },
+    [methods, element]
+  );
+
+  const { field: aliasField } = useField({
+    validator: STRING_VALIDATOR,
+    path: formPath,
+    name: labels.selection.alias.name,
+    defaultValue: bucket.fromOptionSelected.collection?.name || "",
+    sideEffect: updateAliasName,
+  });
+
+  const updateJoinFrom = useCallback(
+    (record: FormFieldRecord) => {
+      methods.updateJoinFrom({
+        elementId: element.id,
+        option: bucket.fromOptions.find((x) => x.value === record.value),
+      });
+    },
+    [methods, element, bucket]
+  );
+
+  const { field: fromCollectionField } = useField({
+    validator: STRING_VALIDATOR,
+    path: formPath,
+    name: labels.selection.datasheetPicker.name,
+    defaultValue: bucket.fromOptionSelected.value,
+    sideEffect: updateJoinFrom,
+  });
+
+  const updateJoinTo = useCallback(
+    (record: FormFieldRecord) => {
+      methods.updateJoinFrom({
+        elementId: element.id,
+        option: bucket.fromOptions.find((x) => x.value === record.value),
+      });
+    },
+    [methods, element, bucket]
+  );
+
+  const { field: toCollectionField } = useField({
+    validator: STRING_VALIDATOR,
+    path: formPath,
+    name: labels.selection.datasheetPicker.name,
+    defaultValue: bucket.toOptionSelected.value,
+    sideEffect: updateJoinTo,
+  });
+  console.log(bucket);
   return (
     <FormSection>
-      <Field
-        validator={STRING_VALIDATOR}
-        path={formPath}
-        name={labels.selection.alias.name}
-        defaultValue={labels.selection.alias.defaultValue}
-        label={labels.selection.alias.name}
-        component={textField}
-      />
-      <Field
-        validator={STRING_VALIDATOR}
-        defaultValue={head(bucket.fromOptions)?.id}
-        path={formPath}
-        name={labels.selection.datasheetPicker.name}
+      <InlineTextField {...aliasField} label={labels.selection.alias.name} />
+      <SelectField
+        {...fromCollectionField}
+        key="from"
         label={labels.selection.datasheetPicker.label}
         options={bucket.fromOptions}
-        component={SelectField}
-        metadata={fromJoinTag}
       />
-      <Field
-        validator={STRING_VALIDATOR}
-        defaultValue={head(bucket.onOptions)?.id}
-        path={formPath}
-        name={labels.selection.datasheetPicker.name}
+      <SelectField
+        {...toCollectionField}
+        key="to"
         label={labels.selection.datasheetPicker.label}
-        options={bucket.onOptions}
-        component={SelectField}
+        fallbackSelection={DefaultOption}
+        options={bucket.toOptions}
       />
     </FormSection>
   );
 }
 
-function makeDefaultReportJoin(): ReportJoin {
-  return {
-    aliasName: "",
-    fromObjectName: "",
-    fromPropertyName: "",
-    joinOnAttribute: "",
-    joinOnCollection: "",
-    allowDicardElement: false,
-    sameCardinality: false,
-    warnAboutIdleItems: false,
-  };
-}
-
 interface ReportComputationFormProps<T> {
   children: UseFieldArray<T>["elements"][number];
   parentPath: string[];
+  state: ReportViewState;
+  methods: ReportViewReducerMethods;
 }
 
 function ReportComputationForm<T>({
@@ -416,7 +357,7 @@ function ReportComputationForm<T>({
         name={labels.selection.alias.name}
         defaultValue={labels.selection.alias.defaultValue}
         label={labels.selection.alias.name}
-        component={textField}
+        component={InlineTextField}
       />
       <Field
         validator={STRING_VALIDATOR}
@@ -424,7 +365,7 @@ function ReportComputationForm<T>({
         name={labels.selection.alias.name}
         defaultValue={labels.selection.alias.defaultValue}
         label={labels.selection.alias.name}
-        component={textField}
+        component={InlineTextField}
       />
       <Field
         validator={BOOLEAN_VALIDATOR}

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import {
   INT_VALIDATOR,
   Field,
-  textField,
+  InlineTextField,
   useForm,
 } from "../../../../components/table-fields";
 import { IntFieldConfig, IntFieldValue } from "../../../../generated";
@@ -34,7 +34,7 @@ export function IntFieldValueForm({
       key="integer"
       label={label}
       t={t}
-      component={textField}
+      component={InlineTextField}
       unit={config.unit}
     />
   );

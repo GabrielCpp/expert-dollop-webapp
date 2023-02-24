@@ -58,6 +58,7 @@ export const FIND_PROJECT_ROOT_SECTIONS = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -142,6 +143,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -213,6 +215,7 @@ export const FIND_PROJECT_ROOT_SECTION_CONTAINERS = gql`
                 ... on StaticChoiceFieldConfig {
                   options {
                     id
+                    value: id
                     label
                     helpText
                   }
@@ -291,6 +294,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
           ... on StaticChoiceFieldConfig {
             options {
               id
+              value: id
               label
               helpText
             }
@@ -319,6 +323,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
         definition {
           id
           projectDefinitionId
+          path
           name
           isCollection
           instanciateByDefault
@@ -349,6 +354,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -395,6 +401,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
               id
               projectDefinitionId
               name
+              path
               isCollection
               instanciateByDefault
               ordinal
@@ -424,6 +431,7 @@ export const FIND_PROJECT_FORM_CONTENT = gql`
                 ... on StaticChoiceFieldConfig {
                   options {
                     id
+                    value: id
                     label
                     helpText
                   }
@@ -513,7 +521,8 @@ query findDefinitionAggregateCollections($projectDefinitionId: ID!) {
 				... on StaticChoiceFieldConfig {
 					selected
 					options {
-						id
+            id
+						value: id
 						label
 						helpText
 					}

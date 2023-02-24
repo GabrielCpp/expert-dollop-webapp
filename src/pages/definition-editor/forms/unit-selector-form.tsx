@@ -1,8 +1,8 @@
+import { SelectOption } from "@mui/base";
 import { useLoaderEffect } from "../../../components/loading-frame";
 import {
   Field,
   SelectField,
-  SelectOption,
   makeEnumValidator,
   Translator,
 } from "../../../components/table-fields";
@@ -32,13 +32,13 @@ export function UnitSelector({
     return null;
   }
 
-  const units: SelectOption[] = data.units.map((u) => ({
+  const units: SelectOption<string>[] = data.units.map((u) => ({
     label: u.id,
-    id: u.id,
+    value: u.id,
   }));
 
   units.push({
-    id: NoUnit,
+    value: NoUnit,
     label: "definition_editor.unit_selection_form.option_no_unit_selected",
   });
 

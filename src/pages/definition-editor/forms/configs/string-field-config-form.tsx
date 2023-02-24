@@ -4,7 +4,7 @@ import {
   useHiddenField,
   Field,
   USER_STRING_VALIDATOR,
-  textField,
+  InlineTextField,
 } from "../../../../components/table-fields";
 import { StringFieldConfig } from "../../../../generated";
 
@@ -46,7 +46,7 @@ export function StringFieldConfigForm({
       key={labels.string.name}
       label={labels.string.label}
       t={t}
-      component={textField}
+      component={InlineTextField}
     />
   );
 }

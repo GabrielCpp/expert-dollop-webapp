@@ -1,11 +1,11 @@
 import { Tooltip, Typography } from "@mui/material";
-import { ReactElement, ReactNode, ReactNodeArray } from "react";
-import { TranslatedString, Translator } from "../form-field-record";
+import { ReactNode, ReactNodeArray } from "react";
+import { applyT, Translator } from "../form-field-record";
 
 interface FieldLabelProps {
-  label?: string | TranslatedString;
+  label?: ReactNode;
   translated?: boolean;
-  title?: string;
+  title?: ReactNode;
   t: Translator;
   children?: ReactNode | ReactNodeArray;
   component?: (p: { children: ReactNodeArray }) => JSX.Element;
@@ -24,13 +24,13 @@ export function FieldLabel({
   if (label) {
     node = (
       <Component>
-        {!translated ? t(label as string) : label}
+        {!translated ? applyT(t, label as string) : label}
         {children}
       </Component>
     );
 
     if (title) {
-      node = <Tooltip title={t(title)}>{node}</Tooltip>;
+      node = <Tooltip title={applyT(t, title)}>{node}</Tooltip>;
     }
   }
 

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import {
   USER_STRING_VALIDATOR,
   Field,
-  textField,
+  InlineTextField,
   useForm,
 } from "../../../../components/table-fields";
 import { StringFieldConfig, StringFieldValue } from "../../../../generated";
@@ -33,7 +33,7 @@ export function StringFieldValueForm({
       key="text"
       label={label}
       t={t}
-      component={textField}
+      component={InlineTextField}
     />
   );
 }

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, Grid, IconButton } from "@mui/material";
+import { SelectOption } from "@mui/base";
 import { useTranslation } from "react-i18next";
 import {
   Field,
@@ -6,7 +7,6 @@ import {
   FormSection,
   IdGenerator,
   SelectField,
-  SelectOption,
   STRING_VALIDATOR,
   useFieldArray,
   useForm,
@@ -30,7 +30,7 @@ interface TriggersProps {
       name: string;
       label: string;
       defaultValue: string;
-      options: SelectOption[];
+      options: SelectOption<string>[];
     };
     targetTypeId: {
       name: string;
@@ -96,7 +96,7 @@ export function Triggers({ name, path, labels, triggers }: TriggersProps) {
                 alignItems="center"
               >
                 <Grid item>
-                  <IconButton onClick={() => remove(element.id)}>
+                  <IconButton onClick={() => remove({ id: element.id })}>
                     <DeleteIcon />
                   </IconButton>
                 </Grid>

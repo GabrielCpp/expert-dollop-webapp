@@ -9,7 +9,7 @@ export interface OrdinalMetadata extends Record<string, unknown> {
 
 export interface UseFieldArray<T> {
   insert: (p?: { index?: number; after?: OnInsert<T> }) => void;
-  remove: (id: string) => void;
+  remove: (p: { id: string; after?: OnRemove<T> }) => void;
   refresh: () => void;
   elements: FieldArrayElement<T>[];
   leftSlotCount: number;
@@ -21,11 +21,18 @@ export interface FieldArrayElement<T> {
   metadata: OrdinalMetadata;
 }
 
-export type OnInsert<T> = (
-  element: FieldArrayElement<T>,
-  index: number,
-  elements: FieldArrayElement<T>[]
-) => void;
+export type OnInsert<T> = (p: AfterInsert<T>) => void;
+export interface AfterInsert<T> {
+  element: FieldArrayElement<T>;
+  index: number;
+  elements: FieldArrayElement<T>[];
+}
+export type OnRemove<T> = (p: AfterRemove<T>) => void;
+export interface AfterRemove<T> {
+  element: FieldArrayElement<T>;
+  index: number;
+  elements: FieldArrayElement<T>[];
+}
 export type IdGenerator = () => string;
 export type FieldArrayBuilder<T> = (
   makeId: IdGenerator
@@ -35,12 +42,14 @@ export interface UseFieldArrayHook<T> {
   createElement: (makeId: IdGenerator) => T;
   initialState?: FieldArrayBuilder<T> | T[];
   afterInsert?: OnInsert<T>;
+  afterRemove?: OnRemove<T>;
   maximumItemCount?: number;
 }
 
 export function useFieldArray<T>({
   createElement,
   afterInsert,
+  afterRemove,
   initialState,
   maximumItemCount = 100,
 }: UseFieldArrayHook<T>): UseFieldArray<T> {
@@ -59,14 +68,47 @@ export function useFieldArray<T>({
     return initialState(uuidv4);
   }, [initialState]);
   const initialStateValue = useCallbackValue(buildArray);
-  const [elements, { insert: insertRaw, remove, refresh }] = useMethods(
-    createArrayMethods,
-    initialStateValue
-  );
+  const [elements, { insert: insertRaw, remove: removeRaw, refresh }] =
+    useMethods(createArrayMethods, initialStateValue);
   const insert = useCallback(
-    ({ index, after }: { index?: number; after?: OnInsert<T> } = {}) =>
-      insertRaw({ index, createElement, afterInsert, after, maximumItemCount }),
-    [insertRaw, createElement, afterInsert]
+    ({
+      index,
+      afterInsert: afterInsertLocal,
+    }: { index?: number; afterInsert?: OnInsert<T> } = {}) => {
+      const after: OnInsert<T> = (p) => {
+        if (afterInsert) {
+          afterInsert(p);
+        }
+        if (afterInsertLocal) {
+          afterInsertLocal(p);
+        }
+      };
+
+      insertRaw({ index, createElement, after, maximumItemCount });
+    },
+    [insertRaw, createElement, afterInsert, maximumItemCount]
+  );
+
+  const remove = useCallback(
+    ({
+      id,
+      afterRemove: afterRemoveLocal,
+    }: {
+      id: string;
+      afterRemove?: OnRemove<T>;
+    }) => {
+      const after: OnInsert<T> = (p) => {
+        if (afterRemove) {
+          afterRemove(p);
+        }
+        if (afterRemoveLocal) {
+          afterRemoveLocal(p);
+        }
+      };
+
+      removeRaw({ id, after });
+    },
+    [removeRaw, afterRemove]
   );
 
   return {
@@ -81,13 +123,11 @@ export function useFieldArray<T>({
 function createArrayMethods<T>(state: FieldArrayElement<T>[]) {
   function insert({
     createElement,
-    afterInsert,
     after,
     index,
     maximumItemCount,
   }: {
     createElement: (makeId: IdGenerator) => T;
-    afterInsert?: OnInsert<T>;
     after?: OnInsert<T>;
     index?: number;
     maximumItemCount: number;
@@ -111,19 +151,55 @@ function createArrayMethods<T>(state: FieldArrayElement<T>[]) {
       elements.splice(index, 0, newElement);
     }
 
-    if (afterInsert) {
-      afterInsert(newElement, newElement.metadata.ordinal, elements);
-    }
-
     if (after) {
-      after(newElement, newElement.metadata.ordinal, elements);
+      after({
+        element: newElement,
+        index: newElement.metadata.ordinal,
+        elements,
+      });
     }
 
     return elements;
   }
 
-  function remove(id: string): FieldArrayElement<T>[] {
-    return state.filter((x) => x.id !== id);
+  function remove({
+    id,
+    after,
+  }: {
+    id: string;
+    after: OnRemove<T>;
+  }): FieldArrayElement<T>[] {
+    const initial: {
+      elements: FieldArrayElement<T>[];
+      element?: FieldArrayElement<T>;
+      index: number;
+    } = { elements: [], element: undefined, index: 0 };
+    const resultState = state.reduce((p, c) => {
+      if (c.id === id) {
+        p.element = c;
+        return p;
+      }
+
+      if (p.element === undefined) {
+        p.index++;
+      }
+
+      p.elements.push(c);
+
+      return p;
+    }, initial);
+
+    if (resultState.element === undefined) {
+      return state;
+    }
+
+    if (after) {
+      after(
+        resultState as AfterRemove<T>
+      );
+    }
+
+    return resultState.elements;
   }
 
   function refresh(): FieldArrayElement<T>[] {

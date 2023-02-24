@@ -1,4 +1,4 @@
-import { SelectOption } from "./form-field-record";
+import { SelectOption } from "@mui/base";
 import { AnySchema } from "ajv";
 
 
@@ -27,9 +27,9 @@ export const BOOLEAN_VALIDATOR = { type: "boolean" };
 export const INT_VALIDATOR = { type: "integer" };
 export const DECIMAL_VALIDATOR = { type: "number" };
 
-export function makeEnumValidator(options: SelectOption[]): AnySchema {
+export function makeEnumValidator(options: SelectOption<string>[]): AnySchema {
   return {
     type: ["string", "null"],
-    enum: options.filter(o=>o.id !== undefined).map(o => o.id)
+    enum: options.filter(o=>o.value !== undefined).map(o => o.value)
   }
 }

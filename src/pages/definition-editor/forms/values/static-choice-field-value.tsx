@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
+import { SelectOption } from "@mui/base";
 import {
   Field,
+  FieldLabel,
   SelectField,
-  SelectOption,
   STRING_VALIDATOR,
   useForm,
 } from "../../../../components/table-fields";
@@ -28,10 +29,9 @@ export function StaticChoiceFieldValueForm({
 }: StaticChoiceFieldValueProps) {
   const { t } = useTranslation();
   const { formPath } = useForm({ name, parentPath });
-  const options: SelectOption[] = config.options.map((o) => ({
-    id: o.id,
-    label: o.label,
-    title: o.helpText,
+  const options: SelectOption<string>[] = config.options.map((o) => ({
+    value: o.id,
+    label: <FieldLabel title={o.helpText} label={o.label} t={t} />,
   }));
 
   return (

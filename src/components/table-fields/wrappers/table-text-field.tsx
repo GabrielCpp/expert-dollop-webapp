@@ -1,18 +1,17 @@
-import { InputAdornment, TextField, Typography, Tooltip } from "@mui/material";
-import { ReactNode, useContext } from "react";
+import { InputAdornment, TextField } from "@mui/material";
+import { ReactNode } from "react";
 import { FieldChildren } from "../form-field-record";
-import { FormThemeContext } from "../form-theme-context";
 import { FieldLabel } from "../views";
 
 export interface TextFieldProps extends FieldChildren {
-  label?: string;
+  label?: ReactNode;
   title?: string;
   unit?: string;
   startAdornment?: ReactNode;
   textProps?: Parameters<typeof TextField>[0];
 }
 
-export function textField({
+export function InlineTextField({
   id,
   value,
   name,

@@ -11,6 +11,7 @@ export {
   buildPk,
   useTableLifetime,
   useCallbackValue,
+  useMonoCallbackValue
 } from "./query-hook";
 
 export type { Query } from "./query";

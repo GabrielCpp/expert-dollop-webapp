@@ -127,11 +127,15 @@ export function useTableLifetime<T>(
 }
 
 export function useCallbackValue<T>(callback: () => T): T {
+  return useMonoCallbackValue(callback, undefined)
+}
+
+export function useMonoCallbackValue<T,P=undefined>(callback: (p: P) => T, p: P): T {
   const value = useRef<T | undefined>(undefined);
-  const lastCallback = useRef<(() => T) | undefined>(undefined);
+  const lastCallback = useRef<((p: P) => T) | undefined>(undefined);
 
   if (lastCallback.current !== callback) {
-    value.current = callback();
+    value.current = callback(p);
     lastCallback.current = callback;
   }
 

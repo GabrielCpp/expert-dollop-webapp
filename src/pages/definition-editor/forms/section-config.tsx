@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { SelectOption } from "@mui/base";
 import {
   BOOLEAN_VALIDATOR,
   checkboxField,
@@ -8,7 +9,6 @@ import {
   STRING_VALIDATOR,
   useForm,
   useFormFieldValueRef,
-  SelectOption,
 } from "../../../components/table-fields";
 import { FieldDetailsType, FieldDetailsUnionInput } from "../../../generated";
 
@@ -20,7 +20,7 @@ interface SectionConfigProps {
     sectionConfigTypes: {
       name: string;
       label: string;
-      options: SelectOption[];
+      options: SelectOption<string>[];
       defaultOption: string;
     };
     collapsibleContainer: {

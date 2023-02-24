@@ -15,6 +15,7 @@ import {
   TablePagination,
   TextField,
 } from "@mui/material";
+import { SelectOption } from "@mui/base";
 import { identity } from "lodash";
 import {
   ChangeEvent,
@@ -29,14 +30,18 @@ import { useObservable, usePreviousDistinct } from "react-use";
 import { PageFetcher, PageInfo } from "../../../shared/async-cursor";
 import { ObservableValue } from "../../../shared/redux-db";
 import { ResultSet, createEmptyPage } from "../../../shared/async-cursor";
-import { FieldChildren, SelectOption } from "../form-field-record";
+import { applyT, FieldChildren } from "../form-field-record";
+
+interface SelectOptionWithQuery extends SelectOption<string> {
+  query: string;
+}
 
 interface RemoteReferencePickerFieldProps extends FieldChildren {
-  label: string;
-  title?: string;
+  label: ReactNode;
+  title?: ReactNode;
   endAdornment?: ReactNode;
-  fetchPage: PageFetcher<SelectOption>;
-  findById: (id: string) => Promise<SelectOption | null | undefined>;
+  fetchPage: PageFetcher<SelectOptionWithQuery>;
+  findById: (id: string) => Promise<SelectOptionWithQuery | null | undefined>;
   limit?: number;
 }
 
@@ -47,14 +52,14 @@ export function remoteReferencePickerField(
 }
 
 interface UseSearchParams {
-  fetchPage: PageFetcher<SelectOption>;
+  fetchPage: PageFetcher<SelectOptionWithQuery>;
   throttleTimeMsc?: number;
   limit?: number;
 }
 
 interface ExtendedPageInfo extends PageInfo {
   pageIndex: number;
-  options: SelectOption[];
+  options: SelectOptionWithQuery[];
   limit: number;
 }
 
@@ -75,7 +80,7 @@ function useSearch({
   const lastQuery = useRef("");
   const [loading, setLoading] = useState(false);
   const [fetchedPage, setFetchedPage] =
-    useState<ResultSet<SelectOption>>(createEmptyPage);
+    useState<ResultSet<SelectOption<string>>>(createEmptyPage);
   const lastCursor = usePreviousDistinct(fetchedPage.pageInfo.endCursor);
   const page = useRef<ObservableValue<ExtendedPageInfo>>();
   if (page.current === undefined) {
@@ -188,11 +193,11 @@ function ControlledAutocomplete({
 
   const selectOption = useCallback(
     (optionId: string) => () => {
-      const option = page$.value.options.find((o) => o.id === optionId);
+      const option = page$.value.options.find((o) => o.value === optionId);
 
       if (option) {
-        onChange(option.id);
-        setQuery(option.label);
+        onChange(option.value);
+        setQuery(option.query);
         setOpen(false);
       }
     },
@@ -205,7 +210,7 @@ function ControlledAutocomplete({
         (o) => o.label === event.target.value
       );
       if (option !== undefined) {
-        onChange(option.id);
+        onChange(option.value);
         setOpen(false);
       }
 
@@ -222,8 +227,8 @@ function ControlledAutocomplete({
     } else {
       findById(value as string).then((option) => {
         if (option) {
-          setQuery(option.label);
-          throttledSearch(option.label);
+          setQuery(option.query);
+          throttledSearch(option.query);
         }
 
         setInitializing(false);
@@ -240,7 +245,7 @@ function ControlledAutocomplete({
           id={id}
           style={{ width: "100%" }}
           disabled={isInitializing}
-          label={t(label)}
+          label={applyT(t, label)}
           value={query}
           onChange={updateTransientValue}
           InputProps={{
@@ -358,7 +363,10 @@ function PaginatedList({
     <div>
       <List style={{ maxHeight: 200, overflow: "auto" }} dense={true}>
         {page.options.map((option) => (
-          <ListItemButton onClick={selectOption(option.id)} key={option.id}>
+          <ListItemButton
+            onClick={selectOption(option.value)}
+            key={option.value}
+          >
             <ListItemText primary={option.label} />
           </ListItemButton>
         ))}

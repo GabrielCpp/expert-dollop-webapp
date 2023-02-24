@@ -1,7 +1,9 @@
-import { useFieldArray, useForm } from "..";
 import { AcceptableChild } from "../helpers";
-import { UseFieldArray, UseFieldArrayHook } from "../hooks/use-field-array";
-import { UseFormParams } from "../hooks/use-form";
+import {
+  useFieldArray,
+  UseFieldArray,
+  UseFieldArrayHook,
+} from "../hooks/use-field-array";
 
 interface FormArrayProps<T, FrameProps, ElementProps> {
   frameTemplate: (
@@ -18,8 +20,6 @@ interface FormArrayProps<T, FrameProps, ElementProps> {
   elementProps: ElementProps;
   parentPath: string[];
 }
-
-const Default = {};
 
 export function FormArray<T, FrameProps, ElementProps>({
   frameTemplate: Frame,

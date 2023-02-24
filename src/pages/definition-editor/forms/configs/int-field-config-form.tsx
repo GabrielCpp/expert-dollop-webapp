@@ -3,7 +3,7 @@ import {
   useForm,
   Field,
   INT_VALIDATOR,
-  textField,
+  InlineTextField,
 } from "../../../../components/table-fields";
 import { IntFieldConfigInput } from "../../../../generated";
 import { UnitSelector } from "../unit-selector-form";
@@ -43,7 +43,7 @@ export function IntFieldConfigForm({
         key={labels.int.name}
         label={labels.int.label}
         t={t}
-        component={textField}
+        component={InlineTextField}
       />
       <UnitSelector
         unit={config?.unit}

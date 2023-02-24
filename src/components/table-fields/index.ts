@@ -1,7 +1,7 @@
 export type {
   FormFieldRecord,
   Translator,
-  SelectOption,
+  OptionRecord,
 } from "./form-field-record";
 export {
   setupFormTables,

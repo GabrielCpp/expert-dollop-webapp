@@ -12,6 +12,7 @@ import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import EditIcon from "@mui/icons-material/Edit";
+import { compact, head, pick, values } from "lodash";
 import { AddButtonLinkFullWidth } from "../../../components/buttons";
 import {
   ExpandIconButton,
@@ -25,14 +26,14 @@ import {
 import {
   checkboxField,
   Field,
+  FieldLabel,
   patchFormFields,
-  radioField,
-  textField,
+  RadioField,
+  InlineTextField,
 } from "../../../components/table-fields";
 import {
   CollapsibleContainerFieldConfig,
-  ProjectDefinitionTreeNode,
-  StaticChoiceFieldConfig,
+  FindProjectDefinitionFormContentQuery,
   useFindProjectDefinitionFormContentQuery,
 } from "../../../generated";
 import { useServices } from "../../../services-def";
@@ -44,13 +45,12 @@ import {
   PROJECT_DEFINITION_EDITOR_NODE_EDIT,
 } from "../routes";
 import { EditButton } from "./edit-button";
-import { compact, head, pick, values } from "lodash";
 
-interface FormProps {
-  node: ProjectDefinitionTreeNode;
+interface FormFieldProps {
+  node: FindProjectDefinitionFormContentQuery["findProjectDefinitionFormContent"]["roots"][number]["children"][number];
 }
 
-function FormField({ node }: FormProps): JSX.Element {
+function FormField({ node }: FormFieldProps): JSX.Element {
   const { dbTrans } = useDbTranslation(node.definition.projectDefinitionId);
   const { routes } = useServices();
   const validator = JSON.parse(node.definition.validator);
@@ -91,7 +91,7 @@ function FormField({ node }: FormProps): JSX.Element {
         defaultValue={node.definition.fieldDetails.text}
         label={node.definition.name}
         t={dbTrans}
-        component={textField}
+        component={InlineTextField}
         startAdornment={EditButton}
       />
     );
@@ -107,7 +107,7 @@ function FormField({ node }: FormProps): JSX.Element {
         defaultValue={node.definition.fieldDetails.integer}
         label={node.definition.name}
         t={dbTrans}
-        component={textField}
+        component={InlineTextField}
         startAdornment={EditButton}
       />
     );
@@ -123,7 +123,7 @@ function FormField({ node }: FormProps): JSX.Element {
         defaultValue={node.definition.fieldDetails.numeric}
         label={node.definition.name}
         t={dbTrans}
-        component={textField}
+        component={InlineTextField}
         startAdornment={EditButton}
       />
     );
@@ -146,18 +146,22 @@ function FormField({ node }: FormProps): JSX.Element {
   }
 
   if (fieldType === "StaticChoiceFieldConfig") {
-    const choices = node.definition.fieldDetails as StaticChoiceFieldConfig;
+    const options = node.definition.fieldDetails.options.map((x) => ({
+      value: x.id,
+      label: <FieldLabel title={x.helpText} label={x.label} t={dbTrans} />,
+    }));
+
     return (
       <Field
         id={node.definition.id}
-        options={choices.options}
+        options={options}
         validator={validator}
         path={node.definition.path}
         name={node.definition.name}
         defaultValue={node.definition.fieldDetails.selected}
         label={node.definition.translations.label}
         t={dbTrans}
-        component={radioField}
+        component={RadioField}
         startAdornment={EditButton}
       />
     );
@@ -175,7 +179,11 @@ function FormField({ node }: FormProps): JSX.Element {
   return <div key={node.definition.name}>{node.definition.name}</div>;
 }
 
-function FormSection({ node }: FormProps): JSX.Element {
+interface FormSectionProps {
+  node: FindProjectDefinitionFormContentQuery["findProjectDefinitionFormContent"]["roots"][number];
+}
+
+function FormSection({ node }: FormSectionProps): JSX.Element {
   const { routes } = useServices();
   const valueType = node.definition
     .fieldDetails as CollapsibleContainerFieldConfig;
@@ -301,7 +309,7 @@ export function FormDefinitionEditor({
           {formContent &&
             formContent.map((node) => (
               <Grid item key={node.definition.name}>
-                <FormSection node={node as ProjectDefinitionTreeNode} />
+                <FormSection node={node} />
               </Grid>
             ))}
           {formNode && (

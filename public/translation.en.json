@@ -43,6 +43,9 @@
     }
   },
   "definition_editor": {
+    "collection_view": {
+      "add_aggregate": "Add aggregate"
+    },
     "collection_form": {
       "title_add": "Add collection",
       "title_edit": "Edit collection",

@@ -3,7 +3,7 @@ import {
   useForm,
   Field,
   DECIMAL_VALIDATOR,
-  textField,
+  InlineTextField,
   INT_VALIDATOR,
 } from "../../../../components/table-fields";
 import { DecimalFieldConfigInput } from "../../../../generated";
@@ -50,7 +50,7 @@ export function DecimalFieldConfigForm({
         key={labels.decimal.name}
         label={labels.decimal.label}
         t={t}
-        component={textField}
+        component={InlineTextField}
       />
       <Field
         validator={INT_VALIDATOR}
@@ -60,7 +60,7 @@ export function DecimalFieldConfigForm({
         key={labels.precision.name}
         label={labels.precision.label}
         t={t}
-        component={textField}
+        component={InlineTextField}
       />
       <UnitSelector
         unit={config?.unit}

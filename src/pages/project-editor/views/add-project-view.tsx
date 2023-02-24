@@ -9,7 +9,7 @@ import {
   hydrateForm,
   SelectField,
   STRING_VALIDATOR,
-  textField,
+  InlineTextField,
   useForm,
   validateForm,
 } from "../../../components/table-fields";
@@ -71,7 +71,7 @@ export function AddProjectView() {
   }
 
   const options = data.results.edges.map((x) => ({
-    id: x.node.id,
+    value: x.node.id,
     label: x.node.name,
   }));
 
@@ -90,14 +90,14 @@ export function AddProjectView() {
               path={path}
               defaultValue={""}
               name="name"
-              component={textField}
+              component={InlineTextField}
               label={t("name")}
               t={t}
             />
             <Field
               validator={STRING_VALIDATOR}
               path={path}
-              defaultValue={head(options)?.id}
+              defaultValue={head(options)?.value}
               name="projectDefinitionId"
               component={SelectField}
               label={t("project_type")}

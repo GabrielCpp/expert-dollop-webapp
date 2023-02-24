@@ -1,4 +1,4 @@
-import { SelectOption } from "../form-field-record";
+import { SelectOption } from "@mui/base";
 import { useForm, useFormFieldValueRef, useHiddenField } from "../hooks";
 
 interface UnionField {
@@ -15,7 +15,7 @@ export interface UnionFieldValueProps<
 }
 
 export interface UnionOptionDetails<UnionType extends UnionField>
-  extends SelectOption {
+  extends SelectOption<string> {
   fieldName: keyof Omit<UnionType, "kind">;
   component: <K extends keyof Omit<UnionType, "kind">>(
     p: UnionFieldValueProps<K, UnionType>
@@ -79,7 +79,7 @@ export function UnionFieldPicker<UnionType extends UnionField>({
 }: UnionFieldPickerProps<UnionType>) {
   const { formPath } = useForm({ name, parentPath });
   const { value: kind, id: configTypeId } = useFormFieldValueRef(value.kind);
-  const unionKind = options.find((o) => o.id === kind);
+  const unionKind = options.find((o) => o.value === kind);
 
   if (unionKind === undefined) {
     return null;

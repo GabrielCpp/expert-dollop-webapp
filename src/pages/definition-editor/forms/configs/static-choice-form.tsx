@@ -12,7 +12,7 @@ import {
   patchFormField,
   SelectField,
   STRING_VALIDATOR,
-  textField,
+  InlineTextField,
   Translator,
   useFieldArray,
   useFieldWatch,
@@ -106,7 +106,7 @@ export function StaticChoiceForm({
     head(elements)?.id
   );
   const push = useCallback(
-    () => insert({ after: (e) => setCurrentNodeId(e.id) }),
+    () => insert({ after: ({ element: e }) => setCurrentNodeId(e.id) }),
     [insert, setCurrentNodeId]
   );
   const { value: currentElementValue } = useFieldWatch(
@@ -114,7 +114,7 @@ export function StaticChoiceForm({
   );
   const removeCurrentElement = useCallback(() => {
     if (currentNodeId) {
-      remove(currentNodeId);
+      remove({ id: currentNodeId });
     }
 
     setCurrentNodeId(elements.find((e) => e.id !== currentNodeId)?.id);
@@ -192,7 +192,7 @@ export function StaticChoiceForm({
         valueToFormModel={modelView.current.toModel}
         formatter={modelView.current.toView}
         options={elements.map((e) => ({
-          id: e.value.optionValueId,
+          value: e.value.optionValueId,
           label: getLabel(e),
         }))}
       />
@@ -330,7 +330,7 @@ function SelectOptionForm({
         name={labels.id.name}
         key={labels.id.name}
         label={labels.id.label}
-        component={textField}
+        component={InlineTextField}
         t={t}
       />
       <MultiLanguageField

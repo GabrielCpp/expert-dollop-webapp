@@ -5,7 +5,7 @@ import {
   Field,
   hydrateForm,
   STRING_VALIDATOR,
-  textField,
+  InlineTextField,
   useForm,
   validateForm,
 } from "../../../components/table-fields";
@@ -67,7 +67,7 @@ export function AddDatasheet() {
               path={path}
               defaultValue={""}
               name="name"
-              component={textField}
+              component={InlineTextField}
               label={"name"}
               t={t}
             />

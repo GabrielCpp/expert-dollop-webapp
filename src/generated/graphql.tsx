@@ -907,6 +907,7 @@ export type ReportComputation = {
   __typename?: "ReportComputation";
   expression: FieldWrapper<Scalars["String"]>;
   isVisible: FieldWrapper<Scalars["Boolean"]>;
+  label?: Maybe<FieldWrapper<AttributeBucket>>;
   name: FieldWrapper<Scalars["String"]>;
   unit?: Maybe<FieldWrapper<ReportUnitUnion>>;
 };
@@ -927,19 +928,14 @@ export type ReportDefinitionStructure = {
   orderBy: Array<FieldWrapper<AttributeBucket>>;
   reportSummary: Array<FieldWrapper<ReportComputation>>;
   selection: FieldWrapper<Selection>;
-  stageSummary: FieldWrapper<StageSummary>;
+  stageSummary: FieldWrapper<ReportComputation>;
 };
 
 export type ReportJoin = {
   __typename?: "ReportJoin";
-  aliasName: FieldWrapper<Scalars["String"]>;
-  allowDicardElement: FieldWrapper<Scalars["Boolean"]>;
-  fromObjectName: FieldWrapper<Scalars["String"]>;
-  fromPropertyName: FieldWrapper<Scalars["String"]>;
-  joinOnAttribute: FieldWrapper<Scalars["String"]>;
-  joinOnCollection: FieldWrapper<Scalars["String"]>;
-  sameCardinality: FieldWrapper<Scalars["Boolean"]>;
-  warnAboutIdleItems: FieldWrapper<Scalars["Boolean"]>;
+  alias: FieldWrapper<Scalars["String"]>;
+  fromBucket: FieldWrapper<AttributeBucket>;
+  onCollection: FieldWrapper<AttributeBucket>;
 };
 
 export type ReportRow = {
@@ -974,12 +970,6 @@ export type StageColumn = {
   isVisible: FieldWrapper<Scalars["Boolean"]>;
   label: FieldWrapper<Scalars["String"]>;
   unit?: Maybe<FieldWrapper<Scalars["String"]>>;
-};
-
-export type StageSummary = {
-  __typename?: "StageSummary";
-  label?: Maybe<FieldWrapper<AttributeBucket>>;
-  summary?: Maybe<FieldWrapper<ReportComputation>>;
 };
 
 export type StaticChoiceFieldConfig = {
@@ -1699,7 +1689,7 @@ export type FindProjectDefinitionRootSectionsQuery = {
                       { __typename?: "StaticChoiceOption" } & Pick<
                         StaticChoiceOption,
                         "id" | "label" | "helpText"
-                      >
+                      > & { value: StaticChoiceOption["id"] }
                     >;
                   })
               | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -1770,7 +1760,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
                       { __typename?: "StaticChoiceOption" } & Pick<
                         StaticChoiceOption,
                         "id" | "label" | "helpText"
-                      >
+                      > & { value: StaticChoiceOption["id"] }
                     >;
                   })
               | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -1825,7 +1815,7 @@ export type FindProjectDefinitionRootSectionContainersQuery = {
                           { __typename?: "StaticChoiceOption" } & Pick<
                             StaticChoiceOption,
                             "id" | "label" | "helpText"
-                          >
+                          > & { value: StaticChoiceOption["id"] }
                         >;
                       })
                   | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -1901,7 +1891,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                 { __typename?: "StaticChoiceOption" } & Pick<
                   StaticChoiceOption,
                   "id" | "label" | "helpText"
-                >
+                > & { value: StaticChoiceOption["id"] }
               >;
             })
         | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -1972,7 +1962,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                       { __typename?: "StaticChoiceOption" } & Pick<
                         StaticChoiceOption,
                         "id" | "label" | "helpText"
-                      >
+                      > & { value: StaticChoiceOption["id"] }
                     >;
                   })
               | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -2040,7 +2030,7 @@ export type FindProjectDefinitionFormContentQuery = { __typename?: "Query" } & {
                           { __typename?: "StaticChoiceOption" } & Pick<
                             StaticChoiceOption,
                             "id" | "label" | "helpText"
-                          >
+                          > & { value: StaticChoiceOption["id"] }
                         >;
                       })
                   | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -2120,7 +2110,7 @@ export type FindProjectDefinitionNodeQuery = { __typename?: "Query" } & {
                 { __typename?: "StaticChoiceOption" } & Pick<
                   StaticChoiceOption,
                   "id" | "label" | "helpText"
-                >
+                > & { value: StaticChoiceOption["id"] }
               >;
             })
         | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -2190,7 +2180,11 @@ export type FindDefinitionFormulaFieldMixQuery = { __typename?: "Query" } & {
           node: { __typename?: "CoreDefinitionNode" } & Pick<
             CoreDefinitionNode,
             "id"
-          > & { label: CoreDefinitionNode["name"] };
+          > & {
+              value: CoreDefinitionNode["id"];
+              label: CoreDefinitionNode["name"];
+              query: CoreDefinitionNode["name"];
+            };
         }
     >;
     pageInfo: { __typename?: "PageInfo" } & Pick<
@@ -2208,7 +2202,9 @@ export type FindFormulaQueryVariables = Exact<{
 export type FindFormulaQuery = { __typename?: "Query" } & {
   result?: Maybe<
     { __typename?: "Formula" } & Pick<Formula, "id"> & {
+        value: Formula["id"];
         label: Formula["name"];
+        query: Formula["name"];
       }
   >;
 };
@@ -2328,7 +2324,7 @@ export type FindAggregateCollectionQuery = { __typename?: "Query" } & {
                       { __typename?: "StaticChoiceOption" } & Pick<
                         StaticChoiceOption,
                         "id" | "label" | "helpText"
-                      >
+                      > & { value: StaticChoiceOption["id"] }
                     >;
                   })
               | ({ __typename: "StringFieldConfig" } & Pick<
@@ -2390,7 +2386,7 @@ export type ReportViewQuery = { __typename?: "Query" } & {
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
                           "id" | "label" | "helpText"
-                        >
+                        > & { value: StaticChoiceOption["id"] }
                       >;
                     })
                 | ({ __typename: "StringFieldConfig" } & Pick<
@@ -2419,17 +2415,16 @@ export type ReportViewQuery = { __typename?: "Query" } & {
               "fromCollectionId" | "fromAlias"
             > & {
                 joinsCache: Array<
-                  { __typename?: "ReportJoin" } & Pick<
-                    ReportJoin,
-                    | "fromObjectName"
-                    | "fromPropertyName"
-                    | "joinOnCollection"
-                    | "joinOnAttribute"
-                    | "aliasName"
-                    | "warnAboutIdleItems"
-                    | "sameCardinality"
-                    | "allowDicardElement"
-                  >
+                  { __typename?: "ReportJoin" } & Pick<ReportJoin, "alias"> & {
+                      fromBucket: { __typename?: "AttributeBucket" } & Pick<
+                        AttributeBucket,
+                        "bucketName" | "attributeName"
+                      >;
+                      onCollection: { __typename?: "AttributeBucket" } & Pick<
+                        AttributeBucket,
+                        "bucketName" | "attributeName"
+                      >;
+                    }
                 >;
                 formulaAttribute: { __typename?: "AttributeBucket" } & Pick<
                   AttributeBucket,
@@ -2653,7 +2648,7 @@ export type FindProjectRootSectionsQuery = { __typename?: "Query" } & {
                       { __typename?: "StaticChoiceOption" } & Pick<
                         StaticChoiceOption,
                         "id" | "label" | "helpText"
-                      >
+                      > & { value: StaticChoiceOption["id"] }
                     >;
                   })
               | { __typename: "StaticNumberFieldConfig" }
@@ -2748,7 +2743,7 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
                       { __typename?: "StaticChoiceOption" } & Pick<
                         StaticChoiceOption,
                         "id" | "label" | "helpText"
-                      >
+                      > & { value: StaticChoiceOption["id"] }
                     >;
                   })
               | { __typename: "StaticNumberFieldConfig" }
@@ -2831,7 +2826,7 @@ export type FindProjectRootSectionContainersQuery = { __typename?: "Query" } & {
                               { __typename?: "StaticChoiceOption" } & Pick<
                                 StaticChoiceOption,
                                 "id" | "label" | "helpText"
-                              >
+                              > & { value: StaticChoiceOption["id"] }
                             >;
                           })
                       | { __typename: "StaticNumberFieldConfig" }
@@ -2928,7 +2923,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                     { __typename?: "StaticChoiceOption" } & Pick<
                       StaticChoiceOption,
                       "id" | "label" | "helpText"
-                    >
+                    > & { value: StaticChoiceOption["id"] }
                   >;
                 })
             | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -2957,6 +2952,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
           ProjectDefinitionNode,
           | "id"
           | "projectDefinitionId"
+          | "path"
           | "name"
           | "isCollection"
           | "instanciateByDefault"
@@ -2992,7 +2988,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                       { __typename?: "StaticChoiceOption" } & Pick<
                         StaticChoiceOption,
                         "id" | "label" | "helpText"
-                      >
+                      > & { value: StaticChoiceOption["id"] }
                     >;
                   })
               | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -3042,6 +3038,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                   | "id"
                   | "projectDefinitionId"
                   | "name"
+                  | "path"
                   | "isCollection"
                   | "instanciateByDefault"
                   | "ordinal"
@@ -3078,7 +3075,7 @@ export type FindProjectFormContentQuery = { __typename?: "Query" } & {
                               { __typename?: "StaticChoiceOption" } & Pick<
                                 StaticChoiceOption,
                                 "id" | "label" | "helpText"
-                              >
+                              > & { value: StaticChoiceOption["id"] }
                             >;
                           })
                       | ({ __typename: "StaticNumberFieldConfig" } & Pick<
@@ -3189,7 +3186,7 @@ export type FindDefinitionAggregateCollectionsQuery = {
                         { __typename?: "StaticChoiceOption" } & Pick<
                           StaticChoiceOption,
                           "id" | "label" | "helpText"
-                        >
+                        > & { value: StaticChoiceOption["id"] }
                       >;
                     })
                 | ({ __typename: "StringFieldConfig" } & Pick<
@@ -4567,6 +4564,7 @@ export const FindProjectDefinitionRootSectionsDocument = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -4681,6 +4679,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -4731,6 +4730,7 @@ export const FindProjectDefinitionRootSectionContainersDocument = gql`
               ... on StaticChoiceFieldConfig {
                 options {
                   id
+                  value: id
                   label
                   helpText
                 }
@@ -4847,6 +4847,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
         ... on StaticChoiceFieldConfig {
           options {
             id
+            value: id
             label
             helpText
           }
@@ -4908,6 +4909,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -4966,6 +4968,7 @@ export const FindProjectDefinitionFormContentDocument = gql`
               ... on StaticChoiceFieldConfig {
                 options {
                   id
+                  value: id
                   label
                   helpText
                 }
@@ -5090,6 +5093,7 @@ export const FindProjectDefinitionNodeDocument = gql`
           selected
           options {
             id
+            value: id
             label
             helpText
           }
@@ -5304,7 +5308,9 @@ export const FindDefinitionFormulaFieldMixDocument = gql`
       edges {
         node {
           id
+          value: id
           label: name
+          query: name
         }
         cursor
       }
@@ -5377,7 +5383,9 @@ export const FindFormulaDocument = gql`
       formulaId: $formulaId
     ) {
       id
+      value: id
       label: name
+      query: name
     }
   }
 `;
@@ -5592,6 +5600,7 @@ export const FindAggregateCollectionDocument = gql`
             selected
             options {
               id
+              value: id
               label
               helpText
             }
@@ -5699,6 +5708,7 @@ export const ReportViewDocument = gql`
           ... on StaticChoiceFieldConfig {
             options {
               id
+              value: id
               label
               helpText
             }
@@ -5726,14 +5736,15 @@ export const ReportViewDocument = gql`
           fromCollectionId
           fromAlias
           joinsCache {
-            fromObjectName
-            fromPropertyName
-            joinOnCollection
-            joinOnAttribute
-            aliasName
-            warnAboutIdleItems
-            sameCardinality
-            allowDicardElement
+            fromBucket {
+              bucketName
+              attributeName
+            }
+            onCollection {
+              bucketName
+              attributeName
+            }
+            alias
           }
           formulaAttribute {
             bucketName
@@ -6262,6 +6273,7 @@ export const FindProjectRootSectionsDocument = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -6396,6 +6408,7 @@ export const FindProjectRootSectionContainersDocument = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -6467,6 +6480,7 @@ export const FindProjectRootSectionContainersDocument = gql`
                 ... on StaticChoiceFieldConfig {
                   options {
                     id
+                    value: id
                     label
                     helpText
                   }
@@ -6596,6 +6610,7 @@ export const FindProjectFormContentDocument = gql`
           ... on StaticChoiceFieldConfig {
             options {
               id
+              value: id
               label
               helpText
             }
@@ -6624,6 +6639,7 @@ export const FindProjectFormContentDocument = gql`
         definition {
           id
           projectDefinitionId
+          path
           name
           isCollection
           instanciateByDefault
@@ -6654,6 +6670,7 @@ export const FindProjectFormContentDocument = gql`
             ... on StaticChoiceFieldConfig {
               options {
                 id
+                value: id
                 label
                 helpText
               }
@@ -6700,6 +6717,7 @@ export const FindProjectFormContentDocument = gql`
               id
               projectDefinitionId
               name
+              path
               isCollection
               instanciateByDefault
               ordinal
@@ -6729,6 +6747,7 @@ export const FindProjectFormContentDocument = gql`
                 ... on StaticChoiceFieldConfig {
                   options {
                     id
+                    value: id
                     label
                     helpText
                   }
@@ -6920,6 +6939,7 @@ export const FindDefinitionAggregateCollectionsDocument = gql`
             selected
             options {
               id
+              value: id
               label
               helpText
             }

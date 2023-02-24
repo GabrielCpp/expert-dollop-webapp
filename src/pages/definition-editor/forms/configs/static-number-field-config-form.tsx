@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { SelectOption } from "@mui/base";
 import {
   Field,
   remoteReferencePickerField,
-  SelectOption,
   useForm,
 } from "../../../../components/table-fields";
 import {
@@ -43,7 +43,7 @@ export function StaticNumberFieldConfigForm({
   const { formPath } = useForm({ name, parentPath });
   const { apollo, loader } = useServices();
   const formulaNodeFetcher = useApolloPageFetch<
-    SelectOption,
+    SelectOption<string> & { query: string },
     FindDefinitionFormulaFieldMixQuery,
     QueryFindDefinitionFormulaFieldMixArgs
   >({
@@ -56,7 +56,7 @@ export function StaticNumberFieldConfigForm({
   });
 
   const fetchFormulabyId = useApolloFetchItem<
-    SelectOption,
+    SelectOption<string> & { query: string },
     FindFormulaQuery,
     QueryFindFormulaArgs,
     "formulaId"

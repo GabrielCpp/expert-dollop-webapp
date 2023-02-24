@@ -1,23 +1,17 @@
-import {
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-  Tooltip,
-} from "@mui/material";
+import { FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
 import { ReactNode } from "react";
-import { FieldChildren, SelectOption } from "../form-field-record";
+import { applyT, FieldChildren } from "../form-field-record";
 import { FieldLabel } from "../views";
+import { SelectOption } from "@mui/base";
 
 interface RadiodProps extends FieldChildren {
-  options: SelectOption[];
-  label?: string;
-  title?: string;
+  options: SelectOption<string>[];
+  label?: ReactNode;
+  title?: ReactNode;
   startAdornment?: ReactNode;
 }
 
-export function radioField({
+export function RadioField({
   id,
   value,
   name,
@@ -29,7 +23,7 @@ export function radioField({
   t,
   options,
 }: RadiodProps) {
-  const translatedLabel = t(label);
+  const translatedLabel = applyT(t, label);
 
   return (
     <fieldset>
@@ -53,14 +47,10 @@ export function radioField({
       >
         {options.map((option) => (
           <FormControlLabel
-            key={option.id}
-            value={option.id}
+            key={option.value}
+            value={option.value}
             control={<Radio />}
-            label={
-              option.label && (
-                <FieldLabel title={option.title} label={option.label} t={t} />
-              )
-            }
+            label={option.label}
           />
         ))}
       </RadioGroup>

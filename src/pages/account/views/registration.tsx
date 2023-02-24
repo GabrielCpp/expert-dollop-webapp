@@ -7,7 +7,7 @@ import {
   Field,
   Form,
   STRING_VALIDATOR,
-  textField,
+  InlineTextField,
   useForm,
 } from "../../../components/table-fields";
 import {
@@ -61,7 +61,7 @@ export function Registration({
               path={formPath}
               defaultValue={""}
               name="organizationName"
-              component={textField}
+              component={InlineTextField}
               label="account.registration.company_name"
               t={t}
             />
@@ -74,7 +74,7 @@ export function Registration({
               name="email"
               label="account.registration.company_email"
               t={t}
-              component={textField}
+              component={InlineTextField}
             />
           </Grid>
         </Grid>

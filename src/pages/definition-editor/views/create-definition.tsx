@@ -9,7 +9,7 @@ import {
   Form,
   useRootForm,
   Field,
-  textField,
+  InlineTextField,
   STRING_VALIDATOR,
 } from "../../../components/table-fields";
 import {
@@ -50,7 +50,7 @@ export function CreateDefinition() {
       save={save}
     >
       <Field
-        component={textField}
+        component={InlineTextField}
         defaultValue={""}
         key="name"
         name="name"

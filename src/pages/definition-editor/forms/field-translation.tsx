@@ -3,7 +3,7 @@ import {
   ANY_STRING_VALIDATOR,
   Field,
   FormSection,
-  textField,
+  InlineTextField,
 } from "../../../components/table-fields";
 import { TranslationInput } from "../../../generated";
 
@@ -60,7 +60,7 @@ export function FieldTranslation({
         name={labels.label.name}
         key={labels.label.label}
         label={labels.label.label}
-        component={textField}
+        component={InlineTextField}
         t={t}
       />
       <Field
@@ -70,7 +70,7 @@ export function FieldTranslation({
         name={labels.helpText.name}
         key={labels.helpText.label}
         label={labels.helpText.label}
-        component={textField}
+        component={InlineTextField}
         t={t}
       />
     </FormSection>

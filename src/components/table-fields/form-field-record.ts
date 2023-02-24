@@ -1,5 +1,6 @@
 import { ErrorObject, AnySchema } from "ajv";
-import { flatten, head, isEqual, set, sortBy, startsWith, tail } from "lodash";
+import { flatten, isEqual, isString, set, sortBy, startsWith, tail } from "lodash";
+import { ReactNode } from "react";
 import { AjvFactory } from "../../services-def";
 import {
   ops,
@@ -11,8 +12,10 @@ import {
 } from "../../shared/redux-db";
 import { ReduxDatabase } from "../../shared/redux-db/database";
 import { FormTheme } from "./form-theme-context";
+import { SelectOption } from "@mui/base";
 
 export const FormFieldTableName = "form-field";
+export const FormFieldOptionTableName = "form-field-option";
 export type FormFieldError = ErrorObject<string, Record<string, any>, unknown>;
 export type TranslatedString = string | (() => JSX.Element) | JSX.Element;
 export type Translator = (key?: string | null) => TranslatedString;
@@ -26,10 +29,17 @@ export interface FieldChildren {
   formTheme: FormTheme;
 }
 
-export interface SelectOption {
-  id: string;
-  label: string;
-  title?: string;
+export function applyT(t: Translator, n:ReactNode): NonNullable<ReactNode> {
+  if(isString(n)) {
+    return t(n)
+  }
+
+  return n || ""
+}
+
+export interface OptionRecord extends SelectOption<string>, TableRecord {
+  title?: ReactNode;
+  tag?: string
 }
 
 export interface FormFieldRecord extends TableRecord {
@@ -45,6 +55,7 @@ export interface FormFieldRecord extends TableRecord {
 
 export function setupFormTables(database: ReduxDatabase): void {
   database.addTable(FormFieldTableName);
+  database.addTable(FormFieldOptionTableName);
 }
 
 export function createFormFieldRecord(
@@ -69,6 +80,8 @@ export function createFormFieldRecord(
     metadata: metadata || {},
   };
 }
+
+
 
 export function queryFieldsByTag(tag: string): Query {
   return QueryBuilder.fromTable(FormFieldTableName)
@@ -263,3 +276,27 @@ export const validateForm =
 
     return isValidForm;
   };
+
+
+  export function upsertFormFieldOpionsRecord(
+    database: ReduxDatabase,
+    records: OptionRecord[]
+  ): void {
+    database.getTable(FormFieldOptionTableName).upsertMany(records);
+  }
+  
+
+  export function deleteFormFieldOpionsRecord(
+    database: ReduxDatabase,
+    records: OptionRecord[]
+  ): void {
+    database.getTable(FormFieldOptionTableName).removeMany(records);
+  }
+  
+  export function queryFieldOptionsByTag(tag: string): Query {
+    return QueryBuilder.fromTable(FormFieldOptionTableName)
+      .where(ops("eq", recordParam("tag"), queryParam("tag")))
+      .bindParameters({
+        tag,
+      }).query;
+  }

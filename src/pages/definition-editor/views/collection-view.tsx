@@ -34,7 +34,7 @@ import {
   NamedFormSection,
   saveForm,
   switchField,
-  textField,
+  InlineTextField,
   USER_STRING_VALIDATOR,
 } from "../../../components/table-fields";
 import {
@@ -267,7 +267,7 @@ function AggregatesTable({
           path={[id]}
           name="name"
           t={t}
-          component={textField}
+          component={InlineTextField}
           textProps={{
             size: "small",
           }}
@@ -306,7 +306,7 @@ function AggregatesTable({
           path={[id]}
           name="ordinal"
           t={t}
-          component={textField}
+          component={InlineTextField}
           textProps={{
             size: "small",
           }}
@@ -467,7 +467,7 @@ function AggregateCollectionList({
           ))}
           <ListItem disablePadding>
             <AddButtonLinkFullWidth
-              label="definition_editor.side_panel.add_new_sub_section"
+              label="definition_editor.collection_view.add_aggregate"
               to={routes.render(DEFINITION_AGGREGATE_COLLECTION_ADD, params)}
             />
           </ListItem>

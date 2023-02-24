@@ -1,12 +1,12 @@
-import { Checkbox, FormControlLabel, Typography, Tooltip } from "@mui/material";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import { ReactNode } from "react";
 import { theme } from "../../../theme";
 import { FieldChildren } from "../form-field-record";
 import { FieldLabel } from "../views";
 
 interface CheckboxFieldProps extends FieldChildren {
-  label?: string;
-  title?: string;
+  label?: ReactNode;
+  title?: ReactNode;
   endAdornment?: ReactNode;
   checkboxProps?: Parameters<typeof Checkbox>[0];
 }

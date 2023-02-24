@@ -14,7 +14,7 @@ import {
   STRING_VALIDATOR,
   SelectField,
   FieldArrayElementPicker,
-  textField,
+  InlineTextField,
   useNodePickerState,
   getFieldValue,
   useFieldWatch,
@@ -63,7 +63,7 @@ export function CollectionAttributesSchema({
   );
   const removeCurrentElement = useCallback(() => {
     if (currentNodeId) {
-      remove(currentNodeId);
+      remove({ id: currentNodeId });
     }
 
     setCurrentNodeId(elements.find((e) => e.id !== currentNodeId)?.id);
@@ -71,7 +71,7 @@ export function CollectionAttributesSchema({
 
   const addElement = useCallback(() => {
     insert({
-      after: (e) => setCurrentNodeId(e.id),
+      after: ({ element: e }) => setCurrentNodeId(e.id),
     });
   }, [insert, setCurrentNodeId]);
 
@@ -207,7 +207,7 @@ function CollectionAttributeSchema({
         name={labels.schema.name.name}
         label={labels.schema.name.label}
         t={t}
-        component={textField}
+        component={InlineTextField}
       />
       <Field
         id={configTypeId}

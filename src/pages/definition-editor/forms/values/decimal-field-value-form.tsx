@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import {
   DECIMAL_VALIDATOR,
   Field,
-  textField,
+  InlineTextField,
   useForm,
 } from "../../../../components/table-fields";
 import { DecimalFieldConfig, DecimalFieldValue } from "../../../../generated";
@@ -34,7 +34,7 @@ export function DecimalFieldValueForm({
       key="numeric"
       label={label}
       t={t}
-      component={textField}
+      component={InlineTextField}
       unit={config.unit}
     />
   );

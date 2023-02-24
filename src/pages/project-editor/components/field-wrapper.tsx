@@ -2,8 +2,9 @@ import { Tooltip } from "@mui/material";
 import {
   checkboxField,
   Field,
-  radioField,
-  textField,
+  FieldLabel,
+  RadioField,
+  InlineTextField,
 } from "../../../components/table-fields";
 import { useDbTranslation } from "../../../components/translation";
 import {
@@ -90,7 +91,7 @@ export function FieldWrapper({
         id={node.id}
         label={definition.translations.label}
         title={definition.translations.helpTextName}
-        component={textField}
+        component={InlineTextField}
         unit={unit}
         formatter={formatter}
         {...commonProps}
@@ -115,11 +116,16 @@ export function FieldWrapper({
   }
 
   if (fieldType === "StaticChoiceFieldConfig") {
-    const choices = definition.fieldDetails as StaticChoiceFieldConfig;
+    const options = (
+      definition.fieldDetails as StaticChoiceFieldConfig
+    ).options.map((x) => ({
+      value: x.id,
+      label: <FieldLabel title={x.helpText} label={x.label} t={dbTrans} />,
+    }));
 
     return (
       <Field
-        options={choices.options}
+        options={options}
         validator={validator}
         path={node.path}
         name={definition.name}
@@ -127,7 +133,7 @@ export function FieldWrapper({
         id={node.id}
         label={definition.translations.label}
         title={definition.translations.helpTextName}
-        component={radioField}
+        component={RadioField}
         {...commonProps}
       />
     );

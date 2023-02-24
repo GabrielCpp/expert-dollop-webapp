@@ -1,19 +1,14 @@
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-  Tooltip,
-} from "@mui/material";
-import { FieldChildren, SelectOption } from "../form-field-record";
+import { SelectOption } from "@mui/base";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { ReactNode } from "react";
+import { applyT, FieldChildren } from "../form-field-record";
 import { DefaultEmptyId } from "../hooks/use-field";
 
 interface SelectProps extends FieldChildren {
-  options: SelectOption[];
-  label?: string;
-  title?: string;
-  fallbackSelection?: Omit<SelectOption, "id">;
+  options: SelectOption<string>[];
+  label?: ReactNode;
+  title?: ReactNode;
+  fallbackSelection?: Omit<SelectOption<string>, "id" | "value">;
 }
 
 export function SelectField({
@@ -29,7 +24,7 @@ export function SelectField({
   options,
   formTheme,
 }: SelectProps) {
-  const isValueInOptions = options.some((o) => o.id === value);
+  const isValueInOptions = options.some((o) => o.value === value);
 
   if (fallbackSelection === undefined && !isValueInOptions) {
     return <></>;
@@ -38,36 +33,24 @@ export function SelectField({
   return (
     <FormControl error={errors.length > 0} fullWidth>
       <InputLabel shrink id={id}>
-        {t(label)}
+        {applyT(t, label)}
       </InputLabel>
       <Select
         value={isValueInOptions ? value : DefaultEmptyId}
         onChange={(e) => onChange(e.target.value)}
-        label={t(label)}
+        label={applyT(t, label)}
         labelId={id}
         id={id}
         size={formTheme.size}
       >
         {fallbackSelection && !isValueInOptions && (
           <MenuItem key={DefaultEmptyId} value={DefaultEmptyId}>
-            {fallbackSelection.title === undefined ? (
-              <Typography>{t(fallbackSelection.label)}</Typography>
-            ) : (
-              <Tooltip title={t(fallbackSelection.title)}>
-                <Typography>{t(fallbackSelection.label)}</Typography>
-              </Tooltip>
-            )}
+            {fallbackSelection.label}
           </MenuItem>
         )}
         {options.map((option) => (
-          <MenuItem key={option.id} value={option.id}>
-            {option.title === undefined ? (
-              <Typography>{t(option.label)}</Typography>
-            ) : (
-              <Tooltip title={t(option.title)}>
-                <Typography>{t(option.label)}</Typography>
-              </Tooltip>
-            )}
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
           </MenuItem>
         ))}
       </Select>

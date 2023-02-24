@@ -96,7 +96,7 @@ export const nodeFormLabels = {
       label: "definition_editor.node_form.section_config_label",
       options: [
         {
-          id: FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG,
+          value: FieldDetailsType.COLLAPSIBLE_CONTAINER_FIELD_CONFIG,
           label:
             "definition_editor.node_form.section_config_types_collapsible_container_field_config",
         },
@@ -120,27 +120,27 @@ export const nodeFormLabels = {
       name: "kind",
       options: [
         {
-          id: FieldDetailsType.STRING_FIELD_CONFIG,
+          value: FieldDetailsType.STRING_FIELD_CONFIG,
           label: "definition_editor.node_form.field_type_option_string",
         },
         {
-          id: FieldDetailsType.INT_FIELD_CONFIG,
+          value: FieldDetailsType.INT_FIELD_CONFIG,
           label: "definition_editor.node_form.field_type_option_integer",
         },
         {
-          id: FieldDetailsType.DECIMAL_FIELD_CONFIG,
+          value: FieldDetailsType.DECIMAL_FIELD_CONFIG,
           label: "definition_editor.node_form.field_type_option_decimal",
         },
         {
-          id: FieldDetailsType.BOOL_FIELD_CONFIG,
+          value: FieldDetailsType.BOOL_FIELD_CONFIG,
           label: "definition_editor.node_form.field_type_option_boolean",
         },
         {
-          id: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
+          value: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
           label: "definition_editor.node_form.field_type_option_choice",
         },
         {
-          id: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG,
+          value: FieldDetailsType.STATIC_NUMBER_FIELD_CONFIG,
           label: "definition_editor.node_form.field_type_option_computation",
         },
       ],
@@ -243,12 +243,12 @@ export const nodeFormLabels = {
       defaultValue: "SET_VISIBILITY",
       options: [
         {
-          id: "CHANGE_NAME",
+          value: "CHANGE_NAME",
           label:
             "definition_editor.node_form.triggers_action_option_change_name_option",
         },
         {
-          id: "SET_VISIBILITY",
+          value: "SET_VISIBILITY",
           label:
             "definition_editor.node_form.triggers_action_option_set_visibility_option",
         },
@@ -290,23 +290,23 @@ export const collectionLabels = {
         label: "definition_editor.collection_form.field_kind",
         options: [
           {
-            id: FieldDetailsType.STRING_FIELD_CONFIG,
+            value: FieldDetailsType.STRING_FIELD_CONFIG,
             label: "definition_editor.node_form.field_type_option_string",
           },
           {
-            id: FieldDetailsType.INT_FIELD_CONFIG,
+            value: FieldDetailsType.INT_FIELD_CONFIG,
             label: "definition_editor.node_form.field_type_option_integer",
           },
           {
-            id: FieldDetailsType.DECIMAL_FIELD_CONFIG,
+            value: FieldDetailsType.DECIMAL_FIELD_CONFIG,
             label: "definition_editor.node_form.field_type_option_decimal",
           },
           {
-            id: FieldDetailsType.BOOL_FIELD_CONFIG,
+            value: FieldDetailsType.BOOL_FIELD_CONFIG,
             label: "definition_editor.node_form.field_type_option_boolean",
           },
           {
-            id: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
+            value: FieldDetailsType.STATIC_CHOICE_FIELD_CONFIG,
             label: "definition_editor.node_form.field_type_option_choice",
           },
         ],

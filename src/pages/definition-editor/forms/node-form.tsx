@@ -6,7 +6,7 @@ import {
   Field,
   Form,
   INT_VALIDATOR,
-  textField,
+  InlineTextField,
   useFieldsWatchCallack,
   useForm,
   useHiddenField,
@@ -89,7 +89,7 @@ export function NodeForm({
         name={labels.name.name}
         label={labels.name.label}
         t={t}
-        component={textField}
+        component={InlineTextField}
       />
       <Field
         validator={BOOLEAN_VALIDATOR}
@@ -119,7 +119,7 @@ export function NodeForm({
         name={labels.ordinal.name}
         label={t(labels.ordinal.label)}
         t={t}
-        component={textField}
+        component={InlineTextField}
       />
       <MetaConfigForm
         parentPath={formPath}
